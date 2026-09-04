@@ -6,7 +6,8 @@
 	"require-dev": {
 		"wp-coding-standards/wpcs": "^3.1",
 		"phpcompatibility/phpcompatibility-wp": "^2.1",
-		"dealerdirect/phpcodesniffer-composer-installer": "^1.0"
+		"dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+		"phpunit/phpunit": "^11.5"
 	},
 	"config": {
 		"allow-plugins": {
@@ -15,6 +16,7 @@
 	},
 	"scripts": {
 		"lint": "phpcs",
-		"lint:fix": "phpcbf"
+		"lint:fix": "phpcbf",
+		"test": "phpunit"
 	}
 }

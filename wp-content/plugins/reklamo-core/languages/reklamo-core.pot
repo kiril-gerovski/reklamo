@@ -1,0 +1,512 @@
+# Copyright (C) 2026 Nocturn AI
+# This file is distributed under the GPL-2.0-or-later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Reklamo Core 0.2.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/reklamo-core\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-09-04T20:26:28+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: reklamo-core\n"
+
+#. Plugin Name of the plugin
+#: reklamo-core.php
+msgid "Reklamo Core"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: reklamo-core.php
+msgid "https://reklamo.bg"
+msgstr ""
+
+#. Description of the plugin
+#: reklamo-core.php
+msgid "Business logic for Reklamo.bg — order statuses, logo uploads, mockups and approvals, emails. The theme is presentation only; everything that touches orders lives here."
+msgstr ""
+
+#. Author of the plugin
+#: reklamo-core.php
+msgid "Nocturn AI"
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:41
+msgid "Mockup & approval"
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:64
+msgid "Status"
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:66
+msgid "Customer logo"
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:74
+msgid "No logo attached to this order."
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:77
+msgid "Mockups sent"
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:89
+msgid "— approved"
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:89
+msgid "— changes requested"
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:92
+msgid "— awaiting the customer"
+msgstr ""
+
+#. translators: %s: expiry date
+#: includes/class-reklamo-admin-order.php:94
+#, php-format
+msgid "(link valid until %s)"
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:102
+msgid "No mockup sent yet."
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:106
+msgid "Approved"
+msgstr ""
+
+#. translators: %d: mockup revision
+#: includes/class-reklamo-admin-order.php:108
+#, php-format
+msgid "(mockup #%d)"
+msgstr ""
+
+#. translators: %d: next mockup revision number
+#: includes/class-reklamo-admin-order.php:115
+#, php-format
+msgid "Send mockup #%d"
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:118
+msgid "PDF, PNG or JPG, up to 20 MB. The customer receives an email with a one-time approval link (valid 14 days)."
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:133
+msgid "Send to customer"
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:154
+msgid "You do not have permission to do this."
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:159
+msgid "Order not found."
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:165
+#: includes/class-reklamo-storage.php:84
+msgid "Please choose a file."
+msgstr ""
+
+#. translators: %d: mockup revision
+#: includes/class-reklamo-admin-order.php:177
+#, php-format
+msgid "Mockup #%d sent to the customer for approval."
+msgstr ""
+
+#. translators: %d: mockup revision
+#: includes/class-reklamo-admin-order.php:185
+#, php-format
+msgid "Mockup #%d sent. The customer has the approval link by email."
+msgstr ""
+
+#: includes/class-reklamo-approval.php:155
+msgid "Please describe the changes you would like."
+msgstr ""
+
+#. translators: 1: mockup revision number, 2: IP address
+#: includes/class-reklamo-approval.php:183
+#, php-format
+msgid "Customer approved mockup #%1$d (IP %2$s)."
+msgstr ""
+
+#. translators: 1: mockup revision number, 2: customer message
+#: includes/class-reklamo-approval.php:195
+#, php-format
+msgid "Customer requested changes to mockup #%1$d: %2$s"
+msgstr ""
+
+#: includes/class-reklamo-approval.php:200
+msgid "Changes requested — back to the designer."
+msgstr ""
+
+#: includes/class-reklamo-cart.php:53
+msgid "Your logo"
+msgstr ""
+
+#: includes/class-reklamo-cart.php:59
+msgid "Instructions for the designer (optional)"
+msgstr ""
+
+#: includes/class-reklamo-cart.php:60
+msgid "Example: gold logo, centered on the front cover of the notebook and engraved on the pen."
+msgstr ""
+
+#: includes/class-reklamo-cart.php:62
+msgid "No payment is taken at this stage."
+msgstr ""
+
+#. translators: %s: product page link
+#: includes/class-reklamo-cart.php:83
+#, php-format
+msgid "Please upload your logo on the product page: %s"
+msgstr ""
+
+#: includes/class-reklamo-cart.php:92
+msgid "The form has expired. Please reload the page and try again."
+msgstr ""
+
+#. translators: %d: character limit
+#: includes/class-reklamo-cart.php:98
+#, php-format
+msgid "The note is too long (maximum %d characters)."
+msgstr ""
+
+#: includes/class-reklamo-cart.php:102
+msgid "Please upload your logo file."
+msgstr ""
+
+#: includes/class-reklamo-cart.php:135
+#: includes/class-reklamo-cart.php:189
+msgid "Logo"
+msgstr ""
+
+#: includes/class-reklamo-cart.php:140
+#: includes/class-reklamo-cart.php:154
+msgid "Note to designer"
+msgstr ""
+
+#: includes/class-reklamo-gateway.php:35
+msgid "Request without payment (Reklamo)"
+msgstr ""
+
+#: includes/class-reklamo-gateway.php:36
+msgid "The order is accepted without payment. Bank details and a 50% deposit request are sent after the customer approves the mockup."
+msgstr ""
+
+#: includes/class-reklamo-gateway.php:53
+msgid "Enable/Disable"
+msgstr ""
+
+#: includes/class-reklamo-gateway.php:55
+msgid "Enable request without payment"
+msgstr ""
+
+#: includes/class-reklamo-gateway.php:59
+msgid "Title"
+msgstr ""
+
+#: includes/class-reklamo-gateway.php:61
+msgid "Shown next to the option at checkout."
+msgstr ""
+
+#: includes/class-reklamo-gateway.php:62
+msgid "Request without payment"
+msgstr ""
+
+#: includes/class-reklamo-gateway.php:66
+msgid "Description"
+msgstr ""
+
+#: includes/class-reklamo-gateway.php:68
+msgid "Shown under the option at checkout."
+msgstr ""
+
+#: includes/class-reklamo-gateway.php:69
+msgid "No payment is taken at this stage. We prepare a mockup for your approval and send bank details afterwards."
+msgstr ""
+
+#: includes/class-reklamo-gateway.php:73
+msgid "Thank-you page text"
+msgstr ""
+
+#: includes/class-reklamo-gateway.php:75
+msgid "Shown on the order-received page."
+msgstr ""
+
+#: includes/class-reklamo-gateway.php:76
+msgid "Thank you! You will receive a mockup for approval within 24 business hours."
+msgstr ""
+
+#: includes/class-reklamo-gateway.php:92
+#: includes/class-reklamo-gateway.php:115
+#: includes/class-reklamo-statuses.php:128
+msgid "Request received. No payment taken."
+msgstr ""
+
+#: includes/class-reklamo-gateway.php:121
+msgid "Your request has been received. No payment is taken at this stage — our designer will send you a mockup for approval within 24 business hours."
+msgstr ""
+
+#: includes/class-reklamo-statuses.php:42
+msgid "Request received"
+msgstr ""
+
+#: includes/class-reklamo-statuses.php:43
+msgid "Mockup sent"
+msgstr ""
+
+#: includes/class-reklamo-statuses.php:44
+msgid "Approved — awaiting deposit"
+msgstr ""
+
+#. translators: %s: number of orders
+#: includes/class-reklamo-statuses.php:56
+#, php-format
+msgid "Request received <span class=\"count\">(%s)</span>"
+msgid_plural "Request received <span class=\"count\">(%s)</span>"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %s: number of orders
+#: includes/class-reklamo-statuses.php:58
+#, php-format
+msgid "Mockup sent <span class=\"count\">(%s)</span>"
+msgid_plural "Mockup sent <span class=\"count\">(%s)</span>"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %s: number of orders
+#: includes/class-reklamo-statuses.php:60
+#, php-format
+msgid "Approved — awaiting deposit <span class=\"count\">(%s)</span>"
+msgid_plural "Approved — awaiting deposit <span class=\"count\">(%s)</span>"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: 1: previous status, 2: new status
+#: includes/class-reklamo-statuses.php:103
+#, php-format
+msgid "Warning: status changed from \"%1$s\" to \"%2$s\", which is outside the normal flow."
+msgstr ""
+
+#. translators: %s: server upload limit, e.g. 64 MB
+#: includes/class-reklamo-storage.php:91
+#, php-format
+msgid "The file is larger than the server currently accepts (%s). Please send it to us by email for now."
+msgstr ""
+
+#: includes/class-reklamo-storage.php:97
+#: includes/class-reklamo-storage.php:100
+msgid "The upload did not complete. Please try again."
+msgstr ""
+
+#. translators: %s: comma-separated list of allowed extensions
+#: includes/class-reklamo-storage.php:110
+#, php-format
+msgid "This file type is not accepted. Allowed: %s."
+msgstr ""
+
+#: includes/class-reklamo-storage.php:118
+msgid "The file is empty."
+msgstr ""
+
+#. translators: %s: size limit
+#: includes/class-reklamo-storage.php:122
+#, php-format
+msgid "The file must be smaller than %s."
+msgstr ""
+
+#: includes/class-reklamo-storage.php:133
+msgid "This file type is not accepted."
+msgstr ""
+
+#: includes/class-reklamo-storage.php:136
+msgid "The file does not look like an image."
+msgstr ""
+
+#: includes/class-reklamo-storage.php:145
+msgid "The file could not be saved. Please try again."
+msgstr ""
+
+#: includes/class-reklamo-storage.php:221
+msgid "You do not have permission to download this file."
+msgstr ""
+
+#: includes/class-reklamo-storage.php:225
+#: includes/class-reklamo-storage.php:238
+msgid "File not found."
+msgstr ""
+
+#: includes/emails/class-reklamo-email-mockup-sent.php:24
+msgid "Mockup sent (Reklamo)"
+msgstr ""
+
+#: includes/emails/class-reklamo-email-mockup-sent.php:25
+msgid "Sent to the customer when the designer uploads a mockup. Contains the one-time approval link."
+msgstr ""
+
+#: includes/emails/class-reklamo-email-mockup-sent.php:40
+msgid "Your mockup for order {order_number} is ready — {site_title}"
+msgstr ""
+
+#: includes/emails/class-reklamo-email-mockup-sent.php:44
+#: templates/approval.php:102
+msgid "Your mockup is ready"
+msgstr ""
+
+#: includes/emails/class-reklamo-email-mockup-sent.php:48
+msgid "Hello {customer_first_name}, our designer has prepared mockup #{revision} of your package. Please take a look and approve it, or tell us what to change. The link is personal and valid for 14 days."
+msgstr ""
+
+#: includes/emails/class-reklamo-email-mockup-sent.php:52
+msgid "View and approve the mockup"
+msgstr ""
+
+#: includes/emails/class-reklamo-email-mockup-sent.php:56
+msgid "No payment is taken at this stage. After approval we will send our bank details and a request for a 50% deposit."
+msgstr ""
+
+#: includes/emails/class-reklamo-email-mockup-sent.php:62
+#: includes/emails/class-reklamo-email-request-received.php:51
+msgid "Main text"
+msgstr ""
+
+#: includes/emails/class-reklamo-email-mockup-sent.php:65
+msgid "Placeholders: {order_number}, {customer_first_name}, {revision}, {site_title}"
+msgstr ""
+
+#: includes/emails/class-reklamo-email-mockup-sent.php:70
+msgid "Button label"
+msgstr ""
+
+#: includes/emails/class-reklamo-email-request-received.php:15
+msgid "Request received (Reklamo)"
+msgstr ""
+
+#: includes/emails/class-reklamo-email-request-received.php:16
+msgid "Sent to the customer when a request with a logo is placed. Confirms that no payment is taken yet."
+msgstr ""
+
+#: includes/emails/class-reklamo-email-request-received.php:32
+msgid "We received your request {order_number} — {site_title}"
+msgstr ""
+
+#: includes/emails/class-reklamo-email-request-received.php:36
+msgid "Thank you, {customer_first_name}!"
+msgstr ""
+
+#: includes/emails/class-reklamo-email-request-received.php:40
+msgid "We received your request and your logo. Our designer is now preparing a mockup of the selected package — you will get it by email for approval within 24 business hours."
+msgstr ""
+
+#: includes/emails/class-reklamo-email-request-received.php:44
+msgid "No payment is taken at this stage. After you approve the mockup we will send our bank details and a request for a 50% deposit."
+msgstr ""
+
+#: includes/emails/class-reklamo-email-request-received.php:54
+msgid "Placeholders: {order_number}, {order_date}, {customer_first_name}, {site_title}"
+msgstr ""
+
+#: reklamo-core.php:70
+msgid "Reklamo Core needs WooCommerce to be active."
+msgstr ""
+
+#: templates/approval.php:45
+msgid "Mockup approval"
+msgstr ""
+
+#: templates/approval.php:70
+msgid "This link is not valid"
+msgstr ""
+
+#: templates/approval.php:71
+msgid "Please open the link exactly as it appears in the email, or contact us."
+msgstr ""
+
+#: templates/approval.php:74
+msgid "Too many attempts"
+msgstr ""
+
+#: templates/approval.php:75
+msgid "Please try again in an hour."
+msgstr ""
+
+#: templates/approval.php:78
+msgid "This link has expired"
+msgstr ""
+
+#: templates/approval.php:79
+msgid "Approval links are valid for 14 days. Reply to our email and we will send you a new one."
+msgstr ""
+
+#: templates/approval.php:82
+msgid "This mockup has already been processed"
+msgstr ""
+
+#: templates/approval.php:86
+msgid "You approved it — thank you. We will be in touch about the next step."
+msgstr ""
+
+#: templates/approval.php:88
+msgid "You requested changes. Our designer is working on a new version."
+msgstr ""
+
+#: templates/approval.php:94
+msgid "Approved — thank you!"
+msgstr ""
+
+#: templates/approval.php:95
+msgid "We will now send you our bank details and a request for the 50% deposit. Production starts once it arrives."
+msgstr ""
+
+#: templates/approval.php:98
+msgid "Thank you — we received your comments"
+msgstr ""
+
+#: templates/approval.php:99
+msgid "Our designer will prepare a revised mockup and you will get a new email to review it."
+msgstr ""
+
+#. translators: 1: order number, 2: mockup revision
+#: templates/approval.php:107
+#, php-format
+msgid "Order %1$s · mockup #%2$d"
+msgstr ""
+
+#: templates/approval.php:122
+msgid "Mockup"
+msgstr ""
+
+#: templates/approval.php:124
+msgid "Download the mockup (PDF)"
+msgstr ""
+
+#: templates/approval.php:138
+msgid "Approve the mockup"
+msgstr ""
+
+#: templates/approval.php:142
+msgid "I would like changes"
+msgstr ""
+
+#: templates/approval.php:143
+msgid "Describe what should change…"
+msgstr ""
+
+#: templates/approval.php:144
+msgid "Request changes"
+msgstr ""
+
+#: templates/approval.php:147
+msgid "No payment is taken at this stage. After approval we will send bank details for a 50% deposit."
+msgstr ""
+
+#: templates/emails/reklamo-mockup-sent.php:30
+msgid "If the button does not work, copy this link into your browser:"
+msgstr ""

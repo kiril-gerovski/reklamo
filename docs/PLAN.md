@@ -228,6 +228,22 @@ If a change exists only in your local database, it does not exist. That script i
 
 ---
 
+## Phase 1 — status: DONE (2026-09-04)
+
+The walking skeleton is clickable end to end and verified in a browser: product page → logo upload (`.ai`, sniffed as `application/pdf`) + designer note → block checkout with the `reklamo_request` gateway → order in `rq-received` (HPOS) with the logo claimed to the line item → Bulgarian "request received" email + core admin "new order" email → admin metabox uploads a mockup → Bulgarian "mockup ready" email with a one-time link → GET is idempotent (two scanner-style fetches change nothing) → POST approves exactly once → replay shows "already processed" → order in `rq-approved`. Second cycle (mockup #2, "request changes", logged out via curl) also passes. PHPCS clean; PHPUnit covers the token class; Playwright spec in `tests/e2e/`.
+
+Deliberately unhardened (later phases): plain upload (no chunking), cheap MIME sanity only, no SVG sanitiser, three statuses, two emails, no reminders.
+
+Lessons that changed the code:
+- **Do not share a text domain between theme and plugin.** `WP_Textdomain_Registry` keeps one path per domain; the theme's registration displaced the plugin's and its `.mo` was never loaded. Plugin now uses `reklamo-core`; plugin `.mo` files are named `{domain}-{locale}.mo`.
+- **`APACHE_RUN_USER=#1000` alone leaves PHP running as root** in the official image: Apache's `unixd` needs a passwd entry for the uid (AH02155) and silently keeps children as root. Compose now remaps `www-data` to uid/gid 1000 before starting Apache.
+- **Deleting a bind-mounted directory under a running container** leaves the container holding the old inode; every later `chown`/`mkdir` on the host is invisible to it. `reset.sh` documents the order (down, then rm).
+- Two hook names from the architecture research were wrong and are corrected from source: the filter is `wc_order_is_editable`, and the block gateway reads data via `wcSettings.getPaymentMethodData(name)`.
+- The "request received" email must be first-entry-only: the order legitimately returns to `rq-received` after every "request changes".
+- A metabox cannot contain its own `<form>` (it sits inside the order form); the mockup upload uses HTML5 `form="…"` attributes pointing at a form printed in `admin_footer`.
+
+Open for Phase 2/3: upload dir diagnostics screen, chunking, magic-byte sniffer, SVG handling, remaining statuses/emails, `rq-changes` as a distinct status.
+
 ## Phase 0 — status: DONE (2026-09-04)
 
 Verified on the dev VM: `scripts/setup.sh` → Bulgarian storefront on :8080, WP 7.1 + WooCommerce 11.1.0 (pinned), HPOS enabled, block Cart/Checkout, 4 real packages, menus, free-shipping zone BG, Mailpit capturing mail through the plugin's `phpmailer_init` path. A test order placed through the block checkout via Playwright landed in `wp_wc_orders` and produced two Bulgarian emails. `scripts/seed.sh` is idempotent (two consecutive runs, no changes). PHPCS clean.

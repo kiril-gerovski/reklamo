@@ -1,0 +1,508 @@
+# Bulgarian translation of Reklamo Core. Source strings are English; Bulgarian UI text lives here.
+# Plugin .mo files must be named {domain}-{locale}.mo. Rebuild: scripts/wp i18n make-mo wp-content/plugins/reklamo-core/languages (file: reklamo-core-bg_BG.po)
+msgid ""
+msgstr ""
+"Project-Id-Version: Reklamo Core 0.2.0\n"
+"Language: bg_BG\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Domain: reklamo-core\n"
+
+#. Plugin Name of the plugin
+#: reklamo-core.php
+msgid "Reklamo Core"
+msgstr "Reklamo Core"
+
+#. Plugin URI of the plugin
+#: reklamo-core.php
+msgid "https://reklamo.bg"
+msgstr "https://reklamo.bg"
+
+#. Description of the plugin
+#: reklamo-core.php
+msgid "Business logic for Reklamo.bg — order statuses, logo uploads, mockups and approvals, emails. The theme is presentation only; everything that touches orders lives here."
+msgstr "Бизнес логика за Reklamo.bg — статуси на поръчки, качване на лога, визуализации и одобрения, имейли. Темата е само презентация; всичко, което засяга поръчки, живее тук."
+
+#. Author of the plugin
+#: reklamo-core.php
+msgid "Nocturn AI"
+msgstr "Nocturn AI"
+
+#: includes/class-reklamo-admin-order.php:41
+msgid "Mockup & approval"
+msgstr "Визуализация и одобрение"
+
+#: includes/class-reklamo-admin-order.php:64
+msgid "Status"
+msgstr "Статус"
+
+#: includes/class-reklamo-admin-order.php:66
+msgid "Customer logo"
+msgstr "Лого на клиента"
+
+#: includes/class-reklamo-admin-order.php:74
+msgid "No logo attached to this order."
+msgstr "Към тази поръчка няма прикачено лого."
+
+#: includes/class-reklamo-admin-order.php:77
+msgid "Mockups sent"
+msgstr "Изпратени визуализации"
+
+#: includes/class-reklamo-admin-order.php:89
+msgid "— approved"
+msgstr "— одобрена"
+
+#: includes/class-reklamo-admin-order.php:89
+msgid "— changes requested"
+msgstr "— заявени корекции"
+
+#: includes/class-reklamo-admin-order.php:92
+msgid "— awaiting the customer"
+msgstr "— чака клиента"
+
+#. translators: %s: expiry date
+#: includes/class-reklamo-admin-order.php:94
+#, php-format
+msgid "(link valid until %s)"
+msgstr "(връзката е валидна до %s)"
+
+#: includes/class-reklamo-admin-order.php:102
+msgid "No mockup sent yet."
+msgstr "Още не е изпратена визуализация."
+
+#: includes/class-reklamo-admin-order.php:106
+msgid "Approved"
+msgstr "Одобрена"
+
+#. translators: %d: mockup revision
+#: includes/class-reklamo-admin-order.php:108
+#, php-format
+msgid "(mockup #%d)"
+msgstr "(визуализация №%d)"
+
+#. translators: %d: next mockup revision number
+#: includes/class-reklamo-admin-order.php:115
+#, php-format
+msgid "Send mockup #%d"
+msgstr "Изпрати визуализация №%d"
+
+#: includes/class-reklamo-admin-order.php:118
+msgid "PDF, PNG or JPG, up to 20 MB. The customer receives an email with a one-time approval link (valid 14 days)."
+msgstr "PDF, PNG или JPG до 20 MB. Клиентът получава имейл с еднократна връзка за одобрение (валидна 14 дни)."
+
+#: includes/class-reklamo-admin-order.php:133
+msgid "Send to customer"
+msgstr "Изпрати на клиента"
+
+#: includes/class-reklamo-admin-order.php:154
+msgid "You do not have permission to do this."
+msgstr "Нямате права за това действие."
+
+#: includes/class-reklamo-admin-order.php:159
+msgid "Order not found."
+msgstr "Поръчката не е намерена."
+
+#: includes/class-reklamo-admin-order.php:165
+#: includes/class-reklamo-storage.php:81
+msgid "Please choose a file."
+msgstr "Моля, изберете файл."
+
+#. translators: %d: mockup revision
+#: includes/class-reklamo-admin-order.php:177
+#, php-format
+msgid "Mockup #%d sent to the customer for approval."
+msgstr "Визуализация №%d е изпратена на клиента за одобрение."
+
+#. translators: %d: mockup revision
+#: includes/class-reklamo-admin-order.php:185
+#, php-format
+msgid "Mockup #%d sent. The customer has the approval link by email."
+msgstr "Визуализация №%d е изпратена. Клиентът получи връзката за одобрение по имейл."
+
+#: includes/class-reklamo-approval.php:154
+msgid "Please describe the changes you would like."
+msgstr "Моля, опишете какви промени желаете."
+
+#. translators: 1: mockup revision number, 2: IP address
+#: includes/class-reklamo-approval.php:182
+#, php-format
+msgid "Customer approved mockup #%1$d (IP %2$s)."
+msgstr "Клиентът одобри визуализация №%1$d (IP %2$s)."
+
+#. translators: 1: mockup revision number, 2: customer message
+#: includes/class-reklamo-approval.php:194
+#, php-format
+msgid "Customer requested changes to mockup #%1$d: %2$s"
+msgstr "Клиентът заяви корекции по визуализация №%1$d: %2$s"
+
+#: includes/class-reklamo-approval.php:199
+msgid "Changes requested — back to the designer."
+msgstr "Заявени корекции — обратно при дизайнера."
+
+#: includes/class-reklamo-cart.php:53
+msgid "Your logo"
+msgstr "Вашето лого"
+
+#: includes/class-reklamo-cart.php:59
+msgid "Instructions for the designer (optional)"
+msgstr "Инструкции към дизайнера (по желание)"
+
+#: includes/class-reklamo-cart.php:60
+msgid "Example: gold logo, centered on the front cover of the notebook and engraved on the pen."
+msgstr "Пример: логото да бъде златно, центрирано на предната корица на тефтера и гравирано на химикалката."
+
+#: includes/class-reklamo-cart.php:62
+msgid "No payment is taken at this stage."
+msgstr "Не се извършва плащане на този етап."
+
+#. translators: %s: product page link
+#: includes/class-reklamo-cart.php:83
+#, php-format
+msgid "Please upload your logo on the product page: %s"
+msgstr "Моля, качете логото си от страницата на продукта: %s"
+
+#: includes/class-reklamo-cart.php:92
+msgid "The form has expired. Please reload the page and try again."
+msgstr "Формата е изтекла. Моля, презаредете страницата и опитайте отново."
+
+#. translators: %d: character limit
+#: includes/class-reklamo-cart.php:98
+#, php-format
+msgid "The note is too long (maximum %d characters)."
+msgstr "Бележката е твърде дълга (максимум %d символа)."
+
+#: includes/class-reklamo-cart.php:102
+msgid "Please upload your logo file."
+msgstr "Моля, качете файл с Вашето лого."
+
+#: includes/class-reklamo-cart.php:135
+#: includes/class-reklamo-cart.php:189
+msgid "Logo"
+msgstr "Лого"
+
+#: includes/class-reklamo-cart.php:140
+#: includes/class-reklamo-cart.php:154
+msgid "Note to designer"
+msgstr "Бележка към дизайнера"
+
+#: includes/class-reklamo-gateway.php:35
+msgid "Request without payment (Reklamo)"
+msgstr "Заявка без плащане (Reklamo)"
+
+#: includes/class-reklamo-gateway.php:36
+msgid "The order is accepted without payment. Bank details and a 50% deposit request are sent after the customer approves the mockup."
+msgstr "Поръчката се приема без плащане. Банковите данни и искането за 50% аванс се изпращат след като клиентът одобри визуализацията."
+
+#: includes/class-reklamo-gateway.php:53
+msgid "Enable/Disable"
+msgstr "Включено/Изключено"
+
+#: includes/class-reklamo-gateway.php:55
+msgid "Enable request without payment"
+msgstr "Включи заявка без плащане"
+
+#: includes/class-reklamo-gateway.php:59
+msgid "Title"
+msgstr "Заглавие"
+
+#: includes/class-reklamo-gateway.php:61
+msgid "Shown next to the option at checkout."
+msgstr "Показва се до опцията при поръчка."
+
+#: includes/class-reklamo-gateway.php:62
+msgid "Request without payment"
+msgstr "Заявка без плащане"
+
+#: includes/class-reklamo-gateway.php:66
+msgid "Description"
+msgstr "Описание"
+
+#: includes/class-reklamo-gateway.php:68
+msgid "Shown under the option at checkout."
+msgstr "Показва се под опцията при поръчка."
+
+#: includes/class-reklamo-gateway.php:69
+msgid "No payment is taken at this stage. We prepare a mockup for your approval and send bank details afterwards."
+msgstr "На този етап не се извършва плащане. Подготвяме визуализация за Ваше одобрение и след това изпращаме банковите данни."
+
+#: includes/class-reklamo-gateway.php:73
+msgid "Thank-you page text"
+msgstr "Текст на страницата след поръчка"
+
+#: includes/class-reklamo-gateway.php:75
+msgid "Shown on the order-received page."
+msgstr "Показва се на страницата „Получена поръчка“."
+
+#: includes/class-reklamo-gateway.php:76
+msgid "Thank you! You will receive a mockup for approval within 24 business hours."
+msgstr "Благодарим! Ще получите визуализация за одобрение до 24 работни часа."
+
+#: includes/class-reklamo-gateway.php:92
+#: includes/class-reklamo-gateway.php:115
+#: includes/class-reklamo-statuses.php:128
+msgid "Request received. No payment taken."
+msgstr "Заявката е получена. Не е извършено плащане."
+
+#: includes/class-reklamo-gateway.php:121
+msgid "Your request has been received. No payment is taken at this stage — our designer will send you a mockup for approval within 24 business hours."
+msgstr "Заявката Ви е получена. На този етап не се извършва плащане — нашият дизайнер ще Ви изпрати визуализация за одобрение до 24 работни часа."
+
+#: includes/class-reklamo-statuses.php:42
+msgid "Request received"
+msgstr "Заявка приета"
+
+#: includes/class-reklamo-statuses.php:43
+msgid "Mockup sent"
+msgstr "Изпратена визуализация"
+
+#: includes/class-reklamo-statuses.php:44
+msgid "Approved — awaiting deposit"
+msgstr "Одобрена — чака аванс"
+
+#. translators: %s: number of orders
+#: includes/class-reklamo-statuses.php:56
+#, php-format
+msgid "Request received <span class=\"count\">(%s)</span>"
+msgid_plural "Request received <span class=\"count\">(%s)</span>"
+msgstr[0] "Заявка приета <span class=\"count\">(%s)</span>"
+msgstr[1] "Заявка приета <span class=\"count\">(%s)</span>"
+
+#. translators: %s: number of orders
+#: includes/class-reklamo-statuses.php:58
+#, php-format
+msgid "Mockup sent <span class=\"count\">(%s)</span>"
+msgid_plural "Mockup sent <span class=\"count\">(%s)</span>"
+msgstr[0] "Изпратена визуализация <span class=\"count\">(%s)</span>"
+msgstr[1] "Изпратена визуализация <span class=\"count\">(%s)</span>"
+
+#. translators: %s: number of orders
+#: includes/class-reklamo-statuses.php:60
+#, php-format
+msgid "Approved — awaiting deposit <span class=\"count\">(%s)</span>"
+msgid_plural "Approved — awaiting deposit <span class=\"count\">(%s)</span>"
+msgstr[0] "Одобрена — чака аванс <span class=\"count\">(%s)</span>"
+msgstr[1] "Одобрена — чака аванс <span class=\"count\">(%s)</span>"
+
+#. translators: 1: previous status, 2: new status
+#: includes/class-reklamo-statuses.php:103
+#, php-format
+msgid "Warning: status changed from \"%1$s\" to \"%2$s\", which is outside the normal flow."
+msgstr "Внимание: статусът е сменен от „%1$s“ на „%2$s“, което е извън нормалния процес."
+
+#. translators: %s: server upload limit, e.g. 64 MB
+#: includes/class-reklamo-storage.php:88
+#, php-format
+msgid "The file is larger than the server currently accepts (%s). Please send it to us by email for now."
+msgstr "Файлът е по-голям, отколкото сървърът приема в момента (%s). Моля, засега ни го изпратете по имейл."
+
+#: includes/class-reklamo-storage.php:94
+#: includes/class-reklamo-storage.php:97
+msgid "The upload did not complete. Please try again."
+msgstr "Качването не завърши. Моля, опитайте отново."
+
+#. translators: %s: comma-separated list of allowed extensions
+#: includes/class-reklamo-storage.php:107
+#, php-format
+msgid "This file type is not accepted. Allowed: %s."
+msgstr "Този тип файл не се приема. Разрешени: %s."
+
+#: includes/class-reklamo-storage.php:115
+msgid "The file is empty."
+msgstr "Файлът е празен."
+
+#. translators: %s: size limit
+#: includes/class-reklamo-storage.php:119
+#, php-format
+msgid "The file must be smaller than %s."
+msgstr "Файлът трябва да е по-малък от %s."
+
+#: includes/class-reklamo-storage.php:130
+msgid "This file type is not accepted."
+msgstr "Този тип файл не се приема."
+
+#: includes/class-reklamo-storage.php:133
+msgid "The file does not look like an image."
+msgstr "Файлът не изглежда като изображение."
+
+#: includes/class-reklamo-storage.php:141
+msgid "The file could not be saved. Please try again."
+msgstr "Файлът не можа да бъде записан. Моля, опитайте отново."
+
+#: includes/class-reklamo-storage.php:217
+msgid "You do not have permission to download this file."
+msgstr "Нямате права да изтеглите този файл."
+
+#: includes/class-reklamo-storage.php:221
+#: includes/class-reklamo-storage.php:234
+msgid "File not found."
+msgstr "Файлът не е намерен."
+
+#: includes/emails/class-reklamo-email-mockup-sent.php:24
+msgid "Mockup sent (Reklamo)"
+msgstr "Изпратена визуализация (Reklamo)"
+
+#: includes/emails/class-reklamo-email-mockup-sent.php:25
+msgid "Sent to the customer when the designer uploads a mockup. Contains the one-time approval link."
+msgstr "Изпраща се на клиента, когато дизайнерът качи визуализация. Съдържа еднократната връзка за одобрение."
+
+#: includes/emails/class-reklamo-email-mockup-sent.php:40
+msgid "Your mockup for order {order_number} is ready — {site_title}"
+msgstr "Визуализацията за поръчка {order_number} е готова — {site_title}"
+
+#: includes/emails/class-reklamo-email-mockup-sent.php:44
+#: templates/approval.php:99
+msgid "Your mockup is ready"
+msgstr "Визуализацията Ви е готова"
+
+#: includes/emails/class-reklamo-email-mockup-sent.php:48
+msgid "Hello {customer_first_name}, our designer has prepared mockup #{revision} of your package. Please take a look and approve it, or tell us what to change. The link is personal and valid for 14 days."
+msgstr "Здравейте, {customer_first_name}, нашият дизайнер подготви визуализация №{revision} на Вашия пакет. Разгледайте я и я одобрете или ни кажете какво да променим. Връзката е лична и е валидна 14 дни."
+
+#: includes/emails/class-reklamo-email-mockup-sent.php:52
+msgid "View and approve the mockup"
+msgstr "Вижте и одобрете визуализацията"
+
+#: includes/emails/class-reklamo-email-mockup-sent.php:56
+msgid "No payment is taken at this stage. After approval we will send our bank details and a request for a 50% deposit."
+msgstr "На този етап не се извършва плащане. След одобрение ще Ви изпратим банковите данни и искане за 50% аванс."
+
+#: includes/emails/class-reklamo-email-mockup-sent.php:62
+#: includes/emails/class-reklamo-email-request-received.php:51
+msgid "Main text"
+msgstr "Основен текст"
+
+#: includes/emails/class-reklamo-email-mockup-sent.php:65
+msgid "Placeholders: {order_number}, {customer_first_name}, {revision}, {site_title}"
+msgstr "Заместители: {order_number}, {customer_first_name}, {revision}, {site_title}"
+
+#: includes/emails/class-reklamo-email-mockup-sent.php:70
+msgid "Button label"
+msgstr "Текст на бутона"
+
+#: includes/emails/class-reklamo-email-request-received.php:15
+msgid "Request received (Reklamo)"
+msgstr "Заявка приета (Reklamo)"
+
+#: includes/emails/class-reklamo-email-request-received.php:16
+msgid "Sent to the customer when a request with a logo is placed. Confirms that no payment is taken yet."
+msgstr "Изпраща се на клиента при подаване на заявка с лого. Потвърждава, че още не се извършва плащане."
+
+#: includes/emails/class-reklamo-email-request-received.php:32
+msgid "We received your request {order_number} — {site_title}"
+msgstr "Получихме Вашата заявка {order_number} — {site_title}"
+
+#: includes/emails/class-reklamo-email-request-received.php:36
+msgid "Thank you, {customer_first_name}!"
+msgstr "Благодарим, {customer_first_name}!"
+
+#: includes/emails/class-reklamo-email-request-received.php:40
+msgid "We received your request and your logo. Our designer is now preparing a mockup of the selected package — you will get it by email for approval within 24 business hours."
+msgstr "Получихме Вашата заявка и логото Ви. Нашият дизайнер подготвя визуализация на избрания пакет — ще я получите по имейл за одобрение до 24 работни часа."
+
+#: includes/emails/class-reklamo-email-request-received.php:44
+msgid "No payment is taken at this stage. After you approve the mockup we will send our bank details and a request for a 50% deposit."
+msgstr "На този етап не се извършва плащане. След като одобрите визуализацията, ще Ви изпратим банковите данни и искане за 50% аванс."
+
+#: includes/emails/class-reklamo-email-request-received.php:54
+msgid "Placeholders: {order_number}, {order_date}, {customer_first_name}, {site_title}"
+msgstr "Заместители: {order_number}, {order_date}, {customer_first_name}, {site_title}"
+
+#: reklamo-core.php:70
+msgid "Reklamo Core needs WooCommerce to be active."
+msgstr "Reklamo Core изисква WooCommerce да е активен."
+
+#: templates/approval.php:42
+msgid "Mockup approval"
+msgstr "Одобрение на визуализация"
+
+#: templates/approval.php:67
+msgid "This link is not valid"
+msgstr "Тази връзка не е валидна"
+
+#: templates/approval.php:68
+msgid "Please open the link exactly as it appears in the email, or contact us."
+msgstr "Моля, отворете връзката точно както е в имейла или се свържете с нас."
+
+#: templates/approval.php:71
+msgid "Too many attempts"
+msgstr "Твърде много опити"
+
+#: templates/approval.php:72
+msgid "Please try again in an hour."
+msgstr "Моля, опитайте отново след час."
+
+#: templates/approval.php:75
+msgid "This link has expired"
+msgstr "Тази връзка е изтекла"
+
+#: templates/approval.php:76
+msgid "Approval links are valid for 14 days. Reply to our email and we will send you a new one."
+msgstr "Връзките за одобрение са валидни 14 дни. Отговорете на имейла ни и ще Ви изпратим нова."
+
+#: templates/approval.php:79
+msgid "This mockup has already been processed"
+msgstr "Тази визуализация вече е обработена"
+
+#: templates/approval.php:83
+msgid "You approved it — thank you. We will be in touch about the next step."
+msgstr "Одобрихте я — благодарим. Ще се свържем с Вас за следващата стъпка."
+
+#: templates/approval.php:85
+msgid "You requested changes. Our designer is working on a new version."
+msgstr "Заявихте корекции. Нашият дизайнер работи по нова версия."
+
+#: templates/approval.php:91
+msgid "Approved — thank you!"
+msgstr "Одобрено — благодарим!"
+
+#: templates/approval.php:92
+msgid "We will now send you our bank details and a request for the 50% deposit. Production starts once it arrives."
+msgstr "Сега ще Ви изпратим банковите ни данни и искане за 50% аванс. Производството започва при получаването му."
+
+#: templates/approval.php:95
+msgid "Thank you — we received your comments"
+msgstr "Благодарим — получихме Вашите коментари"
+
+#: templates/approval.php:96
+msgid "Our designer will prepare a revised mockup and you will get a new email to review it."
+msgstr "Нашият дизайнер ще подготви коригирана визуализация и ще получите нов имейл, за да я прегледате."
+
+#. translators: 1: order number, 2: mockup revision
+#: templates/approval.php:104
+#, php-format
+msgid "Order %1$s · mockup #%2$d"
+msgstr "Поръчка %1$s · визуализация №%2$d"
+
+#: templates/approval.php:119
+msgid "Mockup"
+msgstr "Визуализация"
+
+#: templates/approval.php:121
+msgid "Download the mockup (PDF)"
+msgstr "Изтеглете визуализацията (PDF)"
+
+#: templates/approval.php:135
+msgid "Approve the mockup"
+msgstr "Одобрявам визуализацията"
+
+#: templates/approval.php:139
+msgid "I would like changes"
+msgstr "Желая корекции"
+
+#: templates/approval.php:140
+msgid "Describe what should change…"
+msgstr "Опишете какво да се промени…"
+
+#: templates/approval.php:141
+msgid "Request changes"
+msgstr "Заявявам корекции"
+
+#: templates/approval.php:144
+msgid "No payment is taken at this stage. After approval we will send bank details for a 50% deposit."
+msgstr "На този етап не се извършва плащане. След одобрение ще изпратим банкови данни за 50% аванс."
+
+#: templates/emails/reklamo-mockup-sent.php:30
+msgid "If the button does not work, copy this link into your browser:"
+msgstr "Ако бутонът не работи, копирайте тази връзка в браузъра си:"

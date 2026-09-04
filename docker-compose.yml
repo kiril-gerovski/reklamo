@@ -81,9 +81,18 @@ services:
       - "127.0.0.1:${WP_PORT:-8080}:80"
     environment:
       <<: *wp-env
-      # Run Apache as the host user so ./wp stays editable/readable without chown games.
-      APACHE_RUN_USER: "#1000"
-      APACHE_RUN_GROUP: "#1000"
+    # Run PHP as the host user so files it creates (uploads, logs, logo storage) stay
+    # editable from the host. APACHE_RUN_USER="#1000" is NOT enough: Apache's unixd needs a
+    # passwd entry for the uid (getpwuid/initgroups) and silently keeps children as root
+    # without one (AH02155). So remap www-data to uid/gid 1000, then start normally.
+    command:
+      - sh
+      - -c
+      - |
+        set -e
+        groupmod -o -g 1000 www-data
+        usermod  -o -u 1000 -g 1000 www-data
+        exec docker-entrypoint.sh apache2-foreground
     volumes:
       - ./wp:/var/www/html
       - ./wp-content/themes/reklamo:/var/www/html/wp-content/themes/reklamo

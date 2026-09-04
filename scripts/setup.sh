@@ -11,6 +11,10 @@ fi
 set -a; . ./.env; set +a
 
 mkdir -p wp private
+# If Docker created these bind-mount dirs before us they are root-owned; PHP runs as uid 1000.
+for d in wp private; do
+  [ -w "$d" ] || docker run --rm -v "$PWD/$d":/d alpine chown "$(id -u):$(id -g)" /d
+done
 . scripts/lib.sh
 
 echo "→ starting stack"

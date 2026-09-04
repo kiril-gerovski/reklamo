@@ -1,0 +1,11 @@
+{
+	"name": "reklamo-e2e",
+	"private": true,
+	"description": "Browser tests for the Reklamo.bg order flow against the local Docker stack.",
+	"scripts": {
+		"test": "playwright test"
+	},
+	"devDependencies": {
+		"@playwright/test": "^1.55.0"
+	}
+}

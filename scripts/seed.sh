@@ -92,9 +92,9 @@ echo "  HPOS enabled: " . ( Automattic\WooCommerce\Utilities\OrderUtil::custom_o
 '
 
 echo "→ payment gateways"
-# BACS stays ON temporarily so a Phase 0 test order can be placed and emailed.
-# Phase 1 replaces it with the reklamo_request no-payment gateway.
-opt woocommerce_bacs_settings '{"enabled":"yes","title":"Банков превод","description":"Временен — заменя се във Фаза 1.","instructions":""}' --format=json
+# Our no-payment gateway is the only one enabled. Title/description are site content (Bulgarian).
+opt woocommerce_reklamo_request_settings '{"enabled":"yes","title":"Заявка без плащане","description":"На този етап не се извършва плащане. Ще подготвим визуализация за одобрение и ще ви изпратим банковите данни след това.","instructions":"Благодарим! Ще получите визуализация за одобрение до 24 работни часа."}' --format=json
+opt woocommerce_bacs_settings   '{"enabled":"no"}' --format=json
 opt woocommerce_cheque_settings '{"enabled":"no"}' --format=json
 opt woocommerce_cod_settings    '{"enabled":"no"}' --format=json
 
@@ -158,6 +158,22 @@ for slug in sample-page privacy-policy refund_returns; do
   id=$(page_id "$slug"); [ -n "$id" ] && wp post delete "$id" --force >/dev/null || true
 done
 for k in woocommerce_terms_page_id; do opt "$k" "$(page_id obshti-usloviya)"; done
+
+# Checkout page: "no payment" notice above the block, design's button label, no coupon/order-note UI.
+wp eval '
+$id = (int) get_option( "woocommerce_checkout_page_id" );
+$p  = $id ? get_post( $id ) : null;
+if ( $p ) {
+	$c = $p->post_content;
+	if ( false === strpos( $c, "reklamo-nopay-notice" ) ) {
+		$c = "<!-- wp:paragraph {\"className\":\"reklamo-nopay-notice\",\"lock\":{\"move\":true,\"remove\":true}} -->\n<p class=\"reklamo-nopay-notice\">На този етап не се извършва плащане. Изпращате заявка и логото си — ще получите визуализация за одобрение до 24 работни часа.</p>\n<!-- /wp:paragraph -->\n\n" . $c;
+	}
+	// Blocks are stored as open/close pairs around a placeholder div.
+	$c = preg_replace( "/<!-- wp:woocommerce\\/checkout-actions-block( \\{[^}]*\\})? -->/", "<!-- wp:woocommerce/checkout-actions-block {\"placeOrderButtonLabel\":\"Изпрати и заяви визуализация\"} -->", $c );
+	$c = preg_replace( "/<!-- wp:woocommerce\\/checkout-order-note-block -->.*?<!-- \\/wp:woocommerce\\/checkout-order-note-block -->\\s*/s", "", $c );
+	if ( $c !== $p->post_content ) { wp_update_post( array( "ID" => $id, "post_content" => $c ) ); echo "  checkout page updated\n"; }
+}
+' 
 opt wp_page_for_privacy_policy "$(page_id politika-za-poveritelnost)"
 
 echo "→ menus"

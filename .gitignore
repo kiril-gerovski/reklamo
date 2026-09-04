@@ -22,3 +22,7 @@ composer.lock
 
 # Per-branch worktrees + their stacks (scripts/worktree/wt-new.sh)
 /.worktrees/
+/tests/fixtures/
+/tests/e2e/node_modules/
+/tests/e2e/package-lock.json
+.phpunit.result.cache

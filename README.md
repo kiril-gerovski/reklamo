@@ -51,6 +51,8 @@ scripts/wp <command>          # WP-CLI, e.g. scripts/wp plugin list
 scripts/seed.sh               # re-apply configuration (idempotent)
 scripts/reset.sh              # destroy everything and rebuild from zero — THE MASTER TEST
 scripts/lint.sh               # PHPCS + WordPress Coding Standards
+scripts/test.sh               # PHPUnit (pure-PHP units, e.g. the approval token)
+scripts/e2e.sh                # Playwright: full order → mockup → approval flow against the running stack
 scripts/make-fixtures.sh 150  # test files with real magic bytes (AI/PSD/CDR/EPS/SVG)
 docker compose logs -f wp
 ```
@@ -80,7 +82,7 @@ Do not raise them to "make a test pass".
 ## Translations
 
 Source strings in the theme and plugin are English, wrapped in `__( '…', 'reklamo' )`. Bulgarian
-lives in `wp-content/{themes,plugins}/*/languages/bg_BG.po`. After editing a `.po`:
+lives in `wp-content/themes/reklamo/languages/bg_BG.po and wp-content/plugins/reklamo-core/languages/reklamo-core-bg_BG.po (the plugin uses its own text domain `reklamo-core`; plugin files are named {domain}-{locale})`. After editing a `.po`:
 
 ```bash
 scripts/wp i18n make-mo wp-content/themes/reklamo/languages

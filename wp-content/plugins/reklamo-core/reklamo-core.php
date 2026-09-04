@@ -3,13 +3,14 @@
  * Plugin Name:       Reklamo Core
  * Plugin URI:        https://reklamo.bg
  * Description:       Business logic for Reklamo.bg — order statuses, logo uploads, mockups and approvals, emails. The theme is presentation only; everything that touches orders lives here.
- * Version:           0.1.0
+ * Version:           0.2.0
  * Requires at least: 7.0
  * Requires PHP:      8.1
  * Requires Plugins:  woocommerce
  * Author:            Nocturn AI
  * License:           GPL-2.0-or-later
- * Text Domain:       reklamo
+ * Text Domain:       reklamo-core
+ * Domain Path:       /languages
  * WC requires at least: 11.0
  * WC tested up to:   11.1
  *
@@ -18,10 +19,22 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'REKLAMO_VERSION', '0.1.0' );
+define( 'REKLAMO_VERSION', '0.2.0' );
 define( 'REKLAMO_FILE', __FILE__ );
 define( 'REKLAMO_PATH', plugin_dir_path( __FILE__ ) );
 define( 'REKLAMO_URL', plugin_dir_url( __FILE__ ) );
+
+// Classes with no WooCommerce parent can load now. Gateway and email classes extend
+// WooCommerce classes and are required later, once WooCommerce has loaded them.
+require REKLAMO_PATH . 'includes/class-reklamo-install.php';
+require REKLAMO_PATH . 'includes/class-reklamo-mail.php';
+require REKLAMO_PATH . 'includes/class-reklamo-token.php';
+require REKLAMO_PATH . 'includes/class-reklamo-statuses.php';
+require REKLAMO_PATH . 'includes/class-reklamo-storage.php';
+require REKLAMO_PATH . 'includes/class-reklamo-cart.php';
+require REKLAMO_PATH . 'includes/class-reklamo-approval.php';
+require REKLAMO_PATH . 'includes/class-reklamo-admin-order.php';
+require REKLAMO_PATH . 'includes/class-reklamo-emails.php';
 
 /**
  * Declare compatibility with WooCommerce features.
@@ -40,66 +53,50 @@ add_action(
 	}
 );
 
+Reklamo_Mail::init();
+
+register_activation_hook( __FILE__, array( 'Reklamo_Install', 'activate' ) );
+
 /**
- * SMTP without a plugin.
- *
- * Reads REKLAMO_SMTP_* constants from wp-config.php. Locally they point at
- * Mailpit; in production at the host's mailbox. Same code path both places,
- * so mail is exercised the way it will really run. Does nothing if no host
- * is configured, leaving wp_mail() on the PHP mail() default.
+ * Boot once every plugin is loaded. Priority 20 so WooCommerce (10) is fully included.
  */
+function reklamo_boot(): void {
+	load_plugin_textdomain( 'reklamo-core', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+
+	if ( ! class_exists( 'WooCommerce' ) ) {
+		add_action(
+			'admin_notices',
+			static function (): void {
+				echo '<div class="notice notice-error"><p>' . esc_html__( 'Reklamo Core needs WooCommerce to be active.', 'reklamo-core' ) . '</p></div>';
+			}
+		);
+		return;
+	}
+
+	require_once REKLAMO_PATH . 'includes/class-reklamo-gateway.php';
+
+	Reklamo_Install::maybe_upgrade();
+	Reklamo_Statuses::init();
+	Reklamo_Storage::init();
+	Reklamo_Cart::init();
+	Reklamo_Gateway::init();
+	Reklamo_Approval::init();
+	Reklamo_Admin_Order::init();
+	Reklamo_Emails::init();
+}
+add_action( 'plugins_loaded', 'reklamo_boot', 20 );
+
+// The block checkout registry fires on this hook, which WooCommerce documents as the
+// only reliable one — plugins_loaded ordering is not guaranteed. Attach at include time.
 add_action(
-	'phpmailer_init',
-	static function ( $phpmailer ): void {
-		if ( ! defined( 'REKLAMO_SMTP_HOST' ) || '' === REKLAMO_SMTP_HOST ) {
-			return;
-		}
-
-		$phpmailer->isSMTP();
-		$phpmailer->Host    = REKLAMO_SMTP_HOST; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-		$phpmailer->Port    = defined( 'REKLAMO_SMTP_PORT' ) ? (int) REKLAMO_SMTP_PORT : 587; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-		$phpmailer->CharSet = 'UTF-8'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-
-		$user = defined( 'REKLAMO_SMTP_USER' ) ? (string) REKLAMO_SMTP_USER : '';
-		if ( '' !== $user ) {
-			$phpmailer->SMTPAuth   = true; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-			$phpmailer->Username   = $user; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-			$phpmailer->Password   = defined( 'REKLAMO_SMTP_PASS' ) ? (string) REKLAMO_SMTP_PASS : ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-			$phpmailer->SMTPSecure = defined( 'REKLAMO_SMTP_SECURE' ) && '' !== REKLAMO_SMTP_SECURE ? REKLAMO_SMTP_SECURE : 'tls'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-		} else {
-			// Mailpit / unauthenticated relay: no auth, no opportunistic TLS.
-			$phpmailer->SMTPAuth    = false; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-			$phpmailer->SMTPAutoTLS = false; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-		}
-	}
-);
-
-/**
- * Sane default sender for core emails.
- *
- * WordPress defaults to wordpress@<host>, which on a container ("localhost")
- * or a shared host's internal hostname is an address PHPMailer rejects —
- * password resets and admin notices then silently fail. WooCommerce sets its
- * own From; core does not. Reuse the WooCommerce sender the owner already
- * configures under WooCommerce → Settings → Emails.
- */
-add_filter(
-	'wp_mail_from',
-	static function ( string $from ): string {
-		if ( ! str_starts_with( $from, 'wordpress@' ) ) {
-			return $from;
-		}
-		$wc_from = (string) get_option( 'woocommerce_email_from_address', '' );
-		return is_email( $wc_from ) ? $wc_from : $from;
-	}
-);
-add_filter(
-	'wp_mail_from_name',
-	static function ( string $name ): string {
-		if ( 'WordPress' !== $name ) {
-			return $name;
-		}
-		$wc_name = (string) get_option( 'woocommerce_email_from_name', '' );
-		return '' !== $wc_name ? $wc_name : get_bloginfo( 'name' );
+	'woocommerce_blocks_loaded',
+	static function (): void {
+		require_once REKLAMO_PATH . 'includes/class-reklamo-blocks-gateway.php';
+		add_action(
+			'woocommerce_blocks_payment_method_type_registration',
+			static function ( \Automattic\WooCommerce\Blocks\Payments\PaymentMethodRegistry $registry ): void {
+				$registry->register( new Reklamo_Blocks_Gateway() );
+			}
+		);
 	}
 );

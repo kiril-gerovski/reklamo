@@ -1,0 +1,8 @@
+/* Product-page upload fields. Visual pass comes with the theme (Phase 5). */
+.reklamo-fields { margin: 1.5rem 0; padding: 1rem 1.25rem; border: 1px dashed var(--wp--preset--color--gold, #b8892b); border-radius: 6px; background: var(--wp--preset--color--white, #fff); }
+.reklamo-fields label { display: block; font-weight: 600; margin-bottom: .35rem; }
+.reklamo-fields .reklamo-hint { display: block; font-weight: 400; font-size: .8125rem; color: var(--wp--preset--color--graphite, #555); }
+.reklamo-fields textarea, .reklamo-fields input[type="file"] { width: 100%; box-sizing: border-box; }
+.reklamo-fields textarea { padding: .5rem; border: 1px solid var(--wp--preset--color--line, #e8e2d6); border-radius: 4px; }
+.reklamo-nopay-hint { margin: .5rem 0 0; font-size: .875rem; color: var(--wp--preset--color--graphite, #555); }
+.reklamo-nopay-hint::before { content: "✓ "; color: var(--wp--preset--color--gold, #b8892b); }
