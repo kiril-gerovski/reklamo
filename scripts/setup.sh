@@ -22,7 +22,7 @@ for _ in $(seq 1 60); do [ -f wp/wp-config.php ] && break; sleep 2; done
 
 echo "→ waiting for HTTP"
 for _ in $(seq 1 60); do
-  code=$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8080/ || true)
+  code=$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:${WP_PORT:-8080}/" || true)
   case "$code" in 200|30*) break;; esac
   sleep 2
 done
@@ -59,11 +59,11 @@ wp plugin activate reklamo-core >/dev/null
 for p in akismet hello; do wp plugin is-installed "$p" >/dev/null 2>&1 && wp plugin delete "$p" >/dev/null || true; done
 for t in $(wp theme list --status=inactive --field=name); do wp theme delete "$t" >/dev/null || true; done
 
-scripts/seed.sh
+if [ "${SKIP_SEED:-0}" = 1 ]; then echo "→ skipping seed (SKIP_SEED=1)"; else scripts/seed.sh; fi
 
 echo
 echo "✔ ready"
 echo "  site:    $WP_URL"
 echo "  admin:   $WP_URL/wp-admin  ($WP_ADMIN_USER / $WP_ADMIN_PASS)"
-echo "  mailpit: http://localhost:8025"
-echo "  tunnel:  ssh -p 22022 -L 8080:127.0.0.1:8080 -L 8025:127.0.0.1:8025 dev@178.104.78.114"
+echo "  mailpit: http://localhost:${MAIL_PORT:-8025}"
+echo "  tunnel:  ssh -p 22022 -L ${WP_PORT:-8080}:127.0.0.1:${WP_PORT:-8080} -L ${MAIL_PORT:-8025}:127.0.0.1:${MAIL_PORT:-8025} dev@178.104.78.114"

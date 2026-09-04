@@ -19,3 +19,6 @@
 Thumbs.db
 .playwright-mcp/
 composer.lock
+
+# Per-branch worktrees + their stacks (scripts/worktree/wt-new.sh)
+/.worktrees/

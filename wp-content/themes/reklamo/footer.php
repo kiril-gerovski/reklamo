@@ -30,7 +30,7 @@ defined( 'ABSPATH' ) || exit;
 	<p>
 		<?php
 		/* translators: %1$s: year, %2$s: site name */
-		printf( esc_html__( '© %1$s %2$s — Всички права запазени.', 'reklamo' ), esc_html( wp_date( 'Y' ) ), esc_html( get_bloginfo( 'name' ) ) );
+		printf( esc_html__( '© %1$s %2$s — All rights reserved.', 'reklamo' ), esc_html( wp_date( 'Y' ) ), esc_html( get_bloginfo( 'name' ) ) );
 		?>
 	</p>
 </footer>

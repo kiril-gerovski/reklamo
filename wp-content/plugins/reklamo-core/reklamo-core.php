@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Reklamo Core
  * Plugin URI:        https://reklamo.bg
- * Description:       Бизнес логика за Reklamo.bg — статуси на поръчки, качване на лога, визуализации и одобрения, имейли. Темата е само презентация; всичко, което пипа поръчки, живее тук.
+ * Description:       Business logic for Reklamo.bg — order statuses, logo uploads, mockups and approvals, emails. The theme is presentation only; everything that touches orders lives here.
  * Version:           0.1.0
  * Requires at least: 7.0
  * Requires PHP:      8.1
@@ -81,7 +81,7 @@ add_action(
  * or a shared host's internal hostname is an address PHPMailer rejects —
  * password resets and admin notices then silently fail. WooCommerce sets its
  * own From; core does not. Reuse the WooCommerce sender the owner already
- * configures under WooCommerce → Настройки → Имейли.
+ * configures under WooCommerce → Settings → Emails.
  */
 add_filter(
 	'wp_mail_from',

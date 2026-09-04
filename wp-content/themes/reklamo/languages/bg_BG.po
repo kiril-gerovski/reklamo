@@ -1,0 +1,96 @@
+# Bulgarian translation of the Reklamo theme.
+# Source strings are English; this file is the single place Bulgarian UI text lives.
+# Rebuild the .mo after editing:  scripts/wp i18n make-mo wp-content/themes/reklamo/languages
+msgid ""
+msgstr ""
+"Project-Id-Version: Reklamo 0.1.0\n"
+"Language: bg_BG\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Domain: reklamo\n"
+
+#: functions.php
+msgid "Primary Menu"
+msgstr "Главно меню"
+
+#: functions.php
+msgid "Footer — Navigation"
+msgstr "Футър — Навигация"
+
+#: functions.php
+msgid "Footer — Information"
+msgstr "Футър — Информация"
+
+#: footer.php
+#. translators: %1$s: year, %2$s: site name
+msgid "© %1$s %2$s — All rights reserved."
+msgstr "© %1$s %2$s — Всички права запазени."
+
+#: index.php
+msgid "Nothing found."
+msgstr "Нищо не е намерено."
+
+#: theme.json  (settings.color.palette names)
+msgctxt "Color name"
+msgid "Gold"
+msgstr "Злато"
+
+msgctxt "Color name"
+msgid "Dark Gold"
+msgstr "Тъмно злато"
+
+msgctxt "Color name"
+msgid "Ink"
+msgstr "Черно"
+
+msgctxt "Color name"
+msgid "Graphite"
+msgstr "Графит"
+
+msgctxt "Color name"
+msgid "Paper"
+msgstr "Крем"
+
+msgctxt "Color name"
+msgid "White"
+msgstr "Бяло"
+
+msgctxt "Color name"
+msgid "Line"
+msgstr "Линия"
+
+msgctxt "Color name"
+msgid "Red (accent)"
+msgstr "Червено (акцент)"
+
+#: theme.json  (settings.typography.fontFamilies names)
+msgctxt "Font family name"
+msgid "Headings (serif)"
+msgstr "Заглавия (сериф)"
+
+msgctxt "Font family name"
+msgid "Body"
+msgstr "Основен текст"
+
+#: theme.json  (settings.typography.fontSizes names)
+msgctxt "Font size name"
+msgid "Small"
+msgstr "Малък"
+
+msgctxt "Font size name"
+msgid "Medium"
+msgstr "Среден"
+
+msgctxt "Font size name"
+msgid "Large"
+msgstr "Голям"
+
+msgctxt "Font size name"
+msgid "Heading"
+msgstr "Заглавие"
+
+msgctxt "Font size name"
+msgid "Display"
+msgstr "Основно заглавие"

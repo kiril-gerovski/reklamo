@@ -23,7 +23,7 @@ if ( have_posts() ) {
 	}
 } else {
 	?>
-	<p><?php esc_html_e( 'Нищо не е намерено.', 'reklamo' ); ?></p>
+	<p><?php esc_html_e( 'Nothing found.', 'reklamo' ); ?></p>
 	<?php
 }
 

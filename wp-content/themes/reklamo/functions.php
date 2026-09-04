@@ -33,9 +33,9 @@ function reklamo_setup(): void {
 
 	register_nav_menus(
 		array(
-			'primary'     => __( 'Главно меню', 'reklamo' ),
-			'footer-nav'  => __( 'Футър — Навигация', 'reklamo' ),
-			'footer-info' => __( 'Футър — Информация', 'reklamo' ),
+			'primary'     => __( 'Primary Menu', 'reklamo' ),
+			'footer-nav'  => __( 'Footer — Navigation', 'reklamo' ),
+			'footer-info' => __( 'Footer — Information', 'reklamo' ),
 		)
 	);
 }

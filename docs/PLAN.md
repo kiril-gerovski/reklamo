@@ -1,4 +1,4 @@
-# Reklamo.bg — Вариант А: WordPress + WooCommerce
+# Reklamo.bg — Variant A: WordPress + WooCommerce
 
 ## Context
 
@@ -6,14 +6,19 @@
 
 | Variant | Stack | One-off | Yearly | 3 years |
 |---|---|---|---|---|
-| **А** | WordPress + WooCommerce, designer mockup | — | **€78** | €234 |
-| Б | А + Lumise instant preview | €64 | €78 | €298 |
-| В | Shopify Basic, designer mockup | — | €320 | €960 |
-| Г | Shopify Basic + Qstomizer Advanced | — | €585 | €1 755 |
+| **A (А)** | WordPress + WooCommerce, designer mockup | — | **€78** | €234 |
+| B (Б) | A + Lumise instant preview | €64 | €78 | €298 |
+| C (В) | Shopify Basic, designer mockup | — | €320 | €960 |
+| D (Г) | Shopify Basic + Qstomizer Advanced | — | €585 | €1 755 |
 
-**We build Вариант А** — cheapest, and the only family (А/Б) that accepts unlimited-size professional files and lets us control the checkout page. Shopify caps uploads at 20 MB and forbids checkout customisation, which is exactly why the document rules it out: the "плащане не се извършва на този етап" message can't be placed where it matters.
+**We build Variant A (Вариант А)** — cheapest, and the only family (A/B) that accepts unlimited-size professional files and lets us control the checkout page. Shopify caps uploads at 20 MB and forbids checkout customisation, which is exactly why the document rules it out: the "плащане не се извършва на този етап" message can't be placed where it matters.
 
-Вариант Б is **А plus one paid plugin, added later with nothing rebuilt**. Everything here is the foundation Б sits on, so that upgrade path stays open at no cost.
+Variant B is **A plus one paid plugin, added later with nothing rebuilt**. Everything here is the foundation B sits on, so that upgrade path stays open at no cost.
+
+### Conventions
+
+- Code, comments, docs and translatable source strings are **English**. Bulgarian UI text lives in `languages/bg_BG.po` per theme/plugin.
+- Site *content* (pages, products, menus, emails the customer reads) is Bulgarian — it is data, seeded by `scripts/seed.sh`.
 
 ### Constraints
 
@@ -66,7 +71,7 @@ Three external facts that shape the build:
 | Question | Choice |
 |---|---|
 | Packages | **Real names + prices from `design/preview.webp`**: Red Business Pack 100 €, Office Starter Pack 119 €, Event Pack 149 €, Premium Pack 169 €. Prices are a field on each product — the owner edits them in Продукти → edit. No photos yet (owner uploads). |
-| ДДС / VAT | **Tax handling off for now** (`woocommerce_calc_taxes = no`). Prices are plain numbers. ⚠️ Must be revisited *before* real products are entered — flipping incl./excl. later means touching every product. Listed under Open questions. |
+| VAT (ДДС) | **Tax handling off for now** (`woocommerce_calc_taxes = no`). Prices are plain numbers. ⚠️ Must be revisited *before* real products are entered — flipping incl./excl. later means touching every product. Listed under Open questions. |
 | Git | **You create the remote first; I work in the clone.** |
 
 ## Prerequisites (blocking, on you)
@@ -145,12 +150,12 @@ Do **not** add custom statuses to `woocommerce_order_is_paid_statuses` (it trigg
 **Owner-editability without ACF or a builder**, five layers:
 
 1. `theme.json` with `"custom": false` on colour/typography/spacing — the palette is the only palette, so the site cannot be made ugly. Works in classic themes.
-2. Block patterns for every content section (hero, "Как работи", packages grid, FAQ).
+2. Block patterns for every content section (hero, "How it works", packages grid, FAQ).
 3. `templateLock: "contentOnly"` on pattern wrappers — the owner sees only text and image fields, no style controls, nothing removable. **This is what replaces ACF**, using core only.
 4. The 4 packages are ordinary **WooCommerce products** — no custom post type, so the owner learns one editing UI and gets media library, revisions and sale scheduling for free.
-5. A `WC_Settings_Page` subclass for global scalars (IBAN, BIC, титуляр, ЕИК, ДДС, МОЛ, deposit %, deadlines), surfaced into content by three tiny dynamic blocks so the IBAN lives in **one** place, not copy-pasted onto six pages where it will eventually be wrong.
+5. A `WC_Settings_Page` subclass for global scalars (IBAN, BIC, account holder, company ID (ЕИК), VAT no. (ДДС), responsible person (МОЛ), deposit %, deadlines), surfaced into content by three tiny dynamic blocks so the IBAN lives in **one** place, not copy-pasted onto six pages where it will eventually be wrong.
 
-**Design rule:** every string the owner might want to change must be reachable from exactly four screens — Products, Pages, WooCommerce → Настройки → Reklamo, WooCommerce → Настройки → Имейли. Any other hardcoded customer-facing string is a defect.
+**Design rule:** every string the owner might want to change must be reachable from exactly four screens — Products, Pages, WooCommerce → Settings → Reklamo, WooCommerce → Settings → Emails. Any other hardcoded customer-facing string is a defect.
 
 **Action Scheduler is bundled inside WooCommerce**, so reminder automation is available without violating the one-plugin rule. Use it, not WP-Cron — and set `DISABLE_WP_CRON` with a real system cron, because on a low-traffic site WP-Cron simply does not fire and every reminder silently never sends.
 
@@ -219,7 +224,7 @@ If a change exists only in your local database, it does not exist. That script i
 
 **Phase 5 — Theme + editability.** Classic theme to the mockups, `theme.json` guard rails, patterns with `templateLock`, settings page, dynamic blocks.
 
-**Phase 6 — Bulgarian content, translation audit, ОУ/GDPR, owner training, Action Scheduler reminders, retention GC.**
+**Phase 6 — Bulgarian content, translation audit, terms & conditions/GDPR, owner training, Action Scheduler reminders, retention GC.**
 
 ---
 
@@ -302,9 +307,9 @@ Dev-only exception: **Query Monitor** locally for debugging — gitignored, neve
 
 ## Open questions (flagged, not guessed)
 
-- **ДДС / VAT — decide before real products exist.** Currently off. The likely right answer is "enter excl. VAT, show incl." (net prices match фактури, customer sees the real total), but it needs the owner's input on whether private individuals can buy.
+- **VAT (ДДС) — decide before real products exist.** Currently off. The likely right answer is "enter excl. VAT, show incl." (net prices match фактури, customer sees the real total), but it needs the owner's input on whether private individuals can buy.
 - **Quantity tiers.** Promotional products normally price by volume (100 pens ≠ 500 pens). The document implies simple products. If tiers are needed these must be *variable* products — far cheaper to decide before seeding.
-- **Bulgarian фактури.** B2B customers paying by bank transfer will need them. The Additional Checkout Fields API collects ЕИК/ДДС/МОЛ, but it supports only `text`/`select`/`checkbox`, values land at `_wc_other/…` keys no accounting export understands, and WooCommerce produces no compliant Bulgarian invoice. Not in the €78 scope as written.
+- **Bulgarian invoices (фактури).** B2B customers paying by bank transfer will need them. The Additional Checkout Fields API collects ЕИК/ДДС/МОЛ, but it supports only `text`/`select`/`checkbox`, values land at `_wc_other/…` keys no accounting export understands, and WooCommerce produces no compliant Bulgarian invoice. Not in the €78 scope as written.
 - **Couriers.** Econt and Speedy are the norm; their plugins are free but *are plugins*. No-plugin path is flat-rate shipping plus manual booking.
 - **The 14-day withdrawal right.** Personalised goods are exempt (EU CRD Art. 16(c) / ЗПК) **only if you say so** — needs an explicit checkout checkbox and an ОУ clause, or the shop is exposed on every custom order.
 - **The human loop has no code, so it gets no schedule.** What happens when the customer never approves, wants a 6th revision, or cancels mid-production? Needs a documented revision limit and Action Scheduler nudges at 3/7/14 days.

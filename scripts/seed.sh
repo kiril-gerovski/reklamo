@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # THE configuration of the site, as code.
+# Values below are Bulgarian on purpose: they are site CONTENT (what the customer sees), not code.
 # WordPress keeps config in the database, which git cannot track — so every
 # dashboard setting must be expressed here. If a setting exists only in a local
 # database, it does not exist. Idempotent: re-running updates, never duplicates.
@@ -152,7 +153,7 @@ rename_wc_page() { # option title slug
 rename_wc_page woocommerce_cart_page_id      "Кошница"     "koshnitsa"
 rename_wc_page woocommerce_checkout_page_id  "Поръчка"     "porachka"
 rename_wc_page woocommerce_myaccount_page_id "Моят профил" "profil"
-# Samples we do not want (we have our own ОУ / privacy pages).
+# Samples we do not want (we have our own terms / privacy pages).
 for slug in sample-page privacy-policy refund_returns; do
   id=$(page_id "$slug"); [ -n "$id" ] && wp post delete "$id" --force >/dev/null || true
 done

@@ -15,14 +15,14 @@
 			"defaultGradients": false,
 			"defaultDuotone": false,
 			"palette": [
-				{ "slug": "gold",      "name": "Злато",          "color": "#b8892b" },
-				{ "slug": "gold-dark", "name": "Тъмно злато",    "color": "#9a7020" },
-				{ "slug": "ink",       "name": "Черно",          "color": "#1a1a1a" },
-				{ "slug": "graphite",  "name": "Графит",         "color": "#555555" },
-				{ "slug": "paper",     "name": "Крем",           "color": "#faf8f4" },
-				{ "slug": "white",     "name": "Бяло",           "color": "#ffffff" },
-				{ "slug": "line",      "name": "Линия",          "color": "#e8e2d6" },
-				{ "slug": "red",       "name": "Червено (акцент)", "color": "#a3222b" }
+				{ "slug": "gold",      "name": "Gold",          "color": "#b8892b" },
+				{ "slug": "gold-dark", "name": "Dark Gold",    "color": "#9a7020" },
+				{ "slug": "ink",       "name": "Ink",          "color": "#1a1a1a" },
+				{ "slug": "graphite",  "name": "Graphite",         "color": "#555555" },
+				{ "slug": "paper",     "name": "Paper",           "color": "#faf8f4" },
+				{ "slug": "white",     "name": "White",           "color": "#ffffff" },
+				{ "slug": "line",      "name": "Line",          "color": "#e8e2d6" },
+				{ "slug": "red",       "name": "Red (accent)", "color": "#a3222b" }
 			]
 		},
 		"typography": {
@@ -31,22 +31,22 @@
 			"fontFamilies": [
 				{
 					"slug": "heading",
-					"name": "Заглавия (сериф)",
+					"name": "Headings (serif)",
 					"fontFamily": "\"Playfair Display\", Georgia, \"Times New Roman\", serif"
 				},
 				{
 					"slug": "body",
-					"name": "Основен текст",
+					"name": "Body",
 					"fontFamily": "Inter, system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif"
 				}
 			],
 			"fontSizes": [
-				{ "slug": "small",   "name": "Малък",  "size": "0.875rem" },
-				{ "slug": "medium",  "name": "Среден", "size": "1rem" },
-				{ "slug": "large",   "name": "Голям",  "size": "1.25rem" },
-				{ "slug": "x-large", "name": "Заглавие", "size": "2rem",
+				{ "slug": "small",   "name": "Small",  "size": "0.875rem" },
+				{ "slug": "medium",  "name": "Medium", "size": "1rem" },
+				{ "slug": "large",   "name": "Large",  "size": "1.25rem" },
+				{ "slug": "x-large", "name": "Heading", "size": "2rem",
 				  "fluid": { "min": "1.5rem", "max": "2.5rem" } },
-				{ "slug": "xx-large", "name": "Основно заглавие", "size": "3rem",
+				{ "slug": "xx-large", "name": "Display", "size": "3rem",
 				  "fluid": { "min": "2rem", "max": "3.5rem" } }
 			]
 		},

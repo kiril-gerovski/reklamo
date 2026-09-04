@@ -1,4 +1,6 @@
 # Reklamo.bg local development stack.
+# COMPOSE_PROJECT_NAME / WP_PORT / MAIL_PORT come from .env so a worktree stack
+# (scripts/worktree/wt-new.sh) can run beside this one on its own ports and volumes.
 # All ports bind to 127.0.0.1 only — reach it over an SSH tunnel:
 #   ssh -p 22022 -L 8080:127.0.0.1:8080 -L 8025:127.0.0.1:8025 dev@178.104.78.114
 #
@@ -63,7 +65,7 @@ services:
   mail:
     image: axllent/mailpit:v1.31
     ports:
-      - "127.0.0.1:8025:8025"   # web UI + API; SMTP :1025 stays internal
+      - "127.0.0.1:${MAIL_PORT:-8025}:8025"   # web UI + API; SMTP :1025 stays internal
     environment:
       MP_SMTP_AUTH_ACCEPT_ANY: "1"
       MP_SMTP_AUTH_ALLOW_INSECURE: "1"
@@ -76,7 +78,7 @@ services:
       mail:
         condition: service_started
     ports:
-      - "127.0.0.1:8080:80"
+      - "127.0.0.1:${WP_PORT:-8080}:80"
     environment:
       <<: *wp-env
       # Run Apache as the host user so ./wp stays editable/readable without chown games.
