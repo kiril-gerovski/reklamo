@@ -1,0 +1,20 @@
+{
+	"name": "nocturn-ai/reklamo",
+	"description": "Dev tooling for Reklamo.bg — coding standards only. WordPress and WooCommerce are installed by bin/setup.sh, not Composer.",
+	"type": "project",
+	"license": "GPL-2.0-or-later",
+	"require-dev": {
+		"wp-coding-standards/wpcs": "^3.1",
+		"phpcompatibility/phpcompatibility-wp": "^2.1",
+		"dealerdirect/phpcodesniffer-composer-installer": "^1.0"
+	},
+	"config": {
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		}
+	},
+	"scripts": {
+		"lint": "phpcs",
+		"lint:fix": "phpcbf"
+	}
+}

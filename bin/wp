@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# WP-CLI inside the stack. Usage: bin/wp plugin list
+# Reuses the helper container if a bin/ script has one running.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+if docker ps -q -f name='^reklamo-cli$' | grep -q .; then
+  exec docker exec -i reklamo-cli wp "$@"
+fi
+exec docker compose run --rm -T cli wp "$@"

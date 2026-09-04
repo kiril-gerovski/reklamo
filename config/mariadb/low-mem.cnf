@@ -1,0 +1,6 @@
+# The dev VM has ~1.9 GB free with the ERP stack running. Keep MariaDB small.
+[mysqld]
+innodb_buffer_pool_size = 128M
+innodb_log_file_size = 32M
+performance_schema = OFF
+max_connections = 30

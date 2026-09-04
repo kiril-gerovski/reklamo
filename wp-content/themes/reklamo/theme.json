@@ -1,0 +1,102 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/theme.json",
+	"version": 3,
+	"settings": {
+		"appearanceTools": true,
+		"layout": {
+			"contentSize": "1200px",
+			"wideSize": "1320px"
+		},
+		"color": {
+			"custom": false,
+			"customGradient": false,
+			"customDuotone": false,
+			"defaultPalette": false,
+			"defaultGradients": false,
+			"defaultDuotone": false,
+			"palette": [
+				{ "slug": "gold",      "name": "Злато",          "color": "#b8892b" },
+				{ "slug": "gold-dark", "name": "Тъмно злато",    "color": "#9a7020" },
+				{ "slug": "ink",       "name": "Черно",          "color": "#1a1a1a" },
+				{ "slug": "graphite",  "name": "Графит",         "color": "#555555" },
+				{ "slug": "paper",     "name": "Крем",           "color": "#faf8f4" },
+				{ "slug": "white",     "name": "Бяло",           "color": "#ffffff" },
+				{ "slug": "line",      "name": "Линия",          "color": "#e8e2d6" },
+				{ "slug": "red",       "name": "Червено (акцент)", "color": "#a3222b" }
+			]
+		},
+		"typography": {
+			"customFontSize": false,
+			"fluid": true,
+			"fontFamilies": [
+				{
+					"slug": "heading",
+					"name": "Заглавия (сериф)",
+					"fontFamily": "\"Playfair Display\", Georgia, \"Times New Roman\", serif"
+				},
+				{
+					"slug": "body",
+					"name": "Основен текст",
+					"fontFamily": "Inter, system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif"
+				}
+			],
+			"fontSizes": [
+				{ "slug": "small",   "name": "Малък",  "size": "0.875rem" },
+				{ "slug": "medium",  "name": "Среден", "size": "1rem" },
+				{ "slug": "large",   "name": "Голям",  "size": "1.25rem" },
+				{ "slug": "x-large", "name": "Заглавие", "size": "2rem",
+				  "fluid": { "min": "1.5rem", "max": "2.5rem" } },
+				{ "slug": "xx-large", "name": "Основно заглавие", "size": "3rem",
+				  "fluid": { "min": "2rem", "max": "3.5rem" } }
+			]
+		},
+		"spacing": {
+			"customSpacingSize": false,
+			"units": [ "px", "rem", "%" ],
+			"spacingSizes": [
+				{ "slug": "20", "name": "1", "size": "0.5rem" },
+				{ "slug": "30", "name": "2", "size": "1rem" },
+				{ "slug": "40", "name": "3", "size": "1.5rem" },
+				{ "slug": "50", "name": "4", "size": "2.5rem" },
+				{ "slug": "60", "name": "5", "size": "4rem" },
+				{ "slug": "70", "name": "6", "size": "6rem" }
+			]
+		}
+	},
+	"styles": {
+		"color": {
+			"background": "var(--wp--preset--color--paper)",
+			"text": "var(--wp--preset--color--ink)"
+		},
+		"typography": {
+			"fontFamily": "var(--wp--preset--font-family--body)",
+			"fontSize": "var(--wp--preset--font-size--medium)",
+			"lineHeight": "1.6"
+		},
+		"elements": {
+			"heading": {
+				"typography": {
+					"fontFamily": "var(--wp--preset--font-family--heading)",
+					"fontWeight": "400",
+					"lineHeight": "1.15"
+				}
+			},
+			"link": {
+				"color": { "text": "var(--wp--preset--color--gold-dark)" }
+			},
+			"button": {
+				"color": {
+					"background": "var(--wp--preset--color--gold)",
+					"text": "var(--wp--preset--color--white)"
+				},
+				"typography": {
+					"fontWeight": "600",
+					"letterSpacing": "0.06em",
+					"textTransform": "uppercase",
+					"fontSize": "var(--wp--preset--font-size--small)"
+				},
+				"border": { "radius": "4px" }
+			}
+		}
+	}
+}

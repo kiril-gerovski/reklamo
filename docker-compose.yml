@@ -1,0 +1,106 @@
+# Reklamo.bg local development stack.
+# All ports bind to 127.0.0.1 only — reach it over an SSH tunnel:
+#   ssh -p 22022 -L 8080:127.0.0.1:8080 -L 8025:127.0.0.1:8025 dev@178.104.78.114
+#
+# Apache (not nginx) on purpose: production hosts run Apache/LiteSpeed with .htaccess,
+# so the rules protecting customer logo files are exercised locally.
+
+x-wp-env: &wp-env
+  WORDPRESS_DB_HOST: db
+  WORDPRESS_DB_NAME: ${DB_NAME}
+  WORDPRESS_DB_USER: ${DB_USER}
+  WORDPRESS_DB_PASSWORD: ${DB_PASSWORD}
+  WORDPRESS_TABLE_PREFIX: wp_
+  WORDPRESS_DEBUG: "1"
+  # Config lives here, not in the database, so the site stays portable.
+  # The official image evals this at runtime from wp-config.php — the cli
+  # service must receive the identical block, hence the YAML anchor.
+  WORDPRESS_CONFIG_EXTRA: |
+    define( 'WP_HOME',    '${WP_URL}' );
+    define( 'WP_SITEURL', '${WP_URL}' );
+    define( 'WP_DEBUG_LOG', true );
+    define( 'WP_DEBUG_DISPLAY', false );
+    define( 'SCRIPT_DEBUG', true );
+    define( 'WP_ENVIRONMENT_TYPE', 'local' );
+    define( 'DISALLOW_FILE_EDIT', true );
+    define( 'AUTOMATIC_UPDATER_DISABLED', true );
+    define( 'WP_MEMORY_LIMIT', '256M' );
+    // Customer logo storage — outside the web root, like production.
+    define( 'REKLAMO_PRIVATE_DIR', '/var/www/private' );
+    // Mail goes through the same phpmailer_init code path as production,
+    // pointed at Mailpit. Only these constants differ on the live host.
+    define( 'REKLAMO_SMTP_HOST', 'mail' );
+    define( 'REKLAMO_SMTP_PORT', 1025 );
+    define( 'REKLAMO_SMTP_USER', '' );
+    define( 'REKLAMO_SMTP_PASS', '' );
+    define( 'REKLAMO_SMTP_SECURE', '' );
+
+x-wp-volumes: &wp-volumes
+  # WordPress core in a bind mount so WooCommerce source is greppable from the host.
+  - ./wp:/var/www/html
+  # Our code, mounted on top at its wp-content paths.
+  - ./wp-content/themes/reklamo:/var/www/html/wp-content/themes/reklamo
+  - ./wp-content/plugins/reklamo-core:/var/www/html/wp-content/plugins/reklamo-core
+  - ./private:/var/www/private
+
+services:
+  db:
+    image: mariadb:11.8
+    environment:
+      MARIADB_DATABASE: ${DB_NAME}
+      MARIADB_USER: ${DB_USER}
+      MARIADB_PASSWORD: ${DB_PASSWORD}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./config/mariadb/low-mem.cnf:/etc/mysql/conf.d/low-mem.cnf:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  mail:
+    image: axllent/mailpit:v1.31
+    ports:
+      - "127.0.0.1:8025:8025"   # web UI + API; SMTP :1025 stays internal
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: "1"
+      MP_SMTP_AUTH_ALLOW_INSECURE: "1"
+
+  wp:
+    image: wordpress:7.1-php8.3-apache
+    depends_on:
+      db:
+        condition: service_healthy
+      mail:
+        condition: service_started
+    ports:
+      - "127.0.0.1:8080:80"
+    environment:
+      <<: *wp-env
+      # Run Apache as the host user so ./wp stays editable/readable without chown games.
+      APACHE_RUN_USER: "#1000"
+      APACHE_RUN_GROUP: "#1000"
+    volumes:
+      - ./wp:/var/www/html
+      - ./wp-content/themes/reklamo:/var/www/html/wp-content/themes/reklamo
+      - ./wp-content/plugins/reklamo-core:/var/www/html/wp-content/plugins/reklamo-core
+      - ./private:/var/www/private
+      - ./config/php/uploads.ini:/usr/local/etc/php/conf.d/zz-reklamo.ini:ro
+
+  # WP-CLI, run on demand via bin/wp — never idles.
+  cli:
+    image: wordpress:cli-2-php8.3
+    profiles: ["cli"]
+    user: "1000:1000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      <<: *wp-env
+      WP_CLI_CACHE_DIR: /tmp/wp-cli-cache   # runs as uid 1000 with no HOME
+    volumes: *wp-volumes
+
+volumes:
+  db_data:

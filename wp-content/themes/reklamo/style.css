@@ -1,0 +1,42 @@
+/*
+Theme Name: Reklamo
+Theme URI: https://reklamo.bg
+Author: Nocturn AI
+Description: Тема по одобрения дизайн на Reklamo.bg — промо пакети с вашето лого. Презентация само; бизнес логиката е в плъгина reklamo-core.
+Version: 0.1.0
+Requires at least: 7.0
+Tested up to: 7.1
+Requires PHP: 8.1
+License: GNU General Public License v2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: reklamo
+*/
+
+/* Phase 0 skeleton. Real styles arrive with the design pass (Phase 5). */
+body {
+	margin: 0;
+	font-family: var( --wp--preset--font-family--body, system-ui, sans-serif );
+	color: var( --wp--preset--color--ink, #1a1a1a );
+	background: var( --wp--preset--color--paper, #faf8f4 );
+}
+.site-header,
+.site-footer {
+	padding: 1rem 1.5rem;
+	border-bottom: 1px solid #e8e2d6;
+}
+.site-footer {
+	border-bottom: 0;
+	border-top: 1px solid #e8e2d6;
+	font-size: 0.875rem;
+}
+.site-header .brand {
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-decoration: none;
+	color: inherit;
+}
+.site-main {
+	max-width: var( --wp--style--global--content-size, 1200px );
+	margin: 0 auto;
+	padding: 2rem 1.5rem;
+}
