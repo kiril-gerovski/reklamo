@@ -89,7 +89,7 @@ services:
       - ./private:/var/www/private
       - ./config/php/uploads.ini:/usr/local/etc/php/conf.d/zz-reklamo.ini:ro
 
-  # WP-CLI, run on demand via bin/wp — never idles.
+  # WP-CLI, run on demand via scripts/wp — never idles.
   cli:
     image: wordpress:cli-2-php8.3
     profiles: ["cli"]

@@ -6,7 +6,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 set -a; . ./.env; set +a
-. bin/lib.sh
+. scripts/lib.sh
 cli_up
 wc() { wp wc "$@" --user="$WP_ADMIN_USER"; }
 # Warn-and-continue: WooCommerce refuses direct writes to a few of its admin

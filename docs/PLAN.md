@@ -186,7 +186,7 @@ reklamo/
 ├── docker-compose.yml
 ├── .env.example
 ├── config/php/uploads.ini        # deliberately restrictive
-├── bin/{wp,setup.sh,seed.sh,reset.sh,make-fixtures.sh}
+├── scripts/{wp,setup.sh,seed.sh,reset.sh,lint.sh,make-fixtures.sh,lib.sh}
 ├── design/                       # the approved mockups
 ├── docs/order-flow.md
 ├── wp-content/themes/reklamo/
@@ -199,7 +199,7 @@ reklamo/
 
 ### The database is not in git — the seed script is
 
-The single most important discipline here. WordPress keeps configuration in the database, which git cannot track. **Every configuration change must be expressed as a WP-CLI command in `bin/seed.sh`**, never only clicked in the dashboard. `bin/reset.sh` then rebuilds the whole site from zero.
+The single most important discipline here. WordPress keeps configuration in the database, which git cannot track. **Every configuration change must be expressed as a WP-CLI command in `scripts/seed.sh`**, never only clicked in the dashboard. `scripts/reset.sh` then rebuilds the whole site from zero.
 
 If a change exists only in your local database, it does not exist. That script is simultaneously the deployment procedure, the disaster-recovery procedure, and the specification of the site's configuration.
 
@@ -207,7 +207,7 @@ If a change exists only in your local database, it does not exist. That script i
 
 ## Build sequence — walking skeleton first
 
-**Phase 0 — Environment.** Docker stack, repo, `bin/` scripts, WP + WooCommerce + `bg_BG` installed by WP-CLI, four packages seeded, Mailpit capturing mail. *Done when `bin/reset.sh` on a clean checkout produces a working Bulgarian store with zero manual clicks.*
+**Phase 0 — Environment.** Docker stack, repo, `scripts/` scripts, WP + WooCommerce + `bg_BG` installed by WP-CLI, four packages seeded, Mailpit capturing mail. *Done when `scripts/reset.sh` on a clean checkout produces a working Bulgarian store with zero manual clicks.*
 
 **Phase 1 — Walking skeleton.** Thinnest end-to-end slice, deliberately unhardened: single-file upload (no chunking yet) → no-payment gateway → order lands in `rq-received` → one Bulgarian email → approval link → status flips to `rq-approved`. *Done when the whole path is clickable in a browser.* This proves the risky joints — gateway/Store API interaction, token flow, line-item meta — before any of it is expensive to change.
 
@@ -225,7 +225,7 @@ If a change exists only in your local database, it does not exist. That script i
 
 ## Phase 0 — status: DONE (2026-09-04)
 
-Verified on the dev VM: `bin/setup.sh` → Bulgarian storefront on :8080, WP 7.1 + WooCommerce 11.1.0 (pinned), HPOS enabled, block Cart/Checkout, 4 real packages, menus, free-shipping zone BG, Mailpit capturing mail through the plugin's `phpmailer_init` path. A test order placed through the block checkout via Playwright landed in `wp_wc_orders` and produced two Bulgarian emails. `bin/seed.sh` is idempotent (two consecutive runs, no changes). PHPCS clean.
+Verified on the dev VM: `scripts/setup.sh` → Bulgarian storefront on :8080, WP 7.1 + WooCommerce 11.1.0 (pinned), HPOS enabled, block Cart/Checkout, 4 real packages, menus, free-shipping zone BG, Mailpit capturing mail through the plugin's `phpmailer_init` path. A test order placed through the block checkout via Playwright landed in `wp_wc_orders` and produced two Bulgarian emails. `scripts/seed.sh` is idempotent (two consecutive runs, no changes). PHPCS clean.
 
 Lessons that changed the scripts:
 - WooCommerce refuses direct writes to some admin options → `opt()` warns and continues.
@@ -239,7 +239,7 @@ Translation gaps already observed on the storefront (feeds the Phase 6 audit): "
 
 ## Phase 0 in detail
 
-Goal: **`git clone` → `bin/setup.sh` → a working Bulgarian WooCommerce store on `http://localhost:8080`, no manual clicks.** Nothing here depends on the design mockups.
+Goal: **`git clone` → `scripts/setup.sh` → a working Bulgarian WooCommerce store on `http://localhost:8080`, no manual clicks.** Nothing here depends on the design mockups.
 
 ### Files created
 
@@ -249,11 +249,11 @@ Goal: **`git clone` → `bin/setup.sh` → a working Bulgarian WooCommerce store
 | `.env.example` → `.env` | DB creds, admin user/pass/email, `WP_URL=http://localhost:8080` |
 | `config/php/uploads.ini` | **Restrictive on purpose**: `upload_max_filesize=64M`, `post_max_size=64M`, `max_input_time=60`, `memory_limit=256M` |
 | `config/mariadb/low-mem.cnf` | `innodb_buffer_pool_size=128M` — the VM has ~1.9 GB free |
-| `bin/wp` | `docker compose run --rm cli wp "$@"` |
-| `bin/setup.sh` | Bring stack up, wait for health, `wp core install --locale=bg_BG`, install **pinned** WooCommerce 11.1.0, language packs, activate theme + plugin, then `seed.sh` |
-| `bin/seed.sh` | All dashboard configuration as `wp option update` / `wp wc …` commands (see below) |
-| `bin/reset.sh` | `docker compose down -v` → `setup.sh`. The master test. |
-| `bin/lint.sh` | PHPCS + WPCS via a throwaway `php:8.3-cli` container (no PHP on host) |
+| `scripts/wp` | `docker compose run --rm cli wp "$@"` |
+| `scripts/setup.sh` | Bring stack up, wait for health, `wp core install --locale=bg_BG`, install **pinned** WooCommerce 11.1.0, language packs, activate theme + plugin, then `seed.sh` |
+| `scripts/seed.sh` | All dashboard configuration as `wp option update` / `wp wc …` commands (see below) |
+| `scripts/reset.sh` | `docker compose down -v` → `setup.sh`. The master test. |
+| `scripts/lint.sh` | PHPCS + WPCS via a throwaway `php:8.3-cli` container (no PHP on host) |
 | `wp-content/themes/reklamo/` | Minimal activatable skeleton: `style.css`, `index.php`, `header.php`, `footer.php`, `functions.php` (`add_theme_support('woocommerce')`), `theme.json` v3 |
 | `wp-content/plugins/reklamo-core/reklamo-core.php` | Bootstrap: `FeaturesUtil` declarations (`custom_order_tables`, `cart_checkout_blocks`) + `phpmailer_init` SMTP hook reading `REKLAMO_SMTP_*` constants |
 | `composer.json` | dev-only: `wp-coding-standards/wpcs`, `phpcompatibility` |
@@ -278,13 +278,13 @@ Goal: **`git clone` → `bin/setup.sh` → a working Bulgarian WooCommerce store
 
 ### Definition of done
 
-`bin/reset.sh` on a fresh clone → `http://localhost:8080` shows a Bulgarian storefront with four products; wp-admin is in Bulgarian; WooCommerce reports HPOS enabled and block checkout active; placing a test order with the (temporarily enabled) BACS gateway produces an email visible in Mailpit at `:8025`; `bin/lint.sh` passes on the skeleton.
+`scripts/reset.sh` on a fresh clone → `http://localhost:8080` shows a Bulgarian storefront with four products; wp-admin is in Bulgarian; WooCommerce reports HPOS enabled and block checkout active; placing a test order with the (temporarily enabled) BACS gateway produces an email visible in Mailpit at `:8025`; `scripts/lint.sh` passes on the skeleton.
 
 ---
 
 ## How to test it
 
-**1. Reproducible rebuild — the master test.** `bin/reset.sh` destroys the volume and rebuilds. If the site comes back complete, the repo is complete. It is the only thing that proves nothing is trapped in local state.
+**1. Reproducible rebuild — the master test.** `scripts/reset.sh` destroys the volume and rebuilds. If the site comes back complete, the repo is complete. It is the only thing that proves nothing is trapped in local state.
 
 **2. Mailpit.** All ~7 Bulgarian emails captured, zero risk of mailing a real customer, with an API so tests assert on subject and body. This is how the Bulgarian copy gets verified and English leaks get caught.
 
@@ -294,7 +294,7 @@ Goal: **`git clone` → `bin/setup.sh` → a working Bulgarian WooCommerce store
 
 **5. PHPCS + WordPress Coding Standards.** Catches missing escaping and sanitisation — the largest source of WP vulnerabilities, and a live risk because we accept public file uploads.
 
-**6. Realistic fixtures.** `bin/make-fixtures.sh` generates large files **with genuine magic bytes**. A 200 MB file of zeros named `logo.psd` tests nothing — it has to reproduce the `.ai`→`application/pdf` mismatch and the ZIP-based `.cdr`, or the validation is untested. Include an SVG with an embedded `<script>` as a permanent regression test.
+**6. Realistic fixtures.** `scripts/make-fixtures.sh` generates large files **with genuine magic bytes**. A 200 MB file of zeros named `logo.psd` tests nothing — it has to reproduce the `.ai`→`application/pdf` mismatch and the ZIP-based `.cdr`, or the validation is untested. Include an SVG with an embedded `<script>` as a permanent regression test.
 
 Dev-only exception: **Query Monitor** locally for debugging — gitignored, never deployed.
 
@@ -314,7 +314,7 @@ Dev-only exception: **Query Monitor** locally for debugging — gitignored, neve
 
 ## Verification
 
-- **Phase 0:** `bin/reset.sh` on a clean checkout yields a Bulgarian WooCommerce store at `http://localhost:8080` with four packages, all pages and working mail capture — no manual dashboard clicks.
+- **Phase 0:** `scripts/reset.sh` on a clean checkout yields a Bulgarian WooCommerce store at `http://localhost:8080` with four packages, all pages and working mail capture — no manual dashboard clicks.
 - **Phase 1:** a human completes the full order→approval path in a browser; the order ends in `rq-approved` with the logo downloadable from wp-admin.
 - **Phase 2:** a 250 MB layered PSD uploads successfully *on the real host*, and the canary check confirms the private directory is not publicly reachable.
-- **Every phase:** `bin/reset.sh` still works, PHPCS clean, E2E green.
+- **Every phase:** `scripts/reset.sh` still works, PHPCS clean, E2E green.

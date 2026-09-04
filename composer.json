@@ -1,6 +1,6 @@
 {
 	"name": "nocturn-ai/reklamo",
-	"description": "Dev tooling for Reklamo.bg — coding standards only. WordPress and WooCommerce are installed by bin/setup.sh, not Composer.",
+	"description": "Dev tooling for Reklamo.bg — coding standards only. WordPress and WooCommerce are installed by scripts/setup.sh, not Composer.",
 	"type": "project",
 	"license": "GPL-2.0-or-later",
 	"require-dev": {

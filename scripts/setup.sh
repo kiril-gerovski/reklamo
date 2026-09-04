@@ -11,7 +11,7 @@ fi
 set -a; . ./.env; set +a
 
 mkdir -p wp private
-. bin/lib.sh
+. scripts/lib.sh
 
 echo "→ starting stack"
 docker compose up -d db mail wp
@@ -59,7 +59,7 @@ wp plugin activate reklamo-core >/dev/null
 for p in akismet hello; do wp plugin is-installed "$p" >/dev/null 2>&1 && wp plugin delete "$p" >/dev/null || true; done
 for t in $(wp theme list --status=inactive --field=name); do wp theme delete "$t" >/dev/null || true; done
 
-bin/seed.sh
+scripts/seed.sh
 
 echo
 echo "✔ ready"

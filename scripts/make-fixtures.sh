@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Test files WITH GENUINE MAGIC BYTES so MIME sniffing is actually exercised.
 # A file of zeros named logo.psd tests nothing.
-# Usage: bin/make-fixtures.sh [size_mb]   (default 5; use 150+ to test chunking)
+# Usage: scripts/make-fixtures.sh [size_mb]   (default 5; use 150+ to test chunking)
 set -euo pipefail
 cd "$(dirname "$0")/.."
 mb="${1:-5}"

@@ -6,4 +6,4 @@ cd "$(dirname "$0")/.."
 echo "→ tearing down containers, database volume, WordPress core, private files"
 docker compose --profile cli down -v --remove-orphans
 rm -rf wp private
-exec bin/setup.sh
+exec scripts/setup.sh

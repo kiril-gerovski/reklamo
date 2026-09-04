@@ -1,4 +1,4 @@
-# Shared helpers for bin/*.sh — source, don't execute.
+# Shared helpers for scripts/*.sh — source, don't execute.
 # Keeps ONE WP-CLI container alive for the duration of the calling script,
 # so 80 wp calls take seconds instead of minutes. Cleans up on exit.
 

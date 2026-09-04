@@ -1,4 +1,4 @@
-# WordPress core + WooCommerce live here (installed by bin/setup.sh, never committed)
+# WordPress core + WooCommerce live here (installed by scripts/setup.sh, never committed)
 /wp/
 
 # Customer logo storage (mirrors production "above web root")
@@ -18,3 +18,4 @@
 .DS_Store
 Thumbs.db
 .playwright-mcp/
+composer.lock
