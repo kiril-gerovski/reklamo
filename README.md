@@ -70,6 +70,13 @@ scripts/worktree/wt-drop.sh feature/x --yes
 The same commands exist as `/wt-new`, `/wt-build`, `/wt-push`, `/wt-merge`, `/wt-drop` in
 Claude Code. Details: [`scripts/worktree/README.md`](scripts/worktree/README.md).
 
+## How the site is put together
+
+- **Homepage** = five block patterns from `wp-content/themes/reklamo/patterns/` (hero, packages, steps, trust, quick-start), copied into the Начало page by `seed.sh` on first run. The owner edits texts/images in the block editor (`templateLock: contentOnly`).
+- **Request page** (`/kachi-logo/?paket=<slug>`) = theme template `templates/page-request.php` + the plugin's `Reklamo_Request::render()`. Submitting creates the WooCommerce order directly — there is no cart/checkout step (the block checkout stays installed as an unlinked fallback).
+- **Company details** (phone, email, address, social, deposit %, mockup deadline) live in WooCommerce → Settings → Reklamo and feed the footer, request page and emails.
+- **Product cards** link to the request page; "Featured" products show the "Най-популярен" badge.
+
 ## The configuration rule
 
 The database is not in git — **`scripts/seed.sh` is**. Every setting you click in the dashboard

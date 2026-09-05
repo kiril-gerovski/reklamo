@@ -35,6 +35,8 @@ require REKLAMO_PATH . 'includes/class-reklamo-cart.php';
 require REKLAMO_PATH . 'includes/class-reklamo-approval.php';
 require REKLAMO_PATH . 'includes/class-reklamo-admin-order.php';
 require REKLAMO_PATH . 'includes/class-reklamo-emails.php';
+require REKLAMO_PATH . 'includes/class-reklamo-settings.php';
+require REKLAMO_PATH . 'includes/class-reklamo-request.php';
 
 /**
  * Declare compatibility with WooCommerce features.
@@ -83,6 +85,8 @@ function reklamo_boot(): void {
 	Reklamo_Approval::init();
 	Reklamo_Admin_Order::init();
 	Reklamo_Emails::init();
+	Reklamo_Settings::init();
+	Reklamo_Request::init();
 }
 add_action( 'plugins_loaded', 'reklamo_boot', 20 );
 

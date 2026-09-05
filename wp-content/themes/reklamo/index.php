@@ -1,6 +1,6 @@
 <?php
 /**
- * Fallback template — renders whatever the loop gives us.
+ * Fallback template.
  *
  * @package Reklamo
  */
@@ -8,15 +8,15 @@
 defined( 'ABSPATH' ) || exit;
 
 get_header();
-
+?>
+<div class="container page-narrow">
+<?php
 if ( have_posts() ) {
 	while ( have_posts() ) {
 		the_post();
 		?>
 		<article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
-			<?php if ( ! is_front_page() ) : ?>
-				<h1 class="entry-title"><?php the_title(); ?></h1>
-			<?php endif; ?>
+			<h1 class="page-title"><?php the_title(); ?></h1>
 			<div class="entry-content"><?php the_content(); ?></div>
 		</article>
 		<?php
@@ -26,5 +26,7 @@ if ( have_posts() ) {
 	<p><?php esc_html_e( 'Nothing found.', 'reklamo' ); ?></p>
 	<?php
 }
-
+?>
+</div>
+<?php
 get_footer();

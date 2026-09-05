@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600" role="img" aria-label="Package">
+  <rect width="600" height="600" fill="#faf8f4"/>
+  <rect x="150" y="120" width="300" height="380" rx="18" fill="#1a1a1a"/>
+  <rect x="150" y="120" width="26" height="380" rx="8" fill="#2a2a2a"/>
+  <circle cx="300" cy="290" r="54" fill="none" stroke="#b8892b" stroke-width="5"/>
+  <path d="M283 322v-64h19a16 16 0 0 1 0 32h-19m19 0 19 32" fill="none" stroke="#b8892b" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="300" y="392" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="22" font-weight="600" letter-spacing="6" fill="#b8892b">REKLAMO</text>
+</svg>

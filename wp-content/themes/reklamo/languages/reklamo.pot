@@ -1,0 +1,403 @@
+# Copyright (C) 2026 Nocturn AI
+# This file is distributed under the GNU General Public License v2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Reklamo 0.2.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/theme/reklamo\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-09-04T21:14:08+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: reklamo\n"
+
+#. Theme Name of the theme
+#: style.css
+#: functions.php:40
+msgid "Reklamo"
+msgstr ""
+
+#. Theme URI of the theme
+#: style.css
+msgid "https://reklamo.bg"
+msgstr ""
+
+#. Description of the theme
+#: style.css
+msgid "Theme built to the approved Reklamo.bg design — promotional packages with your logo. Presentation only; business logic lives in the reklamo-core plugin."
+msgstr ""
+
+#. Author of the theme
+#: style.css
+msgid "Nocturn AI"
+msgstr ""
+
+#: footer.php:39
+msgid "Navigation"
+msgstr ""
+
+#: footer.php:54
+msgid "Information"
+msgstr ""
+
+#: footer.php:69
+msgid "Contact"
+msgstr ""
+
+#. translators: %1$s: year, %2$s: site name
+#: footer.php:87
+#, php-format
+msgid "© %1$s %2$s — All rights reserved."
+msgstr ""
+
+#: functions.php:34
+msgid "Primary Menu"
+msgstr ""
+
+#: functions.php:35
+msgid "Footer — Navigation"
+msgstr ""
+
+#: functions.php:36
+msgid "Footer — Information"
+msgstr ""
+
+#: functions.php:108
+msgid "Choose this package"
+msgstr ""
+
+#: functions.php:110
+msgid "No payment is taken at this stage."
+msgstr ""
+
+#: functions.php:122
+#: woocommerce/content-product.php:28
+msgid "Choose package"
+msgstr ""
+
+#: header.php:19
+msgid "Skip to content"
+msgstr ""
+
+#: header.php:24
+msgid "Primary"
+msgstr ""
+
+#: header.php:39
+msgid "Request a mockup"
+msgstr ""
+
+#: header.php:41
+msgid "Menu"
+msgstr ""
+
+#: index.php:26
+msgid "Nothing found."
+msgstr ""
+
+#: patterns/hero.php
+msgctxt "Pattern title"
+msgid "Hero — choose, send, we do the rest"
+msgstr ""
+
+#: patterns/hero.php
+msgctxt "Pattern description"
+msgid "Homepage hero with headline, lead, two buttons, four features and the product image with a price badge."
+msgstr ""
+
+#: patterns/packages.php
+msgctxt "Pattern title"
+msgid "Popular packages"
+msgstr ""
+
+#: patterns/packages.php
+msgctxt "Pattern description"
+msgid "Section heading, \"view all\" link and the four package cards (WooCommerce products)."
+msgstr ""
+
+#: patterns/quick-start.php
+msgctxt "Pattern title"
+msgid "Quick start — send your logo"
+msgstr ""
+
+#: patterns/quick-start.php
+msgctxt "Pattern description"
+msgid "Compact request form (name, email, note, logo, package) with intro."
+msgstr ""
+
+#: patterns/steps.php
+msgctxt "Pattern title"
+msgid "How the order works — 6 steps"
+msgstr ""
+
+#: patterns/steps.php
+msgctxt "Pattern description"
+msgid "Six numbered steps with icons."
+msgstr ""
+
+#: patterns/trust.php
+msgctxt "Pattern title"
+msgid "Trust strip"
+msgstr ""
+
+#: patterns/trust.php
+msgctxt "Pattern description"
+msgid "Security · Quality · Personal service · Fast turnaround."
+msgstr ""
+
+#: template-parts/trust-strip.php:11
+msgid "Security"
+msgstr ""
+
+#: template-parts/trust-strip.php:11
+msgid "You pay nothing until you approve the mockup."
+msgstr ""
+
+#: template-parts/trust-strip.php:12
+msgid "Quality"
+msgstr ""
+
+#: template-parts/trust-strip.php:12
+msgid "Proven materials and technologies."
+msgstr ""
+
+#: template-parts/trust-strip.php:13
+msgid "Personal service"
+msgstr ""
+
+#: template-parts/trust-strip.php:13
+msgid "A designer and a consultant at every step."
+msgstr ""
+
+#: template-parts/trust-strip.php:14
+msgid "Fast turnaround"
+msgstr ""
+
+#: template-parts/trust-strip.php:14
+msgid "Production and delivery on agreed dates."
+msgstr ""
+
+#: template-parts/trust-strip.php:17
+msgid "Why us"
+msgstr ""
+
+#. Template Name of the theme
+msgid "Request page (upload logo)"
+msgstr ""
+
+#: templates/page-request.php:20
+msgid "Upload logo"
+msgstr ""
+
+#: templates/page-request.php:20
+msgid "Send the file with your logo"
+msgstr ""
+
+#. translators: %s: number of business hours
+#: templates/page-request.php:22
+msgid "Review of details"
+msgstr ""
+
+#. translators: %s: number of business hours
+#: templates/page-request.php:22
+#, php-format
+msgid "We prepare a mockup within %s h."
+msgstr ""
+
+#: templates/page-request.php:23
+msgid "Approval"
+msgstr ""
+
+#: templates/page-request.php:23
+msgid "Review and approve the mockup"
+msgstr ""
+
+#: templates/page-request.php:24
+msgid "Production"
+msgstr ""
+
+#: templates/page-request.php:24
+msgid "Production starts after approval"
+msgstr ""
+
+#: templates/page-request.php:27
+msgid "We receive your logo"
+msgstr ""
+
+#: templates/page-request.php:27
+msgid "We check the quality of the file."
+msgstr ""
+
+#. translators: %s: number of business hours
+#: templates/page-request.php:29
+msgid "We prepare the mockup"
+msgstr ""
+
+#. translators: %s: number of business hours
+#: templates/page-request.php:29
+#, php-format
+msgid "You get the mockup by email within %s business hours."
+msgstr ""
+
+#: templates/page-request.php:30
+msgid "You review and approve"
+msgstr ""
+
+#: templates/page-request.php:30
+msgid "Or request corrections."
+msgstr ""
+
+#. translators: %s: deposit percentage
+#: templates/page-request.php:32
+#, php-format
+msgid "You pay a %s%% deposit"
+msgstr ""
+
+#. translators: %s: deposit percentage
+#: templates/page-request.php:32
+msgid "Production starts after approval."
+msgstr ""
+
+#: templates/page-request.php:39
+msgid "Breadcrumb"
+msgstr ""
+
+#: templates/page-request.php:40
+msgid "Home"
+msgstr ""
+
+#: templates/page-request.php:41
+msgid "Promo packages"
+msgstr ""
+
+#: templates/page-request.php:59
+msgid "branding included"
+msgstr ""
+
+#: templates/page-request.php:84
+msgid "What happens next?"
+msgstr ""
+
+#: templates/page-request.php:97
+msgid "Need help?"
+msgstr ""
+
+#: templates/page-request.php:98
+msgid "Our consultant is available to help you."
+msgstr ""
+
+#: templates/page-request.php:101
+msgid "Contact us"
+msgstr ""
+
+#: woocommerce/content-product.php:21
+msgid "Most popular"
+msgstr ""
+
+#: theme.json
+msgctxt "Color name"
+msgid "Gold"
+msgstr ""
+
+#: theme.json
+msgctxt "Color name"
+msgid "Dark Gold"
+msgstr ""
+
+#: theme.json
+msgctxt "Color name"
+msgid "Ink"
+msgstr ""
+
+#: theme.json
+msgctxt "Color name"
+msgid "Graphite"
+msgstr ""
+
+#: theme.json
+msgctxt "Color name"
+msgid "Paper"
+msgstr ""
+
+#: theme.json
+msgctxt "Color name"
+msgid "White"
+msgstr ""
+
+#: theme.json
+msgctxt "Color name"
+msgid "Line"
+msgstr ""
+
+#: theme.json
+msgctxt "Color name"
+msgid "Red (accent)"
+msgstr ""
+
+#: theme.json
+msgctxt "Font family name"
+msgid "Headings (serif)"
+msgstr ""
+
+#: theme.json
+msgctxt "Font family name"
+msgid "Body"
+msgstr ""
+
+#: theme.json
+msgctxt "Font size name"
+msgid "Small"
+msgstr ""
+
+#: theme.json
+msgctxt "Font size name"
+msgid "Medium"
+msgstr ""
+
+#: theme.json
+msgctxt "Font size name"
+msgid "Large"
+msgstr ""
+
+#: theme.json
+msgctxt "Font size name"
+msgid "Heading"
+msgstr ""
+
+#: theme.json
+msgctxt "Font size name"
+msgid "Display"
+msgstr ""
+
+#: theme.json
+msgctxt "Space size name"
+msgid "1"
+msgstr ""
+
+#: theme.json
+msgctxt "Space size name"
+msgid "2"
+msgstr ""
+
+#: theme.json
+msgctxt "Space size name"
+msgid "3"
+msgstr ""
+
+#: theme.json
+msgctxt "Space size name"
+msgid "4"
+msgstr ""
+
+#: theme.json
+msgctxt "Space size name"
+msgid "5"
+msgstr ""
+
+#: theme.json
+msgctxt "Space size name"
+msgid "6"
+msgstr ""

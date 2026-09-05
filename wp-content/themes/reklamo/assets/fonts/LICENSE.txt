@@ -1,0 +1,4 @@
+Playfair Display (c) The Playfair Display Project Authors — SIL Open Font License 1.1
+Inter (c) The Inter Project Authors — SIL Open Font License 1.1
+https://scripts.sil.org/OFL
+Files obtained from Google Fonts; Cyrillic and Latin subsets only.

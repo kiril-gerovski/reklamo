@@ -10,25 +10,23 @@ let orderId = '';
 let approvalUrl = '';
 
 test( 'customer places a request with a logo and no payment', async ( { page } ) => {
+	// Product page leads to the request page — no add-to-cart, no checkout.
 	await page.goto( '/product/red-business-pack/' );
-	await expect( page.locator( '.reklamo-nopay-hint' ) ).toContainText( 'Не се извършва плащане' );
+	await page.getByRole( 'link', { name: /Избери този пакет/ } ).click();
+	await page.waitForURL( /\/kachi-logo\/\?paket=red-business-pack/ );
 
-	await page.setInputFiles( '#reklamo_logo', `${ FIXTURES }/logo.ai` );
-	await page.fill( '#reklamo_note', 'E2E: златно лого, центрирано.' );
-	await page.click( 'button[name="add-to-cart"]' );
+	await expect( page.locator( 'h1' ) ).toHaveText( 'Качи лого и визуализирай' );
+	await expect( page.locator( '.package-summary__name' ) ).toHaveText( 'Red Business Pack' );
+	await expect( page.locator( '.rq-nopay' ) ).toContainText( 'Не се извършва плащане' );
 
-	// Straight to the block checkout with our notice, our gateway, the design's button label.
-	await page.waitForURL( /\/porachka\// );
-	await expect( page.locator( '.reklamo-nopay-notice' ) ).toBeVisible();
-	await expect( page.getByRole( 'radio', { name: 'Заявка без плащане' } ) ).toBeChecked();
-
-	await page.getByRole( 'textbox', { name: 'Имейл адрес' } ).fill( 'e2e@example.com' );
-	await page.getByRole( 'textbox', { name: 'Име', exact: true } ).fill( 'Е2Е' );
-	await page.getByRole( 'textbox', { name: 'Фамилия' } ).fill( 'Тест' );
-	await page.getByRole( 'textbox', { name: 'Адрес', exact: true } ).fill( 'ул. Тестова 1' );
-	await page.getByRole( 'textbox', { name: 'Град' } ).fill( 'София' );
-	await page.getByRole( 'textbox', { name: 'Пощенски код' } ).fill( '1000' );
-	await page.getByRole( 'button', { name: 'Изпрати и заяви визуализация' } ).click();
+	await page.setInputFiles( 'input[name="reklamo_logo"]', `${ FIXTURES }/logo.ai` );
+	await expect( page.locator( '[data-rq-file]' ) ).toBeVisible();
+	await expect( page.locator( '[data-rq-file-name]' ) ).toHaveText( 'logo.ai' );
+	await page.fill( 'textarea[name="reklamo_note"]', 'E2E: златно лого, центрирано.' );
+	await page.fill( 'input[name="rq_name"]', 'Е2Е Тест' );
+	await page.fill( 'input[name="rq_email"]', 'e2e@example.com' );
+	await page.check( 'input[name="rq_consent"]' );
+	await page.getByRole( 'button', { name: /Изпрати и заяви визуализация/ } ).click();
 
 	await page.waitForURL( /order-received\/(\d+)/ );
 	orderId = page.url().match( /order-received\/(\d+)/ )[ 1 ];
@@ -37,6 +35,33 @@ test( 'customer places a request with a logo and no payment', async ( { page } )
 	const mail = await mailpitFind( `Получихме Вашата заявка ${ orderId }` );
 	expect( mail.to ).toBe( 'e2e@example.com' );
 	expect( mail.text ).toContain( 'не се извършва плащане' );
+} );
+
+test( 'request form validation: missing consent and file are refused, values are kept', async ( { page } ) => {
+	await page.goto( '/kachi-logo/?paket=red-business-pack' );
+	await page.fill( 'input[name="rq_name"]', 'Без файл' );
+	await page.fill( 'input[name="rq_email"]', 'nofile@example.com' );
+	// Bypass browser-side "required" to exercise the server-side validation.
+	await page.evaluate( () => document.querySelector( 'form.rq-form' ).setAttribute( 'novalidate', '' ) );
+	await page.evaluate( () => document.querySelectorAll( 'form.rq-form [required]' ).forEach( ( el ) => el.removeAttribute( 'required' ) ) );
+	await page.getByRole( 'button', { name: /Изпрати и заяви визуализация/ } ).click();
+	await page.waitForURL( /rq=/ );
+	await expect( page.locator( '.rq-errors' ) ).toContainText( 'Общите условия' );
+	await expect( page.locator( '.rq-errors' ) ).toContainText( 'файл с Вашето лого' );
+	await expect( page.locator( 'input[name="rq_name"]' ) ).toHaveValue( 'Без файл' );
+} );
+
+test( 'homepage quick-start form creates a request too', async ( { page } ) => {
+	await page.goto( '/' );
+	const form = page.locator( '.rq-form--compact' );
+	await form.locator( 'select[name="product_id"]' ).selectOption( { index: 2 } );
+	await form.locator( 'input[name="reklamo_logo"]' ).setInputFiles( `${ FIXTURES }/logo.png` );
+	await form.locator( 'input[name="rq_name"]' ).fill( 'Бърз Старт' );
+	await form.locator( 'input[name="rq_email"]' ).fill( 'quick@example.com' );
+	await form.locator( 'input[name="rq_consent"]' ).check();
+	await form.getByRole( 'button', { name: /Изпрати за визуализация/ } ).click();
+	await page.waitForURL( /order-received\/(\d+)/ );
+	await expect( page.locator( 'body' ) ).toContainText( 'Заявката Ви е получена' );
 } );
 
 test( 'admin sees the logo and sends a mockup', async ( { page } ) => {

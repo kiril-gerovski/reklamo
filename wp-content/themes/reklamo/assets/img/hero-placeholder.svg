@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 700" width="900" height="700" role="img" aria-label="Branded notebook and pen">
+  <defs><radialGradient id="g" cx="50%" cy="45%" r="60%"><stop offset="0" stop-color="#fdfcf9"/><stop offset="1" stop-color="#efe9dc"/></radialGradient></defs>
+  <rect width="900" height="700" rx="18" fill="url(#g)"/>
+  <ellipse cx="450" cy="420" rx="330" ry="240" fill="#f4efe4"/>
+  <g transform="rotate(-8 430 340)">
+    <rect x="240" y="120" width="380" height="460" rx="22" fill="#1a1a1a"/>
+    <rect x="240" y="120" width="30" height="460" rx="10" fill="#2b2b2b"/>
+    <rect x="600" y="130" width="8" height="440" rx="3" fill="#c9a24a" opacity=".85"/>
+    <circle cx="440" cy="330" r="62" fill="none" stroke="#b8892b" stroke-width="5"/>
+    <path d="M420 366v-72h22a18 18 0 0 1 0 36h-22m22 0 22 36" fill="none" stroke="#b8892b" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="440" y="445" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="24" font-weight="600" letter-spacing="7" fill="#b8892b">REKLAMO.BG</text>
+  </g>
+  <g transform="rotate(35 690 380)">
+    <rect x="670" y="150" width="34" height="460" rx="17" fill="#1a1a1a"/>
+    <rect x="670" y="150" width="34" height="110" rx="17" fill="#b8892b"/>
+    <path d="M670 600h34l-17 60z" fill="#c9a24a"/>
+  </g>
+</svg>

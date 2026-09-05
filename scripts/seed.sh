@@ -91,6 +91,19 @@ update_option( "woocommerce_custom_orders_table_data_sync_enabled", "no" );
 echo "  HPOS enabled: " . ( Automattic\WooCommerce\Utilities\OrderUtil::custom_orders_table_usage_is_enabled() ? "yes" : "NO" ) . "\n";
 '
 
+echo "→ company & process settings (WooCommerce → Settings → Reklamo)"
+opt reklamo_company_name "Reklamo.bg"
+opt reklamo_tagline "Промоционални пакети и брандирани продукти за твоя бизнес. Ясни цени, качествено изпълнение и персонално обслужване."
+opt reklamo_phone "+359 88 123 4567"
+opt reklamo_email "office@reklamo.bg"
+opt reklamo_address "София, България"
+opt reklamo_facebook "https://facebook.com/"
+opt reklamo_instagram "https://instagram.com/"
+opt reklamo_linkedin "https://linkedin.com/"
+opt reklamo_mockup_deadline 24
+opt reklamo_deposit_pct 50
+opt reklamo_note_max 300
+
 echo "→ payment gateways"
 # Our no-payment gateway is the only one enabled. Title/description are site content (Bulgarian).
 opt woocommerce_reklamo_request_settings '{"enabled":"yes","title":"Заявка без плащане","description":"На този етап не се извършва плащане. Ще подготвим визуализация за одобрение и ще ви изпратим банковите данни след това.","instructions":"Благодарим! Ще получите визуализация за одобрение до 24 работни часа."}' --format=json
@@ -136,8 +149,44 @@ ensure_page plashtane "Плащане" >/dev/null
 ensure_page chesto-zadavani-vaprosi "Често задавани въпроси" >/dev/null
 ensure_page obshti-usloviya "Общи условия" >/dev/null
 ensure_page politika-za-poveritelnost "Политика за поверителност" >/dev/null
+fill_if_empty() { # slug content
+  local id; id=$(page_id "$1"); [ -n "$id" ] || return 0
+  [ -z "$(wp post get "$id" --field=post_content)" ] && wp post update "$id" --post_content="$2" >/dev/null || true
+}
+fill_if_empty kak-raboti "<!-- wp:paragraph --><p>Избираш пакет, качваш логото си и получаваш визуализация до 24 работни часа. След одобрение плащаш 50% аванс по банков път, произвеждаме и доставяме.</p><!-- /wp:paragraph -->"
+fill_if_empty za-biznesa "<!-- wp:paragraph --><p>Брандирани продукти за екипи, събития и клиенти — с фиксирани количества и ясни цени.</p><!-- /wp:paragraph -->"
+fill_if_empty vdahnovenie "<!-- wp:paragraph --><p>Идеи и примери за брандиране.</p><!-- /wp:paragraph -->"
+fill_if_empty kontakti "<!-- wp:paragraph --><p>Пишете ни на office@reklamo.bg или се обадете на +359 88 123 4567.</p><!-- /wp:paragraph -->"
+fill_if_empty dostavka-i-srokove "<!-- wp:paragraph --><p>Производство и доставка в договорени срокове след получаване на аванса.</p><!-- /wp:paragraph -->"
+fill_if_empty plashtane "<!-- wp:paragraph --><p>Плащане само по банков път: 50% аванс след одобрение на визуализацията, остатък преди доставка.</p><!-- /wp:paragraph -->"
+fill_if_empty chesto-zadavani-vaprosi "<!-- wp:paragraph --><p>Често задавани въпроси.</p><!-- /wp:paragraph -->"
+fill_if_empty obshti-usloviya "<!-- wp:paragraph --><p>Общи условия.</p><!-- /wp:paragraph -->"
+fill_if_empty politika-za-poveritelnost "<!-- wp:paragraph --><p>Политика за поверителност.</p><!-- /wp:paragraph -->"
 opt show_on_front "page"
 opt page_on_front "$home_id"
+
+# Request page: the design's single request step, rendered by the theme template.
+req_id=$(page_id kachi-logo)
+wp post meta update "$req_id" _wp_page_template "templates/page-request.php" >/dev/null
+wp post update "$req_id" --post_content="<!-- wp:paragraph --><p>Изпратете вашето лого и ние ще подготвим професионална визуализация на избрания пакет.</p><!-- /wp:paragraph -->" >/dev/null
+opt reklamo_request_page_id "$req_id"
+
+# Homepage: expand the theme's patterns into real, owner-editable blocks — only while the
+# page still holds the seed placeholder, so owner edits are never overwritten.
+wp eval '
+$id = (int) get_option( "page_on_front" );
+$p  = get_post( $id );
+if ( $p && ( "" === trim( $p->post_content ) || str_contains( $p->post_content, "Ние правим останалото.</p>" ) ) ) {
+	$reg = WP_Block_Patterns_Registry::get_instance();
+	$out = "";
+	foreach ( array( "reklamo/hero", "reklamo/packages", "reklamo/steps", "reklamo/trust", "reklamo/quick-start" ) as $slug ) {
+		$pat = $reg->get_registered( $slug );
+		if ( $pat ) { $out .= trim( $pat["content"] ) . "\n\n"; }
+	}
+	if ( $out ) { wp_update_post( array( "ID" => $id, "post_content" => $out ) ); echo "  homepage built from patterns\n"; }
+}
+'
+
 
 # WooCommerce creates Shop/Cart/Checkout/My account on activation (block versions).
 # Make sure they exist, then give the shop page the design's name.
@@ -216,6 +265,8 @@ ensure_product OSP "Office Starter Pack" 119 "<ul><li>20 чаши</li><li>20 х�
 ensure_product EVP "Event Pack"          149 "<ul><li>20 текстилни торби</li><li>20 метални бутилки</li></ul>" 3
 ensure_product PRP "Premium Pack"        169 "<ul><li>20 бележника</li><li>20 метални химикалки</li></ul>" 4
 opt woocommerce_default_catalog_orderby "menu_order"
+rbp_id=$(wc product list --sku=RBP --format=json | python3 -c 'import sys,json; p=json.load(sys.stdin); print(p[0]["id"] if p else "")')
+[ -n "$rbp_id" ] && wc product update "$rbp_id" --featured=true >/dev/null   # "Най-популярен" badge
 
 echo "→ flushing caches"
 wp cache flush >/dev/null 2>&1 || true

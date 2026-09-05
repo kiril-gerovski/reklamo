@@ -1,96 +1,402 @@
-# Bulgarian translation of the Reklamo theme.
-# Source strings are English; this file is the single place Bulgarian UI text lives.
-# Rebuild the .mo after editing:  scripts/wp i18n make-mo wp-content/themes/reklamo/languages
 msgid ""
 msgstr ""
 "Project-Id-Version: Reklamo 0.1.0\n"
-"Language: bg_BG\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-09-04T21:14:12+00:00\n"
+"PO-Revision-Date: 2026-09-04T21:14:12+00:00\n"
+"Language: bg_BG\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Domain: reklamo\n"
 
-#: functions.php
+#: functions.php:34
 msgid "Primary Menu"
 msgstr "Главно меню"
 
-#: functions.php
+#: functions.php:35
 msgid "Footer — Navigation"
 msgstr "Футър — Навигация"
 
-#: functions.php
+#: functions.php:36
 msgid "Footer — Information"
 msgstr "Футър — Информация"
 
-#: footer.php
 #. translators: %1$s: year, %2$s: site name
+#: footer.php:87
+#, php-format
 msgid "© %1$s %2$s — All rights reserved."
 msgstr "© %1$s %2$s — Всички права запазени."
 
-#: index.php
+#: index.php:26
 msgid "Nothing found."
 msgstr "Нищо не е намерено."
 
-#: theme.json  (settings.color.palette names)
+#: theme.json
 msgctxt "Color name"
 msgid "Gold"
 msgstr "Злато"
 
+#: theme.json
 msgctxt "Color name"
 msgid "Dark Gold"
 msgstr "Тъмно злато"
 
+#: theme.json
 msgctxt "Color name"
 msgid "Ink"
 msgstr "Черно"
 
+#: theme.json
 msgctxt "Color name"
 msgid "Graphite"
 msgstr "Графит"
 
+#: theme.json
 msgctxt "Color name"
 msgid "Paper"
 msgstr "Крем"
 
+#: theme.json
 msgctxt "Color name"
 msgid "White"
 msgstr "Бяло"
 
+#: theme.json
 msgctxt "Color name"
 msgid "Line"
 msgstr "Линия"
 
+#: theme.json
 msgctxt "Color name"
 msgid "Red (accent)"
 msgstr "Червено (акцент)"
 
-#: theme.json  (settings.typography.fontFamilies names)
+#: theme.json
 msgctxt "Font family name"
 msgid "Headings (serif)"
 msgstr "Заглавия (сериф)"
 
+#: theme.json
 msgctxt "Font family name"
 msgid "Body"
 msgstr "Основен текст"
 
-#: theme.json  (settings.typography.fontSizes names)
+#: theme.json
 msgctxt "Font size name"
 msgid "Small"
 msgstr "Малък"
 
+#: theme.json
 msgctxt "Font size name"
 msgid "Medium"
 msgstr "Среден"
 
+#: theme.json
 msgctxt "Font size name"
 msgid "Large"
 msgstr "Голям"
 
+#: theme.json
 msgctxt "Font size name"
 msgid "Heading"
 msgstr "Заглавие"
 
+#: theme.json
 msgctxt "Font size name"
 msgid "Display"
 msgstr "Основно заглавие"
+
+#. Theme Name of the theme
+#: style.css
+#: functions.php:40
+msgid "Reklamo"
+msgstr "Reklamo"
+
+#. Theme URI of the theme
+#: style.css
+msgid "https://reklamo.bg"
+msgstr "https://reklamo.bg"
+
+#. Description of the theme
+#: style.css
+msgid "Theme built to the approved Reklamo.bg design — promotional packages with your logo. Presentation only; business logic lives in the reklamo-core plugin."
+msgstr "Тема по одобрения дизайн на Reklamo.bg — промо пакети с вашето лого. Само презентация; бизнес логиката е в плъгина reklamo-core."
+
+#. Author of the theme
+#: style.css
+msgid "Nocturn AI"
+msgstr "Nocturn AI"
+
+#: footer.php:39
+msgid "Navigation"
+msgstr "Навигация"
+
+#: footer.php:54
+msgid "Information"
+msgstr "Информация"
+
+#: footer.php:69
+msgid "Contact"
+msgstr "Контакти"
+
+#: functions.php:108
+msgid "Choose this package"
+msgstr "Избери този пакет"
+
+#: functions.php:110
+msgid "No payment is taken at this stage."
+msgstr "Не се извършва плащане на този етап."
+
+#: functions.php:122
+#: woocommerce/content-product.php:28
+msgid "Choose package"
+msgstr "Избери пакет"
+
+#: header.php:19
+msgid "Skip to content"
+msgstr "Към съдържанието"
+
+#: header.php:24
+msgid "Primary"
+msgstr "Основна"
+
+#: header.php:39
+msgid "Request a mockup"
+msgstr "Заяви визуализация"
+
+#: header.php:41
+msgid "Menu"
+msgstr "Меню"
+
+#: patterns/hero.php
+msgctxt "Pattern title"
+msgid "Hero — choose, send, we do the rest"
+msgstr "Начало — избери, изпрати, ние правим останалото"
+
+#: patterns/hero.php
+msgctxt "Pattern description"
+msgid "Homepage hero with headline, lead, two buttons, four features and the product image with a price badge."
+msgstr "Начален блок със заглавие, увод, два бутона, четири предимства и продуктова снимка с цена."
+
+#: patterns/packages.php
+msgctxt "Pattern title"
+msgid "Popular packages"
+msgstr "Популярни пакети"
+
+#: patterns/packages.php
+msgctxt "Pattern description"
+msgid "Section heading, \"view all\" link and the four package cards (WooCommerce products)."
+msgstr "Заглавие на секция, връзка „виж всички“ и четирите карти с пакети (WooCommerce продукти)."
+
+#: patterns/quick-start.php
+msgctxt "Pattern title"
+msgid "Quick start — send your logo"
+msgstr "Бърз старт — изпрати логото си"
+
+#: patterns/quick-start.php
+msgctxt "Pattern description"
+msgid "Compact request form (name, email, note, logo, package) with intro."
+msgstr "Компактна форма за заявка (име, имейл, бележка, лого, пакет) с увод."
+
+#: patterns/steps.php
+msgctxt "Pattern title"
+msgid "How the order works — 6 steps"
+msgstr "Как става поръчката — 6 стъпки"
+
+#: patterns/steps.php
+msgctxt "Pattern description"
+msgid "Six numbered steps with icons."
+msgstr "Шест номерирани стъпки с икони."
+
+#: patterns/trust.php
+msgctxt "Pattern title"
+msgid "Trust strip"
+msgstr "Лента с предимства"
+
+#: patterns/trust.php
+msgctxt "Pattern description"
+msgid "Security · Quality · Personal service · Fast turnaround."
+msgstr "Сигурност · Качество · Персонално обслужване · Бързи срокове."
+
+#: template-parts/trust-strip.php:11
+msgid "Security"
+msgstr "Сигурност"
+
+#: template-parts/trust-strip.php:11
+msgid "You pay nothing until you approve the mockup."
+msgstr "Не плащаш нищо, докато не одобриш визията."
+
+#: template-parts/trust-strip.php:12
+msgid "Quality"
+msgstr "Качество"
+
+#: template-parts/trust-strip.php:12
+msgid "Proven materials and technologies."
+msgstr "Използваме доказани материали и технологии."
+
+#: template-parts/trust-strip.php:13
+msgid "Personal service"
+msgstr "Персонално обслужване"
+
+#: template-parts/trust-strip.php:13
+msgid "A designer and a consultant at every step."
+msgstr "Личен дизайнер и консултант на всяка стъпка."
+
+#: template-parts/trust-strip.php:14
+msgid "Fast turnaround"
+msgstr "Бързи срокове"
+
+#: template-parts/trust-strip.php:14
+msgid "Production and delivery on agreed dates."
+msgstr "Производство и доставка в договорени срокове."
+
+#: template-parts/trust-strip.php:17
+msgid "Why us"
+msgstr "Защо ние"
+
+#. Template Name of the theme
+msgid "Request page (upload logo)"
+msgstr "Страница за заявка (качване на лого)"
+
+#: templates/page-request.php:20
+msgid "Upload logo"
+msgstr "Качете лого"
+
+#: templates/page-request.php:20
+msgid "Send the file with your logo"
+msgstr "Изпратете файла с вашето лого"
+
+#. translators: %s: number of business hours
+#: templates/page-request.php:22
+msgid "Review of details"
+msgstr "Преглед на детайли"
+
+#. translators: %s: number of business hours
+#: templates/page-request.php:22
+#, php-format
+msgid "We prepare a mockup within %s h."
+msgstr "Ще изготвим визуализация до %s ч."
+
+#: templates/page-request.php:23
+msgid "Approval"
+msgstr "Одобрение"
+
+#: templates/page-request.php:23
+msgid "Review and approve the mockup"
+msgstr "Прегледайте и одобрете визията"
+
+#: templates/page-request.php:24
+msgid "Production"
+msgstr "Производство"
+
+#: templates/page-request.php:24
+msgid "Production starts after approval"
+msgstr "След одобрение започваме производство"
+
+#: templates/page-request.php:27
+msgid "We receive your logo"
+msgstr "Получаваме вашето лого"
+
+#: templates/page-request.php:27
+msgid "We check the quality of the file."
+msgstr "Проверяваме качеството на файла."
+
+#. translators: %s: number of business hours
+#: templates/page-request.php:29
+msgid "We prepare the mockup"
+msgstr "Подготвяме визуализация"
+
+#. translators: %s: number of business hours
+#: templates/page-request.php:29
+#, php-format
+msgid "You get the mockup by email within %s business hours."
+msgstr "Изпращаме ви mockup до %s работни часа."
+
+#: templates/page-request.php:30
+msgid "You review and approve"
+msgstr "Преглеждате и одобрявате"
+
+#: templates/page-request.php:30
+msgid "Or request corrections."
+msgstr "Или заявявате корекции."
+
+#. translators: %s: deposit percentage
+#: templates/page-request.php:32
+#, php-format
+msgid "You pay a %s%% deposit"
+msgstr "Плащате аванс %s%%"
+
+#. translators: %s: deposit percentage
+#: templates/page-request.php:32
+msgid "Production starts after approval."
+msgstr "След одобрение стартираме производството."
+
+#: templates/page-request.php:39
+msgid "Breadcrumb"
+msgstr "Навигационна пътека"
+
+#: templates/page-request.php:40
+msgid "Home"
+msgstr "Начало"
+
+#: templates/page-request.php:41
+msgid "Promo packages"
+msgstr "Промо пакети"
+
+#: templates/page-request.php:59
+msgid "branding included"
+msgstr "с включено брандиране"
+
+#: templates/page-request.php:84
+msgid "What happens next?"
+msgstr "Какво следва?"
+
+#: templates/page-request.php:97
+msgid "Need help?"
+msgstr "Нуждаете се от помощ?"
+
+#: templates/page-request.php:98
+msgid "Our consultant is available to help you."
+msgstr "Наш консултант е на разположение да ви помогне."
+
+#: templates/page-request.php:101
+msgid "Contact us"
+msgstr "Свържи се с нас"
+
+#: woocommerce/content-product.php:21
+msgid "Most popular"
+msgstr "Най-популярен"
+
+#: theme.json
+msgctxt "Space size name"
+msgid "1"
+msgstr "1"
+
+#: theme.json
+msgctxt "Space size name"
+msgid "2"
+msgstr "2"
+
+#: theme.json
+msgctxt "Space size name"
+msgid "3"
+msgstr "3"
+
+#: theme.json
+msgctxt "Space size name"
+msgid "4"
+msgstr "4"
+
+#: theme.json
+msgctxt "Space size name"
+msgid "5"
+msgstr "5"
+
+#: theme.json
+msgctxt "Space size name"
+msgid "6"
+msgstr "6"

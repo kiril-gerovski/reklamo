@@ -228,6 +228,33 @@ If a change exists only in your local database, it does not exist. That script i
 
 ---
 
+## Phase 2 (reordered) — Design: theme + request page — DONE (2026-09-05)
+
+Upload hardening (old Phase 2) is deferred until the hosting account is chosen, since its decisive step is the probe on the real host. The theme is independent of it, so it moves up.
+
+**Decision (2026-09-05): the request step matches `design/preview_2.webp` exactly.** "Качи лого и визуализирай" is our own page: logo + note + name + email + consent + one button. It creates the WooCommerce order directly (`wc_create_order()`, gateway `reklamo_request`, status `rq-received`) — no WooCommerce checkout UI. Address and invoice details are collected later, with the deposit request, which is the document's own sequence. The block checkout stays installed as a fallback but is not linked. Consequence: the Additional Checkout Fields API is no longer the plan for ЕИК/ДДС/МОЛ; those become fields on the deposit step.
+
+Scope:
+1. Design tokens + base CSS from the mockup (gold `#b8892b`, cream, serif display / Inter body; fonts self-hosted, Cyrillic subsets).
+2. Header (logo mark, nav, "Заяви визуализация" CTA) and footer (4 columns, contacts from settings, social, copyright) in PHP.
+3. Company/contact settings tab (`WC_Settings_Page`): phone, email, city, social URLs — the footer and contact blocks read from one place.
+4. Homepage as owner-editable block patterns with `templateLock: contentOnly`: hero, package grid (WooCommerce loop, restyled cards linking to the request page), "Как става поръчката?" 6 steps, trust strip, quick-start form, seeded into Начало.
+5. Request page: dynamic block `reklamo/request-form` + sidebar pattern; the handler in the plugin (`Reklamo_Request`) validates, stores the logo, creates the order, redirects to the order-received page.
+6. WooCommerce overrides: product card (`content-product.php`), shop archive, single product CTA → request page; order-received page styled.
+7. Placeholder product images (owner replaces), inline SVG logo mark and icons.
+8. Seed updates, E2E rewritten for the new flow, screenshots against the mockups.
+
+Known deviation: the homepage quick-start form gets a package selector (the mockup has none, but an order needs a package).
+
+Delivered: header/footer, homepage from five owner-editable patterns (hero, packages, steps, trust, quick-start), request page template matching `preview_2.webp`, package cards + shop archive + product CTA, styled order-received page, `Reklamo_Request` handler (nonce, honeypot, per-IP rate limit, server-side validation with values kept), `Reklamo_Settings` tab, self-hosted fonts, inline SVG icons, placeholder images, 104 new translated strings. E2E now covers: product → request page → order, validation refusals, homepage quick-start, admin mockup, approval idempotency/replay, final status (6 tests). Screenshots compared against both mockups.
+
+Lessons:
+- **Patterns are copied into content at seed time.** Anything that must translate at request time (trust strip) has to be a shortcode/dynamic block, not baked HTML; owner-content (hero text, steps) is right as baked blocks.
+- The seed rebuilds the homepage only while it still holds the seed placeholder, so owner edits survive re-seeding.
+- Theme and plugin each own their strings (`reklamo` / `reklamo-core`); run `make-pot` + `update-po` + `make-mo` for both after adding strings.
+
+Still owner's job: real product photos (Products → edit), hero photo (edit the image in the hero pattern), real texts for the information pages.
+
 ## Phase 1 — status: DONE (2026-09-04)
 
 The walking skeleton is clickable end to end and verified in a browser: product page → logo upload (`.ai`, sniffed as `application/pdf`) + designer note → block checkout with the `reklamo_request` gateway → order in `rq-received` (HPOS) with the logo claimed to the line item → Bulgarian "request received" email + core admin "new order" email → admin metabox uploads a mockup → Bulgarian "mockup ready" email with a one-time link → GET is idempotent (two scanner-style fetches change nothing) → POST approves exactly once → replay shows "already processed" → order in `rq-approved`. Second cycle (mockup #2, "request changes", logged out via curl) also passes. PHPCS clean; PHPUnit covers the token class; Playwright spec in `tests/e2e/`.
