@@ -29,6 +29,8 @@ x-wp-env: &wp-env
     define( 'WP_MEMORY_LIMIT', '256M' );
     // Customer logo storage — outside the web root, like production.
     define( 'REKLAMO_PRIVATE_DIR', '/var/www/private' );
+    // Local only: the E2E suite submits many requests from one IP. NEVER set this in production.
+    define( 'REKLAMO_DISABLE_RATE_LIMITS', true );
     // Mail goes through the same phpmailer_init code path as production,
     // pointed at Mailpit. Only these constants differ on the live host.
     define( 'REKLAMO_SMTP_HOST', 'mail' );

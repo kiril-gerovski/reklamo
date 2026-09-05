@@ -352,8 +352,14 @@ final class Reklamo_Approval {
 		return 'reklamo_apr_' . md5( Reklamo_Storage::client_ip() );
 	}
 
+
+	/** All public rate limiters honour REKLAMO_DISABLE_RATE_LIMITS (local/E2E only — never in production). */
+	private static function limits_enabled(): bool {
+		return ! ( defined( 'REKLAMO_DISABLE_RATE_LIMITS' ) && REKLAMO_DISABLE_RATE_LIMITS );
+	}
+
 	private static function rate_limited(): bool {
-		return (int) get_transient( self::rate_key() ) >= self::RATE_LIMIT;
+		return self::limits_enabled() && (int) get_transient( self::rate_key() ) >= self::RATE_LIMIT;
 	}
 
 	private static function bump_rate_limit(): void {

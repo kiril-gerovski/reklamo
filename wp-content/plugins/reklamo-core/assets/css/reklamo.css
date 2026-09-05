@@ -6,3 +6,13 @@
 .reklamo-fields textarea { padding: .5rem; border: 1px solid var(--wp--preset--color--line, #e8e2d6); border-radius: 4px; }
 .reklamo-nopay-hint { margin: .5rem 0 0; font-size: .875rem; color: var(--wp--preset--color--graphite, #555); }
 .reklamo-nopay-hint::before { content: "✓ "; color: var(--wp--preset--color--gold, #b8892b); }
+
+/* Chunked upload progress */
+.rq-progress { margin-top: .6rem; }
+.rq-progress[hidden] { display: none; }
+.rq-progress__bar { height: 6px; background: var(--wp--preset--color--line, #e8e2d6); border-radius: 3px; overflow: hidden; }
+.rq-progress__bar span { display: block; height: 100%; width: 0; background: var(--wp--preset--color--gold, #b8892b); transition: width .2s; }
+.rq-progress.is-done .rq-progress__bar span { background: #2f7a3b; }
+.rq-progress.is-error .rq-progress__bar span { background: #a3222b; }
+.rq-progress__text { display: block; margin-top: .35rem; font-size: .75rem; color: var(--wp--preset--color--graphite, #555); }
+.rq-progress.is-error .rq-progress__text { color: #a3222b; }

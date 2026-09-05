@@ -23,11 +23,17 @@ async function mailpitFind( needle ) {
 }
 
 async function adminLogin( page ) {
-	await page.goto( '/wp-login.php' );
+	// Already logged in? wp-admin loads instead of redirecting to wp-login.
+	const probe = await page.goto( '/wp-admin/', { waitUntil: 'commit' } );
+	if ( probe && ! page.url().includes( 'wp-login.php' ) ) {
+		return;
+	}
+	await page.goto( '/wp-login.php', { waitUntil: 'domcontentloaded' } );
 	await page.fill( '#user_login', ADMIN_USER );
 	await page.fill( '#user_pass', ADMIN_PASS );
 	await page.click( '#wp-submit' );
-	await page.waitForURL( /wp-admin/ );
+	// First admin loads after a fresh install are slow (WooCommerce onboarding jobs); don't wait for `load`.
+	await page.waitForURL( /wp-admin/, { waitUntil: 'commit', timeout: 60_000 } );
 }
 
 module.exports = { MAILPIT, FIXTURES, mailpitCount, mailpitFind, adminLogin };

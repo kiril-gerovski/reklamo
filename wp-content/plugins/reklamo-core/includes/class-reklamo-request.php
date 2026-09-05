@@ -15,7 +15,7 @@ final class Reklamo_Request {
 
 	const ACTION     = 'reklamo_request';
 	const NONCE      = 'reklamo_request_form';
-	const RATE_LIMIT = 5; // requests per IP per hour.
+	const RATE_LIMIT = 10; // requests per IP per hour.
 	const PAGE_OPT   = 'reklamo_request_page_id';
 
 	public static function init(): void {
@@ -82,6 +82,8 @@ final class Reklamo_Request {
 		$terms   = (int) get_option( 'woocommerce_terms_page_id' );
 		$privacy = (int) get_option( 'wp_page_for_privacy_policy' );
 		$uid     = wp_unique_id( 'rq' );
+
+		self::enqueue_uploader();
 
 		ob_start();
 		?>
@@ -183,6 +185,36 @@ final class Reklamo_Request {
 		return (string) ob_get_clean();
 	}
 
+	/** Chunked uploader script + its config; safe to call more than once per page. */
+	public static function enqueue_uploader(): void {
+		if ( wp_script_is( 'reklamo-uploader', 'enqueued' ) ) {
+			return;
+		}
+		$path = REKLAMO_PATH . 'assets/js/uploader.js';
+		wp_enqueue_script( 'reklamo-uploader', REKLAMO_URL . 'assets/js/uploader.js', array(), file_exists( $path ) ? (string) filemtime( $path ) : REKLAMO_VERSION, true );
+		wp_localize_script(
+			'reklamo-uploader',
+			'reklamoUpload',
+			array(
+				'restUrl'  => untrailingslashit( rest_url( Reklamo_Upload::NS ) ),
+				'nonce'    => wp_create_nonce( 'wp_rest' ),
+				'maxBytes' => Reklamo_Storage::max_bytes(),
+				'i18n'     => array(
+					'starting'  => __( 'Preparing upload…', 'reklamo-core' ),
+					/* translators: 1: bytes sent, 2: total bytes */
+					'uploading' => __( 'Uploading %1$s of %2$s…', 'reklamo-core' ),
+					'checking'  => __( 'Checking the file…', 'reklamo-core' ),
+					/* translators: %s: file name and size */
+					'done'      => __( 'Uploaded: %s', 'reklamo-core' ),
+					'failed'    => __( 'The upload failed.', 'reklamo-core' ),
+					'fallback'  => __( 'The file will be sent with the form instead.', 'reklamo-core' ),
+					/* translators: %s: size limit */
+					'tooLarge'  => __( 'The file must be smaller than %s.', 'reklamo-core' ),
+				),
+			)
+		);
+	}
+
 	/** Errors + previous values from a failed submission, keyed by ?rq=. One read, then gone. */
 	private static function flash_state(): array {
 		$key = isset( $_GET['rq'] ) ? sanitize_key( wp_unslash( $_GET['rq'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -252,16 +284,27 @@ final class Reklamo_Request {
 		if ( ! $values['consent'] ) {
 			$errors[] = __( 'Please accept the Terms and Conditions and the Privacy Policy.', 'reklamo-core' );
 		}
-		if ( empty( $_FILES['reklamo_logo'] ) || UPLOAD_ERR_NO_FILE === (int) ( $_FILES['reklamo_logo']['error'] ?? UPLOAD_ERR_NO_FILE ) ) {
+		// Chunked path hands us a token of a finished upload; otherwise a plain file post.
+		$token     = isset( $_POST['reklamo_file_token'] ) ? sanitize_text_field( wp_unslash( $_POST['reklamo_file_token'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$prestored = '' !== $token ? Reklamo_Storage::unclaimed_by_token( $token, 'logo' ) : null;
+		$has_file  = ! empty( $_FILES['reklamo_logo'] ) && UPLOAD_ERR_NO_FILE !== (int) ( $_FILES['reklamo_logo']['error'] ?? UPLOAD_ERR_NO_FILE );
+		if ( ! $prestored && ! $has_file ) {
 			$errors[] = __( 'Please upload your logo file.', 'reklamo-core' );
 		}
 		if ( $errors ) {
 			self::fail( $errors, $values, $return );
 		}
 
-		$stored = Reklamo_Storage::store_upload( $_FILES['reklamo_logo'], 'logo', Reklamo_Storage::LOGO_EXTENSIONS ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- validated inside store_upload().
-		if ( is_wp_error( $stored ) ) {
-			self::fail( array( $stored->get_error_message() ), $values, $return );
+		if ( $prestored ) {
+			$stored = array(
+				'token'     => $prestored->token,
+				'orig_name' => $prestored->orig_name,
+			);
+		} else {
+			$stored = Reklamo_Storage::store_upload( $_FILES['reklamo_logo'], 'logo', Reklamo_Storage::LOGO_EXTENSIONS ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- validated inside store_upload().
+			if ( is_wp_error( $stored ) ) {
+				self::fail( array( $stored->get_error_message() ), $values, $return );
+			}
 		}
 
 		$order = wc_create_order(
@@ -313,8 +356,14 @@ final class Reklamo_Request {
 		return 'reklamo_rq_ip_' . md5( Reklamo_Storage::client_ip() );
 	}
 
+
+	/** All public rate limiters honour REKLAMO_DISABLE_RATE_LIMITS (local/E2E only — never in production). */
+	private static function limits_enabled(): bool {
+		return ! ( defined( 'REKLAMO_DISABLE_RATE_LIMITS' ) && REKLAMO_DISABLE_RATE_LIMITS );
+	}
+
 	private static function rate_limited(): bool {
-		return (int) get_transient( self::rate_key() ) >= self::RATE_LIMIT;
+		return self::limits_enabled() && (int) get_transient( self::rate_key() ) >= self::RATE_LIMIT;
 	}
 
 	private static function bump_rate_limit(): void {

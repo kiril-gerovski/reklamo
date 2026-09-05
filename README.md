@@ -76,6 +76,7 @@ Claude Code. Details: [`scripts/worktree/README.md`](scripts/worktree/README.md)
 - **Request page** (`/kachi-logo/?paket=<slug>`) = theme template `templates/page-request.php` + the plugin's `Reklamo_Request::render()`. Submitting creates the WooCommerce order directly — there is no cart/checkout step (the block checkout stays installed as an unlinked fallback).
 - **Company details** (phone, email, address, social, deposit %, mockup deadline) live in WooCommerce → Settings → Reklamo and feed the footer, request page and emails.
 - **Product cards** link to the request page; "Featured" products show the "Най-популярен" badge.
+- **Uploads**: logos are uploaded in 2 MB chunks to our REST API (progress bar, retries), checked by real file signature (`.ai` is a PDF, CorelDRAW X4+ is a ZIP…), SVG sanitised, stored outside the web root, never served inline. Abandoned/unclaimed files and old orders' files are cleaned hourly (retention in Settings → Reklamo → Files). WooCommerce → **Reklamo diagnostics** shows the host's real limits and probes them.
 - **Order flow** (WooCommerce → Orders → order → "Mockup & approval" box): send mockup → customer approves via one-time link → customer fills invoice/delivery details → *Deposit received* → *Start production* → *Request final payment* → *Complete*. The status dropdown refuses jumps outside this path. Emails at every step are editable under WooCommerce → Settings → Emails; bank details under Settings → Reklamo → Bank details; reminder days under Settings → Reklamo → Process.
 
 ## The configuration rule

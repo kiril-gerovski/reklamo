@@ -9,6 +9,7 @@ test.describe.configure( { mode: 'serial' } );
 let orderId = '';
 let approvalUrl = '';
 let detailsUrl = '';
+let bigOrderId = '';
 
 test( 'customer places a request with a logo and no payment', async ( { page } ) => {
 	// Product page leads to the request page — no add-to-cart, no checkout.
@@ -23,6 +24,9 @@ test( 'customer places a request with a logo and no payment', async ( { page } )
 	await page.setInputFiles( 'input[name="reklamo_logo"]', `${ FIXTURES }/logo.ai` );
 	await expect( page.locator( '[data-rq-file]' ) ).toBeVisible();
 	await expect( page.locator( '[data-rq-file-name]' ) ).toHaveText( 'logo.ai' );
+	// Chunked uploader finished: token present, file input emptied so the form post stays small.
+	await expect( page.locator( '.rq-progress.is-done' ) ).toContainText( 'Качено:' );
+	await expect( page.locator( 'input[name="reklamo_file_token"]' ) ).toHaveValue( /^[a-f0-9]{32}$/ );
 	await page.fill( 'textarea[name="reklamo_note"]', 'E2E: златно лого, центрирано.' );
 	await page.fill( 'input[name="rq_name"]', 'Е2Е Тест' );
 	await page.fill( 'input[name="rq_email"]', 'e2e@example.com' );
@@ -63,6 +67,58 @@ test( 'homepage quick-start form creates a request too', async ( { page } ) => {
 	await form.getByRole( 'button', { name: /Изпрати за визуализация/ } ).click();
 	await page.waitForURL( /order-received\/(\d+)/ );
 	await expect( page.locator( 'body' ) ).toContainText( 'Заявката Ви е получена' );
+} );
+
+test( 'chunked upload: a 150 MB PSD gets through a 64 MB PHP limit', async ( { page } ) => {
+	test.setTimeout( 180_000 );
+	await page.goto( '/kachi-logo/?paket=office-starter-pack' );
+	await page.setInputFiles( 'input[name="reklamo_logo"]', `${ FIXTURES }/big.psd` );
+	await expect( page.locator( '.rq-progress' ) ).toBeVisible();
+	await expect( page.locator( '.rq-progress.is-done' ) ).toContainText( 'big.psd', { timeout: 150_000 } );
+	await expect( page.locator( '.rq-progress.is-done' ) ).toContainText( '150.0 MB' );
+	await page.fill( 'input[name="rq_name"]', 'Голям Файл' );
+	await page.fill( 'input[name="rq_email"]', 'big@example.com' );
+	await page.check( 'input[name="rq_consent"]' );
+	await page.getByRole( 'button', { name: /Изпрати и заяви визуализация/ } ).click();
+	await page.waitForURL( /order-received\/(\d+)/ );
+	bigOrderId = page.url().match( /order-received\/(\d+)/ )[ 1 ];
+} );
+
+test( 'wrong content is refused: an .exe renamed to .ai', async ( { page } ) => {
+	await page.goto( '/kachi-logo/?paket=red-business-pack' );
+	await page.setInputFiles( 'input[name="reklamo_logo"]', `${ FIXTURES }/fake.ai` );
+	await expect( page.locator( '.rq-progress.is-error' ) ).toContainText( 'не изглежда като валиден AI файл', { timeout: 60_000 } );
+	await expect( page.locator( 'input[name="reklamo_file_token"]' ) ).toHaveValue( '' );
+} );
+
+test( 'SVG with a script is stored sanitised', async ( { page } ) => {
+	await page.goto( '/kachi-logo/?paket=red-business-pack' );
+	await page.setInputFiles( 'input[name="reklamo_logo"]', `${ FIXTURES }/xss.svg` );
+	await expect( page.locator( '.rq-progress.is-done' ) ).toContainText( 'xss.svg' );
+	await page.fill( 'input[name="rq_name"]', 'СВГ Тест' );
+	await page.fill( 'input[name="rq_email"]', 'svg@example.com' );
+	await page.check( 'input[name="rq_consent"]' );
+	await page.getByRole( 'button', { name: /Изпрати и заяви визуализация/ } ).click();
+	await page.waitForURL( /order-received\/(\d+)/ );
+	const id = page.url().match( /order-received\/(\d+)/ )[ 1 ];
+
+	// The admin download must be a forced attachment whose bytes carry no script.
+	await adminLogin( page );
+	await page.goto( `/wp-admin/admin.php?page=wc-orders&action=edit&id=${ id }` );
+	const href = await page.locator( '#reklamo_mockup a[href*="reklamo_download"]' ).first().getAttribute( 'href' );
+	const r = await page.request.get( href );
+	expect( r.status() ).toBe( 200 );
+	expect( r.headers()[ 'content-disposition' ] ).toContain( 'attachment' );
+	expect( r.headers()[ 'content-type' ] ).toContain( 'application/octet-stream' );
+	const body = await r.text();
+	expect( body ).not.toContain( '<script' );
+	expect( body ).toContain( '<rect' );
+} );
+
+test( 'admin sees the big upload with its real size', async ( { page } ) => {
+	await adminLogin( page );
+	await page.goto( `/wp-admin/admin.php?page=wc-orders&action=edit&id=${ bigOrderId }` );
+	await expect( page.locator( '#reklamo_mockup' ) ).toContainText( 'big.psd (PSD, 150 MB)' );
 } );
 
 test( 'admin sees the logo and sends a mockup', async ( { page } ) => {
@@ -176,4 +232,19 @@ test( 'shop moves the order: deposit → production → final payment → comple
 
 	await page.getByRole( 'button', { name: /Доплащане получено/ } ).click();
 	await expect( page.locator( '#order_status' ) ).toHaveValue( 'wc-completed' );
+} );
+
+test( 'diagnostics: storage protected, probe finds the real single-request ceiling', async ( { page } ) => {
+	test.setTimeout( 180_000 );
+	await adminLogin( page );
+	await page.goto( '/wp-admin/admin.php?page=reklamo-diagnostics' );
+	await expect( page.locator( '.notice-success' ) ).toContainText( 'Извън уеб директорията' );
+	await expect( page.locator( '.wrap' ) ).toContainText( 'upload_max_filesize' );
+	await page.click( '#reklamo-probe' );
+	// Local PHP is capped at 64M on purpose: 2 MB (a chunk) must pass, 128 MB must not.
+	await expect( page.locator( '#reklamo-probe-results' ) ).toContainText( '2 MB', { timeout: 120_000 } );
+	await expect( page.locator( '#reklamo-probe-summary' ) ).toContainText( 'Най-голяма приета единична заявка', { timeout: 120_000 } );
+	const rows = await page.locator( '#reklamo-probe-results tr' ).allTextContents();
+	expect( rows.find( ( r ) => r.startsWith( '2 MB' ) ) ).toContain( 'приета' );
+	expect( rows.some( ( r ) => r.includes( 'отхвърлена' ) ) ).toBe( true );
 } );

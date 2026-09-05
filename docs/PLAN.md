@@ -228,6 +228,20 @@ If a change exists only in your local database, it does not exist. That script i
 
 ---
 
+## Phase 4 — Uploads hardening — DONE (2026-09-05)
+
+Delivered:
+- **Chunked upload** (`Reklamo_Upload`, REST `reklamo/v1/upload/{init,chunk,complete}`, `DELETE /upload/{ticket}`): 2 MB multipart chunks, server-issued ticket with TTL, per-IP rate limits, size cap from settings (default 300 MB), free-space check, strict path handling, reassembly via `stream_copy_to_stream()`. `assets/js/uploader.js` enhances every logo input (progress bar, retries with backoff, token handed to the form, plain-upload fallback). Verified: a 150 MB PSD passes through the local 64 MB PHP limit.
+- **Magic-byte sniffer** (`Reklamo_Filetypes`, pure PHP, 25 unit cases): `.ai` = PDF or PostScript, `.eps` text or DOS-binary, `.psd` `8BPS`, `.cdr` RIFF/CDR or ZIP (X4+), PNG/JPEG signatures, SVG root check. Applied to both upload paths; an `.exe` renamed `.ai` is refused with a Bulgarian message.
+- **SVG sanitiser** (`Reklamo_Svg`, DOMDocument, no entities): element/attribute allow-list, event handlers and external hrefs stripped, DOCTYPE/ENTITY refused, size and node caps. Storage still never serves SVG inline.
+- **Cleanup** (`Reklamo_Cleanup`, hourly via Action Scheduler): abandoned chunk sessions, unclaimed uploads > 48 h, and **retention** — files of orders completed/cancelled more than N months ago (setting, default 12) are deleted, rows kept blank for audit.
+- **Diagnostics** (WooCommerce → Reklamo diagnostics): PHP limits, effective single-POST limit, private dir path/writability, free space, stored files, cleanup schedule, cron mode, finfo/DOM presence, a **canary check** that the storage is not web-reachable, and an **active probe** posting 1–128 MB bodies to find the host's true ceiling.
+- Settings → Reklamo → Files: max size, retention months.
+- Public rate limiters (request form 10/h, upload tickets 10/h, chunks 3000/h, approval attempts 20/h) share one switch, `REKLAMO_DISABLE_RATE_LIMITS`, defined **only** in the local compose config so the E2E suite can submit many orders from one IP. Never in production (`docs/DEPLOYMENT.md`).
+- Tests: E2E 11/11 (adds 150 MB chunked upload, fake `.ai` refusal, XSS SVG stored sanitised + admin download headers, admin sees real size); PHPUnit 56/56; PHPCS clean.
+
+To do on the real host (cannot be done locally): open the diagnostics page, run the probe, confirm "Outside the web root", and record the numbers in `docs/DEPLOYMENT.md` §2.
+
 ## Phase 3 — Full order flow — DONE (2026-09-05)
 
 Decisions (owner, 2026-09-05): **prices include 20 % VAT** and are shown incl. (`woocommerce_prices_include_tax`, BG standard rate seeded, suffix "с ДДС"); **invoice data is collected, the фактура is issued externally**.

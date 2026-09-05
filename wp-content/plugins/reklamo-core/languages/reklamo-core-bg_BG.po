@@ -76,41 +76,41 @@ msgid "No mockup sent yet."
 msgstr "Още не е изпратена визуализация."
 
 #. translators: %d: next mockup revision number
-#: includes/class-reklamo-admin-order.php:188
+#: includes/class-reklamo-admin-order.php:194
 #, php-format
 msgid "Send mockup #%d"
 msgstr "Изпрати визуализация №%d"
 
 #. translators: %d: next mockup revision number
-#: includes/class-reklamo-admin-order.php:189
+#: includes/class-reklamo-admin-order.php:195
 msgid "PDF, PNG or JPG, up to 20 MB. The customer receives an email with a one-time approval link (valid 14 days)."
 msgstr "PDF, PNG или JPG до 20 MB. Клиентът получава имейл с еднократна връзка за одобрение (валидна 14 дни)."
 
-#: includes/class-reklamo-admin-order.php:191
+#: includes/class-reklamo-admin-order.php:197
 msgid "Send to customer"
 msgstr "Изпрати на клиента"
 
-#: includes/class-reklamo-admin-order.php:225
+#: includes/class-reklamo-admin-order.php:231
 msgid "You do not have permission to do this."
 msgstr "Нямате права за това действие."
 
-#: includes/class-reklamo-admin-order.php:229
+#: includes/class-reklamo-admin-order.php:235
 msgid "Order not found."
 msgstr "Поръчката не е намерена."
 
-#: includes/class-reklamo-admin-order.php:240
-#: includes/class-reklamo-storage.php:84
+#: includes/class-reklamo-admin-order.php:246
+#: includes/class-reklamo-storage.php:81
 msgid "Please choose a file."
 msgstr "Моля, изберете файл."
 
 #. translators: %d: mockup revision
-#: includes/class-reklamo-admin-order.php:252
+#: includes/class-reklamo-admin-order.php:258
 #, php-format
 msgid "Mockup #%d sent to the customer for approval."
 msgstr "Визуализация №%d е изпратена на клиента за одобрение."
 
 #. translators: %d: mockup revision
-#: includes/class-reklamo-admin-order.php:259
+#: includes/class-reklamo-admin-order.php:265
 #, php-format
 msgid "Mockup #%d sent. The customer has the approval link by email."
 msgstr "Визуализация №%d е изпратена. Клиентът получи връзката за одобрение по имейл."
@@ -135,55 +135,55 @@ msgstr "Клиентът заяви корекции по визуализаци
 msgid "Changes requested — back to the designer."
 msgstr "Заявени корекции — обратно при дизайнера."
 
-#: includes/class-reklamo-cart.php:53
+#: includes/class-reklamo-cart.php:54
 msgid "Your logo"
 msgstr "Вашето лого"
 
-#: includes/class-reklamo-cart.php:59
+#: includes/class-reklamo-cart.php:60
 msgid "Instructions for the designer (optional)"
 msgstr "Инструкции към дизайнера (по желание)"
 
-#: includes/class-reklamo-cart.php:60
-#: includes/class-reklamo-request.php:148
+#: includes/class-reklamo-cart.php:61
+#: includes/class-reklamo-request.php:150
 msgid "Example: gold logo, centered on the front cover of the notebook and engraved on the pen."
 msgstr "Пример: логото да бъде златно, центрирано на предната корица на тефтера и гравирано на химикалката."
 
-#: includes/class-reklamo-cart.php:62
-#: includes/class-reklamo-request.php:179
+#: includes/class-reklamo-cart.php:63
+#: includes/class-reklamo-request.php:181
 msgid "No payment is taken at this stage."
 msgstr "Не се извършва плащане на този етап."
 
 #. translators: %s: product page link
-#: includes/class-reklamo-cart.php:83
+#: includes/class-reklamo-cart.php:84
 #, php-format
 msgid "Please upload your logo on the product page: %s"
 msgstr "Моля, качете логото си от страницата на продукта: %s"
 
-#: includes/class-reklamo-cart.php:92
+#: includes/class-reklamo-cart.php:93
 msgid "The form has expired. Please reload the page and try again."
 msgstr "Формата е изтекла. Моля, презаредете страницата и опитайте отново."
 
 #. translators: %d: character limit
-#: includes/class-reklamo-cart.php:98
-#: includes/class-reklamo-request.php:250
+#: includes/class-reklamo-cart.php:99
+#: includes/class-reklamo-request.php:282
 #, php-format
 msgid "The note is too long (maximum %d characters)."
 msgstr "Бележката е твърде дълга (максимум %d символа)."
 
-#: includes/class-reklamo-cart.php:102
-#: includes/class-reklamo-request.php:256
+#: includes/class-reklamo-cart.php:109
+#: includes/class-reklamo-request.php:292
 msgid "Please upload your logo file."
 msgstr "Моля, качете файл с Вашето лого."
 
-#: includes/class-reklamo-cart.php:135
-#: includes/class-reklamo-cart.php:189
-#: includes/class-reklamo-request.php:128
+#: includes/class-reklamo-cart.php:142
+#: includes/class-reklamo-cart.php:196
+#: includes/class-reklamo-request.php:130
 msgid "Logo"
 msgstr "Лого"
 
-#: includes/class-reklamo-cart.php:140
-#: includes/class-reklamo-cart.php:154
-#: includes/class-reklamo-request.php:282
+#: includes/class-reklamo-cart.php:147
+#: includes/class-reklamo-cart.php:161
+#: includes/class-reklamo-request.php:325
 msgid "Note to designer"
 msgstr "Бележка към дизайнера"
 
@@ -241,7 +241,7 @@ msgstr "Благодарим! Ще получите визуализация з�
 
 #: includes/class-reklamo-gateway.php:92
 #: includes/class-reklamo-gateway.php:115
-#: includes/class-reklamo-statuses.php:200
+#: includes/class-reklamo-statuses.php:203
 msgid "Request received. No payment taken."
 msgstr "Заявката е получена. Не е извършено плащане."
 
@@ -262,7 +262,7 @@ msgid "Approved — awaiting deposit"
 msgstr "Одобрена — чака аванс"
 
 #. translators: %s: number of orders
-#: includes/class-reklamo-statuses.php:82
+#: includes/class-reklamo-statuses.php:83
 #, php-format
 msgid "Request received <span class=\"count\">(%s)</span>"
 msgid_plural "Request received <span class=\"count\">(%s)</span>"
@@ -270,7 +270,7 @@ msgstr[0] "Заявка приета <span class=\"count\">(%s)</span>"
 msgstr[1] "Заявка приета <span class=\"count\">(%s)</span>"
 
 #. translators: %s: number of orders
-#: includes/class-reklamo-statuses.php:84
+#: includes/class-reklamo-statuses.php:85
 #, php-format
 msgid "Mockup sent <span class=\"count\">(%s)</span>"
 msgid_plural "Mockup sent <span class=\"count\">(%s)</span>"
@@ -278,7 +278,7 @@ msgstr[0] "Изпратена визуализация <span class=\"count\">(%s
 msgstr[1] "Изпратена визуализация <span class=\"count\">(%s)</span>"
 
 #. translators: %s: number of orders
-#: includes/class-reklamo-statuses.php:88
+#: includes/class-reklamo-statuses.php:89
 #, php-format
 msgid "Approved — awaiting deposit <span class=\"count\">(%s)</span>"
 msgid_plural "Approved — awaiting deposit <span class=\"count\">(%s)</span>"
@@ -286,56 +286,58 @@ msgstr[0] "Одобрена — чака аванс <span class=\"count\">(%s)</
 msgstr[1] "Одобрена — чака аванс <span class=\"count\">(%s)</span>"
 
 #. translators: 1: previous status, 2: new status
-#: includes/class-reklamo-statuses.php:134
+#: includes/class-reklamo-statuses.php:135
 #, php-format
 msgid "Warning: status changed from \"%1$s\" to \"%2$s\", which is outside the normal flow."
 msgstr "Внимание: статусът е сменен от „%1$s“ на „%2$s“, което е извън нормалния процес."
 
 #. translators: %s: server upload limit, e.g. 64 MB
-#: includes/class-reklamo-storage.php:91
+#: includes/class-reklamo-storage.php:88
 #, php-format
 msgid "The file is larger than the server currently accepts (%s). Please send it to us by email for now."
 msgstr "Файлът е по-голям, отколкото сървърът приема в момента (%s). Моля, засега ни го изпратете по имейл."
 
-#: includes/class-reklamo-storage.php:97
-#: includes/class-reklamo-storage.php:100
+#: includes/class-reklamo-storage.php:94
+#: includes/class-reklamo-upload.php:218
+#: includes/class-reklamo-upload.php:264
 msgid "The upload did not complete. Please try again."
 msgstr "Качването не завърши. Моля, опитайте отново."
 
 #. translators: %s: comma-separated list of allowed extensions
-#: includes/class-reklamo-storage.php:110
+#. translators: %s: allowed extensions
+#: includes/class-reklamo-storage.php:125
+#: includes/class-reklamo-upload.php:162
 #, php-format
 msgid "This file type is not accepted. Allowed: %s."
 msgstr "Този тип файл не се приема. Разрешени: %s."
 
-#: includes/class-reklamo-storage.php:118
+#: includes/class-reklamo-storage.php:132
+#: includes/class-reklamo-upload.php:165
 msgid "The file is empty."
 msgstr "Файлът е празен."
 
 #. translators: %s: size limit
-#: includes/class-reklamo-storage.php:122
+#: includes/class-reklamo-request.php:212
+#: includes/class-reklamo-storage.php:136
+#: includes/class-reklamo-upload.php:169
 #, php-format
 msgid "The file must be smaller than %s."
 msgstr "Файлът трябва да е по-малък от %s."
 
-#: includes/class-reklamo-storage.php:133
-msgid "This file type is not accepted."
-msgstr "Този тип файл не се приема."
-
-#: includes/class-reklamo-storage.php:136
-msgid "The file does not look like an image."
-msgstr "Файлът не изглежда като изображение."
-
-#: includes/class-reklamo-storage.php:145
+#: includes/class-reklamo-storage.php:165
+#: includes/class-reklamo-upload.php:180
+#: includes/class-reklamo-upload.php:226
+#: includes/class-reklamo-upload.php:246
 msgid "The file could not be saved. Please try again."
 msgstr "Файлът не можа да бъде записан. Моля, опитайте отново."
 
-#: includes/class-reklamo-storage.php:221
+#: includes/class-reklamo-storage.php:275
 msgid "You do not have permission to download this file."
 msgstr "Нямате права да изтеглите този файл."
 
-#: includes/class-reklamo-storage.php:225
-#: includes/class-reklamo-storage.php:238
+#: includes/class-reklamo-storage.php:279
+#: includes/class-reklamo-storage.php:290
+#: includes/class-reklamo-storage.php:295
 msgid "File not found."
 msgstr "Файлът не е намерен."
 
@@ -352,7 +354,7 @@ msgid "Your mockup for order {order_number} is ready — {site_title}"
 msgstr "Визуализацията за поръчка {order_number} е готова — {site_title}"
 
 #: includes/emails/class-reklamo-email-mockup-sent.php:52
-#: templates/approval.php:179
+#: templates/approval.php:183
 msgid "Your mockup is ready"
 msgstr "Визуализацията Ви е готова"
 
@@ -411,7 +413,7 @@ msgstr "На този етап не се извършва плащане. Сле
 msgid "Placeholders: {order_number}, {order_date}, {customer_first_name}, {site_title}"
 msgstr "Заместители: {order_number}, {order_date}, {customer_first_name}, {site_title}"
 
-#: reklamo-core.php:74
+#: reklamo-core.php:79
 msgid "Reklamo Core needs WooCommerce to be active."
 msgstr "Reklamo Core изисква WooCommerce да е активен."
 
@@ -472,36 +474,36 @@ msgid "Our designer will prepare a revised mockup and you will get a new email t
 msgstr "Нашият дизайнер ще подготви коригирана визуализация и ще получите нов имейл, за да я прегледате."
 
 #. translators: 1: order number, 2: mockup revision
-#: templates/approval.php:184
+#: templates/approval.php:188
 #, php-format
 msgid "Order %1$s · mockup #%2$d"
 msgstr "Поръчка %1$s · визуализация №%2$d"
 
-#: templates/approval.php:199
+#: templates/approval.php:203
 msgid "Mockup"
 msgstr "Визуализация"
 
-#: templates/approval.php:201
+#: templates/approval.php:205
 msgid "Download the mockup (PDF)"
 msgstr "Изтеглете визуализацията (PDF)"
 
-#: templates/approval.php:215
+#: templates/approval.php:219
 msgid "Approve the mockup"
 msgstr "Одобрявам визуализацията"
 
-#: templates/approval.php:219
+#: templates/approval.php:223
 msgid "I would like changes"
 msgstr "Желая корекции"
 
-#: templates/approval.php:220
+#: templates/approval.php:224
 msgid "Describe what should change…"
 msgstr "Опишете какво да се промени…"
 
-#: templates/approval.php:221
+#: templates/approval.php:225
 msgid "Request changes"
 msgstr "Заявявам корекции"
 
-#: templates/approval.php:224
+#: templates/approval.php:228
 msgid "No payment is taken at this stage. After approval we will send bank details for a 50% deposit."
 msgstr "На този етап не се извършва плащане. След одобрение ще изпратим банкови данни за 50% аванс."
 
@@ -510,107 +512,107 @@ msgstr "На този етап не се извършва плащане. Сле
 msgid "If the button does not work, copy this link into your browser:"
 msgstr "Ако бутонът не работи, копирайте тази връзка в браузъра си:"
 
-#: includes/class-reklamo-request.php:109
+#: includes/class-reklamo-request.php:111
 msgid "Package"
 msgstr "Пакет"
 
-#: includes/class-reklamo-request.php:111
+#: includes/class-reklamo-request.php:113
 msgid "Choose a package…"
 msgstr "Изберете пакет…"
 
-#: includes/class-reklamo-request.php:122
+#: includes/class-reklamo-request.php:124
 msgid "1. Upload your company logo"
 msgstr "1. Качете логото на Вашата фирма"
 
-#: includes/class-reklamo-request.php:128
+#: includes/class-reklamo-request.php:130
 msgid "Drag the file here or click to choose"
 msgstr "Плъзнете файла тук или кликнете, за да изберете"
 
-#: includes/class-reklamo-request.php:142
+#: includes/class-reklamo-request.php:144
 msgid "2. Instructions for the designer (optional)"
 msgstr "2. Инструкции към дизайнера (по желание)"
 
-#: includes/class-reklamo-request.php:146
+#: includes/class-reklamo-request.php:148
 msgid "Note to the designer (optional)"
 msgstr "Бележка към дизайнера (по желание)"
 
-#: includes/class-reklamo-request.php:154
+#: includes/class-reklamo-request.php:156
 msgid "Name / Company"
 msgstr "Име / Фирма"
 
-#: includes/class-reklamo-request.php:154
+#: includes/class-reklamo-request.php:156
 msgid "Your name"
 msgstr "Вашето име"
 
-#: includes/class-reklamo-request.php:155
+#: includes/class-reklamo-request.php:157
 msgid "Ivan Ivanov"
 msgstr "Иван Иванов"
 
-#: includes/class-reklamo-request.php:158
-#: includes/class-reklamo-settings-page.php:52
+#: includes/class-reklamo-request.php:160
+#: includes/class-reklamo-settings-page.php:53
 msgid "Contact email"
 msgstr "Имейл за контакт"
 
-#: includes/class-reklamo-request.php:168
+#: includes/class-reklamo-request.php:170
 msgid "Terms and Conditions"
 msgstr "Общите условия"
 
-#: includes/class-reklamo-request.php:169
+#: includes/class-reklamo-request.php:171
 msgid "Privacy Policy"
 msgstr "Политиката за поверителност"
 
 #. translators: 1: terms link, 2: privacy policy link
-#: includes/class-reklamo-request.php:171
+#: includes/class-reklamo-request.php:173
 #, php-format
 msgid "I agree to the %1$s and the %2$s."
 msgstr "Съгласявам се с %1$s и %2$s."
 
-#: includes/class-reklamo-request.php:178
+#: includes/class-reklamo-request.php:180
 msgid "Send for a mockup"
 msgstr "Изпрати за визуализация"
 
-#: includes/class-reklamo-request.php:178
+#: includes/class-reklamo-request.php:180
 msgid "Send and request a mockup"
 msgstr "Изпрати и заяви визуализация"
 
-#: includes/class-reklamo-request.php:227
+#: includes/class-reklamo-request.php:259
 msgid "The form has expired. Please try again."
 msgstr "Формата е изтекла. Моля, опитайте отново."
 
-#: includes/class-reklamo-request.php:230
+#: includes/class-reklamo-request.php:262
 msgid "Something went wrong. Please try again."
 msgstr "Нещо се обърка. Моля, опитайте отново."
 
-#: includes/class-reklamo-request.php:233
+#: includes/class-reklamo-request.php:265
 msgid "Too many requests from this connection. Please try again in an hour or contact us by email."
 msgstr "Твърде много заявки от тази връзка. Моля, опитайте отново след час или ни пишете по имейл."
 
-#: includes/class-reklamo-request.php:239
+#: includes/class-reklamo-request.php:271
 msgid "Please choose a package."
 msgstr "Моля, изберете пакет."
 
-#: includes/class-reklamo-request.php:242
+#: includes/class-reklamo-request.php:274
 msgid "Please enter your name."
 msgstr "Моля, въведете името си."
 
-#: includes/class-reklamo-request.php:245
+#: includes/class-reklamo-request.php:277
 msgid "Please enter a valid email address."
 msgstr "Моля, въведете валиден имейл адрес."
 
-#: includes/class-reklamo-request.php:253
+#: includes/class-reklamo-request.php:285
 msgid "Please accept the Terms and Conditions and the Privacy Policy."
 msgstr "Моля, приемете Общите условия и Политиката за поверителност."
 
-#: includes/class-reklamo-request.php:274
+#: includes/class-reklamo-request.php:317
 msgid "The request could not be saved. Please try again or contact us."
 msgstr "Заявката не можа да бъде записана. Моля, опитайте отново или се свържете с нас."
 
-#: includes/class-reklamo-request.php:306
+#: includes/class-reklamo-request.php:349
 msgid "Request submitted from the website form. No payment taken."
 msgstr "Заявка, подадена от формата на сайта. Не е извършено плащане."
 
 #: includes/class-reklamo-settings-page.php:20
-#: includes/class-reklamo-settings-page.php:31
+#: includes/class-reklamo-settings-page.php:32
 msgid "Company & contact"
 msgstr "Фирма и контакти"
 
@@ -618,59 +620,59 @@ msgstr "Фирма и контакти"
 msgid "Process"
 msgstr "Процес"
 
-#: includes/class-reklamo-settings-page.php:32
+#: includes/class-reklamo-settings-page.php:33
 msgid "Shown in the footer, the contact blocks and the emails. Edit here once; every page updates."
 msgstr "Показва се във футъра, контактните блокове и имейлите. Редактирайте тук веднъж — всички страници се обновяват."
 
-#: includes/class-reklamo-settings-page.php:36
-#: templates/approval.php:164
+#: includes/class-reklamo-settings-page.php:37
+#: templates/approval.php:168
 msgid "Company name"
 msgstr "Име на фирмата"
 
-#: includes/class-reklamo-settings-page.php:41
+#: includes/class-reklamo-settings-page.php:42
 msgid "Footer tagline"
 msgstr "Текст във футъра"
 
-#: includes/class-reklamo-admin-order.php:170
-#: includes/class-reklamo-settings-page.php:47
-#: templates/approval.php:168
+#: includes/class-reklamo-admin-order.php:176
+#: includes/class-reklamo-settings-page.php:48
+#: templates/approval.php:172
 #: templates/emails/reklamo-generic.php:59
 msgid "Phone"
 msgstr "Телефон"
 
-#: includes/class-reklamo-settings-page.php:57
+#: includes/class-reklamo-settings-page.php:58
 msgid "Address / city"
 msgstr "Адрес / град"
 
-#: includes/class-reklamo-settings-page.php:62
+#: includes/class-reklamo-settings-page.php:63
 msgid "Working hours"
 msgstr "Работно време"
 
-#: includes/class-reklamo-settings-page.php:67
+#: includes/class-reklamo-settings-page.php:68
 msgid "Facebook URL"
 msgstr "Facebook адрес"
 
-#: includes/class-reklamo-settings-page.php:72
+#: includes/class-reklamo-settings-page.php:73
 msgid "Instagram URL"
 msgstr "Instagram адрес"
 
-#: includes/class-reklamo-settings-page.php:77
+#: includes/class-reklamo-settings-page.php:78
 msgid "LinkedIn URL"
 msgstr "LinkedIn адрес"
 
-#: includes/class-reklamo-settings-page.php:127
+#: includes/class-reklamo-settings-page.php:159
 msgid "Process promises"
 msgstr "Обещания в процеса"
 
-#: includes/class-reklamo-settings-page.php:131
+#: includes/class-reklamo-settings-page.php:163
 msgid "Mockup within (business hours)"
 msgstr "Визуализация до (работни часа)"
 
-#: includes/class-reklamo-settings-page.php:138
+#: includes/class-reklamo-settings-page.php:170
 msgid "Deposit (%)"
 msgstr "Аванс (%)"
 
-#: includes/class-reklamo-settings-page.php:148
+#: includes/class-reklamo-settings-page.php:180
 msgid "Designer note max characters"
 msgstr "Макс. символи в бележката към дизайнера"
 
@@ -723,102 +725,102 @@ msgid "Deposit: %1$s (%2$s%%)"
 msgstr "Аванс: %1$s (%2$s%%)"
 
 #. translators: %s: date
-#: includes/class-reklamo-admin-order.php:152
 #: includes/class-reklamo-admin-order.php:155
+#: includes/class-reklamo-admin-order.php:161
 #, php-format
 msgid "received %s"
 msgstr "получен на %s"
 
 #. translators: %s: balance amount
-#: includes/class-reklamo-admin-order.php:154
+#: includes/class-reklamo-admin-order.php:157
 #, php-format
 msgid "Balance: %s"
 msgstr "Остатък: %s"
 
-#: includes/class-reklamo-admin-order.php:160
+#: includes/class-reklamo-admin-order.php:166
 msgid "Invoice & delivery details"
 msgstr "Данни за фактура и доставка"
 
-#: includes/class-reklamo-admin-order.php:165
+#: includes/class-reklamo-admin-order.php:171
 msgid "Type"
 msgstr "Тип"
 
-#: includes/class-reklamo-admin-order.php:165
-#: includes/class-reklamo-admin-order.php:166
+#: includes/class-reklamo-admin-order.php:171
+#: includes/class-reklamo-admin-order.php:172
 #: templates/emails/reklamo-generic.php:55
 msgid "Company"
 msgstr "Фирма"
 
-#: includes/class-reklamo-admin-order.php:165
-#: templates/approval.php:160
+#: includes/class-reklamo-admin-order.php:171
+#: templates/approval.php:164
 msgid "Private person"
 msgstr "Частно лице"
 
-#: includes/class-reklamo-admin-order.php:167
-#: templates/approval.php:165
+#: includes/class-reklamo-admin-order.php:173
+#: templates/approval.php:169
 #: templates/emails/reklamo-generic.php:56
 msgid "Company ID (ЕИК)"
 msgstr "ЕИК"
 
-#: includes/class-reklamo-admin-order.php:168
+#: includes/class-reklamo-admin-order.php:174
 #: templates/emails/reklamo-generic.php:57
 msgid "VAT no."
 msgstr "ДДС №"
 
-#: includes/class-reklamo-admin-order.php:169
-#: templates/approval.php:167
+#: includes/class-reklamo-admin-order.php:175
+#: templates/approval.php:171
 #: templates/emails/reklamo-generic.php:58
 msgid "Responsible person (МОЛ)"
 msgstr "МОЛ"
 
-#: includes/class-reklamo-admin-order.php:171
-#: templates/approval.php:169
+#: includes/class-reklamo-admin-order.php:177
+#: templates/approval.php:173
 msgid "Delivery address"
 msgstr "Адрес за доставка"
 
-#: includes/class-reklamo-admin-order.php:172
+#: includes/class-reklamo-admin-order.php:178
 #: templates/emails/reklamo-generic.php:63
 msgid "Delivery note"
 msgstr "Бележка за доставка"
 
-#: includes/class-reklamo-admin-order.php:173
+#: includes/class-reklamo-admin-order.php:179
 msgid "Submitted"
 msgstr "Подадени на"
 
-#: includes/class-reklamo-admin-order.php:184
+#: includes/class-reklamo-admin-order.php:190
 msgid "Not submitted yet — the customer gets the form after approving the mockup."
 msgstr "Още не са подадени — клиентът получава формата след одобрение на визуализацията."
 
-#: includes/class-reklamo-admin-order.php:268
+#: includes/class-reklamo-admin-order.php:274
 msgid "That action is not available for the current status."
 msgstr "Това действие не е налично за текущото състояние."
 
-#: includes/class-reklamo-admin-order.php:275
+#: includes/class-reklamo-admin-order.php:281
 msgid "Deposit request re-sent by the shop."
 msgstr "Искането за аванс е изпратено отново от магазина."
 
-#: includes/class-reklamo-admin-order.php:276
+#: includes/class-reklamo-admin-order.php:282
 msgid "Deposit request re-sent."
 msgstr "Искането за аванс е изпратено отново."
 
-#: includes/class-reklamo-admin-order.php:281
+#: includes/class-reklamo-admin-order.php:287
 msgid "Deposit marked as received by the shop."
 msgstr "Авансът е отбелязан като получен от магазина."
 
-#: includes/class-reklamo-admin-order.php:284
+#: includes/class-reklamo-admin-order.php:290
 msgid "Production started."
 msgstr "Производството е стартирано."
 
-#: includes/class-reklamo-admin-order.php:287
+#: includes/class-reklamo-admin-order.php:293
 msgid "Order ready; final payment requested."
 msgstr "Поръчката е готова; поискано е доплащане."
 
-#: includes/class-reklamo-admin-order.php:292
+#: includes/class-reklamo-admin-order.php:298
 msgid "Final payment received; order completed."
 msgstr "Доплащането е получено; поръчката е приключена."
 
 #. translators: %s: new status
-#: includes/class-reklamo-admin-order.php:295
+#: includes/class-reklamo-admin-order.php:301
 #, php-format
 msgid "Order moved to \"%s\"."
 msgstr "Поръчката е преместена в „%s“."
@@ -861,56 +863,56 @@ msgid "Customer updated invoice and delivery details."
 msgstr "Клиентът обнови данните за фактура и доставка."
 
 #. translators: %d: mockup revision
-#: includes/class-reklamo-reminders.php:84
+#: includes/class-reklamo-reminders.php:83
 #, php-format
 msgid "Reminder sent: mockup #%d still awaits approval."
 msgstr "Изпратено напомняне: визуализация №%d все още чака одобрение."
 
-#: includes/class-reklamo-reminders.php:95
+#: includes/class-reklamo-reminders.php:94
 msgid "Reminder sent: deposit still unpaid."
 msgstr "Изпратено напомняне: авансът още не е платен."
 
 #: includes/class-reklamo-settings-page.php:21
-#: includes/class-reklamo-settings-page.php:92
+#: includes/class-reklamo-settings-page.php:93
 msgid "Bank details"
 msgstr "Банкови данни"
 
-#: includes/class-reklamo-settings-page.php:93
+#: includes/class-reklamo-settings-page.php:94
 msgid "Printed in the deposit and final-payment emails and by the [reklamo_bank_details] shortcode. The order number is always the payment reference."
 msgstr "Показват се в имейлите за аванс и доплащане и чрез шорткода [reklamo_bank_details]. Основанието за плащане е винаги номерът на поръчката."
 
-#: includes/class-reklamo-settings-page.php:97
-#: includes/class-reklamo-settings.php:42
+#: includes/class-reklamo-settings-page.php:98
+#: includes/class-reklamo-settings.php:44
 msgid "Bank"
 msgstr "Банка"
 
-#: includes/class-reklamo-settings-page.php:102
-#: includes/class-reklamo-settings.php:43
+#: includes/class-reklamo-settings-page.php:103
+#: includes/class-reklamo-settings.php:45
 msgid "IBAN"
 msgstr "IBAN"
 
-#: includes/class-reklamo-settings-page.php:107
+#: includes/class-reklamo-settings-page.php:108
 msgid "BIC / SWIFT"
 msgstr "BIC / SWIFT"
 
-#: includes/class-reklamo-settings-page.php:112
-#: includes/class-reklamo-settings.php:45
+#: includes/class-reklamo-settings-page.php:113
+#: includes/class-reklamo-settings.php:47
 msgid "Account holder"
 msgstr "Титуляр"
 
-#: includes/class-reklamo-settings-page.php:155
+#: includes/class-reklamo-settings-page.php:187
 msgid "Reminders (days)"
 msgstr "Напомняния (дни)"
 
-#: includes/class-reklamo-settings-page.php:158
+#: includes/class-reklamo-settings-page.php:190
 msgid "Days after a mockup is sent (or a deposit requested) to remind the customer, comma-separated. Empty = no reminders."
 msgstr "След колко дни от изпращане на визуализация (или искане за аванс) да напомним на клиента, разделени със запетая. Празно = без напомняния."
 
-#: includes/class-reklamo-settings.php:44
+#: includes/class-reklamo-settings.php:46
 msgid "BIC"
 msgstr "BIC"
 
-#: includes/class-reklamo-settings.php:54
+#: includes/class-reklamo-settings.php:56
 #: templates/emails/plain/reklamo-generic.php:23
 #: templates/emails/reklamo-generic.php:47
 msgid "Payment reference"
@@ -933,7 +935,7 @@ msgid "Ready — awaiting final payment"
 msgstr "Готово — чака доплащане"
 
 #. translators: %s: number of orders
-#: includes/class-reklamo-statuses.php:86
+#: includes/class-reklamo-statuses.php:87
 #, php-format
 msgid "Changes requested <span class=\"count\">(%s)</span>"
 msgid_plural "Changes requested <span class=\"count\">(%s)</span>"
@@ -941,7 +943,7 @@ msgstr[0] "Заявени корекции <span class=\"count\">(%s)</span>"
 msgstr[1] "Заявени корекции <span class=\"count\">(%s)</span>"
 
 #. translators: %s: number of orders
-#: includes/class-reklamo-statuses.php:90
+#: includes/class-reklamo-statuses.php:91
 #, php-format
 msgid "Deposit received <span class=\"count\">(%s)</span>"
 msgid_plural "Deposit received <span class=\"count\">(%s)</span>"
@@ -949,7 +951,7 @@ msgstr[0] "Аванс получен <span class=\"count\">(%s)</span>"
 msgstr[1] "Аванс получен <span class=\"count\">(%s)</span>"
 
 #. translators: %s: number of orders
-#: includes/class-reklamo-statuses.php:92
+#: includes/class-reklamo-statuses.php:93
 #, php-format
 msgid "In production <span class=\"count\">(%s)</span>"
 msgid_plural "In production <span class=\"count\">(%s)</span>"
@@ -957,7 +959,7 @@ msgstr[0] "В производство <span class=\"count\">(%s)</span>"
 msgstr[1] "В производство <span class=\"count\">(%s)</span>"
 
 #. translators: %s: number of orders
-#: includes/class-reklamo-statuses.php:94
+#: includes/class-reklamo-statuses.php:95
 #, php-format
 msgid "Ready — awaiting final payment <span class=\"count\">(%s)</span>"
 msgid_plural "Ready — awaiting final payment <span class=\"count\">(%s)</span>"
@@ -965,7 +967,7 @@ msgstr[0] "Готово — чака доплащане <span class=\"count\">(%
 msgstr[1] "Готово — чака доплащане <span class=\"count\">(%s)</span>"
 
 #. translators: 1: current status, 2: refused status
-#: includes/class-reklamo-statuses.php:167
+#: includes/class-reklamo-statuses.php:170
 #, php-format
 msgid "Status left at \"%1$s\": \"%2$s\" is not a valid next step. Use the buttons in the \"Mockup & approval\" box."
 msgstr "Състоянието остава „%1$s“: „%2$s“ не е валидна следваща стъпка. Използвайте бутоните в панела „Визуализация и одобрение“."
@@ -1141,44 +1143,279 @@ msgstr "Дължим аванс: %s"
 msgid "We received your details. You can still correct them from this link until the deposit is confirmed."
 msgstr "Получихме данните Ви. Можете да ги коригирате от тази връзка, докато авансът бъде потвърден."
 
-#: templates/approval.php:150
+#: templates/approval.php:154
 msgid "The deposit is confirmed and your details are locked. Contact us if something needs to change."
 msgstr "Авансът е потвърден и данните са заключени. Свържете се с нас, ако нещо трябва да се промени."
 
-#: templates/approval.php:159
+#: templates/approval.php:163
 msgid "Company (invoice)"
 msgstr "Фирма (фактура)"
 
-#: templates/approval.php:166
+#: templates/approval.php:170
 msgid "VAT no. (optional)"
 msgstr "ДДС № (по желание)"
 
-#: templates/approval.php:170
+#: templates/approval.php:174
 #: templates/emails/reklamo-generic.php:61
 msgid "City"
 msgstr "Град"
 
-#: templates/approval.php:171
+#: templates/approval.php:175
 #: templates/emails/reklamo-generic.php:62
 msgid "Postcode"
 msgstr "Пощенски код"
 
-#: templates/approval.php:172
+#: templates/approval.php:176
 msgid "Delivery note (optional)"
 msgstr "Бележка за доставка (по желание)"
 
-#: templates/approval.php:174
+#: templates/approval.php:178
 msgid "Update details"
 msgstr "Обнови данните"
 
-#: templates/approval.php:174
+#: templates/approval.php:178
 msgid "Save details"
 msgstr "Запази данните"
 
-#: templates/approval.php:176
+#: templates/approval.php:180
 msgid "Prices include VAT. The invoice is issued from these details; the order number is your payment reference."
 msgstr "Цените са с включен ДДС. Фактурата се издава по тези данни; номерът на поръчката е Вашето основание за плащане."
 
 #: templates/emails/reklamo-generic.php:60
 msgid "Address"
 msgstr "Адрес"
+
+#: includes/class-reklamo-diagnostics.php:26
+#: includes/class-reklamo-diagnostics.php:105
+msgid "Reklamo diagnostics"
+msgstr "Диагностика Reklamo"
+
+#: includes/class-reklamo-diagnostics.php:42
+msgid "accepted"
+msgstr "приета"
+
+#: includes/class-reklamo-diagnostics.php:43
+msgid "rejected"
+msgstr "отхвърлена"
+
+#: includes/class-reklamo-diagnostics.php:44
+msgid "testing…"
+msgstr "тестване…"
+
+#. translators: %s: size
+#: includes/class-reklamo-diagnostics.php:46
+#, php-format
+msgid "Largest single request accepted: %s. Chunks are 2 MB, so uploads of any size work when 2 MB passes."
+msgstr "Най-голяма приета единична заявка: %s. Частите са по 2 MB, така че качвания с всякакъв размер работят, щом 2 MB минават."
+
+#: includes/class-reklamo-diagnostics.php:61
+msgid "Outside the web root — not reachable by URL."
+msgstr "Извън уеб директорията — недостъпно по URL."
+
+#: includes/class-reklamo-diagnostics.php:69
+msgid "PUBLICLY READABLE — the .htaccess deny rule is not in effect on this server. Move REKLAMO_PRIVATE_DIR outside the web root or add a deny rule for the host."
+msgstr "ПУБЛИЧНО ДОСТЪПНО — правилото за отказ в .htaccess не действа на този сървър. Преместете REKLAMO_PRIVATE_DIR извън уеб директорията или добавете правило за отказ при хоста."
+
+#. translators: %s: HTTP status
+#: includes/class-reklamo-diagnostics.php:72
+#, php-format
+msgid "Inside the web root but not readable (HTTP %s)."
+msgstr "В уеб директорията, но недостъпно (HTTP %s)."
+
+#: includes/class-reklamo-diagnostics.php:85
+msgid "PHP version"
+msgstr "PHP версия"
+
+#: includes/class-reklamo-diagnostics.php:91
+msgid "Effective single-POST limit (PHP)"
+msgstr "Ефективен лимит за единична заявка (PHP)"
+
+#: includes/class-reklamo-diagnostics.php:92
+msgid "Chunk size used by the uploader"
+msgstr "Размер на частите при качване"
+
+#: includes/class-reklamo-diagnostics.php:93
+msgid "Configured maximum file size"
+msgstr "Настроен максимален размер на файл"
+
+#: includes/class-reklamo-diagnostics.php:94
+msgid "Private storage directory"
+msgstr "Директория за частно съхранение"
+
+#: includes/class-reklamo-diagnostics.php:94
+msgid "NOT WRITABLE"
+msgstr "НЕ Е ЗАПИСВАЕМА"
+
+#: includes/class-reklamo-diagnostics.php:95
+msgid "Free disk space"
+msgstr "Свободно дисково пространство"
+
+#: includes/class-reklamo-diagnostics.php:96
+msgid "Stored files"
+msgstr "Съхранени файлове"
+
+#: includes/class-reklamo-diagnostics.php:97
+msgid "Unfinished chunk sessions"
+msgstr "Незавършени сесии за качване"
+
+#: includes/class-reklamo-diagnostics.php:98
+msgid "Next cleanup run"
+msgstr "Следващо почистване"
+
+#: includes/class-reklamo-diagnostics.php:98
+msgid "not scheduled (is WooCommerce Action Scheduler running?)"
+msgstr "не е планирано (работи ли Action Scheduler на WooCommerce?)"
+
+#: includes/class-reklamo-diagnostics.php:99
+msgid "WP-Cron"
+msgstr "WP-Cron"
+
+#: includes/class-reklamo-diagnostics.php:99
+msgid "disabled — a real cron job must call wp-cron.php"
+msgstr "изключен — истинска cron задача трябва да извиква wp-cron.php"
+
+#: includes/class-reklamo-diagnostics.php:99
+msgid "enabled (visitor-triggered; fine locally, use a real cron in production)"
+msgstr "включен (задейства се от посетители; добре локално, в продукция използвайте истински cron)"
+
+#: includes/class-reklamo-diagnostics.php:100
+msgid "finfo extension"
+msgstr "Разширение finfo"
+
+#: includes/class-reklamo-diagnostics.php:100
+#: includes/class-reklamo-diagnostics.php:101
+msgid "available"
+msgstr "налично"
+
+#: includes/class-reklamo-diagnostics.php:100
+msgid "missing"
+msgstr "липсва"
+
+#: includes/class-reklamo-diagnostics.php:101
+msgid "DOM extension (SVG sanitiser)"
+msgstr "Разширение DOM (SVG санитайзер)"
+
+#: includes/class-reklamo-diagnostics.php:101
+msgid "MISSING — SVG uploads will be refused"
+msgstr "ЛИПСВА — SVG качвания ще бъдат отхвърляни"
+
+#: includes/class-reklamo-diagnostics.php:106
+msgid "Run this on the live host after deployment and again after any hosting change. The probe below posts real request bodies to find the true upload ceiling; php.ini values alone are not the whole story on shared hosting."
+msgstr "Изпълнете това на реалния хост след внедряване и след всяка промяна в хостинга. Тестът по-долу изпраща реални заявки, за да открие истинския таван за качване; стойностите в php.ini не са цялата картина при споделен хостинг."
+
+#: includes/class-reklamo-diagnostics.php:108
+msgid "Storage exposure"
+msgstr "Достъпност на хранилището"
+
+#: includes/class-reklamo-diagnostics.php:111
+msgid "Server limits"
+msgstr "Сървърни лимити"
+
+#: includes/class-reklamo-diagnostics.php:118
+msgid "Active upload probe"
+msgstr "Активен тест за качване"
+
+#: includes/class-reklamo-diagnostics.php:119
+msgid "Sends test bodies of increasing size to this site and reports which arrive intact. Anything above the effective limit is normally cut by Apache or mod_security before PHP runs."
+msgstr "Изпраща тестови заявки с нарастващ размер към този сайт и показва кои пристигат цели. Всичко над ефективния лимит обикновено се отрязва от Apache или mod_security, преди PHP да се изпълни."
+
+#: includes/class-reklamo-diagnostics.php:120
+msgid "Run probe"
+msgstr "Стартирай теста"
+
+#: includes/class-reklamo-request.php:203
+msgid "Preparing upload…"
+msgstr "Подготовка на качването…"
+
+#. translators: 1: bytes sent, 2: total bytes
+#: includes/class-reklamo-request.php:205
+#, php-format
+msgid "Uploading %1$s of %2$s…"
+msgstr "Качване на %1$s от %2$s…"
+
+#: includes/class-reklamo-request.php:206
+msgid "Checking the file…"
+msgstr "Проверка на файла…"
+
+#. translators: %s: file name and size
+#: includes/class-reklamo-request.php:208
+#, php-format
+msgid "Uploaded: %s"
+msgstr "Качено: %s"
+
+#: includes/class-reklamo-request.php:209
+msgid "The upload failed."
+msgstr "Качването не успя."
+
+#: includes/class-reklamo-request.php:210
+msgid "The file will be sent with the form instead."
+msgstr "Файлът ще бъде изпратен с формата вместо това."
+
+#: includes/class-reklamo-settings-page.php:23
+msgid "Files"
+msgstr "Файлове"
+
+#: includes/class-reklamo-settings-page.php:128
+msgid "Customer files"
+msgstr "Файлове на клиенти"
+
+#: includes/class-reklamo-settings-page.php:129
+msgid "Logos are uploaded in small chunks, so the server's PHP upload limit does not apply — only this maximum does. Check WooCommerce → Reklamo diagnostics after deploying."
+msgstr "Логата се качват на малки части, така че PHP лимитът на сървъра не важи — важи само този максимум. След внедряване проверете WooCommerce → Диагностика Reklamo."
+
+#: includes/class-reklamo-settings-page.php:133
+msgid "Maximum logo file size (MB)"
+msgstr "Максимален размер на файл с лого (MB)"
+
+#: includes/class-reklamo-settings-page.php:140
+msgid "Delete files after (months)"
+msgstr "Изтриване на файловете след (месеци)"
+
+#: includes/class-reklamo-settings-page.php:143
+msgid "Logos and mockups of completed or cancelled orders are deleted this many months after the order closed. 0 = keep forever. State the period in your terms."
+msgstr "Лога и визуализации на приключени или отказани поръчки се изтриват толкова месеца след приключването. 0 = пазят се завинаги. Посочете срока в общите условия."
+
+#. translators: %s: file extension
+#: includes/class-reklamo-storage.php:144
+#, php-format
+msgid "The file does not look like a valid %s file. Please export it again from your design program."
+msgstr "Файлът не изглежда като валиден %s файл. Моля, експортирайте го отново от дизайнерската програма."
+
+#: includes/class-reklamo-storage.php:152
+msgid "This SVG could not be accepted (scripts or external references). Please export a plain SVG or send a PDF."
+msgstr "Този SVG не може да бъде приет (скриптове или външни препратки). Моля, експортирайте обикновен SVG или изпратете PDF."
+
+#. translators: %s: file name
+#: includes/class-reklamo-storage.php:329
+#, php-format
+msgid "%s (deleted by retention policy)"
+msgstr "%s (изтрит съгласно политиката за съхранение)"
+
+#: includes/class-reklamo-upload.php:100
+msgid "The page has expired. Please reload and try again."
+msgstr "Страницата е изтекла. Моля, презаредете и опитайте отново."
+
+#: includes/class-reklamo-upload.php:155
+#: includes/class-reklamo-upload.php:204
+msgid "Too many uploads from this connection. Please try again in an hour."
+msgstr "Твърде много качвания от тази връзка. Моля, опитайте отново след час."
+
+#: includes/class-reklamo-upload.php:174
+msgid "Our storage is temporarily full. Please try again later or send the file by email."
+msgstr "Хранилището ни е временно пълно. Моля, опитайте по-късно или изпратете файла по имейл."
+
+#: includes/class-reklamo-upload.php:210
+#: includes/class-reklamo-upload.php:240
+msgid "The upload session has expired. Please choose the file again."
+msgstr "Сесията за качване е изтекла. Моля, изберете файла отново."
+
+#: includes/class-reklamo-upload.php:213
+#: includes/class-reklamo-upload.php:222
+msgid "Invalid upload chunk."
+msgstr "Невалидна част от качването."
+
+#. translators: %d: chunk number
+#: includes/class-reklamo-upload.php:255
+#, php-format
+msgid "Part %d of the upload is missing. Please try again."
+msgstr "Част %d от качването липсва. Моля, опитайте отново."

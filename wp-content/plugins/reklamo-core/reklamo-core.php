@@ -3,7 +3,7 @@
  * Plugin Name:       Reklamo Core
  * Plugin URI:        https://reklamo.bg
  * Description:       Business logic for Reklamo.bg — order statuses, logo uploads, mockups and approvals, emails. The theme is presentation only; everything that touches orders lives here.
- * Version:           0.3.0
+ * Version:           0.4.0
  * Requires at least: 7.0
  * Requires PHP:      8.1
  * Requires Plugins:  woocommerce
@@ -19,7 +19,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'REKLAMO_VERSION', '0.3.0' );
+define( 'REKLAMO_VERSION', '0.4.0' );
 define( 'REKLAMO_FILE', __FILE__ );
 define( 'REKLAMO_PATH', plugin_dir_path( __FILE__ ) );
 define( 'REKLAMO_URL', plugin_dir_url( __FILE__ ) );
@@ -31,7 +31,12 @@ require REKLAMO_PATH . 'includes/class-reklamo-mail.php';
 require REKLAMO_PATH . 'includes/class-reklamo-token.php';
 require REKLAMO_PATH . 'includes/class-reklamo-money.php';
 require REKLAMO_PATH . 'includes/class-reklamo-statuses.php';
+require REKLAMO_PATH . 'includes/class-reklamo-filetypes.php';
+require REKLAMO_PATH . 'includes/class-reklamo-svg.php';
 require REKLAMO_PATH . 'includes/class-reklamo-storage.php';
+require REKLAMO_PATH . 'includes/class-reklamo-upload.php';
+require REKLAMO_PATH . 'includes/class-reklamo-cleanup.php';
+require REKLAMO_PATH . 'includes/class-reklamo-diagnostics.php';
 require REKLAMO_PATH . 'includes/class-reklamo-cart.php';
 require REKLAMO_PATH . 'includes/class-reklamo-approval.php';
 require REKLAMO_PATH . 'includes/class-reklamo-admin-order.php';
@@ -90,6 +95,9 @@ function reklamo_boot(): void {
 	Reklamo_Settings::init();
 	Reklamo_Request::init();
 	Reklamo_Reminders::init();
+	Reklamo_Upload::init();
+	Reklamo_Cleanup::init();
+	Reklamo_Diagnostics::init();
 }
 add_action( 'plugins_loaded', 'reklamo_boot', 20 );
 

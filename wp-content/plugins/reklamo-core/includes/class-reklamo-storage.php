@@ -22,9 +22,6 @@ final class Reklamo_Storage {
 	const MOCKUP_EXTENSIONS = array( 'pdf', 'png', 'jpg', 'jpeg' );
 	const MOCKUP_MAX_BYTES  = 20 * 1024 * 1024;
 
-	/** MIME types that must never be stored regardless of extension. */
-	const FORBIDDEN_MIMES = array( 'text/html', 'application/x-php', 'application/x-httpd-php', 'text/x-php', 'application/javascript', 'text/javascript' );
-
 	public static function init(): void {
 		add_action( 'admin_post_reklamo_download', array( __CLASS__, 'serve_download' ) );
 		if ( ! is_dir( self::base_dir() . '/files' ) ) {
@@ -70,12 +67,12 @@ final class Reklamo_Storage {
 	}
 
 	/**
-	 * Validate and store one uploaded file ($_FILES entry).
+	 * Validate and store one uploaded file ($_FILES entry) — the plain (no-JS) path.
 	 *
 	 * @param array    $file      One entry of $_FILES.
 	 * @param string   $kind      'logo' or 'mockup'.
 	 * @param string[] $allowed   Allowed extensions.
-	 * @param int      $max_bytes Size limit; 0 = only the PHP limits apply.
+	 * @param int      $max_bytes Size limit; 0 = the configured maximum.
 	 * @return array|WP_Error Row as array on success.
 	 */
 	public static function store_upload( array $file, string $kind, array $allowed, int $max_bytes = 0 ) {
@@ -93,14 +90,32 @@ final class Reklamo_Storage {
 				)
 			);
 		}
-		if ( UPLOAD_ERR_OK !== $error ) {
+		if ( UPLOAD_ERR_OK !== $error || empty( $file['tmp_name'] ) || ! is_uploaded_file( $file['tmp_name'] ) ) {
 			return new WP_Error( 'reklamo_upload_error', __( 'The upload did not complete. Please try again.', 'reklamo-core' ) );
 		}
-		if ( empty( $file['tmp_name'] ) || ! is_uploaded_file( $file['tmp_name'] ) ) {
-			return new WP_Error( 'reklamo_upload_error', __( 'The upload did not complete. Please try again.', 'reklamo-core' ) );
-		}
+		return self::finalize( $file['tmp_name'], (string) $file['name'], $kind, $allowed, $max_bytes, true );
+	}
 
-		$orig = sanitize_file_name( wp_unslash( (string) $file['name'] ) );
+	/** Configured ceiling for customer files, bytes. */
+	public static function max_bytes(): int {
+		return max( 1, (int) Reklamo_Settings::get( 'max_upload_mb', '300' ) ) * 1024 * 1024;
+	}
+
+	/**
+	 * Shared by the plain upload and the chunked reassembly: validate name/size/content,
+	 * sanitise SVG, move into private storage, record the row.
+	 *
+	 * @param string   $src         Path of the complete file (PHP temp or our tmp dir).
+	 * @param string   $orig_name   Client file name.
+	 * @param string   $kind        'logo' | 'mockup'.
+	 * @param string[] $allowed     Allowed extensions.
+	 * @param int      $max_bytes   0 = configured maximum.
+	 * @param bool     $is_uploaded Use move_uploaded_file() (true) or rename() (false).
+	 * @return array|WP_Error
+	 */
+	public static function finalize( string $src, string $orig_name, string $kind, array $allowed, int $max_bytes = 0, bool $is_uploaded = false ) {
+		$max  = $max_bytes > 0 ? $max_bytes : self::max_bytes();
+		$orig = sanitize_file_name( wp_unslash( $orig_name ) );
 		$ext  = strtolower( pathinfo( $orig, PATHINFO_EXTENSION ) );
 		if ( ! in_array( $ext, $allowed, true ) ) {
 			return new WP_Error(
@@ -112,28 +127,32 @@ final class Reklamo_Storage {
 				)
 			);
 		}
-
-		$bytes = (int) filesize( $file['tmp_name'] );
+		$bytes = (int) filesize( $src );
 		if ( $bytes <= 0 ) {
 			return new WP_Error( 'reklamo_empty', __( 'The file is empty.', 'reklamo-core' ) );
 		}
-		if ( $max_bytes > 0 && $bytes > $max_bytes ) {
+		if ( $bytes > $max ) {
 			/* translators: %s: size limit */
-			return new WP_Error( 'reklamo_too_large', sprintf( __( 'The file must be smaller than %s.', 'reklamo-core' ), size_format( $max_bytes ) ) );
+			return new WP_Error( 'reklamo_too_large', sprintf( __( 'The file must be smaller than %s.', 'reklamo-core' ), size_format( $max ) ) );
 		}
-
-		// Cheap sanity check on real content; the full per-format sniffer is Phase 2.
-		$mime = '';
-		if ( function_exists( 'finfo_open' ) ) {
-			$finfo = finfo_open( FILEINFO_MIME_TYPE );
-			$mime  = (string) finfo_file( $finfo, $file['tmp_name'] );
-			finfo_close( $finfo );
+		// The extension says one thing; the bytes must agree.
+		if ( ! Reklamo_Filetypes::sniff( $src, $ext ) ) {
+			return new WP_Error(
+				'reklamo_bad_content',
+				sprintf(
+					/* translators: %s: file extension */
+					__( 'The file does not look like a valid %s file. Please export it again from your design program.', 'reklamo-core' ),
+					strtoupper( $ext )
+				)
+			);
 		}
-		if ( in_array( $mime, self::FORBIDDEN_MIMES, true ) ) {
-			return new WP_Error( 'reklamo_bad_type', __( 'This file type is not accepted.', 'reklamo-core' ) );
-		}
-		if ( in_array( $ext, array( 'png', 'jpg', 'jpeg' ), true ) && ! str_starts_with( $mime, 'image/' ) ) {
-			return new WP_Error( 'reklamo_bad_type', __( 'The file does not look like an image.', 'reklamo-core' ) );
+		if ( 'svg' === $ext ) {
+			$clean = Reklamo_Svg::sanitize( (string) file_get_contents( $src ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			if ( false === $clean ) {
+				return new WP_Error( 'reklamo_bad_content', __( 'This SVG could not be accepted (scripts or external references). Please export a plain SVG or send a PDF.', 'reklamo-core' ) );
+			}
+			file_put_contents( $src, $clean ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+			$bytes = strlen( $clean );
 		}
 
 		self::ensure_base_dir();
@@ -141,7 +160,8 @@ final class Reklamo_Storage {
 		$rel   = 'files/' . gmdate( 'Y/m' ) . '/' . $token . '.bin';
 		$dest  = self::base_dir() . '/' . $rel;
 		wp_mkdir_p( dirname( $dest ) );
-		if ( ! move_uploaded_file( $file['tmp_name'], $dest ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_move_uploaded_file
+		$moved = $is_uploaded ? move_uploaded_file( $src, $dest ) : rename( $src, $dest ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_move_uploaded_file, WordPress.WP.AlternativeFunctions.file_system_operations_rename, WordPress.WP.AlternativeFunctions.rename_rename -- same filesystem, atomic; WP_Filesystem is not initialised on the front end.
+		if ( ! $moved ) {
 			return new WP_Error( 'reklamo_store_failed', __( 'The file could not be saved. Please try again.', 'reklamo-core' ) );
 		}
 		chmod( $dest, 0640 ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_chmod
@@ -154,7 +174,7 @@ final class Reklamo_Storage {
 			'orig_name'  => $orig,
 			'path'       => $rel,
 			'ext'        => $ext,
-			'mime'       => $mime,
+			'mime'       => Reklamo_Filetypes::CANONICAL[ $ext ] ?? 'application/octet-stream',
 			'bytes'      => $bytes,
 			'sha256'     => hash_file( 'sha256', $dest ),
 			'created_ip' => self::client_ip(),
@@ -163,6 +183,40 @@ final class Reklamo_Storage {
 		$wpdb->insert( self::table(), $row ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 		$row['id'] = (int) $wpdb->insert_id;
 		return $row;
+	}
+
+	/** An upload that finished but was not yet attached to an order (chunked flow hands its token to the form). */
+	public static function unclaimed_by_token( string $token, string $kind = 'logo' ): ?object {
+		$row = self::by_token( $token );
+		if ( ! $row || $row->kind !== $kind || $row->order_id ) {
+			return null;
+		}
+		// Tokens are unguessable; still, don't let a stale one be attached days later.
+		if ( strtotime( $row->created_at . ' UTC' ) < time() - DAY_IN_SECONDS ) {
+			return null;
+		}
+		return $row;
+	}
+
+	/** Delete a file from disk and its row (or blank the row for audit when $keep_row). */
+	public static function delete( object $row, bool $keep_row = false ): void {
+		global $wpdb;
+		$abs = self::abs_path( $row );
+		if ( $row->path && file_exists( $abs ) ) {
+			wp_delete_file( $abs );
+		}
+		if ( $keep_row ) {
+			$wpdb->update(
+				self::table(),
+				array(
+					'path'  => '',
+					'bytes' => 0,
+				),
+				array( 'id' => (int) $row->id )
+			); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		} else {
+			$wpdb->delete( self::table(), array( 'id' => (int) $row->id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		}
 	}
 
 	public static function by_token( string $token ): ?object {
@@ -232,6 +286,9 @@ final class Reklamo_Storage {
 	 * everything else — SVG above all — is forced to download.
 	 */
 	public static function serve_file( object $row, bool $inline ): void {
+		if ( '' === (string) $row->path ) {
+			wp_die( esc_html__( 'File not found.', 'reklamo-core' ), 404 );
+		}
 		$real = realpath( self::abs_path( $row ) );
 		$base = realpath( self::base_dir() );
 		if ( ! $real || ! $base || ! str_starts_with( $real, $base . DIRECTORY_SEPARATOR ) ) {
@@ -267,6 +324,10 @@ final class Reklamo_Storage {
 	}
 
 	public static function describe( object $row ): string {
+		if ( '' === (string) $row->path ) {
+			/* translators: %s: file name */
+			return sprintf( __( '%s (deleted by retention policy)', 'reklamo-core' ), $row->orig_name );
+		}
 		return sprintf( '%s (%s, %s)', $row->orig_name, strtoupper( $row->ext ), size_format( (int) $row->bytes ) );
 	}
 }

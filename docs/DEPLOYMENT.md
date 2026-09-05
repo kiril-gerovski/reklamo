@@ -97,6 +97,9 @@ define( 'REKLAMO_SMTP_SECURE', 'ssl' );                  // 587 + 'tls' also wor
 define( 'REKLAMO_SMTP_USER',   'office@reklamo.bg' );
 define( 'REKLAMO_SMTP_PASS',   '<mailbox password>' );
 
+// Do NOT define REKLAMO_DISABLE_RATE_LIMITS here — the per-IP limits on the request form,
+// the chunked uploader and the approval page are part of the site's protection.
+
 // Real cron instead of visitor-triggered WP-Cron (see step 9).
 define( 'DISABLE_WP_CRON', true );
 ```
@@ -159,6 +162,8 @@ WP-Cron only fires on visits; on a low-traffic site scheduled jobs (WooCommerce 
 (or use SuperHosting's *Manager for WordPress → Cron Jobs (WP-Cron) → Move*, which does the same).
 
 ## 10. SSL and final checks
+
+- **Run WooCommerce → Reklamo diagnostics** on the live site: it must say the storage is *outside the web root*, `DOM` and `finfo` available, cleanup scheduled. Click **Run probe** — the uploader uses 2 MB chunks, so as long as 2 MB is accepted, customer uploads of any size work regardless of the PHP limits from §2. Note the largest accepted size here for future reference.
 
 - cPanel → **SSL/TLS Status** → AutoSSL (Let's Encrypt) for reklamo.bg and www. Once issued, `WP_HOME`/`WP_SITEURL` already say https.
 - Verify the private directory is not reachable: `curl -I https://reklamo.bg/reklamo-private/` must be 404 (it is outside `public_html`, so it should be).

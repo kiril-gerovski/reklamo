@@ -33,11 +33,12 @@ final class Reklamo_Cart {
 	}
 
 	public static function assets(): void {
-		if ( ! is_product() ) {
+		if ( ! is_product() && ! is_front_page() && ! is_page() ) {
 			return;
 		}
 		$path = REKLAMO_PATH . 'assets/css/reklamo.css';
 		wp_enqueue_style( 'reklamo', REKLAMO_URL . 'assets/css/reklamo.css', array(), file_exists( $path ) ? (string) filemtime( $path ) : REKLAMO_VERSION );
+		Reklamo_Request::enqueue_uploader();
 	}
 
 	public static function render_fields(): void {
@@ -98,7 +99,13 @@ final class Reklamo_Cart {
 			wc_add_notice( sprintf( __( 'The note is too long (maximum %d characters).', 'reklamo-core' ), self::NOTE_MAX ), 'error' );
 			return false;
 		}
-		if ( empty( $_FILES['reklamo_logo'] ) ) {
+		$token     = isset( $_POST['reklamo_file_token'] ) ? sanitize_text_field( wp_unslash( $_POST['reklamo_file_token'] ) ) : '';
+		$prestored = '' !== $token ? Reklamo_Storage::unclaimed_by_token( $token, 'logo' ) : null;
+		if ( $prestored ) {
+			self::$pending_token = $prestored->token;
+			return $passed;
+		}
+		if ( empty( $_FILES['reklamo_logo'] ) || UPLOAD_ERR_NO_FILE === (int) ( $_FILES['reklamo_logo']['error'] ?? UPLOAD_ERR_NO_FILE ) ) {
 			wc_add_notice( __( 'Please upload your logo file.', 'reklamo-core' ), 'error' );
 			return false;
 		}

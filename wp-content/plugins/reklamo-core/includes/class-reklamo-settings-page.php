@@ -20,6 +20,7 @@ class Reklamo_Settings_Page extends WC_Settings_Page {
 			''        => __( 'Company & contact', 'reklamo-core' ),
 			'bank'    => __( 'Bank details', 'reklamo-core' ),
 			'process' => __( 'Process', 'reklamo-core' ),
+			'files'   => __( 'Files', 'reklamo-core' ),
 		);
 	}
 
@@ -115,6 +116,37 @@ class Reklamo_Settings_Page extends WC_Settings_Page {
 			array(
 				'type' => 'sectionend',
 				'id'   => 'reklamo_bank',
+			),
+		);
+	}
+
+	protected function get_settings_for_files_section() {
+		return array(
+			array(
+				'type'  => 'title',
+				'id'    => 'reklamo_files',
+				'title' => __( 'Customer files', 'reklamo-core' ),
+				'desc'  => __( 'Logos are uploaded in small chunks, so the server\'s PHP upload limit does not apply — only this maximum does. Check WooCommerce → Reklamo diagnostics after deploying.', 'reklamo-core' ),
+			),
+			array(
+				'id'                => 'reklamo_max_upload_mb',
+				'title'             => __( 'Maximum logo file size (MB)', 'reklamo-core' ),
+				'type'              => 'number',
+				'default'           => '300',
+				'custom_attributes' => array( 'min' => 1 ),
+			),
+			array(
+				'id'                => 'reklamo_retention_months',
+				'title'             => __( 'Delete files after (months)', 'reklamo-core' ),
+				'type'              => 'number',
+				'default'           => '12',
+				'description'       => __( 'Logos and mockups of completed or cancelled orders are deleted this many months after the order closed. 0 = keep forever. State the period in your terms.', 'reklamo-core' ),
+				'desc_tip'          => true,
+				'custom_attributes' => array( 'min' => 0 ),
+			),
+			array(
+				'type' => 'sectionend',
+				'id'   => 'reklamo_files',
 			),
 		);
 	}

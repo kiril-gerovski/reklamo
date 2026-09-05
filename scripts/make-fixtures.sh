@@ -4,7 +4,8 @@
 # Usage: scripts/make-fixtures.sh [size_mb]   (default 5; use 150+ to test chunking)
 set -euo pipefail
 cd "$(dirname "$0")/.."
-mb="${1:-5}"
+mb="${1:-1}"
+big="${2:-150}"
 out=tests/fixtures; mkdir -p "$out"
 pad() { dd if=/dev/urandom bs=1M count="$mb" status=none >> "$1"; }
 
@@ -23,6 +24,8 @@ def chunk(t,d): return struct.pack('>I',len(d))+t+d+struct.pack('>I',zlib.crc32(
 png=b'\x89PNG\r\n\x1a\n'+chunk(b'IHDR',struct.pack('>IIBBBBB',w,h,8,2,0,0,0))+chunk(b'IDAT',zlib.compress(raw,9))+chunk(b'IEND',b'')
 for n in ('logo.png','mockup.png'): open(sys.argv[1]+'/'+n,'wb').write(png)
 PY2
+# The headline case: a layered PSD far above any single-POST limit (our Docker caps PHP at 64M).
+printf '8BPS\x00\x01\x00\x00\x00\x00\x00\x00\x00\x03' > "$out/big.psd"; dd if=/dev/urandom bs=1M count="$big" status=none >> "$out/big.psd"
 # Wrong content for the extension — must be rejected.
 printf 'MZ\x90\x00'                                            > "$out/fake.ai";  pad "$out/fake.ai"
 
