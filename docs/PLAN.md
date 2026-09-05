@@ -78,7 +78,7 @@ Three external facts that shape the build:
 
 1. ~~Create the git remote~~ — done: `git@github.com:kiril-gerovski/reklamo.git`, cloned into `/home/dev/projects/reklamo`.
 2. ~~Put the design mockups in `design/`~~ — done: `preview.webp` (homepage) and `preview_2.webp` (upload page; `preview_3.webp` is a byte-identical duplicate). ⚠️ The upload mockup says "макс. 20MB", contradicting the document's headline no-limit advantage — that text is intentionally not reproduced.
-3. **Confirm hosting** (SuperHosting vs Jump.bg) and get an account early. Phase 2 ends with a diagnostics probe that must run *on the real host* — see the upload risk below.
+3. **Confirm hosting** (SuperHosting vs Jump.bg) and get an account early. Deployment steps for SuperHosting: `docs/DEPLOYMENT.md`. Phase 2 ends with a diagnostics probe that must run *on the real host* — see the upload risk below.
 
 ---
 

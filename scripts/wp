@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
-# WP-CLI inside the stack. Usage: scripts/wp plugin list
-# Reuses the helper container if a scripts/ script has one running.
+# WP-CLI. Locally: inside the Docker stack (reusing a running helper container if a
+# scripts/ script has one). On a server: set WP_PATH and it runs the native `wp`.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 [ -f .env ] && { set -a; . ./.env; set +a; }
+if [ -n "${WP_PATH:-}" ]; then
+  exec wp --path="$WP_PATH" "$@"
+fi
 cli="${COMPOSE_PROJECT_NAME:-reklamo}-cli"
 if docker ps -q -f name="^${cli}\$" | grep . >/dev/null; then
   exec docker exec -i "$cli" wp "$@"

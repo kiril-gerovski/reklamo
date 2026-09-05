@@ -5,7 +5,7 @@ Online shop for promotional packages branded with the customer's logo — **Vari
 custom-built theme. WooCommerce is the only third-party plugin; everything else is our own code
 plus configuration from the dashboard.
 
-Full plan: [`docs/PLAN.md`](docs/PLAN.md). Design mockups: [`design/`](design/).
+Full plan: [`docs/PLAN.md`](docs/PLAN.md). Design mockups: [`design/`](design/). Going live: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
 
 Convention: code, comments and docs are in English. Site content (pages, products, menus,
 emails) is Bulgarian — that is data, seeded by `scripts/seed.sh`.
@@ -79,7 +79,7 @@ Claude Code. Details: [`scripts/worktree/README.md`](scripts/worktree/README.md)
 
 ## The configuration rule
 
-The database is not in git — **`scripts/seed.sh` is**. Every setting you click in the dashboard
+The database is not in git — **`scripts/seed.sh` is**. The same script runs on the hosting account (`WP_PATH=/home/<user>/public_html REKLAMO_ENV=production scripts/seed.sh`) — see `docs/DEPLOYMENT.md`. Every setting you click in the dashboard
 must become a line in `seed.sh`, otherwise it does not exist. `scripts/reset.sh` proves that
 nothing lives only in the local database.
 

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # THE configuration of the site, as code.
 # Values below are Bulgarian on purpose: they are site CONTENT (what the customer sees), not code.
+# Works locally (Docker) and on the server (WP_PATH=... REKLAMO_ENV=production scripts/seed.sh).
 # WordPress keeps config in the database, which git cannot track — so every
 # dashboard setting must be expressed here. If a setting exists only in a local
 # database, it does not exist. Idempotent: re-running updates, never duplicates.
@@ -24,7 +25,7 @@ opt start_of_week 1
 opt WPLANG bg_BG
 opt default_comment_status closed
 opt default_ping_status closed
-opt blog_public 0                       # local: discourage indexing; flip to 1 on production
+if [ "${REKLAMO_ENV:-local}" = production ]; then opt blog_public 1; else opt blog_public 0; fi   # indexing only on production
 opt uploads_use_yearmonth_folders 1
 wp rewrite structure '/%postname%/' >/dev/null
 wp rewrite flush --hard >/dev/null 2>&1 || wp rewrite flush >/dev/null
