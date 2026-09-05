@@ -4,4 +4,7 @@
  * ABSPATH guard satisfied. Anything needing WordPress belongs in the E2E suite.
  */
 define( 'ABSPATH', '/nonexistent/' );
-require dirname( __DIR__, 2 ) . '/wp-content/plugins/reklamo-core/includes/class-reklamo-token.php';
+$plugin = dirname( __DIR__, 2 ) . '/wp-content/plugins/reklamo-core/includes/';
+require $plugin . 'class-reklamo-token.php';
+require $plugin . 'class-reklamo-money.php';
+require $plugin . 'class-reklamo-statuses.php'; // can_transition() and TRANSITIONS are pure; nothing runs at load.

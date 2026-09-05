@@ -18,6 +18,9 @@ class Reklamo_Email_Mockup_Sent extends WC_Email {
 	/** @var int */
 	protected $revision = 1;
 
+	/** @var bool */
+	protected $reminder = false;
+
 	public function __construct() {
 		$this->id             = 'reklamo_mockup_sent';
 		$this->customer_email = true;
@@ -34,6 +37,11 @@ class Reklamo_Email_Mockup_Sent extends WC_Email {
 		);
 
 		parent::__construct();
+	}
+
+	public function get_subject() {
+		$subject = parent::get_subject();
+		return $this->reminder ? sprintf( /* translators: %s: original subject */ __( 'Reminder: %s', 'reklamo-core' ), $subject ) : $subject;
 	}
 
 	public function get_default_subject() {
@@ -79,7 +87,7 @@ class Reklamo_Email_Mockup_Sent extends WC_Email {
 	 * @param string         $approval_url Signed one-time URL.
 	 * @param int            $revision     Mockup revision number.
 	 */
-	public function trigger( $order_id, $order = false, string $approval_url = '', int $revision = 1 ) {
+	public function trigger( $order_id, $order = false, string $approval_url = '', int $revision = 1, bool $reminder = false ) {
 		$this->setup_locale();
 
 		if ( $order_id && ! $order instanceof WC_Order ) {
@@ -90,6 +98,7 @@ class Reklamo_Email_Mockup_Sent extends WC_Email {
 			$this->recipient                             = $order->get_billing_email();
 			$this->approval_url                          = $approval_url;
 			$this->revision                              = $revision;
+			$this->reminder                              = $reminder;
 			$this->placeholders['{order_number}']        = $order->get_order_number();
 			$this->placeholders['{customer_first_name}'] = $order->get_billing_first_name();
 			$this->placeholders['{revision}']            = (string) $revision;

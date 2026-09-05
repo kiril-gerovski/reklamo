@@ -228,6 +228,23 @@ If a change exists only in your local database, it does not exist. That script i
 
 ---
 
+## Phase 3 — Full order flow — DONE (2026-09-05)
+
+Decisions (owner, 2026-09-05): **prices include 20 % VAT** and are shown incl. (`woocommerce_prices_include_tax`, BG standard rate seeded, suffix "с ДДС"); **invoice data is collected, the фактура is issued externally**.
+
+Delivered:
+- Seven statuses with an enforced transition table: `rq-received → rq-mockup-sent ⇄ rq-changes → rq-approved → rq-deposit-paid → rq-production → rq-final-due → completed` (+ `cancelled` from any). Illegal jumps via the status dropdown are refused with a notice; the "Mockup & approval" box offers the legitimate buttons (deposit received, start production, request final payment, complete, re-send deposit request).
+- **Details step**: approval lands the customer on a signed details page (company/private, ЕИК, ДДС №, МОЛ, phone, delivery address; validated; re-editable until the deposit is confirmed). Stored on the order (billing/shipping + meta), shown in the admin box.
+- **Money**: deposit = round(total × pct) stored at approval; balance = total − deposit; `_reklamo_deposit_paid_at` / `_reklamo_final_paid_at`; never `is_paid()`.
+- **Emails** (owner-editable, shared generic template): deposit request (bank details + amount + details link), production started, final payment due (balance + bank details), admin "changes requested", admin "invoice details received"; reminders prefix "Напомняне:". Bank details live in Settings → Reklamo → Bank details and in the `[reklamo_bank_details]` shortcode on the Плащане page.
+- **Reminders** via the bundled Action Scheduler at configurable days (default 3, 7, 14) while a mockup awaits approval or a deposit is unpaid; cancelled on any status change; each reminder mints a fresh link and expires the old one.
+- Tests: E2E 7/7 (adds details form + validation, deposit email, status-guard refusal, admin buttons to `completed`, production/final emails); PHPUnit 25/25 (token, transitions, money); PHPCS clean.
+
+Lessons:
+- Never `unset($_POST['order_status'])` to block a status change — WooCommerce throws "Order status is missing". Post the current status instead.
+- `Reklamo_Statuses::slugs()` must not translate: `woocommerce_email_actions` is applied before `init`.
+- A link secret exists only at send time; reminders must mint a new token (and expire the previous) rather than reuse.
+
 ## Phase 2 (reordered) — Design: theme + request page — DONE (2026-09-05)
 
 Upload hardening (old Phase 2) is deferred until the hosting account is chosen, since its decisive step is the probe on the real host. The theme is independent of it, so it moves up.

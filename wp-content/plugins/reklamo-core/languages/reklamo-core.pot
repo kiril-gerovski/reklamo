@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Reklamo Core 0.2.0\n"
+"Project-Id-Version: Reklamo Core 0.3.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/reklamo-core\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-04T21:14:06+00:00\n"
+"POT-Creation-Date: 2026-09-05T12:25:57+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: reklamo-core\n"
@@ -34,115 +34,299 @@ msgstr ""
 msgid "Nocturn AI"
 msgstr ""
 
-#: includes/class-reklamo-admin-order.php:41
+#: includes/class-reklamo-admin-order.php:44
 msgid "Mockup & approval"
 msgstr ""
 
-#: includes/class-reklamo-admin-order.php:64
-msgid "Status"
+#. translators: %s: deposit amount
+#: includes/class-reklamo-admin-order.php:54
+#, php-format
+msgid "Deposit received (%s)"
 msgstr ""
 
-#: includes/class-reklamo-admin-order.php:66
-msgid "Customer logo"
+#: includes/class-reklamo-admin-order.php:55
+msgid "Re-send deposit request"
 msgstr ""
 
-#: includes/class-reklamo-admin-order.php:74
-msgid "No logo attached to this order."
+#: includes/class-reklamo-admin-order.php:58
+msgid "Start production"
 msgstr ""
 
-#: includes/class-reklamo-admin-order.php:77
-msgid "Mockups sent"
+#: includes/class-reklamo-admin-order.php:61
+msgid "Ready — request final payment"
 msgstr ""
 
-#: includes/class-reklamo-admin-order.php:89
-msgid "— approved"
-msgstr ""
-
-#: includes/class-reklamo-admin-order.php:89
-msgid "— changes requested"
+#. translators: %s: balance amount
+#: includes/class-reklamo-admin-order.php:65
+#, php-format
+msgid "Final payment received (%s) — complete"
 msgstr ""
 
 #: includes/class-reklamo-admin-order.php:92
+msgid "Status"
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:103
+msgid "Customer logo"
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:111
+msgid "No logo attached to this order."
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:114
+msgid "Mockups sent"
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:126
+msgid "— approved"
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:126
+msgid "— changes requested"
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:129
 msgid "— awaiting the customer"
 msgstr ""
 
 #. translators: %s: expiry date
-#: includes/class-reklamo-admin-order.php:94
+#: includes/class-reklamo-admin-order.php:131
 #, php-format
 msgid "(link valid until %s)"
 msgstr ""
 
-#: includes/class-reklamo-admin-order.php:102
+#: includes/class-reklamo-admin-order.php:133
+msgid "— link expired"
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:141
 msgid "No mockup sent yet."
 msgstr ""
 
-#: includes/class-reklamo-admin-order.php:106
-msgid "Approved"
+#: includes/class-reklamo-admin-order.php:144
+msgid "Requested changes"
 msgstr ""
 
-#. translators: %d: mockup revision
-#: includes/class-reklamo-admin-order.php:108
+#: includes/class-reklamo-admin-order.php:148
+msgid "Approval & payments"
+msgstr ""
+
+#. translators: 1: date, 2: mockup revision
+#: includes/class-reklamo-admin-order.php:150
 #, php-format
-msgid "(mockup #%d)"
+msgid "Approved %1$s (mockup #%2$d)"
+msgstr ""
+
+#. translators: 1: deposit amount, 2: percentage
+#: includes/class-reklamo-admin-order.php:151
+#, php-format
+msgid "Deposit: %1$s (%2$s%%)"
+msgstr ""
+
+#. translators: %s: date
+#: includes/class-reklamo-admin-order.php:152
+#: includes/class-reklamo-admin-order.php:155
+#, php-format
+msgid "received %s"
+msgstr ""
+
+#. translators: %s: balance amount
+#: includes/class-reklamo-admin-order.php:154
+#, php-format
+msgid "Balance: %s"
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:160
+msgid "Invoice & delivery details"
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:165
+msgid "Type"
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:165
+#: includes/class-reklamo-admin-order.php:166
+#: templates/emails/reklamo-generic.php:55
+msgid "Company"
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:165
+#: templates/approval.php:160
+msgid "Private person"
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:167
+#: templates/approval.php:165
+#: templates/emails/reklamo-generic.php:56
+msgid "Company ID (ЕИК)"
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:168
+#: templates/emails/reklamo-generic.php:57
+msgid "VAT no."
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:169
+#: templates/approval.php:167
+#: templates/emails/reklamo-generic.php:58
+msgid "Responsible person (МОЛ)"
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:170
+#: includes/class-reklamo-settings-page.php:47
+#: templates/approval.php:168
+#: templates/emails/reklamo-generic.php:59
+msgid "Phone"
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:171
+#: templates/approval.php:169
+msgid "Delivery address"
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:172
+#: templates/emails/reklamo-generic.php:63
+msgid "Delivery note"
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:173
+msgid "Submitted"
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:184
+msgid "Not submitted yet — the customer gets the form after approving the mockup."
 msgstr ""
 
 #. translators: %d: next mockup revision number
-#: includes/class-reklamo-admin-order.php:115
+#: includes/class-reklamo-admin-order.php:188
 #, php-format
 msgid "Send mockup #%d"
 msgstr ""
 
-#: includes/class-reklamo-admin-order.php:118
+#. translators: %d: next mockup revision number
+#: includes/class-reklamo-admin-order.php:189
 msgid "PDF, PNG or JPG, up to 20 MB. The customer receives an email with a one-time approval link (valid 14 days)."
 msgstr ""
 
-#: includes/class-reklamo-admin-order.php:133
+#: includes/class-reklamo-admin-order.php:191
 msgid "Send to customer"
 msgstr ""
 
-#: includes/class-reklamo-admin-order.php:154
+#: includes/class-reklamo-admin-order.php:225
 msgid "You do not have permission to do this."
 msgstr ""
 
-#: includes/class-reklamo-admin-order.php:159
+#: includes/class-reklamo-admin-order.php:229
 msgid "Order not found."
 msgstr ""
 
-#: includes/class-reklamo-admin-order.php:165
+#: includes/class-reklamo-admin-order.php:240
 #: includes/class-reklamo-storage.php:84
 msgid "Please choose a file."
 msgstr ""
 
 #. translators: %d: mockup revision
-#: includes/class-reklamo-admin-order.php:177
+#: includes/class-reklamo-admin-order.php:252
 #, php-format
 msgid "Mockup #%d sent to the customer for approval."
 msgstr ""
 
 #. translators: %d: mockup revision
-#: includes/class-reklamo-admin-order.php:185
+#: includes/class-reklamo-admin-order.php:259
 #, php-format
 msgid "Mockup #%d sent. The customer has the approval link by email."
 msgstr ""
 
-#: includes/class-reklamo-approval.php:155
+#: includes/class-reklamo-admin-order.php:268
+msgid "That action is not available for the current status."
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:275
+msgid "Deposit request re-sent by the shop."
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:276
+msgid "Deposit request re-sent."
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:281
+msgid "Deposit marked as received by the shop."
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:284
+msgid "Production started."
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:287
+msgid "Order ready; final payment requested."
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:292
+msgid "Final payment received; order completed."
+msgstr ""
+
+#. translators: %s: new status
+#: includes/class-reklamo-admin-order.php:295
+#, php-format
+msgid "Order moved to \"%s\"."
+msgstr ""
+
+#: includes/class-reklamo-approval.php:188
 msgid "Please describe the changes you would like."
 msgstr ""
 
 #. translators: 1: mockup revision number, 2: IP address
-#: includes/class-reklamo-approval.php:183
+#: includes/class-reklamo-approval.php:218
 #, php-format
 msgid "Customer approved mockup #%1$d (IP %2$s)."
 msgstr ""
 
 #. translators: 1: mockup revision number, 2: customer message
-#: includes/class-reklamo-approval.php:195
+#: includes/class-reklamo-approval.php:233
 #, php-format
 msgid "Customer requested changes to mockup #%1$d: %2$s"
 msgstr ""
 
-#: includes/class-reklamo-approval.php:200
+#: includes/class-reklamo-approval.php:240
 msgid "Changes requested — back to the designer."
+msgstr ""
+
+#. translators: %s: order number
+#: includes/class-reklamo-approval.php:272
+#: includes/emails/class-reklamo-email.php:109
+#: templates/emails/plain/reklamo-generic.php:23
+#: templates/emails/reklamo-generic.php:47
+#, php-format
+msgid "Order %s"
+msgstr ""
+
+#: includes/class-reklamo-approval.php:294
+msgid "Please enter the company name."
+msgstr ""
+
+#: includes/class-reklamo-approval.php:297
+msgid "The company ID (ЕИК) must be 9 or 13 digits."
+msgstr ""
+
+#: includes/class-reklamo-approval.php:300
+msgid "The VAT number should look like BG123456789."
+msgstr ""
+
+#: includes/class-reklamo-approval.php:303
+msgid "Please enter the responsible person (МОЛ)."
+msgstr ""
+
+#: includes/class-reklamo-approval.php:308
+msgid "Please fill in phone and delivery address."
+msgstr ""
+
+#: includes/class-reklamo-approval.php:339
+msgid "Customer submitted invoice and delivery details."
+msgstr ""
+
+#: includes/class-reklamo-approval.php:339
+msgid "Customer updated invoice and delivery details."
 msgstr ""
 
 #: includes/class-reklamo-cart.php:53
@@ -251,12 +435,22 @@ msgstr ""
 
 #: includes/class-reklamo-gateway.php:92
 #: includes/class-reklamo-gateway.php:115
-#: includes/class-reklamo-statuses.php:128
+#: includes/class-reklamo-statuses.php:200
 msgid "Request received. No payment taken."
 msgstr ""
 
 #: includes/class-reklamo-gateway.php:121
 msgid "Your request has been received. No payment is taken at this stage — our designer will send you a mockup for approval within 24 business hours."
+msgstr ""
+
+#. translators: %d: mockup revision
+#: includes/class-reklamo-reminders.php:84
+#, php-format
+msgid "Reminder sent: mockup #%d still awaits approval."
+msgstr ""
+
+#: includes/class-reklamo-reminders.php:95
+msgid "Reminder sent: deposit still unpaid."
 msgstr ""
 
 #: includes/class-reklamo-request.php:109
@@ -296,7 +490,7 @@ msgid "Ivan Ivanov"
 msgstr ""
 
 #: includes/class-reklamo-request.php:158
-#: includes/class-reklamo-settings-page.php:51
+#: includes/class-reklamo-settings-page.php:52
 msgid "Contact email"
 msgstr ""
 
@@ -359,80 +553,139 @@ msgid "Request submitted from the website form. No payment taken."
 msgstr ""
 
 #: includes/class-reklamo-settings-page.php:20
-#: includes/class-reklamo-settings-page.php:30
+#: includes/class-reklamo-settings-page.php:31
 msgid "Company & contact"
 msgstr ""
 
 #: includes/class-reklamo-settings-page.php:21
+#: includes/class-reklamo-settings-page.php:92
+msgid "Bank details"
+msgstr ""
+
+#: includes/class-reklamo-settings-page.php:22
 msgid "Process"
 msgstr ""
 
-#: includes/class-reklamo-settings-page.php:31
+#: includes/class-reklamo-settings-page.php:32
 msgid "Shown in the footer, the contact blocks and the emails. Edit here once; every page updates."
 msgstr ""
 
-#: includes/class-reklamo-settings-page.php:35
+#: includes/class-reklamo-settings-page.php:36
+#: templates/approval.php:164
 msgid "Company name"
 msgstr ""
 
-#: includes/class-reklamo-settings-page.php:40
+#: includes/class-reklamo-settings-page.php:41
 msgid "Footer tagline"
 msgstr ""
 
-#: includes/class-reklamo-settings-page.php:46
-msgid "Phone"
-msgstr ""
-
-#: includes/class-reklamo-settings-page.php:56
+#: includes/class-reklamo-settings-page.php:57
 msgid "Address / city"
 msgstr ""
 
-#: includes/class-reklamo-settings-page.php:61
+#: includes/class-reklamo-settings-page.php:62
 msgid "Working hours"
 msgstr ""
 
-#: includes/class-reklamo-settings-page.php:66
+#: includes/class-reklamo-settings-page.php:67
 msgid "Facebook URL"
 msgstr ""
 
-#: includes/class-reklamo-settings-page.php:71
+#: includes/class-reklamo-settings-page.php:72
 msgid "Instagram URL"
 msgstr ""
 
-#: includes/class-reklamo-settings-page.php:76
+#: includes/class-reklamo-settings-page.php:77
 msgid "LinkedIn URL"
 msgstr ""
 
-#: includes/class-reklamo-settings-page.php:91
-msgid "Process promises"
+#: includes/class-reklamo-settings-page.php:93
+msgid "Printed in the deposit and final-payment emails and by the [reklamo_bank_details] shortcode. The order number is always the payment reference."
 msgstr ""
 
-#: includes/class-reklamo-settings-page.php:95
-msgid "Mockup within (business hours)"
+#: includes/class-reklamo-settings-page.php:97
+#: includes/class-reklamo-settings.php:42
+msgid "Bank"
 msgstr ""
 
 #: includes/class-reklamo-settings-page.php:102
-msgid "Deposit (%)"
+#: includes/class-reklamo-settings.php:43
+msgid "IBAN"
+msgstr ""
+
+#: includes/class-reklamo-settings-page.php:107
+msgid "BIC / SWIFT"
 msgstr ""
 
 #: includes/class-reklamo-settings-page.php:112
+#: includes/class-reklamo-settings.php:45
+msgid "Account holder"
+msgstr ""
+
+#: includes/class-reklamo-settings-page.php:127
+msgid "Process promises"
+msgstr ""
+
+#: includes/class-reklamo-settings-page.php:131
+msgid "Mockup within (business hours)"
+msgstr ""
+
+#: includes/class-reklamo-settings-page.php:138
+msgid "Deposit (%)"
+msgstr ""
+
+#: includes/class-reklamo-settings-page.php:148
 msgid "Designer note max characters"
 msgstr ""
 
-#: includes/class-reklamo-statuses.php:42
+#: includes/class-reklamo-settings-page.php:155
+msgid "Reminders (days)"
+msgstr ""
+
+#: includes/class-reklamo-settings-page.php:158
+msgid "Days after a mockup is sent (or a deposit requested) to remind the customer, comma-separated. Empty = no reminders."
+msgstr ""
+
+#: includes/class-reklamo-settings.php:44
+msgid "BIC"
+msgstr ""
+
+#: includes/class-reklamo-settings.php:54
+#: templates/emails/plain/reklamo-generic.php:23
+#: templates/emails/reklamo-generic.php:47
+msgid "Payment reference"
+msgstr ""
+
+#: includes/class-reklamo-statuses.php:53
 msgid "Request received"
 msgstr ""
 
-#: includes/class-reklamo-statuses.php:43
+#: includes/class-reklamo-statuses.php:54
 msgid "Mockup sent"
 msgstr ""
 
-#: includes/class-reklamo-statuses.php:44
+#: includes/class-reklamo-statuses.php:55
+msgid "Changes requested"
+msgstr ""
+
+#: includes/class-reklamo-statuses.php:56
 msgid "Approved — awaiting deposit"
 msgstr ""
 
+#: includes/class-reklamo-statuses.php:57
+msgid "Deposit received"
+msgstr ""
+
+#: includes/class-reklamo-statuses.php:58
+msgid "In production"
+msgstr ""
+
+#: includes/class-reklamo-statuses.php:59
+msgid "Ready — awaiting final payment"
+msgstr ""
+
 #. translators: %s: number of orders
-#: includes/class-reklamo-statuses.php:56
+#: includes/class-reklamo-statuses.php:82
 #, php-format
 msgid "Request received <span class=\"count\">(%s)</span>"
 msgid_plural "Request received <span class=\"count\">(%s)</span>"
@@ -440,7 +693,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: number of orders
-#: includes/class-reklamo-statuses.php:58
+#: includes/class-reklamo-statuses.php:84
 #, php-format
 msgid "Mockup sent <span class=\"count\">(%s)</span>"
 msgid_plural "Mockup sent <span class=\"count\">(%s)</span>"
@@ -448,17 +701,55 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: number of orders
-#: includes/class-reklamo-statuses.php:60
+#: includes/class-reklamo-statuses.php:86
+#, php-format
+msgid "Changes requested <span class=\"count\">(%s)</span>"
+msgid_plural "Changes requested <span class=\"count\">(%s)</span>"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %s: number of orders
+#: includes/class-reklamo-statuses.php:88
 #, php-format
 msgid "Approved — awaiting deposit <span class=\"count\">(%s)</span>"
 msgid_plural "Approved — awaiting deposit <span class=\"count\">(%s)</span>"
 msgstr[0] ""
 msgstr[1] ""
 
+#. translators: %s: number of orders
+#: includes/class-reklamo-statuses.php:90
+#, php-format
+msgid "Deposit received <span class=\"count\">(%s)</span>"
+msgid_plural "Deposit received <span class=\"count\">(%s)</span>"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %s: number of orders
+#: includes/class-reklamo-statuses.php:92
+#, php-format
+msgid "In production <span class=\"count\">(%s)</span>"
+msgid_plural "In production <span class=\"count\">(%s)</span>"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %s: number of orders
+#: includes/class-reklamo-statuses.php:94
+#, php-format
+msgid "Ready — awaiting final payment <span class=\"count\">(%s)</span>"
+msgid_plural "Ready — awaiting final payment <span class=\"count\">(%s)</span>"
+msgstr[0] ""
+msgstr[1] ""
+
 #. translators: 1: previous status, 2: new status
-#: includes/class-reklamo-statuses.php:103
+#: includes/class-reklamo-statuses.php:134
 #, php-format
 msgid "Warning: status changed from \"%1$s\" to \"%2$s\", which is outside the normal flow."
+msgstr ""
+
+#. translators: 1: current status, 2: refused status
+#: includes/class-reklamo-statuses.php:167
+#, php-format
+msgid "Status left at \"%1$s\": \"%2$s\" is not a valid next step. Use the buttons in the \"Mockup & approval\" box."
 msgstr ""
 
 #. translators: %s: server upload limit, e.g. 64 MB
@@ -509,46 +800,191 @@ msgstr ""
 msgid "File not found."
 msgstr ""
 
-#: includes/emails/class-reklamo-email-mockup-sent.php:24
+#: includes/emails/class-reklamo-email-admin-changes.php:15
+msgid "Changes requested — admin (Reklamo)"
+msgstr ""
+
+#: includes/emails/class-reklamo-email-admin-changes.php:16
+msgid "Sent to the shop when a customer requests changes to a mockup."
+msgstr ""
+
+#: includes/emails/class-reklamo-email-admin-changes.php:25
+#: includes/emails/class-reklamo-email-admin-details.php:25
+msgid "Recipient(s)"
+msgstr ""
+
+#. translators: %s: admin email
+#: includes/emails/class-reklamo-email-admin-changes.php:28
+#: includes/emails/class-reklamo-email-admin-details.php:28
+#, php-format
+msgid "Comma-separated. Defaults to %s."
+msgstr ""
+
+#: includes/emails/class-reklamo-email-admin-changes.php:35
+msgid "[{site_title}] Changes requested for order {order_number}"
+msgstr ""
+
+#: includes/emails/class-reklamo-email-admin-changes.php:39
+msgid "The customer wants changes"
+msgstr ""
+
+#: includes/emails/class-reklamo-email-admin-changes.php:43
+msgid "Order {order_number}: the customer asked for changes to mockup #{revision}. Their message: {change_request}"
+msgstr ""
+
+#: includes/emails/class-reklamo-email-admin-details.php:17
+msgid "Invoice details received — admin (Reklamo)"
+msgstr ""
+
+#: includes/emails/class-reklamo-email-admin-details.php:18
+msgid "Sent to the shop when the customer submits company, invoice and delivery details after approval."
+msgstr ""
+
+#: includes/emails/class-reklamo-email-admin-details.php:35
+msgid "[{site_title}] Invoice details for order {order_number}"
+msgstr ""
+
+#: includes/emails/class-reklamo-email-admin-details.php:39
+msgid "Invoice and delivery details received"
+msgstr ""
+
+#: includes/emails/class-reklamo-email-admin-details.php:43
+msgid "Order {order_number} (deposit {deposit_amount}) — the customer filled in the details below. Issue the proforma and watch for the transfer."
+msgstr ""
+
+#: includes/emails/class-reklamo-email-deposit-request.php:19
+msgid "Deposit request (Reklamo)"
+msgstr ""
+
+#: includes/emails/class-reklamo-email-deposit-request.php:20
+msgid "Sent when the customer approves a mockup: bank details, the deposit amount and a link to fill in invoice and delivery details."
+msgstr ""
+
+#: includes/emails/class-reklamo-email-deposit-request.php:25
+msgid "Approved — deposit and details for order {order_number} — {site_title}"
+msgstr ""
+
+#: includes/emails/class-reklamo-email-deposit-request.php:29
+msgid "Thank you for approving the mockup!"
+msgstr ""
+
+#: includes/emails/class-reklamo-email-deposit-request.php:33
+msgid "Hello {customer_first_name}, your mockup is approved. Two short steps remain: fill in your invoice and delivery details using the button below, and transfer the {deposit_pct}% deposit of {deposit_amount} to the account below, quoting the order number. Production starts as soon as it arrives; the balance of {balance_amount} is due before delivery."
+msgstr ""
+
+#: includes/emails/class-reklamo-email-deposit-request.php:37
+msgid "Fill in invoice and delivery details"
+msgstr ""
+
+#: includes/emails/class-reklamo-email-deposit-request.php:41
+msgid "Prices include VAT. We will issue the invoice from the details you provide."
+msgstr ""
+
+#: includes/emails/class-reklamo-email-deposit-request.php:45
+msgid "Deposit due"
+msgstr ""
+
+#: includes/emails/class-reklamo-email-final-payment.php:17
+msgid "Final payment due (Reklamo)"
+msgstr ""
+
+#: includes/emails/class-reklamo-email-final-payment.php:18
+msgid "Sent when the order is ready: the remaining amount and bank details."
+msgstr ""
+
+#: includes/emails/class-reklamo-email-final-payment.php:24
+msgid "Your order {order_number} is ready — final payment — {site_title}"
+msgstr ""
+
+#: includes/emails/class-reklamo-email-final-payment.php:28
+msgid "Your order is ready!"
+msgstr ""
+
+#: includes/emails/class-reklamo-email-final-payment.php:32
+msgid "Hello {customer_first_name}, your package is produced and ready to ship. Please transfer the remaining {balance_amount} to the account below, quoting the order number, and we dispatch it the same day we see the payment."
+msgstr ""
+
+#: includes/emails/class-reklamo-email-final-payment.php:36
+msgid "The invoice for the full amount accompanies the delivery."
+msgstr ""
+
+#: includes/emails/class-reklamo-email-final-payment.php:40
+msgid "Balance due"
+msgstr ""
+
+#: includes/emails/class-reklamo-email-mockup-sent.php:27
 msgid "Mockup sent (Reklamo)"
 msgstr ""
 
-#: includes/emails/class-reklamo-email-mockup-sent.php:25
+#: includes/emails/class-reklamo-email-mockup-sent.php:28
 msgid "Sent to the customer when the designer uploads a mockup. Contains the one-time approval link."
 msgstr ""
 
-#: includes/emails/class-reklamo-email-mockup-sent.php:40
-msgid "Your mockup for order {order_number} is ready — {site_title}"
-msgstr ""
-
+#. translators: %s: original subject
 #: includes/emails/class-reklamo-email-mockup-sent.php:44
-#: templates/approval.php:103
-msgid "Your mockup is ready"
+#: includes/emails/class-reklamo-email.php:92
+#, php-format
+msgid "Reminder: %s"
 msgstr ""
 
 #: includes/emails/class-reklamo-email-mockup-sent.php:48
-msgid "Hello {customer_first_name}, our designer has prepared mockup #{revision} of your package. Please take a look and approve it, or tell us what to change. The link is personal and valid for 14 days."
+msgid "Your mockup for order {order_number} is ready — {site_title}"
 msgstr ""
 
 #: includes/emails/class-reklamo-email-mockup-sent.php:52
-msgid "View and approve the mockup"
+#: templates/approval.php:179
+msgid "Your mockup is ready"
 msgstr ""
 
 #: includes/emails/class-reklamo-email-mockup-sent.php:56
+msgid "Hello {customer_first_name}, our designer has prepared mockup #{revision} of your package. Please take a look and approve it, or tell us what to change. The link is personal and valid for 14 days."
+msgstr ""
+
+#: includes/emails/class-reklamo-email-mockup-sent.php:60
+msgid "View and approve the mockup"
+msgstr ""
+
+#: includes/emails/class-reklamo-email-mockup-sent.php:64
 msgid "No payment is taken at this stage. After approval we will send our bank details and a request for a 50% deposit."
 msgstr ""
 
-#: includes/emails/class-reklamo-email-mockup-sent.php:62
+#: includes/emails/class-reklamo-email-mockup-sent.php:70
 #: includes/emails/class-reklamo-email-request-received.php:51
+#: includes/emails/class-reklamo-email.php:58
 msgid "Main text"
 msgstr ""
 
-#: includes/emails/class-reklamo-email-mockup-sent.php:65
+#: includes/emails/class-reklamo-email-mockup-sent.php:73
 msgid "Placeholders: {order_number}, {customer_first_name}, {revision}, {site_title}"
 msgstr ""
 
-#: includes/emails/class-reklamo-email-mockup-sent.php:70
+#: includes/emails/class-reklamo-email-mockup-sent.php:78
+#: includes/emails/class-reklamo-email.php:67
 msgid "Button label"
+msgstr ""
+
+#: includes/emails/class-reklamo-email-production-started.php:15
+msgid "Production started (Reklamo)"
+msgstr ""
+
+#: includes/emails/class-reklamo-email-production-started.php:16
+msgid "Sent when the order moves to \"In production\"."
+msgstr ""
+
+#: includes/emails/class-reklamo-email-production-started.php:22
+msgid "Your order {order_number} is in production — {site_title}"
+msgstr ""
+
+#: includes/emails/class-reklamo-email-production-started.php:26
+msgid "We are producing your order"
+msgstr ""
+
+#: includes/emails/class-reklamo-email-production-started.php:30
+msgid "Hello {customer_first_name}, we received your deposit of {deposit_amount} — thank you. Production of your package has started. We will let you know as soon as it is ready and send the details for the remaining {balance_amount}."
+msgstr ""
+
+#: includes/emails/class-reklamo-email-production-started.php:34
+msgid "Questions? Just reply to this email."
 msgstr ""
 
 #: includes/emails/class-reklamo-email-request-received.php:15
@@ -579,100 +1015,171 @@ msgstr ""
 msgid "Placeholders: {order_number}, {order_date}, {customer_first_name}, {site_title}"
 msgstr ""
 
-#: reklamo-core.php:72
+#: includes/emails/class-reklamo-email.php:61
+msgid "Placeholders: {order_number}, {order_date}, {customer_first_name}, {site_title}, {deposit_amount}, {balance_amount}, {order_total}, {deposit_pct}, {revision}"
+msgstr ""
+
+#: reklamo-core.php:74
 msgid "Reklamo Core needs WooCommerce to be active."
 msgstr ""
 
-#: templates/approval.php:46
+#: templates/approval.php:53
 msgid "Mockup approval"
 msgstr ""
 
-#: templates/approval.php:71
+#: templates/approval.php:95
 msgid "This link is not valid"
 msgstr ""
 
-#: templates/approval.php:72
+#: templates/approval.php:96
 msgid "Please open the link exactly as it appears in the email, or contact us."
 msgstr ""
 
-#: templates/approval.php:75
+#: templates/approval.php:99
 msgid "Too many attempts"
 msgstr ""
 
-#: templates/approval.php:76
+#: templates/approval.php:100
 msgid "Please try again in an hour."
 msgstr ""
 
-#: templates/approval.php:79
+#: templates/approval.php:103
 msgid "This link has expired"
 msgstr ""
 
-#: templates/approval.php:80
+#: templates/approval.php:104
 msgid "Approval links are valid for 14 days. Reply to our email and we will send you a new one."
 msgstr ""
 
-#: templates/approval.php:83
+#: templates/approval.php:107
 msgid "This mockup has already been processed"
 msgstr ""
 
-#: templates/approval.php:87
+#: templates/approval.php:111
 msgid "You approved it — thank you. We will be in touch about the next step."
 msgstr ""
 
-#: templates/approval.php:89
+#: templates/approval.php:113
 msgid "You requested changes. Our designer is working on a new version."
 msgstr ""
 
-#: templates/approval.php:95
+#: templates/approval.php:119
 msgid "Approved — thank you!"
 msgstr ""
 
-#: templates/approval.php:96
+#: templates/approval.php:120
 msgid "We will now send you our bank details and a request for the 50% deposit. Production starts once it arrives."
 msgstr ""
 
-#: templates/approval.php:99
+#: templates/approval.php:123
 msgid "Thank you — we received your comments"
 msgstr ""
 
-#: templates/approval.php:100
+#: templates/approval.php:124
 msgid "Our designer will prepare a revised mockup and you will get a new email to review it."
 msgstr ""
 
+#: templates/approval.php:127
+msgid "Thank you — details saved"
+msgstr ""
+
+#: templates/approval.php:127
+msgid "Approved — one more step"
+msgstr ""
+
+#. translators: %s: order number
+#: templates/approval.php:132
+#, php-format
+msgid "Order %s · mockup approved. Fill in your invoice and delivery details and transfer the deposit; production starts when it arrives."
+msgstr ""
+
+#. translators: %s: deposit amount
+#: templates/approval.php:139
+#, php-format
+msgid "Deposit due: %s"
+msgstr ""
+
+#: templates/approval.php:144
+msgid "We received your details. You can still correct them from this link until the deposit is confirmed."
+msgstr ""
+
+#: templates/approval.php:150
+msgid "The deposit is confirmed and your details are locked. Contact us if something needs to change."
+msgstr ""
+
+#: templates/approval.php:159
+msgid "Company (invoice)"
+msgstr ""
+
+#: templates/approval.php:166
+msgid "VAT no. (optional)"
+msgstr ""
+
+#: templates/approval.php:170
+#: templates/emails/reklamo-generic.php:61
+msgid "City"
+msgstr ""
+
+#: templates/approval.php:171
+#: templates/emails/reklamo-generic.php:62
+msgid "Postcode"
+msgstr ""
+
+#: templates/approval.php:172
+msgid "Delivery note (optional)"
+msgstr ""
+
+#: templates/approval.php:174
+msgid "Update details"
+msgstr ""
+
+#: templates/approval.php:174
+msgid "Save details"
+msgstr ""
+
+#: templates/approval.php:176
+msgid "Prices include VAT. The invoice is issued from these details; the order number is your payment reference."
+msgstr ""
+
 #. translators: 1: order number, 2: mockup revision
-#: templates/approval.php:108
+#: templates/approval.php:184
 #, php-format
 msgid "Order %1$s · mockup #%2$d"
 msgstr ""
 
-#: templates/approval.php:123
+#: templates/approval.php:199
 msgid "Mockup"
 msgstr ""
 
-#: templates/approval.php:125
+#: templates/approval.php:201
 msgid "Download the mockup (PDF)"
 msgstr ""
 
-#: templates/approval.php:139
+#: templates/approval.php:215
 msgid "Approve the mockup"
 msgstr ""
 
-#: templates/approval.php:143
+#: templates/approval.php:219
 msgid "I would like changes"
 msgstr ""
 
-#: templates/approval.php:144
+#: templates/approval.php:220
 msgid "Describe what should change…"
 msgstr ""
 
-#: templates/approval.php:145
+#: templates/approval.php:221
 msgid "Request changes"
 msgstr ""
 
-#: templates/approval.php:148
+#: templates/approval.php:224
 msgid "No payment is taken at this stage. After approval we will send bank details for a 50% deposit."
 msgstr ""
 
+#: templates/emails/reklamo-generic.php:34
 #: templates/emails/reklamo-mockup-sent.php:30
 msgid "If the button does not work, copy this link into your browser:"
+msgstr ""
+
+#: templates/emails/reklamo-generic.php:60
+msgid "Address"
 msgstr ""

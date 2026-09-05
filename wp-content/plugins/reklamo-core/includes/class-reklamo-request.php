@@ -296,7 +296,7 @@ final class Reklamo_Request {
 		if ( isset( $gateways[ Reklamo_Gateway::ID ] ) ) {
 			$order->set_payment_method( $gateways[ Reklamo_Gateway::ID ] );
 		}
-		$order->calculate_totals( false );
+		$order->calculate_totals( true );
 		$order->save();
 
 		Reklamo_Storage::claim( $stored['token'], $order->get_id(), (int) $item_id );

@@ -25,7 +25,14 @@ $token    = $vars['token'] ?? null;
 $selector = $vars['selector'] ?? '';
 $secret   = $vars['secret'] ?? '';
 $error    = $vars['error'] ?? '';
+$details  = $vars['details'] ?? array();
+$errors   = $vars['errors'] ?? array();
+$deposit  = $vars['deposit'] ?? 0.0;
+$bank     = $vars['bank'] ?? '';
+$locked   = ! empty( $vars['locked'] );
+$saved    = ! empty( $vars['saved'] );
 $is_image = $file && in_array( $file->ext, array( 'png', 'jpg', 'jpeg' ), true );
+$dtype    = ( $details['customer_type'] ?? '' ) ? $details['customer_type'] : 'company';
 $self_url = home_url( '/' . Reklamo_Approval::SLUG . '/' );
 $view_url = add_query_arg(
 	array(
@@ -61,6 +68,23 @@ $view_url = add_query_arg(
 	.ok { color: #2f7a3b; }
 	.muted { color: #555; font-size: .875rem; }
 	details { margin-top: 1rem; }
+	.grid { display: grid; grid-template-columns: 1fr 1fr; gap: .9rem; }
+	.grid .full { grid-column: 1 / -1; }
+	label.f { display: block; font-size: .75rem; color: #555; margin-bottom: .3rem; }
+	input[type="text"], input[type="tel"] { width: 100%; box-sizing: border-box; padding: .7rem .8rem; border: 1px solid #e8e2d6; border-radius: 4px; font: inherit; }
+	.seg { display: flex; gap: .5rem; margin-bottom: 1rem; }
+	.seg label { flex: 1; text-align: center; padding: .7rem; border: 1px solid #e8e2d6; border-radius: 4px; cursor: pointer; font-size: .875rem; }
+	.seg input { display: none; }
+	.seg input:checked + span { font-weight: 600; color: #9a7020; }
+	.seg label:has(input:checked) { border-color: #b8892b; background: #f3ead6; }
+	.bank-details { display: grid; grid-template-columns: max-content 1fr; gap: .35rem 1.25rem; margin: 1rem 0; padding: 1rem 1.25rem; background: #faf8f4; border: 1px solid #e8e2d6; border-radius: 6px; font-size: .9375rem; }
+	.bank-details dt { color: #555; }
+	.bank-details dd { margin: 0; font-weight: 500; }
+	.amount { font: 400 1.5rem/1.2 Georgia, serif; color: #9a7020; margin: .25rem 0 1rem; }
+	.notice { padding: .75rem 1rem; border-radius: 6px; font-size: .875rem; margin-bottom: 1rem; }
+	.notice.ok { background: #eef7ef; border: 1px solid #cfe6d2; color: #2f7a3b; }
+	.notice.err { background: #fbeef0; border: 1px solid #efc4c8; color: #a3222b; }
+	@media (max-width: 640px) { .grid { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
@@ -98,6 +122,62 @@ $view_url = add_query_arg(
 	<?php elseif ( 'changes' === $view ) : ?>
 		<h1><?php esc_html_e( 'Thank you — we received your comments', 'reklamo-core' ); ?></h1>
 		<p><?php esc_html_e( 'Our designer will prepare a revised mockup and you will get a new email to review it.', 'reklamo-core' ); ?></p>
+
+	<?php elseif ( 'details' === $view ) : ?>
+		<h1><?php echo $saved ? esc_html__( 'Thank you — details saved', 'reklamo-core' ) : esc_html__( 'Approved — one more step', 'reklamo-core' ); ?></h1>
+		<p class="meta">
+			<?php
+			printf(
+				/* translators: %s: order number */
+				esc_html__( 'Order %s · mockup approved. Fill in your invoice and delivery details and transfer the deposit; production starts when it arrives.', 'reklamo-core' ),
+				esc_html( $order->get_order_number() )
+			);
+			?>
+		</p>
+
+		<?php if ( $deposit > 0 ) : ?>
+			<div class="amount"><?php echo esc_html( sprintf( /* translators: %s: deposit amount */ __( 'Deposit due: %s', 'reklamo-core' ), wp_strip_all_tags( wc_price( $deposit, array( 'currency' => $order->get_currency() ) ) ) ) ); ?></div>
+		<?php endif; ?>
+		<?php echo wp_kses_post( $bank ); ?>
+
+		<?php if ( $saved ) : ?>
+			<p class="notice ok"><?php esc_html_e( 'We received your details. You can still correct them from this link until the deposit is confirmed.', 'reklamo-core' ); ?></p>
+		<?php endif; ?>
+		<?php if ( $errors ) : ?>
+			<div class="notice err"><ul style="margin:0;padding-left:1.1rem">
+			<?php
+			foreach ( $errors as $e ) :
+				?>
+				<li><?php echo esc_html( $e ); ?></li><?php endforeach; ?></ul></div>
+		<?php endif; ?>
+		<?php if ( $locked ) : ?>
+			<p class="notice ok"><?php esc_html_e( 'The deposit is confirmed and your details are locked. Contact us if something needs to change.', 'reklamo-core' ); ?></p>
+		<?php endif; ?>
+
+		<form method="post" action="<?php echo esc_url( $self_url ); ?>" <?php echo $locked ? 'style="opacity:.6;pointer-events:none"' : ''; ?>>
+			<input type="hidden" name="s" value="<?php echo esc_attr( $selector ); ?>">
+			<input type="hidden" name="k" value="<?php echo esc_attr( $secret ); ?>">
+			<?php wp_nonce_field( 'reklamo_details_' . $selector, '_reklamo_nonce' ); ?>
+
+			<div class="seg">
+				<label><input type="radio" name="d_customer_type" value="company" <?php checked( 'company', $dtype ); ?>><span><?php esc_html_e( 'Company (invoice)', 'reklamo-core' ); ?></span></label>
+				<label><input type="radio" name="d_customer_type" value="person" <?php checked( 'person', $dtype ); ?>><span><?php esc_html_e( 'Private person', 'reklamo-core' ); ?></span></label>
+			</div>
+
+			<div class="grid">
+				<div class="full"><label class="f"><?php esc_html_e( 'Company name', 'reklamo-core' ); ?></label><input type="text" name="d_company" value="<?php echo esc_attr( $details['company'] ?? '' ); ?>"></div>
+				<div><label class="f"><?php esc_html_e( 'Company ID (ЕИК)', 'reklamo-core' ); ?></label><input type="text" name="d_eik" inputmode="numeric" value="<?php echo esc_attr( $details['eik'] ?? '' ); ?>"></div>
+				<div><label class="f"><?php esc_html_e( 'VAT no. (optional)', 'reklamo-core' ); ?></label><input type="text" name="d_vat" placeholder="BG123456789" value="<?php echo esc_attr( $details['vat'] ?? '' ); ?>"></div>
+				<div class="full"><label class="f"><?php esc_html_e( 'Responsible person (МОЛ)', 'reklamo-core' ); ?></label><input type="text" name="d_mol" value="<?php echo esc_attr( $details['mol'] ?? '' ); ?>"></div>
+				<div class="full"><label class="f"><?php esc_html_e( 'Phone', 'reklamo-core' ); ?></label><input type="tel" name="d_phone" value="<?php echo esc_attr( $details['phone'] ?? '' ); ?>" required></div>
+				<div class="full"><label class="f"><?php esc_html_e( 'Delivery address', 'reklamo-core' ); ?></label><input type="text" name="d_address_1" value="<?php echo esc_attr( $details['address_1'] ?? '' ); ?>" required></div>
+				<div><label class="f"><?php esc_html_e( 'City', 'reklamo-core' ); ?></label><input type="text" name="d_city" value="<?php echo esc_attr( $details['city'] ?? '' ); ?>" required></div>
+				<div><label class="f"><?php esc_html_e( 'Postcode', 'reklamo-core' ); ?></label><input type="text" name="d_postcode" inputmode="numeric" value="<?php echo esc_attr( $details['postcode'] ?? '' ); ?>" required></div>
+				<div class="full"><label class="f"><?php esc_html_e( 'Delivery note (optional)', 'reklamo-core' ); ?></label><input type="text" name="d_note" value="<?php echo esc_attr( $details['note'] ?? '' ); ?>"></div>
+			</div>
+			<div class="actions"><button type="submit"><?php echo $saved ? esc_html__( 'Update details', 'reklamo-core' ) : esc_html__( 'Save details', 'reklamo-core' ); ?></button></div>
+		</form>
+		<p class="muted"><?php esc_html_e( 'Prices include VAT. The invoice is issued from these details; the order number is your payment reference.', 'reklamo-core' ); ?></p>
 
 	<?php else : /* review */ ?>
 		<h1><?php esc_html_e( 'Your mockup is ready', 'reklamo-core' ); ?></h1>

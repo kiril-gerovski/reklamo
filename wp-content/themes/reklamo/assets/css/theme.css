@@ -280,3 +280,8 @@ ul.products, .wc-block-grid__products { list-style: none; margin: 0; padding: 0;
 /* ---------- block editor niceties for patterns ---------- */
 .wp-block-group.section { padding-block: 3.5rem; }
 .has-gold-color { color: var(--gold) !important; }
+
+/* ---------- bank details block ([reklamo_bank_details]) ---------- */
+.bank-details { display: grid; grid-template-columns: max-content 1fr; gap: .4rem 1.5rem; margin: 1.5rem 0; padding: 1.25rem 1.5rem; background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); }
+.bank-details dt { color: var(--graphite); font-size: .8125rem; }
+.bank-details dd { margin: 0; font-weight: 500; color: var(--ink); }

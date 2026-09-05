@@ -46,9 +46,15 @@ opt woocommerce_price_decimal_sep ","
 opt woocommerce_price_num_decimals 2
 opt woocommerce_weight_unit "kg"
 opt woocommerce_dimension_unit "cm"
-# Taxes OFF for now — revisit before real products are entered (see docs/PLAN.md, Open questions).
-opt woocommerce_calc_taxes "no"
-opt woocommerce_prices_include_tax "no"
+# VAT 20%: prices are entered and shown INCLUDING tax (decided 2026-09-05).
+opt woocommerce_calc_taxes "yes"
+opt woocommerce_prices_include_tax "yes"
+opt woocommerce_tax_based_on "base"
+opt woocommerce_tax_display_shop "incl"
+opt woocommerce_tax_display_cart "incl"
+opt woocommerce_price_display_suffix "с ДДС"
+opt woocommerce_tax_total_display "single"
+opt woocommerce_tax_round_at_subtotal "no"
 # Made-to-order: no stock.
 opt woocommerce_manage_stock "no"
 opt woocommerce_notify_low_stock "no"
@@ -105,6 +111,18 @@ opt reklamo_mockup_deadline 24
 opt reklamo_deposit_pct 50
 opt reklamo_note_max 300
 
+echo "→ tax rate (BG 20% standard)"
+if [ "$(wc tax list --format=count 2>/dev/null || echo 0)" = "0" ]; then
+  wc tax create --country=BG --rate=20 --name="ДДС" --class=standard --shipping=true >/dev/null && echo "  created BG 20%"
+fi
+
+echo "→ bank details (WooCommerce → Settings → Reklamo → Bank details) — placeholders, owner fills the real ones"
+opt reklamo_bank_name "УниКредит Булбанк"
+opt reklamo_iban "BG00UNCR00000000000000"
+opt reklamo_bic "UNCRBGSF"
+opt reklamo_account_holder "Реклamo ЕООД"
+opt reklamo_reminder_days "3,7,14"
+
 echo "→ payment gateways"
 # Our no-payment gateway is the only one enabled. Title/description are site content (Bulgarian).
 opt woocommerce_reklamo_request_settings '{"enabled":"yes","title":"Заявка без плащане","description":"На този етап не се извършва плащане. Ще подготвим визуализация за одобрение и ще ви изпратим банковите данни след това.","instructions":"Благодарим! Ще получите визуализация за одобрение до 24 работни часа."}' --format=json
@@ -160,6 +178,14 @@ fill_if_empty vdahnovenie "<!-- wp:paragraph --><p>Идеи и примери з
 fill_if_empty kontakti "<!-- wp:paragraph --><p>Пишете ни на office@reklamo.bg или се обадете на +359 88 123 4567.</p><!-- /wp:paragraph -->"
 fill_if_empty dostavka-i-srokove "<!-- wp:paragraph --><p>Производство и доставка в договорени срокове след получаване на аванса.</p><!-- /wp:paragraph -->"
 fill_if_empty plashtane "<!-- wp:paragraph --><p>Плащане само по банков път: 50% аванс след одобрение на визуализацията, остатък преди доставка.</p><!-- /wp:paragraph -->"
+# Payment page always carries the live bank details block (one source of truth).
+pl_id=$(page_id plashtane)
+if [ -n "$pl_id" ] && ! wp post get "$pl_id" --field=post_content | grep -q reklamo_bank_details; then
+  wp post update "$pl_id" --post_content="$(wp post get "$pl_id" --field=post_content)
+<!-- wp:shortcode -->
+[reklamo_bank_details]
+<!-- /wp:shortcode -->" >/dev/null
+fi
 fill_if_empty chesto-zadavani-vaprosi "<!-- wp:paragraph --><p>Често задавани въпроси.</p><!-- /wp:paragraph -->"
 fill_if_empty obshti-usloviya "<!-- wp:paragraph --><p>Общи условия.</p><!-- /wp:paragraph -->"
 fill_if_empty politika-za-poveritelnost "<!-- wp:paragraph --><p>Политика за поверителност.</p><!-- /wp:paragraph -->"

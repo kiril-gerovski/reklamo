@@ -85,6 +85,7 @@ final class Reklamo_Install {
   expires_at datetime NOT NULL,
   used_at datetime DEFAULT NULL,
   used_action varchar(16) DEFAULT NULL,
+  purpose varchar(16) NOT NULL DEFAULT 'approval',
   attempts smallint(5) unsigned NOT NULL DEFAULT 0,
   created_at datetime NOT NULL,
   PRIMARY KEY  (id),

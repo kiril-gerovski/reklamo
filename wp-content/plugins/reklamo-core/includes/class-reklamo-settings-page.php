@@ -18,6 +18,7 @@ class Reklamo_Settings_Page extends WC_Settings_Page {
 	protected function get_own_sections() {
 		return array(
 			''        => __( 'Company & contact', 'reklamo-core' ),
+			'bank'    => __( 'Bank details', 'reklamo-core' ),
 			'process' => __( 'Process', 'reklamo-core' ),
 		);
 	}
@@ -83,6 +84,41 @@ class Reklamo_Settings_Page extends WC_Settings_Page {
 		);
 	}
 
+	protected function get_settings_for_bank_section() {
+		return array(
+			array(
+				'type'  => 'title',
+				'id'    => 'reklamo_bank',
+				'title' => __( 'Bank details', 'reklamo-core' ),
+				'desc'  => __( 'Printed in the deposit and final-payment emails and by the [reklamo_bank_details] shortcode. The order number is always the payment reference.', 'reklamo-core' ),
+			),
+			array(
+				'id'    => 'reklamo_bank_name',
+				'title' => __( 'Bank', 'reklamo-core' ),
+				'type'  => 'text',
+			),
+			array(
+				'id'    => 'reklamo_iban',
+				'title' => __( 'IBAN', 'reklamo-core' ),
+				'type'  => 'text',
+			),
+			array(
+				'id'    => 'reklamo_bic',
+				'title' => __( 'BIC / SWIFT', 'reklamo-core' ),
+				'type'  => 'text',
+			),
+			array(
+				'id'    => 'reklamo_account_holder',
+				'title' => __( 'Account holder', 'reklamo-core' ),
+				'type'  => 'text',
+			),
+			array(
+				'type' => 'sectionend',
+				'id'   => 'reklamo_bank',
+			),
+		);
+	}
+
 	protected function get_settings_for_process_section() {
 		return array(
 			array(
@@ -113,6 +149,14 @@ class Reklamo_Settings_Page extends WC_Settings_Page {
 				'type'              => 'number',
 				'default'           => '300',
 				'custom_attributes' => array( 'min' => 50 ),
+			),
+			array(
+				'id'          => 'reklamo_reminder_days',
+				'title'       => __( 'Reminders (days)', 'reklamo-core' ),
+				'type'        => 'text',
+				'default'     => '3,7,14',
+				'description' => __( 'Days after a mockup is sent (or a deposit requested) to remind the customer, comma-separated. Empty = no reminders.', 'reklamo-core' ),
+				'desc_tip'    => true,
 			),
 			array(
 				'type' => 'sectionend',
