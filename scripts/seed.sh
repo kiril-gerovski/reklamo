@@ -120,7 +120,7 @@ echo "→ bank details (WooCommerce → Settings → Reklamo → Bank details) �
 opt reklamo_bank_name "УниКредит Булбанк"
 opt reklamo_iban "BG00UNCR00000000000000"
 opt reklamo_bic "UNCRBGSF"
-opt reklamo_account_holder "Реклamo ЕООД"
+opt reklamo_account_holder "Рекламо ЕООД"
 opt reklamo_reminder_days "3,7,14"
 
 echo "→ payment gateways"
@@ -234,6 +234,20 @@ for slug in sample-page privacy-policy refund_returns; do
   id=$(page_id "$slug"); [ -n "$id" ] && wp post delete "$id" --force >/dev/null || true
 done
 for k in woocommerce_terms_page_id; do opt "$k" "$(page_id obshti-usloviya)"; done
+
+# Cart/Checkout fallback pages: WooCommerce stores their English block text as page content.
+wp eval '
+foreach ( array( "woocommerce_cart_page_id", "woocommerce_checkout_page_id" ) as $opt ) {
+	$id = (int) get_option( $opt ); $p = $id ? get_post( $id ) : null;
+	if ( ! $p ) { continue; }
+	$c = str_replace(
+		array( "Your cart is currently empty!", "New in store", "Browse store", "Return to shop" ),
+		array( "Кошницата Ви е празна.", "Ново в магазина", "Разгледай магазина", "Обратно към магазина" ),
+		$p->post_content
+	);
+	if ( $c !== $p->post_content ) { wp_update_post( array( "ID" => $id, "post_content" => $c ) ); echo "  translated block text on ", $p->post_name, "\n"; }
+}
+'
 
 # Checkout page: "no payment" notice above the block, design's button label, no coupon/order-note UI.
 wp eval '

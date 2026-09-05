@@ -28,6 +28,7 @@ define( 'REKLAMO_URL', plugin_dir_url( __FILE__ ) );
 // WooCommerce classes and are required later, once WooCommerce has loaded them.
 require REKLAMO_PATH . 'includes/class-reklamo-install.php';
 require REKLAMO_PATH . 'includes/class-reklamo-mail.php';
+require REKLAMO_PATH . 'includes/class-reklamo-i18n.php';
 require REKLAMO_PATH . 'includes/class-reklamo-token.php';
 require REKLAMO_PATH . 'includes/class-reklamo-money.php';
 require REKLAMO_PATH . 'includes/class-reklamo-statuses.php';
@@ -84,6 +85,7 @@ function reklamo_boot(): void {
 
 	require_once REKLAMO_PATH . 'includes/class-reklamo-gateway.php';
 
+	Reklamo_I18n::init();
 	Reklamo_Install::maybe_upgrade();
 	Reklamo_Statuses::init();
 	Reklamo_Storage::init();

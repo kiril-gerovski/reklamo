@@ -228,6 +228,19 @@ If a change exists only in your local database, it does not exist. That script i
 
 ---
 
+## Translation audit — DONE (2026-09-05)
+
+Method: crawl every customer-facing page (home, shop, product, request page with/without package, payment, contact, cart/checkout fallback, account, search, order-received) plus all emails captured by Mailpit during the E2E run; strip markup; list Latin-script runs that are not brand names, formats or URLs. Script kept inline in the session; re-run the same way after WooCommerce upgrades.
+
+Findings and fixes:
+- WooCommerce **Completed order** email intro ("Good things are heading your way!" etc.), the **guest verification** prompt on the order-received page, and the **product gallery lightbox** labels were English → `Reklamo_I18n` fills gaps via `gettext_woocommerce` from `languages/woocommerce-overrides-bg.php`, **only when WooCommerce returned the string untranslated** (upstream translations keep precedence).
+- The admin **New order** email carried WooCommerce's mobile-app advert → removed (`woocommerce_email_footer` hook).
+- Cart/Checkout fallback pages store English **block content** ("Your cart is currently empty!", "New in store") → translated by `seed.sh` (page content is data).
+- Seed typo "Реклamo" (Latin letters) → fixed.
+- Noise, not leaks: `<link>` titles (JSON/XML/oEmbed/RSD), the hidden honeypot label, URLs and tokens.
+
+Out of scope by design: wp-admin (WooCommerce's admin gaps are large; the owner-facing screens we built are fully translated) and the block checkout's React strings (fallback only, unlinked).
+
 ## Phase 4 — Uploads hardening — DONE (2026-09-05)
 
 Delivered:

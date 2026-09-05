@@ -90,6 +90,8 @@ Do not raise them to "make a test pass".
 
 ## Translations
 
+WooCommerce's own Bulgarian pack has gaps; customer-facing ones are filled from `wp-content/plugins/reklamo-core/languages/woocommerce-overrides-bg.php` (applied only when WooCommerce has no translation). Add a line there when a new English string shows up on the storefront.
+
 Source strings in the theme and plugin are English, wrapped in `__( '…', 'reklamo' )`. Bulgarian
 lives in `wp-content/themes/reklamo/languages/bg_BG.po and wp-content/plugins/reklamo-core/languages/reklamo-core-bg_BG.po (the plugin uses its own text domain `reklamo-core`; plugin files are named {domain}-{locale})`. After editing a `.po`:
 
