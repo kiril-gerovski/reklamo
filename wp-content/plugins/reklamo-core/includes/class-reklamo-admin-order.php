@@ -103,6 +103,11 @@ final class Reklamo_Admin_Order {
 				</p>
 			<?php endif; ?>
 
+			<?php $track_url = Reklamo_Tracking::url( $order ); ?>
+			<?php if ( $track_url ) : ?>
+				<p class="description"><?php esc_html_e( "Customer's order page (in every email they get):", 'reklamo-core' ); ?> <a href="<?php echo esc_url( $track_url ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'open', 'reklamo-core' ); ?></a></p>
+			<?php endif; ?>
+
 			<h4><?php esc_html_e( 'Customer logo', 'reklamo-core' ); ?></h4>
 			<?php if ( $logos ) : ?>
 				<ul>

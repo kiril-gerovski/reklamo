@@ -5,6 +5,8 @@
  *   approval — review a mockup; POST approves once or requests changes (single-use)
  *   details  — after approval: company / invoice / delivery details (re-editable while
  *              the deposit is pending; expires with the token)
+ *   track    — handled by Reklamo_Tracking at /porachka/; a track token landing here is
+ *              redirected there
  *
  * GET is strictly idempotent — email scanners prefetch every link, so a GET must never
  * change anything. Approval is a POST made single-use by one atomic UPDATE, so a
@@ -114,22 +116,12 @@ final class Reklamo_Approval {
 		$selector = isset( $src['s'] ) ? sanitize_text_field( wp_unslash( $src['s'] ) ) : '';
 		$secret   = isset( $src['k'] ) ? sanitize_text_field( wp_unslash( $src['k'] ) ) : '';
 
-		if ( ! Reklamo_Token::is_valid_selector( $selector ) || ! Reklamo_Token::is_valid_secret( $secret ) ) {
-			self::not_found();
-		}
-		if ( self::rate_limited() ) {
+		$row = self::lookup( $selector, $secret );
+		if ( 'rate_limited' === $row ) {
 			status_header( 429 );
 			self::render( 'rate_limited', array() );
 		}
-
-		global $wpdb;
-		$row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}reklamo_tokens WHERE selector = %s", $selector ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
-		if ( ! $row || (int) $row->attempts >= self::MAX_ATTEMPTS ) {
-			self::not_found();
-		}
-		if ( ! Reklamo_Token::verify( $secret, $row->hash ) ) {
-			$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}reklamo_tokens SET attempts = attempts + 1 WHERE selector = %s", $selector ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
-			self::bump_rate_limit();
+		if ( ! is_object( $row ) ) {
 			self::not_found();
 		}
 
@@ -137,18 +129,49 @@ final class Reklamo_Approval {
 		if ( ! $order ) {
 			self::not_found();
 		}
+		if ( Reklamo_Tracking::PURPOSE === $row->purpose ) {
+			wp_safe_redirect( (string) $order->get_meta( Reklamo_Tracking::META_URL ) );
+			exit;
+		}
 
 		$vars = array(
-			'order'    => $order,
-			'token'    => $row,
-			'selector' => $selector,
-			'secret'   => $secret,
+			'order'     => $order,
+			'token'     => $row,
+			'selector'  => $selector,
+			'secret'    => $secret,
+			'track_url' => Reklamo_Tracking::url( $order ),
 		);
 
 		if ( 'details' === $row->purpose ) {
 			self::handle_details( $order, $row, $vars, $is_post );
 		}
 		self::handle_approval( $order, $row, $vars, $is_post );
+	}
+
+	/**
+	 * Resolve a selector/secret pair to its token row. Shared by the approval and the
+	 * tracking page so both apply the same attempt cap and per-IP rate limit.
+	 *
+	 * @return object|string|null The row; 'rate_limited'; null when unknown or wrong.
+	 */
+	public static function lookup( string $selector, string $secret ) {
+		if ( ! Reklamo_Token::is_valid_selector( $selector ) || ! Reklamo_Token::is_valid_secret( $secret ) ) {
+			return null;
+		}
+		if ( self::rate_limited() ) {
+			return 'rate_limited';
+		}
+		global $wpdb;
+		$row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}reklamo_tokens WHERE selector = %s", $selector ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		if ( ! $row || (int) $row->attempts >= self::MAX_ATTEMPTS ) {
+			return null;
+		}
+		if ( ! Reklamo_Token::verify( $secret, $row->hash ) ) {
+			$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}reklamo_tokens SET attempts = attempts + 1 WHERE selector = %s", $selector ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			self::bump_rate_limit();
+			return null;
+		}
+		return $row;
 	}
 
 	/* ------------------------------------------------------------------ approval */
@@ -236,6 +259,9 @@ final class Reklamo_Approval {
 			)
 		);
 		$order->update_meta_data( '_reklamo_last_change_request', $message );
+		$history                         = (array) $order->get_meta( '_reklamo_change_requests' );
+		$history[ (int) $row->revision ] = $message;
+		$order->update_meta_data( '_reklamo_change_requests', $history );
 		$order->save();
 		$order->update_status( Reklamo_Statuses::CHANGES, __( 'Changes requested — back to the designer.', 'reklamo-core' ) );
 		$vars['token']->used_action = 'changes';

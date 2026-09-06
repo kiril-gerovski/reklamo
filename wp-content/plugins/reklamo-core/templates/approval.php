@@ -31,6 +31,7 @@ $deposit  = $vars['deposit'] ?? 0.0;
 $bank     = $vars['bank'] ?? '';
 $locked   = ! empty( $vars['locked'] );
 $saved    = ! empty( $vars['saved'] );
+$track    = $vars['track_url'] ?? '';
 $is_image = $file && in_array( $file->ext, array( 'png', 'jpg', 'jpeg' ), true );
 $dtype    = ( $details['customer_type'] ?? '' ) ? $details['customer_type'] : 'company';
 $self_url = home_url( '/' . Reklamo_Approval::SLUG . '/' );
@@ -51,41 +52,7 @@ $view_url = add_query_arg(
 <meta name="robots" content="noindex,nofollow">
 <meta name="referrer" content="no-referrer">
 <title><?php echo esc_html( get_bloginfo( 'name' ) . ' — ' . __( 'Mockup approval', 'reklamo-core' ) ); ?></title>
-<style>
-	body { margin: 0; font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: #1a1a1a; background: #faf8f4; }
-	.wrap { max-width: 760px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
-	.brand { font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #9a7020; margin-bottom: 1.5rem; }
-	.card { background: #fff; border: 1px solid #e8e2d6; border-radius: 8px; padding: 1.5rem; }
-	h1 { font: 400 1.75rem/1.2 Georgia, "Times New Roman", serif; margin: 0 0 .75rem; }
-	.meta { color: #555; font-size: .9375rem; margin-bottom: 1rem; }
-	.preview { margin: 1.25rem 0; text-align: center; }
-	.preview img { max-width: 100%; height: auto; border: 1px solid #e8e2d6; border-radius: 6px; }
-	.actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1.25rem; }
-	button, .btn { font: 600 .8125rem/1 inherit; letter-spacing: .06em; text-transform: uppercase; padding: .9rem 1.4rem; border-radius: 4px; border: 1px solid #b8892b; background: #b8892b; color: #fff; cursor: pointer; text-decoration: none; }
-	button.secondary { background: #fff; color: #9a7020; }
-	textarea { width: 100%; box-sizing: border-box; min-height: 6rem; padding: .6rem; border: 1px solid #e8e2d6; border-radius: 4px; font: inherit; }
-	.error { color: #a3222b; margin: .5rem 0; }
-	.ok { color: #2f7a3b; }
-	.muted { color: #555; font-size: .875rem; }
-	details { margin-top: 1rem; }
-	.grid { display: grid; grid-template-columns: 1fr 1fr; gap: .9rem; }
-	.grid .full { grid-column: 1 / -1; }
-	label.f { display: block; font-size: .75rem; color: #555; margin-bottom: .3rem; }
-	input[type="text"], input[type="tel"] { width: 100%; box-sizing: border-box; padding: .7rem .8rem; border: 1px solid #e8e2d6; border-radius: 4px; font: inherit; }
-	.seg { display: flex; gap: .5rem; margin-bottom: 1rem; }
-	.seg label { flex: 1; text-align: center; padding: .7rem; border: 1px solid #e8e2d6; border-radius: 4px; cursor: pointer; font-size: .875rem; }
-	.seg input { display: none; }
-	.seg input:checked + span { font-weight: 600; color: #9a7020; }
-	.seg label:has(input:checked) { border-color: #b8892b; background: #f3ead6; }
-	.bank-details { display: grid; grid-template-columns: max-content 1fr; gap: .35rem 1.25rem; margin: 1rem 0; padding: 1rem 1.25rem; background: #faf8f4; border: 1px solid #e8e2d6; border-radius: 6px; font-size: .9375rem; }
-	.bank-details dt { color: #555; }
-	.bank-details dd { margin: 0; font-weight: 500; }
-	.amount { font: 400 1.5rem/1.2 Georgia, serif; color: #9a7020; margin: .25rem 0 1rem; }
-	.notice { padding: .75rem 1rem; border-radius: 6px; font-size: .875rem; margin-bottom: 1rem; }
-	.notice.ok { background: #eef7ef; border: 1px solid #cfe6d2; color: #2f7a3b; }
-	.notice.err { background: #fbeef0; border: 1px solid #efc4c8; color: #a3222b; }
-	@media (max-width: 640px) { .grid { grid-template-columns: 1fr; } }
-</style>
+<?php require REKLAMO_PATH . 'templates/customer-style.php'; ?>
 </head>
 <body>
 <div class="wrap">

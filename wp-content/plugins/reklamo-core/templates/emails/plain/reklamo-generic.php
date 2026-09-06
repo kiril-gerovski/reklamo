@@ -32,6 +32,8 @@ if ( $details ) {
 }
 
 do_action( 'woocommerce_email_order_details', $order, $sent_to_admin, $plain_text, $email );
+echo "\n";
+do_action( 'woocommerce_email_order_meta', $order, $sent_to_admin, $plain_text, $email );
 
 echo "\n\n----------------------------------------\n\n";
 if ( $additional_content ) {

@@ -228,6 +228,10 @@ If a change exists only in your local database, it does not exist. That script i
 
 ---
 
+## Customer order page (tracking link) — DONE (2026-09-06)
+
+Decided with the owner: **no customer accounts**. Every email carries a permanent, passwordless link to the customer's own order page at `/porachka/?s=…&k=…` (`Reklamo_Tracking`, purpose `track` in the tokens table, URL kept in order meta so later emails can repeat it — a DB dump already exposes everything the page shows). The page is **view-only**: progress line (the six homepage steps, `Reklamo_Progress`), what happens next per status, every mockup revision with outcome and the customer's comments, payments (deposit/balance, bank details while due), invoice/delivery details, the logo. Approving and submitting details still need their own single-use tokens, so a forwarded email can read but never act. The one POST is "send me the email again" (re-issues the pending approval/details link, mails only the address on the order, 10-minute throttle). The request form now lands on this page instead of WooCommerce's order-received. After completion the page becomes a read-only record; the retention sweep that deletes the order's files also expires the link, after which the page says so and asks to quote the order number. If repeat customers ever appear, WooCommerce's optional accounts can render the same page inside My Account.
+
 ## Translation audit — DONE (2026-09-05)
 
 Method: crawl every customer-facing page (home, shop, product, request page with/without package, payment, contact, cart/checkout fallback, account, search, order-received) plus all emails captured by Mailpit during the E2E run; strip markup; list Latin-script runs that are not brand names, formats or URLs. Script kept inline in the session; re-run the same way after WooCommerce upgrades.

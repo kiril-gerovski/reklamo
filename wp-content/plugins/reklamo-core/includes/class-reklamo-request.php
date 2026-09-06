@@ -348,7 +348,9 @@ final class Reklamo_Request {
 		// Triggers the "request received" emails and the admin "new order" email.
 		$order->update_status( Reklamo_Statuses::RECEIVED, __( 'Request submitted from the website form. No payment taken.', 'reklamo-core' ) );
 
-		wp_safe_redirect( $order->get_checkout_order_received_url() );
+		// The customer's order page is the confirmation page; WooCommerce's order-received stays as fallback.
+		$track = Reklamo_Tracking::url( $order );
+		wp_safe_redirect( $track ? add_query_arg( 'new', '1', $track ) : $order->get_checkout_order_received_url() );
 		exit;
 	}
 

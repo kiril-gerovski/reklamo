@@ -9,4 +9,5 @@ require $plugin . 'class-reklamo-token.php';
 require $plugin . 'class-reklamo-money.php';
 require $plugin . 'class-reklamo-filetypes.php';
 require $plugin . 'class-reklamo-svg.php';
-require $plugin . 'class-reklamo-statuses.php'; // can_transition() and TRANSITIONS are pure; nothing runs at load.
+require $plugin . 'class-reklamo-statuses.php';
+require $plugin . 'class-reklamo-progress.php'; // can_transition() and TRANSITIONS are pure; nothing runs at load.

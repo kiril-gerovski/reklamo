@@ -4,7 +4,8 @@
  *  - abandoned chunk sessions (tmp/<ticket>) older than the ticket TTL,
  *  - finished uploads never attached to an order within 48 h,
  *  - retention: logos/mockups of orders completed or cancelled more than N months ago
- *    (files removed, rows kept blank for the audit trail). Disclosed in the terms.
+ *    (files removed, rows kept blank for the audit trail) and, with them, the customer's
+ *    tracking link. Disclosed in the terms.
  *
  * @package Reklamo
  */
@@ -78,6 +79,7 @@ final class Reklamo_Cleanup {
 					++$n;
 				}
 			}
+			Reklamo_Tracking::expire_for_order( (int) $order_id );
 		}
 		return $n;
 	}

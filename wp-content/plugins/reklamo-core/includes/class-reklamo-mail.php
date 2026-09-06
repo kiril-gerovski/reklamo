@@ -117,7 +117,7 @@ final class Reklamo_Mail {
 	 */
 	public static function send_test( string $to ) {
 		self::$last_error = '';
-		$ok = wp_mail(
+		$ok               = wp_mail(
 			$to,
 			/* translators: %s: site name */
 			sprintf( __( 'Test email from %s', 'reklamo-core' ), wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES ) ),
