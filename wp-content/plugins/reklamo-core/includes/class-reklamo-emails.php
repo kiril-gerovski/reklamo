@@ -52,19 +52,17 @@ final class Reklamo_Emails {
 	/**
 	 * Sent directly, not from the status hook: the link secret exists only in this
 	 * request, so the email cannot be reconstructed later from a queued status event.
+	 * Returns whether the mail transport accepted the message so the admin screen can
+	 * tell the shop the truth; failures are also written as order notes.
 	 */
-	public static function send_mockup( WC_Order $order, string $approval_url, int $revision, bool $reminder = false ): void {
+	public static function send_mockup( WC_Order $order, string $approval_url, int $revision, bool $reminder = false ): bool {
 		$e = self::email( 'Reklamo_Email_Mockup_Sent' );
-		if ( $e ) {
-			$e->trigger( $order->get_id(), $order, $approval_url, $revision, $reminder );
-		}
+		return $e && $e->trigger( $order->get_id(), $order, $approval_url, $revision, $reminder );
 	}
 
-	public static function send_deposit_request( WC_Order $order, string $details_url, bool $reminder = false ): void {
+	public static function send_deposit_request( WC_Order $order, string $details_url, bool $reminder = false ): bool {
 		$e = self::email( 'Reklamo_Email_Deposit_Request' );
-		if ( $e ) {
-			$e->trigger( $order->get_id(), $order, $details_url, $reminder );
-		}
+		return $e && $e->trigger( $order->get_id(), $order, $details_url, $reminder );
 	}
 
 	public static function send_admin_details( WC_Order $order ): void {

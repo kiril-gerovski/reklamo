@@ -86,6 +86,8 @@ class Reklamo_Email_Mockup_Sent extends WC_Email {
 	 * @param WC_Order|false $order        Order.
 	 * @param string         $approval_url Signed one-time URL.
 	 * @param int            $revision     Mockup revision number.
+	 * @param bool           $reminder     Prefix the subject as a reminder.
+	 * @return bool True when the transport accepted the message.
 	 */
 	public function trigger( $order_id, $order = false, string $approval_url = '', int $revision = 1, bool $reminder = false ) {
 		$this->setup_locale();
@@ -105,11 +107,10 @@ class Reklamo_Email_Mockup_Sent extends WC_Email {
 			$this->placeholders['{approval_url}']        = $approval_url;
 		}
 
-		if ( $this->is_enabled() && $this->get_recipient() && $this->approval_url ) {
-			$this->send( $this->get_recipient(), $this->get_subject(), $this->get_content(), $this->get_headers(), $this->get_attachments() );
-		}
+		$sent = $order instanceof WC_Order && $this->approval_url && Reklamo_Mail::deliver( $this, $order );
 
 		$this->restore_locale();
+		return $sent;
 	}
 
 	private function template_args( bool $plain ): array {

@@ -82,12 +82,9 @@ class Reklamo_Email_Request_Received extends WC_Email {
 			return;
 		}
 
-		if ( $this->is_enabled() && $this->get_recipient() ) {
-			$this->send( $this->get_recipient(), $this->get_subject(), $this->get_content(), $this->get_headers(), $this->get_attachments() );
-			if ( $order instanceof WC_Order ) {
-				$order->update_meta_data( '_reklamo_received_email_sent', current_time( 'mysql', true ) );
-				$order->save();
-			}
+		if ( $order instanceof WC_Order && Reklamo_Mail::deliver( $this, $order ) ) {
+			$order->update_meta_data( '_reklamo_received_email_sent', current_time( 'mysql', true ) );
+			$order->save();
 		}
 
 		$this->restore_locale();

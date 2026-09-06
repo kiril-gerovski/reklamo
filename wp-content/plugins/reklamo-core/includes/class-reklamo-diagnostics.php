@@ -20,6 +20,20 @@ final class Reklamo_Diagnostics {
 		}
 		add_action( 'admin_menu', array( __CLASS__, 'menu' ), 60 );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'assets' ) );
+		add_action( 'admin_post_reklamo_mail_test', array( __CLASS__, 'handle_mail_test' ) );
+	}
+
+	/** Sends one test message to the current user and reports the transport's verdict. */
+	public static function handle_mail_test(): void {
+		check_admin_referer( 'reklamo_mail_test' );
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_die( esc_html__( 'You do not have permission to do this.', 'reklamo-core' ), 403 );
+		}
+		$to     = wp_get_current_user()->user_email;
+		$result = Reklamo_Mail::send_test( $to );
+		set_transient( 'reklamo_mail_test_' . get_current_user_id(), true === $result ? array( 'success', sprintf( /* translators: %s: email address */ __( 'Test email accepted by the mail server. Check the inbox of %s (and its spam folder).', 'reklamo-core' ), $to ) ) : array( 'error', sprintf( /* translators: %s: error message */ __( 'Test email NOT sent: %s', 'reklamo-core' ), $result ) ), 60 );
+		wp_safe_redirect( admin_url( 'admin.php?page=' . self::SLUG ) );
+		exit;
 	}
 
 	public static function menu(): void {
@@ -107,6 +121,25 @@ final class Reklamo_Diagnostics {
 
 			<h2><?php esc_html_e( 'Storage exposure', 'reklamo-core' ); ?></h2>
 			<p class="notice notice-<?php echo 'exposed' === $exposure[0] ? 'error' : 'success'; ?> inline" style="padding:.6em 1em"><strong><?php echo esc_html( $exposure[1] ); ?></strong></p>
+
+			<h2><?php esc_html_e( 'Email', 'reklamo-core' ); ?></h2>
+			<?php
+			$mail_notice = get_transient( 'reklamo_mail_test_' . get_current_user_id() );
+			if ( $mail_notice ) {
+				delete_transient( 'reklamo_mail_test_' . get_current_user_id() );
+				printf( '<p class="notice notice-%s inline" style="padding:.6em 1em"><strong>%s</strong></p>', esc_attr( $mail_notice[0] ), esc_html( $mail_notice[1] ) );
+			}
+			?>
+			<table class="widefat striped" style="max-width:900px">
+				<tr><th style="width:40%"><?php esc_html_e( 'Transport', 'reklamo-core' ); ?></th><td><?php echo esc_html( Reklamo_Mail::transport() ); ?></td></tr>
+				<tr><th><?php esc_html_e( 'Sender', 'reklamo-core' ); ?></th><td><?php echo esc_html( sprintf( '%s <%s>', get_option( 'woocommerce_email_from_name' ), get_option( 'woocommerce_email_from_address' ) ) ); ?></td></tr>
+			</table>
+			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin:.8em 0 1.6em">
+				<?php wp_nonce_field( 'reklamo_mail_test' ); ?>
+				<input type="hidden" name="action" value="reklamo_mail_test">
+				<button class="button"><?php echo esc_html( sprintf( /* translators: %s: email address */ __( 'Send a test email to %s', 'reklamo-core' ), wp_get_current_user()->user_email ) ); ?></button>
+				<span class="description" style="margin-left:.6em"><?php esc_html_e( 'Every failed customer email is also recorded as a note on the order.', 'reklamo-core' ); ?></span>
+			</form>
 
 			<h2><?php esc_html_e( 'Server limits', 'reklamo-core' ); ?></h2>
 			<table class="widefat striped" style="max-width:900px">

@@ -92,10 +92,9 @@ abstract class Reklamo_Email extends WC_Email {
 		return $this->reminder ? sprintf( /* translators: %s: original subject */ __( 'Reminder: %s', 'reklamo-core' ), $subject ) : $subject;
 	}
 
-	protected function dispatch(): void {
-		if ( $this->is_enabled() && $this->get_recipient() ) {
-			$this->send( $this->get_recipient(), $this->get_subject(), $this->get_content(), $this->get_headers(), $this->get_attachments() );
-		}
+	/** @return bool True when the transport accepted the message; failures are noted on the order. */
+	protected function dispatch(): bool {
+		return $this->object instanceof WC_Order && Reklamo_Mail::deliver( $this, $this->object );
 	}
 
 	private function template_args( bool $plain ): array {

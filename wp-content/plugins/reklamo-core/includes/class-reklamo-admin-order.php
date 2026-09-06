@@ -54,6 +54,9 @@ final class Reklamo_Admin_Order {
 				'deposit_paid'   => array( sprintf( __( 'Deposit received (%s)', 'reklamo-core' ), $deposit ), Reklamo_Statuses::DEPOSIT_PAID ),
 				'resend_deposit' => array( __( 'Re-send deposit request', 'reklamo-core' ), '' ),
 			),
+			Reklamo_Statuses::MOCKUP_SENT  => array(
+				'resend_mockup' => array( __( 'Re-send mockup email', 'reklamo-core' ), '' ),
+			),
 			Reklamo_Statuses::DEPOSIT_PAID => array(
 				'production' => array( __( 'Start production', 'reklamo-core' ), Reklamo_Statuses::PRODUCTION ),
 			),
@@ -251,18 +254,34 @@ final class Reklamo_Admin_Order {
 		$revision = Reklamo_Approval::latest_revision( $order->get_id() ) + 1;
 		Reklamo_Storage::claim( $stored['token'], $order->get_id(), 0, $revision );
 
-		$url = Reklamo_Approval::issue( $order, (int) $stored['id'], $revision, 'approval' );
-		Reklamo_Emails::send_mockup( $order, $url, $revision );
+		$url  = Reklamo_Approval::issue( $order, (int) $stored['id'], $revision, 'approval' );
+		$sent = Reklamo_Emails::send_mockup( $order, $url, $revision );
 
-		/* translators: %d: mockup revision */
-		$note = sprintf( __( 'Mockup #%d sent to the customer for approval.', 'reklamo-core' ), $revision );
+		$note = $sent
+			/* translators: %d: mockup revision */
+			? sprintf( __( 'Mockup #%d sent to the customer for approval.', 'reklamo-core' ), $revision )
+			/* translators: %d: mockup revision */
+			: sprintf( __( 'Mockup #%d stored; the approval email could not be sent (see the note above).', 'reklamo-core' ), $revision );
 		if ( $order->has_status( Reklamo_Statuses::MOCKUP_SENT ) ) {
 			$order->add_order_note( $note );
 		} else {
 			$order->update_status( Reklamo_Statuses::MOCKUP_SENT, $note );
 		}
+		if ( ! $sent ) {
+			self::redirect( $back, 'error', self::mail_failure_message( $revision ) );
+		}
 		/* translators: %d: mockup revision */
 		self::redirect( $back, 'success', sprintf( __( 'Mockup #%d sent. The customer has the approval link by email.', 'reklamo-core' ), $revision ) );
+	}
+
+	/** Shown when the mockup was saved but the customer email did not go out. */
+	private static function mail_failure_message( int $revision ): string {
+		return sprintf(
+			/* translators: 1: mockup revision, 2: error message */
+			__( 'Mockup #%1$d is saved, but the email to the customer was NOT sent: %2$s. Check WooCommerce → Reklamo diagnostics → Email, then use "Re-send mockup email".', 'reklamo-core' ),
+			$revision,
+			Reklamo_Mail::last_error()
+		);
 	}
 
 	public static function handle_action(): void {
@@ -275,9 +294,25 @@ final class Reklamo_Admin_Order {
 		}
 		$now = current_time( 'mysql', true );
 		switch ( $action ) {
+			case 'resend_mockup':
+				$mockups = Reklamo_Storage::for_order( $order->get_id(), 'mockup' );
+				$last    = end( $mockups );
+				if ( ! $last ) {
+					self::redirect( $back, 'error', __( 'There is no mockup on this order yet.', 'reklamo-core' ) );
+				}
+				$url = Reklamo_Approval::issue( $order, (int) $last->id, (int) $last->revision, 'approval' );
+				if ( ! Reklamo_Emails::send_mockup( $order, $url, (int) $last->revision ) ) {
+					self::redirect( $back, 'error', self::mail_failure_message( (int) $last->revision ) );
+				}
+				$order->add_order_note( __( 'Mockup email re-sent by the shop with a fresh approval link.', 'reklamo-core' ) );
+				self::redirect( $back, 'success', __( 'Mockup email re-sent.', 'reklamo-core' ) );
+				break;
 			case 'resend_deposit':
 				$url = Reklamo_Approval::issue( $order, 0, (int) $order->get_meta( '_reklamo_approved_revision' ), 'details' );
-				Reklamo_Emails::send_deposit_request( $order, $url, true );
+				if ( ! Reklamo_Emails::send_deposit_request( $order, $url, true ) ) {
+					/* translators: %s: error message */
+					self::redirect( $back, 'error', sprintf( __( 'The deposit request was NOT sent: %s. Check WooCommerce → Reklamo diagnostics → Email.', 'reklamo-core' ), Reklamo_Mail::last_error() ) );
+				}
 				$order->add_order_note( __( 'Deposit request re-sent by the shop.', 'reklamo-core' ) );
 				self::redirect( $back, 'success', __( 'Deposit request re-sent.', 'reklamo-core' ) );
 				break;

@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-05T13:10:34+00:00\n"
+"POT-Creation-Date: 2026-09-06T12:13:35+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: reklamo-core\n"
@@ -49,225 +49,260 @@ msgid "Re-send deposit request"
 msgstr ""
 
 #: includes/class-reklamo-admin-order.php:58
-msgid "Start production"
+msgid "Re-send mockup email"
 msgstr ""
 
 #: includes/class-reklamo-admin-order.php:61
+msgid "Start production"
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:64
 msgid "Ready — request final payment"
 msgstr ""
 
 #. translators: %s: balance amount
-#: includes/class-reklamo-admin-order.php:65
+#: includes/class-reklamo-admin-order.php:68
 #, php-format
 msgid "Final payment received (%s) — complete"
 msgstr ""
 
-#: includes/class-reklamo-admin-order.php:92
+#: includes/class-reklamo-admin-order.php:95
 msgid "Status"
 msgstr ""
 
-#: includes/class-reklamo-admin-order.php:103
+#: includes/class-reklamo-admin-order.php:106
 msgid "Customer logo"
 msgstr ""
 
-#: includes/class-reklamo-admin-order.php:111
+#: includes/class-reklamo-admin-order.php:114
 msgid "No logo attached to this order."
 msgstr ""
 
-#: includes/class-reklamo-admin-order.php:114
+#: includes/class-reklamo-admin-order.php:117
 msgid "Mockups sent"
 msgstr ""
 
-#: includes/class-reklamo-admin-order.php:126
+#: includes/class-reklamo-admin-order.php:129
 msgid "— approved"
 msgstr ""
 
-#: includes/class-reklamo-admin-order.php:126
+#: includes/class-reklamo-admin-order.php:129
 msgid "— changes requested"
 msgstr ""
 
-#: includes/class-reklamo-admin-order.php:129
+#: includes/class-reklamo-admin-order.php:132
 msgid "— awaiting the customer"
 msgstr ""
 
 #. translators: %s: expiry date
-#: includes/class-reklamo-admin-order.php:131
+#: includes/class-reklamo-admin-order.php:134
 #, php-format
 msgid "(link valid until %s)"
 msgstr ""
 
-#: includes/class-reklamo-admin-order.php:133
+#: includes/class-reklamo-admin-order.php:136
 msgid "— link expired"
 msgstr ""
 
-#: includes/class-reklamo-admin-order.php:141
+#: includes/class-reklamo-admin-order.php:144
 msgid "No mockup sent yet."
 msgstr ""
 
-#: includes/class-reklamo-admin-order.php:144
+#: includes/class-reklamo-admin-order.php:147
 msgid "Requested changes"
 msgstr ""
 
-#: includes/class-reklamo-admin-order.php:148
+#: includes/class-reklamo-admin-order.php:151
 msgid "Approval & payments"
 msgstr ""
 
 #. translators: 1: date, 2: mockup revision
-#: includes/class-reklamo-admin-order.php:150
+#: includes/class-reklamo-admin-order.php:153
 #, php-format
 msgid "Approved %1$s (mockup #%2$d)"
 msgstr ""
 
 #. translators: 1: deposit amount, 2: percentage
-#: includes/class-reklamo-admin-order.php:151
+#: includes/class-reklamo-admin-order.php:154
 #, php-format
 msgid "Deposit: %1$s (%2$s%%)"
 msgstr ""
 
 #. translators: %s: date
-#: includes/class-reklamo-admin-order.php:155
-#: includes/class-reklamo-admin-order.php:161
+#: includes/class-reklamo-admin-order.php:158
+#: includes/class-reklamo-admin-order.php:164
 #, php-format
 msgid "received %s"
 msgstr ""
 
 #. translators: %s: balance amount
-#: includes/class-reklamo-admin-order.php:157
+#: includes/class-reklamo-admin-order.php:160
 #, php-format
 msgid "Balance: %s"
 msgstr ""
 
-#: includes/class-reklamo-admin-order.php:166
+#: includes/class-reklamo-admin-order.php:169
 msgid "Invoice & delivery details"
 msgstr ""
 
-#: includes/class-reklamo-admin-order.php:171
+#: includes/class-reklamo-admin-order.php:174
 msgid "Type"
 msgstr ""
 
-#: includes/class-reklamo-admin-order.php:171
-#: includes/class-reklamo-admin-order.php:172
+#: includes/class-reklamo-admin-order.php:174
+#: includes/class-reklamo-admin-order.php:175
 #: templates/emails/reklamo-generic.php:55
 msgid "Company"
 msgstr ""
 
-#: includes/class-reklamo-admin-order.php:171
+#: includes/class-reklamo-admin-order.php:174
 #: templates/approval.php:164
 msgid "Private person"
 msgstr ""
 
-#: includes/class-reklamo-admin-order.php:173
+#: includes/class-reklamo-admin-order.php:176
 #: templates/approval.php:169
 #: templates/emails/reklamo-generic.php:56
 msgid "Company ID (ЕИК)"
 msgstr ""
 
-#: includes/class-reklamo-admin-order.php:174
+#: includes/class-reklamo-admin-order.php:177
 #: templates/emails/reklamo-generic.php:57
 msgid "VAT no."
 msgstr ""
 
-#: includes/class-reklamo-admin-order.php:175
+#: includes/class-reklamo-admin-order.php:178
 #: templates/approval.php:171
 #: templates/emails/reklamo-generic.php:58
 msgid "Responsible person (МОЛ)"
 msgstr ""
 
-#: includes/class-reklamo-admin-order.php:176
+#: includes/class-reklamo-admin-order.php:179
 #: includes/class-reklamo-settings-page.php:48
 #: templates/approval.php:172
 #: templates/emails/reklamo-generic.php:59
 msgid "Phone"
 msgstr ""
 
-#: includes/class-reklamo-admin-order.php:177
+#: includes/class-reklamo-admin-order.php:180
 #: templates/approval.php:173
 msgid "Delivery address"
 msgstr ""
 
-#: includes/class-reklamo-admin-order.php:178
+#: includes/class-reklamo-admin-order.php:181
 #: templates/emails/reklamo-generic.php:63
 msgid "Delivery note"
 msgstr ""
 
-#: includes/class-reklamo-admin-order.php:179
+#: includes/class-reklamo-admin-order.php:182
 msgid "Submitted"
 msgstr ""
 
-#: includes/class-reklamo-admin-order.php:190
+#: includes/class-reklamo-admin-order.php:193
 msgid "Not submitted yet — the customer gets the form after approving the mockup."
 msgstr ""
 
 #. translators: %d: next mockup revision number
-#: includes/class-reklamo-admin-order.php:194
+#: includes/class-reklamo-admin-order.php:197
 #, php-format
 msgid "Send mockup #%d"
 msgstr ""
 
 #. translators: %d: next mockup revision number
-#: includes/class-reklamo-admin-order.php:195
+#: includes/class-reklamo-admin-order.php:198
 msgid "PDF, PNG or JPG, up to 20 MB. The customer receives an email with a one-time approval link (valid 14 days)."
 msgstr ""
 
-#: includes/class-reklamo-admin-order.php:197
+#: includes/class-reklamo-admin-order.php:200
 msgid "Send to customer"
 msgstr ""
 
-#: includes/class-reklamo-admin-order.php:231
+#: includes/class-reklamo-admin-order.php:234
+#: includes/class-reklamo-diagnostics.php:30
 msgid "You do not have permission to do this."
 msgstr ""
 
-#: includes/class-reklamo-admin-order.php:235
+#: includes/class-reklamo-admin-order.php:238
 msgid "Order not found."
 msgstr ""
 
-#: includes/class-reklamo-admin-order.php:246
+#: includes/class-reklamo-admin-order.php:249
 #: includes/class-reklamo-storage.php:81
 msgid "Please choose a file."
 msgstr ""
 
 #. translators: %d: mockup revision
-#: includes/class-reklamo-admin-order.php:258
+#: includes/class-reklamo-admin-order.php:262
 #, php-format
 msgid "Mockup #%d sent to the customer for approval."
 msgstr ""
 
 #. translators: %d: mockup revision
-#: includes/class-reklamo-admin-order.php:265
+#: includes/class-reklamo-admin-order.php:264
+#, php-format
+msgid "Mockup #%d stored; the approval email could not be sent (see the note above)."
+msgstr ""
+
+#. translators: %d: mockup revision
+#: includes/class-reklamo-admin-order.php:274
 #, php-format
 msgid "Mockup #%d sent. The customer has the approval link by email."
 msgstr ""
 
-#: includes/class-reklamo-admin-order.php:274
-msgid "That action is not available for the current status."
-msgstr ""
-
+#. translators: 1: mockup revision, 2: error message
 #: includes/class-reklamo-admin-order.php:281
-msgid "Deposit request re-sent by the shop."
-msgstr ""
-
-#: includes/class-reklamo-admin-order.php:282
-msgid "Deposit request re-sent."
-msgstr ""
-
-#: includes/class-reklamo-admin-order.php:287
-msgid "Deposit marked as received by the shop."
-msgstr ""
-
-#: includes/class-reklamo-admin-order.php:290
-msgid "Production started."
+#, php-format
+msgid "Mockup #%1$d is saved, but the email to the customer was NOT sent: %2$s. Check WooCommerce → Reklamo diagnostics → Email, then use \"Re-send mockup email\"."
 msgstr ""
 
 #: includes/class-reklamo-admin-order.php:293
+msgid "That action is not available for the current status."
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:301
+msgid "There is no mockup on this order yet."
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:307
+msgid "Mockup email re-sent by the shop with a fresh approval link."
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:308
+msgid "Mockup email re-sent."
+msgstr ""
+
+#. translators: %s: error message
+#: includes/class-reklamo-admin-order.php:314
+#, php-format
+msgid "The deposit request was NOT sent: %s. Check WooCommerce → Reklamo diagnostics → Email."
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:316
+msgid "Deposit request re-sent by the shop."
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:317
+msgid "Deposit request re-sent."
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:322
+msgid "Deposit marked as received by the shop."
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:325
+msgid "Production started."
+msgstr ""
+
+#: includes/class-reklamo-admin-order.php:328
 msgid "Order ready; final payment requested."
 msgstr ""
 
-#: includes/class-reklamo-admin-order.php:298
+#: includes/class-reklamo-admin-order.php:333
 msgid "Final payment received; order completed."
 msgstr ""
 
 #. translators: %s: new status
-#: includes/class-reklamo-admin-order.php:301
+#: includes/class-reklamo-admin-order.php:336
 #, php-format
 msgid "Order moved to \"%s\"."
 msgstr ""
@@ -294,7 +329,7 @@ msgstr ""
 
 #. translators: %s: order number
 #: includes/class-reklamo-approval.php:272
-#: includes/emails/class-reklamo-email.php:109
+#: includes/emails/class-reklamo-email.php:108
 #: templates/emails/plain/reklamo-generic.php:23
 #: templates/emails/reklamo-generic.php:47
 #, php-format
@@ -381,141 +416,176 @@ msgstr ""
 msgid "Note to designer"
 msgstr ""
 
-#: includes/class-reklamo-diagnostics.php:26
-#: includes/class-reklamo-diagnostics.php:105
+#. translators: %s: email address
+#: includes/class-reklamo-diagnostics.php:34
+#, php-format
+msgid "Test email accepted by the mail server. Check the inbox of %s (and its spam folder)."
+msgstr ""
+
+#. translators: %s: error message
+#: includes/class-reklamo-diagnostics.php:34
+#, php-format
+msgid "Test email NOT sent: %s"
+msgstr ""
+
+#: includes/class-reklamo-diagnostics.php:40
+#: includes/class-reklamo-diagnostics.php:119
 msgid "Reklamo diagnostics"
 msgstr ""
 
-#: includes/class-reklamo-diagnostics.php:42
+#: includes/class-reklamo-diagnostics.php:56
 msgid "accepted"
 msgstr ""
 
-#: includes/class-reklamo-diagnostics.php:43
+#: includes/class-reklamo-diagnostics.php:57
 msgid "rejected"
 msgstr ""
 
-#: includes/class-reklamo-diagnostics.php:44
+#: includes/class-reklamo-diagnostics.php:58
 msgid "testing…"
 msgstr ""
 
 #. translators: %s: size
-#: includes/class-reklamo-diagnostics.php:46
+#: includes/class-reklamo-diagnostics.php:60
 #, php-format
 msgid "Largest single request accepted: %s. Chunks are 2 MB, so uploads of any size work when 2 MB passes."
 msgstr ""
 
-#: includes/class-reklamo-diagnostics.php:61
+#: includes/class-reklamo-diagnostics.php:75
 msgid "Outside the web root — not reachable by URL."
 msgstr ""
 
-#: includes/class-reklamo-diagnostics.php:69
+#: includes/class-reklamo-diagnostics.php:83
 msgid "PUBLICLY READABLE — the .htaccess deny rule is not in effect on this server. Move REKLAMO_PRIVATE_DIR outside the web root or add a deny rule for the host."
 msgstr ""
 
 #. translators: %s: HTTP status
-#: includes/class-reklamo-diagnostics.php:72
+#: includes/class-reklamo-diagnostics.php:86
 #, php-format
 msgid "Inside the web root but not readable (HTTP %s)."
 msgstr ""
 
-#: includes/class-reklamo-diagnostics.php:85
+#: includes/class-reklamo-diagnostics.php:99
 msgid "PHP version"
 msgstr ""
 
-#: includes/class-reklamo-diagnostics.php:91
+#: includes/class-reklamo-diagnostics.php:105
 msgid "Effective single-POST limit (PHP)"
 msgstr ""
 
-#: includes/class-reklamo-diagnostics.php:92
+#: includes/class-reklamo-diagnostics.php:106
 msgid "Chunk size used by the uploader"
 msgstr ""
 
-#: includes/class-reklamo-diagnostics.php:93
+#: includes/class-reklamo-diagnostics.php:107
 msgid "Configured maximum file size"
 msgstr ""
 
-#: includes/class-reklamo-diagnostics.php:94
+#: includes/class-reklamo-diagnostics.php:108
 msgid "Private storage directory"
 msgstr ""
 
-#: includes/class-reklamo-diagnostics.php:94
+#: includes/class-reklamo-diagnostics.php:108
 msgid "NOT WRITABLE"
 msgstr ""
 
-#: includes/class-reklamo-diagnostics.php:95
+#: includes/class-reklamo-diagnostics.php:109
 msgid "Free disk space"
 msgstr ""
 
-#: includes/class-reklamo-diagnostics.php:96
+#: includes/class-reklamo-diagnostics.php:110
 msgid "Stored files"
 msgstr ""
 
-#: includes/class-reklamo-diagnostics.php:97
+#: includes/class-reklamo-diagnostics.php:111
 msgid "Unfinished chunk sessions"
 msgstr ""
 
-#: includes/class-reklamo-diagnostics.php:98
+#: includes/class-reklamo-diagnostics.php:112
 msgid "Next cleanup run"
 msgstr ""
 
-#: includes/class-reklamo-diagnostics.php:98
+#: includes/class-reklamo-diagnostics.php:112
 msgid "not scheduled (is WooCommerce Action Scheduler running?)"
 msgstr ""
 
-#: includes/class-reklamo-diagnostics.php:99
+#: includes/class-reklamo-diagnostics.php:113
 msgid "WP-Cron"
 msgstr ""
 
-#: includes/class-reklamo-diagnostics.php:99
+#: includes/class-reklamo-diagnostics.php:113
 msgid "disabled — a real cron job must call wp-cron.php"
 msgstr ""
 
-#: includes/class-reklamo-diagnostics.php:99
+#: includes/class-reklamo-diagnostics.php:113
 msgid "enabled (visitor-triggered; fine locally, use a real cron in production)"
 msgstr ""
 
-#: includes/class-reklamo-diagnostics.php:100
+#: includes/class-reklamo-diagnostics.php:114
 msgid "finfo extension"
 msgstr ""
 
-#: includes/class-reklamo-diagnostics.php:100
-#: includes/class-reklamo-diagnostics.php:101
+#: includes/class-reklamo-diagnostics.php:114
+#: includes/class-reklamo-diagnostics.php:115
 msgid "available"
 msgstr ""
 
-#: includes/class-reklamo-diagnostics.php:100
+#: includes/class-reklamo-diagnostics.php:114
 msgid "missing"
 msgstr ""
 
-#: includes/class-reklamo-diagnostics.php:101
+#: includes/class-reklamo-diagnostics.php:115
 msgid "DOM extension (SVG sanitiser)"
 msgstr ""
 
-#: includes/class-reklamo-diagnostics.php:101
+#: includes/class-reklamo-diagnostics.php:115
 msgid "MISSING — SVG uploads will be refused"
 msgstr ""
 
-#: includes/class-reklamo-diagnostics.php:106
+#: includes/class-reklamo-diagnostics.php:120
 msgid "Run this on the live host after deployment and again after any hosting change. The probe below posts real request bodies to find the true upload ceiling; php.ini values alone are not the whole story on shared hosting."
 msgstr ""
 
-#: includes/class-reklamo-diagnostics.php:108
+#: includes/class-reklamo-diagnostics.php:122
 msgid "Storage exposure"
 msgstr ""
 
-#: includes/class-reklamo-diagnostics.php:111
+#: includes/class-reklamo-diagnostics.php:125
+msgid "Email"
+msgstr ""
+
+#: includes/class-reklamo-diagnostics.php:134
+msgid "Transport"
+msgstr ""
+
+#: includes/class-reklamo-diagnostics.php:135
+msgid "Sender"
+msgstr ""
+
+#. translators: %s: email address
+#: includes/class-reklamo-diagnostics.php:140
+#, php-format
+msgid "Send a test email to %s"
+msgstr ""
+
+#. translators: %s: email address
+#: includes/class-reklamo-diagnostics.php:141
+msgid "Every failed customer email is also recorded as a note on the order."
+msgstr ""
+
+#: includes/class-reklamo-diagnostics.php:144
 msgid "Server limits"
 msgstr ""
 
-#: includes/class-reklamo-diagnostics.php:118
+#: includes/class-reklamo-diagnostics.php:151
 msgid "Active upload probe"
 msgstr ""
 
-#: includes/class-reklamo-diagnostics.php:119
+#: includes/class-reklamo-diagnostics.php:152
 msgid "Sends test bodies of increasing size to this site and reports which arrive intact. Anything above the effective limit is normally cut by Apache or mod_security before PHP runs."
 msgstr ""
 
-#: includes/class-reklamo-diagnostics.php:120
+#: includes/class-reklamo-diagnostics.php:153
 msgid "Run probe"
 msgstr ""
 
@@ -579,6 +649,58 @@ msgstr ""
 
 #: includes/class-reklamo-gateway.php:121
 msgid "Your request has been received. No payment is taken at this stage — our designer will send you a mockup for approval within 24 business hours."
+msgstr ""
+
+#: includes/class-reklamo-mail.php:80
+msgid "the mail server rejected the message"
+msgstr ""
+
+#. translators: %s: email name
+#: includes/class-reklamo-mail.php:94
+#, php-format
+msgid "Email \"%s\" NOT sent: it is disabled under WooCommerce → Settings → Emails."
+msgstr ""
+
+#: includes/class-reklamo-mail.php:95
+msgid "this email is disabled under WooCommerce → Settings → Emails"
+msgstr ""
+
+#. translators: %s: email name
+#: includes/class-reklamo-mail.php:101
+#, php-format
+msgid "Email \"%s\" NOT sent: no recipient address."
+msgstr ""
+
+#: includes/class-reklamo-mail.php:102
+msgid "no recipient address"
+msgstr ""
+
+#. translators: 1: email name, 2: recipient, 3: error message
+#: includes/class-reklamo-mail.php:108
+#, php-format
+msgid "Email \"%1$s\" to %2$s could NOT be sent: %3$s"
+msgstr ""
+
+#. translators: %s: site name
+#: includes/class-reklamo-mail.php:123
+#, php-format
+msgid "Test email from %s"
+msgstr ""
+
+#: includes/class-reklamo-mail.php:124
+msgid "If you are reading this, outgoing email from the shop works."
+msgstr ""
+
+#: includes/class-reklamo-mail.php:133
+msgid "authenticated"
+msgstr ""
+
+#: includes/class-reklamo-mail.php:133
+msgid "no authentication"
+msgstr ""
+
+#: includes/class-reklamo-mail.php:136
+msgid "PHP mail() — REKLAMO_SMTP_HOST is not defined in wp-config.php"
 msgstr ""
 
 #. translators: %d: mockup revision
@@ -685,7 +807,7 @@ msgstr ""
 #. translators: %s: size limit
 #: includes/class-reklamo-request.php:212
 #: includes/class-reklamo-storage.php:136
-#: includes/class-reklamo-upload.php:169
+#: includes/class-reklamo-upload.php:178
 #, php-format
 msgid "The file must be smaller than %s."
 msgstr ""
@@ -957,21 +1079,21 @@ msgid "The file is larger than the server currently accepts (%s). Please send it
 msgstr ""
 
 #: includes/class-reklamo-storage.php:94
-#: includes/class-reklamo-upload.php:218
-#: includes/class-reklamo-upload.php:264
+#: includes/class-reklamo-upload.php:227
+#: includes/class-reklamo-upload.php:273
 msgid "The upload did not complete. Please try again."
 msgstr ""
 
 #. translators: %s: comma-separated list of allowed extensions
 #. translators: %s: allowed extensions
 #: includes/class-reklamo-storage.php:125
-#: includes/class-reklamo-upload.php:162
+#: includes/class-reklamo-upload.php:171
 #, php-format
 msgid "This file type is not accepted. Allowed: %s."
 msgstr ""
 
 #: includes/class-reklamo-storage.php:132
-#: includes/class-reklamo-upload.php:165
+#: includes/class-reklamo-upload.php:174
 msgid "The file is empty."
 msgstr ""
 
@@ -986,9 +1108,9 @@ msgid "This SVG could not be accepted (scripts or external references). Please e
 msgstr ""
 
 #: includes/class-reklamo-storage.php:165
-#: includes/class-reklamo-upload.php:180
-#: includes/class-reklamo-upload.php:226
-#: includes/class-reklamo-upload.php:246
+#: includes/class-reklamo-upload.php:189
+#: includes/class-reklamo-upload.php:235
+#: includes/class-reklamo-upload.php:255
 msgid "The file could not be saved. Please try again."
 msgstr ""
 
@@ -1012,27 +1134,27 @@ msgstr ""
 msgid "The page has expired. Please reload and try again."
 msgstr ""
 
-#: includes/class-reklamo-upload.php:155
-#: includes/class-reklamo-upload.php:204
+#: includes/class-reklamo-upload.php:164
+#: includes/class-reklamo-upload.php:213
 msgid "Too many uploads from this connection. Please try again in an hour."
 msgstr ""
 
-#: includes/class-reklamo-upload.php:174
+#: includes/class-reklamo-upload.php:183
 msgid "Our storage is temporarily full. Please try again later or send the file by email."
 msgstr ""
 
-#: includes/class-reklamo-upload.php:210
-#: includes/class-reklamo-upload.php:240
+#: includes/class-reklamo-upload.php:219
+#: includes/class-reklamo-upload.php:249
 msgid "The upload session has expired. Please choose the file again."
 msgstr ""
 
-#: includes/class-reklamo-upload.php:213
 #: includes/class-reklamo-upload.php:222
+#: includes/class-reklamo-upload.php:231
 msgid "Invalid upload chunk."
 msgstr ""
 
 #. translators: %d: chunk number
-#: includes/class-reklamo-upload.php:255
+#: includes/class-reklamo-upload.php:264
 #, php-format
 msgid "Part %d of the upload is missing. Please try again."
 msgstr ""
@@ -1256,7 +1378,7 @@ msgstr ""
 msgid "Placeholders: {order_number}, {order_date}, {customer_first_name}, {site_title}, {deposit_amount}, {balance_amount}, {order_total}, {deposit_pct}, {revision}"
 msgstr ""
 
-#: reklamo-core.php:79
+#: reklamo-core.php:80
 msgid "Reklamo Core needs WooCommerce to be active."
 msgstr ""
 

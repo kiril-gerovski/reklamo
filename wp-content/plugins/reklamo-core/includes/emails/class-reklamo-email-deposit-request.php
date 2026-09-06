@@ -60,13 +60,15 @@ class Reklamo_Email_Deposit_Request extends Reklamo_Email {
 		if ( $order_id && ! $order instanceof WC_Order ) {
 			$order = wc_get_order( $order_id );
 		}
+		$sent = false;
 		if ( $order instanceof WC_Order && $details_url ) {
 			$this->prepare( $order );
 			$this->recipient  = $order->get_billing_email();
 			$this->button_url = $details_url;
 			$this->reminder   = $reminder;
-			$this->dispatch();
+			$sent             = $this->dispatch();
 		}
 		$this->restore_locale();
+		return $sent;
 	}
 }
