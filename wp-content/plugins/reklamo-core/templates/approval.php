@@ -2,7 +2,7 @@
 /**
  * Mockup approval page. Self-contained: inline CSS only, no external requests.
  *
- * @var string        $view  not_found | rate_limited | expired | used | review | approved | changes
+ * @var string        $view  not_found | rate_limited | expired | closed | used | review | approved | changes | details
  * @var WC_Order|null $order
  * @var object|null   $file
  * @var object|null   $token
@@ -68,7 +68,19 @@ $view_url = add_query_arg(
 
 	<?php elseif ( 'expired' === $view ) : ?>
 		<h1><?php esc_html_e( 'This link has expired', 'reklamo-core' ); ?></h1>
-		<p><?php esc_html_e( 'Approval links are valid for 14 days. Reply to our email and we will send you a new one.', 'reklamo-core' ); ?></p>
+		<p>
+			<?php
+			if ( 'details' === ( $token->purpose ?? '' ) ) {
+				echo esc_html( sprintf( /* translators: %d: days */ __( 'The link to your invoice and delivery details is valid for %d days. Use the order page below, or write to us, to get a new one.', 'reklamo-core' ), Reklamo_Approval::DETAILS_TTL ) );
+			} else {
+				echo esc_html( sprintf( /* translators: %d: days */ __( 'Approval links are valid for %d days. Use the order page below to have a new one sent, or reply to our email.', 'reklamo-core' ), Reklamo_Approval::TTL_DAYS ) );
+			}
+			?>
+		</p>
+
+	<?php elseif ( 'closed' === $view ) : ?>
+		<h1><?php esc_html_e( 'This order is no longer waiting for this step', 'reklamo-core' ); ?></h1>
+		<p><?php esc_html_e( 'The order has moved on or was cancelled since this email was sent, so this link cannot act any more. The order page below shows the current state.', 'reklamo-core' ); ?></p>
 
 	<?php elseif ( 'used' === $view ) : ?>
 		<h1><?php esc_html_e( 'This mockup has already been processed', 'reklamo-core' ); ?></h1>
@@ -84,7 +96,7 @@ $view_url = add_query_arg(
 
 	<?php elseif ( 'approved' === $view ) : ?>
 		<h1 class="ok"><?php esc_html_e( 'Approved — thank you!', 'reklamo-core' ); ?></h1>
-		<p><?php esc_html_e( 'We will now send you our bank details and a request for the 50% deposit. Production starts once it arrives.', 'reklamo-core' ); ?></p>
+		<p><?php echo esc_html( sprintf( /* translators: %s: deposit percentage */ __( 'We will now send you our bank details and a request for the %s%% deposit. Production starts once it arrives.', 'reklamo-core' ), Reklamo_Settings::get( 'deposit_pct', '50' ) ) ); ?></p>
 
 	<?php elseif ( 'changes' === $view ) : ?>
 		<h1><?php esc_html_e( 'Thank you — we received your comments', 'reklamo-core' ); ?></h1>
@@ -192,7 +204,7 @@ $view_url = add_query_arg(
 				<button type="submit" name="decision" value="changes" class="secondary"><?php esc_html_e( 'Request changes', 'reklamo-core' ); ?></button>
 			</details>
 		</form>
-		<p class="muted"><?php esc_html_e( 'No payment is taken at this stage. After approval we will send bank details for a 50% deposit.', 'reklamo-core' ); ?></p>
+		<p class="muted"><?php echo esc_html( sprintf( /* translators: %s: deposit percentage */ __( 'No payment is taken at this stage. After approval we will send bank details for a %s%% deposit.', 'reklamo-core' ), Reklamo_Settings::get( 'deposit_pct', '50' ) ) ); ?></p>
 	<?php endif; ?>
 	</div>
 </div>

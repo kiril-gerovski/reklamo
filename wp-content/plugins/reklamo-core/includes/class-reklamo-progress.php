@@ -12,6 +12,7 @@ defined( 'ABSPATH' ) || exit;
 final class Reklamo_Progress {
 
 	const CANCELLED = -1;
+	const REFUNDED  = -2;
 	const DONE      = 6;
 
 	/** Step keys in order; index + 1 is the step number shown to the customer. */
@@ -19,7 +20,7 @@ final class Reklamo_Progress {
 
 	/**
 	 * Step reached for a status, 1-based. DONE (6 = all complete) for `completed`,
-	 * CANCELLED for cancelled/refunded/failed, 1 for anything unknown (a fresh order).
+	 * CANCELLED for cancelled/failed, REFUNDED for refunded, 1 for anything unknown (a fresh order).
 	 */
 	public static function step_for_status( string $status ): int {
 		$status = str_replace( 'wc-', '', $status );
@@ -39,8 +40,9 @@ final class Reklamo_Progress {
 				return 6;
 			case 'completed':
 				return self::DONE;
-			case 'cancelled':
 			case 'refunded':
+				return self::REFUNDED;
+			case 'cancelled':
 			case 'failed':
 				return self::CANCELLED;
 			default:

@@ -1,6 +1,6 @@
 <?php
 /**
- * The customer's order page at /porachka/?s=<selector>&k=<secret>: progress, mockup
+ * The customer's order page at /moyata-porachka/?s=<selector>&k=<secret>: progress, mockup
  * history, payments, and what happens next. Passwordless — the link in every email is
  * the login. View-only: approving and submitting details still need their own
  * single-use tokens, so a forwarded email can read but never act.
@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
 
 final class Reklamo_Tracking {
 
-	const SLUG       = 'porachka';
+	const SLUG       = 'moyata-porachka'; // NOT 'porachka': that is the seeded checkout page slug.
 	const QUERY_VAR  = 'reklamo_track';
 	const PURPOSE    = 'track';
 	const META_URL   = '_reklamo_track_url';
@@ -185,7 +185,7 @@ final class Reklamo_Tracking {
 	private static function handle_resend( WC_Order $order, array $vars ): void {
 		$back = $vars['url'];
 		if ( ! isset( $_POST['_reklamo_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_reklamo_nonce'] ) ), 'reklamo_track_' . $vars['selector'] ) ) {
-			wp_safe_redirect( add_query_arg( 'sent', 'expired', $back ) );
+			wp_safe_redirect( add_query_arg( 'sent', 'nonce', $back ) );
 			exit;
 		}
 		$gap_key = 'reklamo_track_resend_' . $order->get_id();
@@ -193,6 +193,8 @@ final class Reklamo_Tracking {
 			wp_safe_redirect( add_query_arg( 'sent', 'wait', $back ) );
 			exit;
 		}
+		// Throttle before sending: a failing mail server must not turn this into a token mint.
+		set_transient( $gap_key, 1, self::RESEND_GAP );
 		$ok = false;
 		if ( $order->has_status( Reklamo_Statuses::MOCKUP_SENT ) ) {
 			$rev  = Reklamo_Approval::latest_revision( $order->get_id() );
@@ -214,7 +216,7 @@ final class Reklamo_Tracking {
 			exit;
 		}
 		if ( $ok ) {
-			set_transient( $gap_key, 1, self::RESEND_GAP );
+			Reklamo_Reminders::schedule_for( $order );
 			$order->add_order_note( __( 'Customer asked for the email to be sent again from the order page.', 'reklamo-core' ) );
 		}
 		wp_safe_redirect( add_query_arg( 'sent', $ok ? 'ok' : 'failed', $back ) );
@@ -261,10 +263,7 @@ final class Reklamo_Tracking {
 			);
 		}
 
-		$logo = null;
-		foreach ( Reklamo_Storage::for_order( $order->get_id(), 'logo' ) as $l ) {
-			$logo = $l;
-		}
+		$logos = Reklamo_Storage::for_order( $order->get_id(), 'logo' ); // one per line item on the cart path
 
 		$step_labels = array(
 			__( 'Request received', 'reklamo-core' ),
@@ -280,13 +279,14 @@ final class Reklamo_Tracking {
 			'status_label' => wc_get_order_status_name( $status ),
 			'step'         => $step,
 			'completed'    => 'completed' === $status,
-			'cancelled'    => Reklamo_Progress::CANCELLED === $step,
+			'cancelled'    => Reklamo_Progress::CANCELLED === $step || Reklamo_Progress::REFUNDED === $step,
+			'refunded'     => Reklamo_Progress::REFUNDED === $step,
 			'step_labels'  => $step_labels,
 			'items'        => $items,
 			'created'      => $order->get_date_created() ? wc_format_datetime( $order->get_date_created(), 'd.m.Y' ) : '',
 			'completed_on' => $order->get_date_completed() ? wc_format_datetime( $order->get_date_completed(), 'd.m.Y' ) : '',
 			'mockups'      => $mockups,
-			'logo'         => $logo,
+			'logos'        => $logos,
 			'pending_rev'  => Reklamo_Approval::latest_revision( $order->get_id() ),
 			'last_comment' => (string) $order->get_meta( '_reklamo_last_change_request' ),
 			'total'        => $price( $total ),

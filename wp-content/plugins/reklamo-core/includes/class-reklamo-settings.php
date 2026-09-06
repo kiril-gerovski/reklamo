@@ -29,6 +29,7 @@ final class Reklamo_Settings {
 		'reklamo_bic'              => '',
 		'reklamo_account_holder'   => '',
 		'reklamo_reminder_days'    => '3,7,14',
+		'reklamo_stale_days'       => '7',
 		'reklamo_max_upload_mb'    => '300',
 		'reklamo_retention_months' => '12',
 	);

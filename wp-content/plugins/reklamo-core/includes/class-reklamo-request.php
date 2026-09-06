@@ -92,7 +92,7 @@ final class Reklamo_Request {
 			<?php wp_nonce_field( self::NONCE, '_rq_nonce' ); ?>
 			<input type="hidden" name="rq_return" value="<?php echo esc_url( self::current_url() ); ?>">
 			<!-- honeypot: bots fill every field -->
-			<div class="rq-hp" aria-hidden="true"><label>Website <input type="text" name="rq_website" tabindex="-1" autocomplete="off"></label></div>
+			<div class="rq-hp" aria-hidden="true" style="position:absolute;left:-9999px"><label><?php esc_html_e( 'Website', 'reklamo-core' ); ?> <input type="text" name="rq_website" tabindex="-1" autocomplete="off"></label></div>
 
 			<?php if ( $errors ) : ?>
 				<div class="rq-errors" role="alert">
@@ -130,8 +130,12 @@ final class Reklamo_Request {
 						<strong><?php $compact ? esc_html_e( 'Logo', 'reklamo-core' ) : esc_html_e( 'Drag the file here or click to choose', 'reklamo-core' ); ?></strong>
 						<small><?php echo esc_html( strtoupper( implode( ', ', array_diff( Reklamo_Storage::LOGO_EXTENSIONS, array( 'jpeg' ) ) ) ) ); ?></small>
 					</span>
-					<input type="file" id="<?php echo esc_attr( $uid ); ?>-file" name="reklamo_logo" accept="<?php echo esc_attr( $accept ); ?>" required>
+					<input type="file" id="<?php echo esc_attr( $uid ); ?>-file" name="reklamo_logo" accept="<?php echo esc_attr( $accept ); ?>" <?php echo empty( $values['file_token'] ) ? 'required' : ''; ?>>
 				</label>
+				<?php if ( ! empty( $values['file_token'] ) ) : ?>
+					<input type="hidden" name="reklamo_file_token" value="<?php echo esc_attr( $values['file_token'] ); ?>">
+					<input type="hidden" name="reklamo_file_name" value="<?php echo esc_attr( $values['file_name'] ?? '' ); ?>">
+				<?php endif; ?>
 				<div class="rq-file" data-rq-file hidden>
 					<span class="rq-file__badge" data-rq-file-ext></span>
 					<span class="rq-file__name" data-rq-file-name></span>
@@ -218,11 +222,13 @@ final class Reklamo_Request {
 	/** Errors + previous values from a failed submission, keyed by ?rq=. One read, then gone. */
 	private static function flash_state(): array {
 		$key = isset( $_GET['rq'] ) ? sanitize_key( wp_unslash( $_GET['rq'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( ! $key ) {
+		// Own namespace and strict shape: this key comes from the URL and must never be able
+		// to address another transient (the per-IP rate counter lives under reklamo_rq_ip_*).
+		if ( ! preg_match( '/^[a-z0-9]{12}$/', $key ) ) {
 			return array();
 		}
-		$state = get_transient( 'reklamo_rq_' . $key );
-		delete_transient( 'reklamo_rq_' . $key );
+		$state = get_transient( 'reklamo_rqf_' . $key );
+		delete_transient( 'reklamo_rqf_' . $key );
 		return is_array( $state ) ? $state : array();
 	}
 
@@ -231,9 +237,9 @@ final class Reklamo_Request {
 	}
 
 	private static function fail( array $errors, array $values, string $back ): void {
-		$key = wp_generate_password( 12, false, false );
+		$key = strtolower( wp_generate_password( 12, false, false ) );
 		set_transient(
-			'reklamo_rq_' . $key,
+			'reklamo_rqf_' . $key,
 			array(
 				'errors' => $errors,
 				'values' => $values,
@@ -253,6 +259,9 @@ final class Reklamo_Request {
 			'email'      => isset( $_POST['rq_email'] ) ? sanitize_email( wp_unslash( $_POST['rq_email'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			'note'       => isset( $_POST['reklamo_note'] ) ? sanitize_textarea_field( wp_unslash( $_POST['reklamo_note'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			'consent'    => ! empty( $_POST['rq_consent'] ), // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			// A finished chunked upload survives a validation round-trip (minutes of upload otherwise lost).
+			'file_token' => isset( $_POST['reklamo_file_token'] ) ? sanitize_text_field( wp_unslash( $_POST['reklamo_file_token'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			'file_name'  => isset( $_POST['reklamo_file_name'] ) ? sanitize_text_field( wp_unslash( $_POST['reklamo_file_name'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		);
 
 		if ( ! isset( $_POST['_rq_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_rq_nonce'] ) ), self::NONCE ) ) {
@@ -275,6 +284,10 @@ final class Reklamo_Request {
 		}
 		if ( ! is_email( $values['email'] ) ) {
 			$errors[] = __( 'Please enter a valid email address.', 'reklamo-core' );
+		} elseif ( ! Reklamo_Email_Check::has_mail_host( Reklamo_Email_Check::domain( $values['email'] ) ) ) {
+			// Every later step (mockup, approval, bank details) travels to this address; a dead domain means a dead order.
+			/* translators: %s: email domain */
+			$errors[] = sprintf( __( 'The email domain "%s" does not seem to exist. Please check the address.', 'reklamo-core' ), Reklamo_Email_Check::domain( $values['email'] ) );
 		}
 		$max = (int) Reklamo_Settings::get( 'note_max', '300' );
 		if ( mb_strlen( $values['note'] ) > $max ) {
@@ -285,9 +298,13 @@ final class Reklamo_Request {
 			$errors[] = __( 'Please accept the Terms and Conditions and the Privacy Policy.', 'reklamo-core' );
 		}
 		// Chunked path hands us a token of a finished upload; otherwise a plain file post.
-		$token     = isset( $_POST['reklamo_file_token'] ) ? sanitize_text_field( wp_unslash( $_POST['reklamo_file_token'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$token     = $values['file_token'];
 		$prestored = '' !== $token ? Reklamo_Storage::unclaimed_by_token( $token, 'logo' ) : null;
-		$has_file  = ! empty( $_FILES['reklamo_logo'] ) && UPLOAD_ERR_NO_FILE !== (int) ( $_FILES['reklamo_logo']['error'] ?? UPLOAD_ERR_NO_FILE );
+		if ( ! $prestored ) {
+			$values['file_token'] = '';
+			$values['file_name']  = '';
+		}
+		$has_file = ! empty( $_FILES['reklamo_logo'] ) && UPLOAD_ERR_NO_FILE !== (int) ( $_FILES['reklamo_logo']['error'] ?? UPLOAD_ERR_NO_FILE );
 		if ( ! $prestored && ! $has_file ) {
 			$errors[] = __( 'Please upload your logo file.', 'reklamo-core' );
 		}
@@ -317,30 +334,37 @@ final class Reklamo_Request {
 			self::fail( array( __( 'The request could not be saved. Please try again or contact us.', 'reklamo-core' ) ), $values, $return );
 		}
 
-		$item_id = $order->add_product( $product, 1 );
-		$item    = $order->get_item( $item_id );
-		if ( $item ) {
-			$item->add_meta_data( Reklamo_Cart::META_FILE, $stored['token'], true );
-			if ( '' !== $values['note'] ) {
-				$item->add_meta_data( __( 'Note to designer', 'reklamo-core' ), $values['note'], true );
+		// WC_Data setters and add_product() throw; a fatal here would leave a half-built order
+		// nobody is told about. Keep the uploaded file (the token stays valid) and show the form again.
+		try {
+			$item_id = $order->add_product( $product, 1 );
+			$item    = $order->get_item( $item_id );
+			if ( $item ) {
+				$item->add_meta_data( Reklamo_Cart::META_FILE, $stored['token'], true );
+				if ( '' !== $values['note'] ) {
+					$item->add_meta_data( __( 'Note to designer', 'reklamo-core' ), $values['note'], true );
+				}
+				$item->save();
 			}
-			$item->save();
-		}
 
-		$parts = preg_split( '/\s+/', trim( $values['name'] ), 2 );
-		$order->set_billing_first_name( $parts[0] );
-		$order->set_billing_last_name( $parts[1] ?? '' );
-		$order->set_billing_email( $values['email'] );
-		$order->set_billing_country( 'BG' );
-		$order->set_customer_ip_address( Reklamo_Storage::client_ip() );
-		$order->set_customer_user_agent( wc_get_user_agent() );
+			$parts = preg_split( '/\s+/', trim( $values['name'] ), 2 );
+			$order->set_billing_first_name( $parts[0] );
+			$order->set_billing_last_name( $parts[1] ?? '' );
+			$order->set_billing_email( $values['email'] );
+			$order->set_billing_country( 'BG' );
+			$order->set_customer_ip_address( Reklamo_Storage::client_ip() );
+			$order->set_customer_user_agent( wc_get_user_agent() );
 
-		$gateways = WC()->payment_gateways()->payment_gateways();
-		if ( isset( $gateways[ Reklamo_Gateway::ID ] ) ) {
-			$order->set_payment_method( $gateways[ Reklamo_Gateway::ID ] );
+			$gateways = WC()->payment_gateways()->payment_gateways();
+			if ( isset( $gateways[ Reklamo_Gateway::ID ] ) ) {
+				$order->set_payment_method( $gateways[ Reklamo_Gateway::ID ] );
+			}
+			$order->calculate_totals( true );
+			$order->save();
+		} catch ( Exception $e ) {
+			$order->delete( true );
+			self::fail( array( __( 'The request could not be saved. Please try again or contact us.', 'reklamo-core' ) ), $values, $return );
 		}
-		$order->calculate_totals( true );
-		$order->save();
 
 		Reklamo_Storage::claim( $stored['token'], $order->get_id(), (int) $item_id );
 		self::bump_rate_limit();

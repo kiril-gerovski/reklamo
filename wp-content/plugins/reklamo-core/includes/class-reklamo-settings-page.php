@@ -187,8 +187,17 @@ class Reklamo_Settings_Page extends WC_Settings_Page {
 				'title'       => __( 'Reminders (days)', 'reklamo-core' ),
 				'type'        => 'text',
 				'default'     => '3,7,14',
-				'description' => __( 'Days after a mockup is sent (or a deposit requested) to remind the customer, comma-separated. Empty = no reminders.', 'reklamo-core' ),
+				'description' => __( 'Days after a mockup is sent, a deposit requested or the final payment requested to remind the customer, comma-separated. Empty = no reminders.', 'reklamo-core' ),
 				'desc_tip'    => true,
+			),
+			array(
+				'id'                => 'reklamo_stale_days',
+				'title'             => __( 'Alert the shop after (days)', 'reklamo-core' ),
+				'type'              => 'number',
+				'default'           => '7',
+				'description'       => __( 'This many days after the last reminder with no reaction from the customer, the shop gets an email about the waiting order. 0 = never.', 'reklamo-core' ),
+				'desc_tip'          => true,
+				'custom_attributes' => array( 'min' => 0 ),
 			),
 			array(
 				'type' => 'sectionend',

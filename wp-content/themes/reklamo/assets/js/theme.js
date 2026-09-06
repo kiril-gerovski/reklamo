@@ -47,6 +47,8 @@
 			if ( e.dataTransfer && e.dataTransfer.files.length ) {
 				input.files = e.dataTransfer.files;
 				show();
+				// Assigning .files fires no event; the chunked uploader listens for `change`.
+				input.dispatchEvent( new Event( 'change', { bubbles: true } ) );
 			}
 		} );
 	} );

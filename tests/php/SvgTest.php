@@ -44,9 +44,25 @@ final class SvgTest extends TestCase {
 		$this->assertStringContainsString( 'style="fill:blue"', $out );
 	}
 
-	public function test_entities_and_doctype_refused(): void {
+	public function test_entities_refused_but_plain_doctype_dropped(): void {
 		$this->assertFalse( Reklamo_Svg::sanitize( '<!DOCTYPE svg [<!ENTITY x SYSTEM "file:///etc/passwd">]><svg>&x;</svg>' ) );
-		$this->assertFalse( Reklamo_Svg::sanitize( '<?xml version="1.0"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg/>' ), 'even a harmless-looking DOCTYPE is refused: no parser entity processing at all' );
+		$this->assertSame( 'entities', Reklamo_Svg::$reason );
+		$this->assertFalse( Reklamo_Svg::sanitize( '<!DOCTYPE svg [ ]><svg xmlns="http://www.w3.org/2000/svg"/>' ), 'any internal subset is refused' );
+		// Illustrator's default export: an external DOCTYPE and nothing else. Accepted, DOCTYPE gone.
+		$out = $this->clean( '<?xml version="1.0"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg xmlns="http://www.w3.org/2000/svg"><rect/></svg>' );
+		$this->assertStringNotContainsString( 'DOCTYPE', $out );
+		$this->assertStringContainsString( '<rect', $out );
+	}
+
+	public function test_css_escapes_and_presentation_urls_cannot_dodge_the_check(): void {
+		$out = $this->clean( '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xl="http://www.w3.org/1999/xlink"><style>*{fill:\\75 rl(https://evil/t)}</style><rect fill="url(https://evil/x#y)"/><rect fill="url(#ok)"/><rect style="fill:u\\72 l(http://evil/z)"/><use xl:href="https://evil/x.svg#y"/></svg>' );
+		$this->assertStringNotContainsString( 'evil', $out );
+		$this->assertStringContainsString( 'fill="url(#ok)"', $out );
+	}
+
+	public function test_size_limit_reports_its_own_reason(): void {
+		$this->assertFalse( Reklamo_Svg::sanitize( str_repeat( 'a', Reklamo_Svg::MAX_BYTES + 1 ) ) );
+		$this->assertSame( 'size', Reklamo_Svg::$reason );
 	}
 
 	public function test_non_svg_and_garbage_refused(): void {

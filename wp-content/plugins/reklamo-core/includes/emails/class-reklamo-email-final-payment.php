@@ -44,16 +44,24 @@ class Reklamo_Email_Final_Payment extends Reklamo_Email {
 		return $this->placeholders['{balance_amount}'];
 	}
 
-	public function trigger( $order_id, $order = false ) {
+	/**
+	 * @param int            $order_id Order ID.
+	 * @param WC_Order|false $order    Order.
+	 * @param bool           $reminder Prefix the subject as a reminder.
+	 */
+	public function trigger( $order_id, $order = false, bool $reminder = false ) {
 		$this->setup_locale();
+		$sent = false;
 		if ( $order_id && ! $order instanceof WC_Order ) {
 			$order = wc_get_order( $order_id );
 		}
 		if ( $order instanceof WC_Order ) {
 			$this->prepare( $order );
 			$this->recipient = $order->get_billing_email();
-			$this->dispatch();
+			$this->reminder  = $reminder;
+			$sent            = $this->dispatch();
 		}
 		$this->restore_locale();
+		return $sent;
 	}
 }

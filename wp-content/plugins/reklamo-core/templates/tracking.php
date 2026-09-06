@@ -71,8 +71,10 @@ $file_url = static fn( int $id ): string => add_query_arg( 'view', $id, $url );
 			<p class="notice err"><?php esc_html_e( 'The email was sent a few minutes ago. Please check your spam folder before asking again.', 'reklamo-core' ); ?></p>
 		<?php elseif ( 'failed' === $flash ) : ?>
 			<p class="notice err"><?php esc_html_e( 'The email could not be sent right now. Please contact us.', 'reklamo-core' ); ?></p>
-		<?php elseif ( 'none' === $flash || 'expired' === $flash ) : ?>
+		<?php elseif ( 'none' === $flash ) : ?>
 			<p class="notice err"><?php esc_html_e( 'Nothing to send at the moment.', 'reklamo-core' ); ?></p>
+		<?php elseif ( 'nonce' === $flash ) : ?>
+			<p class="notice err"><?php esc_html_e( 'The page had been open for too long. Please try the button again.', 'reklamo-core' ); ?></p>
 		<?php endif; ?>
 
 		<div class="head">
@@ -181,7 +183,12 @@ $file_url = static fn( int $id ): string => add_query_arg( 'view', $id, $url );
 				<?php
 				break;
 			default:
-				if ( $v['cancelled'] ) {
+				if ( ! empty( $v['refunded'] ) ) {
+					?>
+					<h2><?php esc_html_e( 'This order was refunded', 'reklamo-core' ); ?></h2>
+					<p><?php esc_html_e( 'The amounts you paid have been returned. Contact us if anything is unclear.', 'reklamo-core' ); ?></p>
+					<?php
+				} elseif ( $v['cancelled'] ) {
 					?>
 					<h2><?php esc_html_e( 'This order was cancelled', 'reklamo-core' ); ?></h2>
 					<p><?php esc_html_e( 'If that is a surprise, please contact us.', 'reklamo-core' ); ?></p>
@@ -250,11 +257,15 @@ $file_url = static fn( int $id ): string => add_query_arg( 'view', $id, $url );
 			</dl>
 		<?php endif; ?>
 
-		<h3><?php esc_html_e( 'Your logo', 'reklamo-core' ); ?></h3>
-		<?php if ( $v['logo'] && '' !== (string) $v['logo']->path ) : ?>
-			<p><a href="<?php echo esc_url( $file_url( (int) $v['logo']->id ) ); ?>"><?php echo esc_html( Reklamo_Storage::describe( $v['logo'] ) ); ?></a></p>
-		<?php elseif ( $v['logo'] ) : ?>
-			<p class="muted"><?php echo esc_html( Reklamo_Storage::describe( $v['logo'] ) ); ?></p>
+		<h3><?php echo esc_html( count( $v['logos'] ) > 1 ? __( 'Your logos', 'reklamo-core' ) : __( 'Your logo', 'reklamo-core' ) ); ?></h3>
+		<?php if ( $v['logos'] ) : ?>
+			<?php foreach ( $v['logos'] as $logo ) : ?>
+				<?php if ( '' !== (string) $logo->path ) : ?>
+					<p><a href="<?php echo esc_url( $file_url( (int) $logo->id ) ); ?>"><?php echo esc_html( Reklamo_Storage::describe( $logo ) ); ?></a></p>
+				<?php else : ?>
+					<p class="muted"><?php echo esc_html( Reklamo_Storage::describe( $logo ) ); ?></p>
+				<?php endif; ?>
+			<?php endforeach; ?>
 		<?php else : ?>
 			<p class="muted"><?php esc_html_e( 'No file on record.', 'reklamo-core' ); ?></p>
 		<?php endif; ?>

@@ -3,7 +3,7 @@
  * Plugin Name:       Reklamo Core
  * Plugin URI:        https://reklamo.bg
  * Description:       Business logic for Reklamo.bg — order statuses, logo uploads, mockups and approvals, emails. The theme is presentation only; everything that touches orders lives here.
- * Version:           0.5.0
+ * Version:           0.6.0
  * Requires at least: 7.0
  * Requires PHP:      8.1
  * Requires Plugins:  woocommerce
@@ -19,7 +19,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'REKLAMO_VERSION', '0.5.0' );
+define( 'REKLAMO_VERSION', '0.6.0' );
 define( 'REKLAMO_FILE', __FILE__ );
 define( 'REKLAMO_PATH', plugin_dir_path( __FILE__ ) );
 define( 'REKLAMO_URL', plugin_dir_url( __FILE__ ) );
@@ -46,6 +46,8 @@ require REKLAMO_PATH . 'includes/class-reklamo-admin-order.php';
 require REKLAMO_PATH . 'includes/class-reklamo-emails.php';
 require REKLAMO_PATH . 'includes/class-reklamo-settings.php';
 require REKLAMO_PATH . 'includes/class-reklamo-request.php';
+require REKLAMO_PATH . 'includes/class-reklamo-email-check.php';
+require REKLAMO_PATH . 'includes/class-reklamo-privacy.php';
 require REKLAMO_PATH . 'includes/class-reklamo-reminders.php';
 
 /**
@@ -95,6 +97,7 @@ function reklamo_boot(): void {
 	Reklamo_Gateway::init();
 	Reklamo_Approval::init();
 	Reklamo_Tracking::init();
+	Reklamo_Privacy::init();
 	Reklamo_Admin_Order::init();
 	Reklamo_Emails::init();
 	Reklamo_Settings::init();

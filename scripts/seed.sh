@@ -122,6 +122,9 @@ opt reklamo_iban "BG00UNCR00000000000000"
 opt reklamo_bic "UNCRBGSF"
 opt reklamo_account_holder "Рекламо ЕООД"
 opt reklamo_reminder_days "3,7,14"
+opt reklamo_stale_days 7
+opt reklamo_max_upload_mb 300
+opt reklamo_retention_months 12
 
 echo "→ payment gateways"
 # Our no-payment gateway is the only one enabled. Title/description are site content (Bulgarian).

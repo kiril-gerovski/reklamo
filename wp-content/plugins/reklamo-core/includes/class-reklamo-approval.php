@@ -31,6 +31,45 @@ final class Reklamo_Approval {
 		add_action( 'init', array( __CLASS__, 'rewrite' ) );
 		add_filter( 'query_vars', array( __CLASS__, 'query_vars' ) );
 		add_action( 'template_redirect', array( __CLASS__, 'handle' ) );
+		add_action( 'woocommerce_order_status_changed', array( __CLASS__, 'on_status_change' ), 5, 3 );
+	}
+
+	/**
+	 * Keep the emailed links honest with the order's state:
+	 *  - cancelled: no link may act any more (the tracking link stays, read-only);
+	 *  - a new mockup after approval: the approval and its deposit are void, the details
+	 *    link with bank details must stop working, or the customer pays for a design they
+	 *    have not re-approved.
+	 */
+	public static function on_status_change( int $order_id, string $from, string $to ): void {
+		if ( 'cancelled' === $to ) {
+			self::expire_for_order( $order_id, array( 'approval', 'details' ) );
+			return;
+		}
+		if ( Reklamo_Statuses::APPROVED === $from && Reklamo_Statuses::MOCKUP_SENT === $to ) {
+			$order = wc_get_order( $order_id );
+			if ( ! $order ) {
+				return;
+			}
+			$order->delete_meta_data( '_reklamo_approved_at' );
+			$order->delete_meta_data( '_reklamo_approved_revision' );
+			$order->delete_meta_data( '_reklamo_deposit_amount' );
+			$order->save();
+			self::expire_for_order( $order_id, array( 'details' ) );
+			$order->add_order_note( __( 'A new mockup was sent after approval: the earlier approval, its deposit amount and the details link are void.', 'reklamo-core' ) );
+		}
+	}
+
+	/** Expire every live token of the given purposes for an order. */
+	public static function expire_for_order( int $order_id, array $purposes ): void {
+		global $wpdb;
+		$placeholders = implode( ',', array_fill( 0, count( $purposes ), '%s' ) );
+		$wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$wpdb->prepare(
+				"UPDATE {$wpdb->prefix}reklamo_tokens SET expires_at = %s WHERE order_id = %d AND used_at IS NULL AND expires_at > %s AND purpose IN ({$placeholders})", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				array_merge( array( current_time( 'mysql', true ), $order_id, current_time( 'mysql', true ) ), $purposes )
+			)
+		);
 	}
 
 	public static function rewrite(): void {
@@ -171,6 +210,10 @@ final class Reklamo_Approval {
 			self::bump_rate_limit();
 			return null;
 		}
+		if ( (int) $row->attempts > 0 ) {
+			// A mangled link (mail client line-wrap) must not brick the real one for good.
+			$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}reklamo_tokens SET attempts = 0 WHERE selector = %s", $selector ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		}
 		return $row;
 	}
 
@@ -184,6 +227,12 @@ final class Reklamo_Approval {
 		}
 		$vars['file'] = $file;
 
+		// The token alone is not enough: the order must still be waiting for this decision.
+		// Otherwise an old email could approve a cancelled order or drag one back from production.
+		// Checked before expiry so a cancelled order explains itself instead of "link expired".
+		if ( ! $row->used_at && ! $order->has_status( Reklamo_Statuses::MOCKUP_SENT ) ) {
+			self::render( 'closed', $vars );
+		}
 		if ( Reklamo_Token::is_expired( $row->expires_at, time() ) && ! $row->used_at ) {
 			self::render( 'expired', $vars );
 		}
@@ -290,13 +339,17 @@ final class Reklamo_Approval {
 	}
 
 	private static function handle_details( WC_Order $order, object $row, array $vars, bool $is_post ): void {
+		if ( $order->has_status( array( 'cancelled', 'refunded' ) ) ) {
+			self::render( 'closed', $vars );
+		}
 		if ( Reklamo_Token::is_expired( $row->expires_at, time() ) ) {
 			self::render( 'expired', $vars );
 		}
 		$vars['details'] = self::details( $order );
-		$vars['deposit'] = (float) $order->get_meta( '_reklamo_deposit_amount' );
-		$vars['bank']    = Reklamo_Settings::bank_details_html( sprintf( /* translators: %s: order number */ __( 'Order %s', 'reklamo-core' ), $order->get_order_number() ) );
 		$vars['locked']  = ! $order->has_status( Reklamo_Statuses::APPROVED ); // deposit already received → read-only
+		// Amount and bank details only while the deposit is actually outstanding — never invite a second transfer.
+		$vars['deposit'] = $vars['locked'] ? 0.0 : (float) $order->get_meta( '_reklamo_deposit_amount' );
+		$vars['bank']    = $vars['locked'] ? '' : Reklamo_Settings::bank_details_html( sprintf( /* translators: %s: order number */ __( 'Order %s', 'reklamo-core' ), $order->get_order_number() ) );
 
 		if ( ! $is_post ) {
 			self::render( 'details', $vars );

@@ -29,6 +29,36 @@ final class Reklamo_Admin_Order {
 		add_action( 'admin_post_reklamo_send_mockup', array( __CLASS__, 'handle_send_mockup' ) );
 		add_action( 'admin_post_reklamo_order_action', array( __CLASS__, 'handle_action' ) );
 		add_action( 'admin_notices', array( __CLASS__, 'notices' ) );
+		add_action( 'woocommerce_process_shop_order_meta', array( __CLASS__, 'save_details' ), 20, 2 );
+	}
+
+	/**
+	 * The invoice fields the customer typed are custom meta WooCommerce's billing editor
+	 * cannot reach; a typo in an ЕИК must be fixable from the order screen.
+	 *
+	 * @param int              $order_id      Order ID.
+	 * @param WC_Order|WP_Post $post_or_order Unused.
+	 */
+	public static function save_details( int $order_id, $post_or_order ): void { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+		if ( ! isset( $_POST['reklamo_d_customer_type'] ) || ! current_user_can( 'edit_shop_orders' ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- WooCommerce verified the order form nonce.
+			return;
+		}
+		$order = wc_get_order( $order_id );
+		if ( ! $order ) {
+			return;
+		}
+		$get    = static fn( string $k ): string => isset( $_POST[ 'reklamo_d_' . $k ] ) ? sanitize_text_field( wp_unslash( $_POST[ 'reklamo_d_' . $k ] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$type   = 'person' === $get( 'customer_type' ) ? 'person' : 'company';
+		$before = Reklamo_Approval::details( $order );
+		$order->update_meta_data( '_reklamo_customer_type', $type );
+		$order->update_meta_data( '_reklamo_eik', 'company' === $type ? $get( 'eik' ) : '' );
+		$order->update_meta_data( '_reklamo_vat', 'company' === $type ? strtoupper( str_replace( ' ', '', $get( 'vat' ) ) ) : '' );
+		$order->update_meta_data( '_reklamo_mol', 'company' === $type ? $get( 'mol' ) : '' );
+		$order->update_meta_data( '_reklamo_delivery_note', $get( 'note' ) );
+		$order->save();
+		if ( Reklamo_Approval::details( $order ) !== $before ) {
+			$order->add_order_note( __( 'Invoice details edited by the shop.', 'reklamo-core' ) );
+		}
 	}
 
 	private static function is_order_screen(): bool {
@@ -53,6 +83,7 @@ final class Reklamo_Admin_Order {
 				/* translators: %s: deposit amount */
 				'deposit_paid'   => array( sprintf( __( 'Deposit received (%s)', 'reklamo-core' ), $deposit ), Reklamo_Statuses::DEPOSIT_PAID ),
 				'resend_deposit' => array( __( 'Re-send deposit request', 'reklamo-core' ), '' ),
+				'recalc_deposit' => array( __( 'Recalculate deposit from the total', 'reklamo-core' ), '' ),
 			),
 			Reklamo_Statuses::MOCKUP_SENT  => array(
 				'resend_mockup' => array( __( 'Re-send mockup email', 'reklamo-core' ), '' ),
@@ -154,6 +185,12 @@ final class Reklamo_Admin_Order {
 
 			<?php if ( $order->get_meta( '_reklamo_approved_at' ) ) : ?>
 				<h4><?php esc_html_e( 'Approval & payments', 'reklamo-core' ); ?></h4>
+				<?php
+				$expected = Reklamo_Money::deposit( (float) $order->get_total(), (int) Reklamo_Settings::get( 'deposit_pct', '50' ) );
+				if ( ! $order->get_meta( '_reklamo_deposit_paid_at' ) && abs( $expected - $deposit ) >= 0.01 ) :
+					?>
+					<p class="notice notice-warning inline" style="margin:0 0 .6em;padding:.4em .8em"><?php echo esc_html( sprintf( /* translators: 1: stored deposit, 2: expected deposit */ __( 'The deposit (%1$s) no longer matches the order total (expected %2$s). Use "Recalculate deposit" if the total was changed on purpose.', 'reklamo-core' ), wp_strip_all_tags( wc_price( $deposit, array( 'currency' => $order->get_currency() ) ) ), wp_strip_all_tags( wc_price( $expected, array( 'currency' => $order->get_currency() ) ) ) ) ); ?></p>
+				<?php endif; ?>
 				<ul>
 					<li><?php echo esc_html( sprintf( /* translators: 1: date, 2: mockup revision */ __( 'Approved %1$s (mockup #%2$d)', 'reklamo-core' ), $fmt_date( $order->get_meta( '_reklamo_approved_at' ) ), (int) $order->get_meta( '_reklamo_approved_revision' ) ) ); ?></li>
 					<li><?php echo esc_html( sprintf( /* translators: 1: deposit amount, 2: percentage */ __( 'Deposit: %1$s (%2$s%%)', 'reklamo-core' ), wp_strip_all_tags( wc_price( $deposit, array( 'currency' => $order->get_currency() ) ) ), Reklamo_Settings::get( 'deposit_pct', '50' ) ) ); ?>
@@ -173,34 +210,30 @@ final class Reklamo_Admin_Order {
 
 			<h4><?php esc_html_e( 'Invoice & delivery details', 'reklamo-core' ); ?></h4>
 			<?php if ( $details['submitted_at'] ) : ?>
-				<table class="widefat striped" style="max-width:600px">
-					<?php
-					$rows = array(
-						__( 'Type', 'reklamo-core' )      => 'company' === $details['customer_type'] ? __( 'Company', 'reklamo-core' ) : __( 'Private person', 'reklamo-core' ),
-						__( 'Company', 'reklamo-core' )   => $details['company'],
-						__( 'Company ID (ЕИК)', 'reklamo-core' ) => $details['eik'],
-						__( 'VAT no.', 'reklamo-core' )   => $details['vat'],
-						__( 'Responsible person (МОЛ)', 'reklamo-core' ) => $details['mol'],
-						__( 'Phone', 'reklamo-core' )     => $details['phone'],
-						__( 'Delivery address', 'reklamo-core' ) => trim( $details['address_1'] . ', ' . $details['postcode'] . ' ' . $details['city'], ', ' ),
-						__( 'Delivery note', 'reklamo-core' ) => $details['note'],
-						__( 'Submitted', 'reklamo-core' ) => $fmt_date( $details['submitted_at'] ),
-					);
-					foreach ( $rows as $label => $value ) :
-						if ( '' === trim( (string) $value ) ) {
-							continue;
-						}
-						?>
-						<tr><th style="width:40%"><?php echo esc_html( $label ); ?></th><td><?php echo esc_html( $value ); ?></td></tr>
-					<?php endforeach; ?>
+				<?php // Inside the order form, so "Update" saves them (see save_details()). Address and phone are WooCommerce billing fields, edited in their own box. ?>
+				<table class="widefat striped reklamo-details" style="max-width:600px">
+					<tr><th style="width:40%"><?php esc_html_e( 'Type', 'reklamo-core' ); ?></th><td>
+						<select name="reklamo_d_customer_type">
+							<option value="company" <?php selected( 'company', $details['customer_type'] ); ?>><?php esc_html_e( 'Company', 'reklamo-core' ); ?></option>
+							<option value="person" <?php selected( 'person', $details['customer_type'] ); ?>><?php esc_html_e( 'Private person', 'reklamo-core' ); ?></option>
+						</select></td></tr>
+					<tr><th><?php esc_html_e( 'Company ID (ЕИК)', 'reklamo-core' ); ?></th><td><input type="text" name="reklamo_d_eik" value="<?php echo esc_attr( $details['eik'] ); ?>" class="regular-text"></td></tr>
+					<tr><th><?php esc_html_e( 'VAT no.', 'reklamo-core' ); ?></th><td><input type="text" name="reklamo_d_vat" value="<?php echo esc_attr( $details['vat'] ); ?>" class="regular-text"></td></tr>
+					<tr><th><?php esc_html_e( 'Responsible person (МОЛ)', 'reklamo-core' ); ?></th><td><input type="text" name="reklamo_d_mol" value="<?php echo esc_attr( $details['mol'] ); ?>" class="regular-text"></td></tr>
+					<tr><th><?php esc_html_e( 'Delivery note', 'reklamo-core' ); ?></th><td><input type="text" name="reklamo_d_note" value="<?php echo esc_attr( $details['note'] ); ?>" class="regular-text"></td></tr>
+					<tr><th><?php esc_html_e( 'Company', 'reklamo-core' ); ?></th><td><?php echo esc_html( $details['company'] ); ?></td></tr>
+					<tr><th><?php esc_html_e( 'Phone', 'reklamo-core' ); ?></th><td><?php echo esc_html( $details['phone'] ); ?></td></tr>
+					<tr><th><?php esc_html_e( 'Delivery address', 'reklamo-core' ); ?></th><td><?php echo esc_html( trim( $details['address_1'] . ', ' . $details['postcode'] . ' ' . $details['city'], ', ' ) ); ?></td></tr>
+					<tr><th><?php esc_html_e( 'Submitted', 'reklamo-core' ); ?></th><td><?php echo esc_html( $fmt_date( $details['submitted_at'] ) ); ?></td></tr>
 				</table>
+				<p class="description"><?php esc_html_e( 'ЕИК, VAT, МОЛ and the note are saved with the order\'s "Update" button. Company name, phone and address are edited in the Billing / Shipping boxes.', 'reklamo-core' ); ?></p>
 			<?php else : ?>
 				<p class="description"><?php esc_html_e( 'Not submitted yet — the customer gets the form after approving the mockup.', 'reklamo-core' ); ?></p>
 			<?php endif; ?>
 
 			<?php if ( $can_send ) : ?>
 				<h4><?php echo esc_html( sprintf( /* translators: %d: next mockup revision number */ __( 'Send mockup #%d', 'reklamo-core' ), $next_rev ) ); ?></h4>
-				<p class="description"><?php esc_html_e( 'PDF, PNG or JPG, up to 20 MB. The customer receives an email with a one-time approval link (valid 14 days).', 'reklamo-core' ); ?></p>
+				<p class="description"><?php echo esc_html( sprintf( /* translators: 1: size limit, 2: days */ __( 'PDF, PNG or JPG, up to %1$s. The customer receives an email with a one-time approval link (valid %2$d days).', 'reklamo-core' ), size_format( Reklamo_Storage::MOCKUP_MAX_BYTES ), Reklamo_Approval::TTL_DAYS ) ); ?></p>
 				<p><input type="file" name="reklamo_mockup" form="<?php echo esc_attr( self::FORM_MOCKUP ); ?>" accept=".pdf,.png,.jpg,.jpeg" required></p>
 				<p><button type="submit" class="button" form="<?php echo esc_attr( self::FORM_MOCKUP ); ?>"><?php esc_html_e( 'Send to customer', 'reklamo-core' ); ?></button></p>
 			<?php endif; ?>
@@ -269,6 +302,7 @@ final class Reklamo_Admin_Order {
 			: sprintf( __( 'Mockup #%d stored; the approval email could not be sent (see the note above).', 'reklamo-core' ), $revision );
 		if ( $order->has_status( Reklamo_Statuses::MOCKUP_SENT ) ) {
 			$order->add_order_note( $note );
+			Reklamo_Reminders::schedule_for( $order ); // no status change → reschedule by hand for the new revision
 		} else {
 			$order->update_status( Reklamo_Statuses::MOCKUP_SENT, $note );
 		}
@@ -309,8 +343,17 @@ final class Reklamo_Admin_Order {
 				if ( ! Reklamo_Emails::send_mockup( $order, $url, (int) $last->revision ) ) {
 					self::redirect( $back, 'error', self::mail_failure_message( (int) $last->revision ) );
 				}
+				Reklamo_Reminders::schedule_for( $order );
 				$order->add_order_note( __( 'Mockup email re-sent by the shop with a fresh approval link.', 'reklamo-core' ) );
 				self::redirect( $back, 'success', __( 'Mockup email re-sent.', 'reklamo-core' ) );
+				break;
+			case 'recalc_deposit':
+				$new = Reklamo_Money::deposit( (float) $order->get_total(), (int) Reklamo_Settings::get( 'deposit_pct', '50' ) );
+				$order->update_meta_data( '_reklamo_deposit_amount', wc_format_decimal( $new, 2 ) );
+				$order->save();
+				/* translators: %s: amount */
+				$order->add_order_note( sprintf( __( 'Deposit recalculated from the current total: %s.', 'reklamo-core' ), wp_strip_all_tags( wc_price( $new, array( 'currency' => $order->get_currency() ) ) ) ) );
+				self::redirect( $back, 'success', __( 'Deposit recalculated. Re-send the deposit request if the customer already has the old amount.', 'reklamo-core' ) );
 				break;
 			case 'resend_deposit':
 				$url = Reklamo_Approval::issue( $order, 0, (int) $order->get_meta( '_reklamo_approved_revision' ), 'details' );

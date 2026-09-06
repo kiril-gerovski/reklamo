@@ -21,6 +21,7 @@ class Reklamo_Email_Request_Received extends WC_Email {
 			'{order_number}'        => '',
 			'{order_date}'          => '',
 			'{customer_first_name}' => '',
+			'{deposit_pct}'         => '',
 		);
 
 		add_action( 'woocommerce_order_status_' . Reklamo_Statuses::RECEIVED . '_notification', array( $this, 'trigger' ), 10, 2 );
@@ -41,7 +42,7 @@ class Reklamo_Email_Request_Received extends WC_Email {
 	}
 
 	public function get_default_additional_content() {
-		return __( 'No payment is taken at this stage. After you approve the mockup we will send our bank details and a request for a 50% deposit.', 'reklamo-core' );
+		return __( 'No payment is taken at this stage. After you approve the mockup we will send our bank details and a request for a {deposit_pct}% deposit.', 'reklamo-core' );
 	}
 
 	/** Core gives us enabled/subject/heading/additional_content; add the body text. */
@@ -73,6 +74,7 @@ class Reklamo_Email_Request_Received extends WC_Email {
 			$this->placeholders['{order_number}']        = $order->get_order_number();
 			$this->placeholders['{order_date}']          = wc_format_datetime( $order->get_date_created() );
 			$this->placeholders['{customer_first_name}'] = $order->get_billing_first_name();
+			$this->placeholders['{deposit_pct}']         = Reklamo_Settings::get( 'deposit_pct', '50' );
 		}
 
 		// The order returns to rq-received after every "request changes"; this email is for the

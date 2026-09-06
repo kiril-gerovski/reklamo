@@ -52,18 +52,27 @@ final class Reklamo_Svg {
 	/** Attributes that may carry a URL; only fragment refs and data:image PNG/JPEG survive. */
 	const URL_ATTRIBUTES = array( 'href', 'xlink:href' );
 
+	/** Why the last sanitize() call returned false: size | entities | invalid | ''. */
+	public static string $reason = '';
+
 	/**
 	 * @param string $svg Raw file contents.
 	 * @return string|false Sanitised XML, or false when the file must be refused.
 	 */
 	public static function sanitize( string $svg ) {
+		self::$reason = '';
 		if ( strlen( $svg ) > self::MAX_BYTES ) {
+			self::$reason = 'size';
 			return false;
 		}
-		// XXE / billion laughs: refuse before the parser ever sees an entity declaration.
-		if ( preg_match( '/<!(DOCTYPE|ENTITY)/i', $svg ) ) {
+		// XXE / billion laughs: refuse any internal subset or entity declaration before the
+		// parser sees it. A bare external DOCTYPE (Illustrator writes one by default) is harmless
+		// with LIBXML_NONET and is simply dropped.
+		if ( preg_match( '/<!ENTITY/i', $svg ) || preg_match( '/<!DOCTYPE[^>]*\[/i', $svg ) ) {
+			self::$reason = 'entities';
 			return false;
 		}
+		$svg = (string) preg_replace( '/<!DOCTYPE[^>\[]*>/i', '', $svg );
 
 		$prev = libxml_use_internal_errors( true );
 		$dom  = new DOMDocument();
@@ -71,12 +80,14 @@ final class Reklamo_Svg {
 		libxml_clear_errors();
 		libxml_use_internal_errors( $prev );
 		if ( ! $ok || ! $dom->documentElement || 'svg' !== strtolower( $dom->documentElement->localName ) ) {
+			self::$reason = 'invalid';
 			return false;
 		}
 
 		$xpath = new DOMXPath( $dom );
 		$nodes = $xpath->query( '//*' );
 		if ( ! $nodes || $nodes->length > self::MAX_NODES ) {
+			self::$reason = 'invalid';
 			return false;
 		}
 
@@ -97,23 +108,27 @@ final class Reklamo_Svg {
 			}
 			// Attributes: drop event handlers, scripts in style, and any non-local URL.
 			foreach ( iterator_to_array( $el->attributes ) as $attr ) {
-				$aname  = strtolower( $attr->name );
+				$aname  = strtolower( $attr->localName ); // 'href' for xlink:href, xl:href, href alike
 				$avalue = trim( $attr->value );
+				$css    = self::css_decode( $avalue );
 				$remove = false;
 				if ( str_starts_with( $aname, 'on' ) ) {
 					$remove = true;
-				} elseif ( in_array( $aname, self::URL_ATTRIBUTES, true ) || 'xlink:href' === strtolower( $attr->nodeName ) ) {
+				} elseif ( 'href' === $aname ) {
 					$remove = ! self::safe_url( $avalue );
-				} elseif ( 'style' === $aname && preg_match( '/(url\s*\(|expression\s*\(|@import|javascript:)/i', $avalue ) ) {
-					$remove = true;
-				} elseif ( preg_match( '/javascript:|data:(?!image\/(png|jpe?g);)/i', $avalue ) && 'd' !== $aname ) {
+				} elseif ( 'style' === $aname ) {
+					$remove = ! self::safe_css( $css );
+				} elseif ( preg_match( '/url\s*\(/i', $css ) ) {
+					// fill, stroke, clip-path, mask, filter, marker-*: url(...) must stay local.
+					$remove = ! self::safe_css( $css );
+				} elseif ( preg_match( '/javascript:|data:(?!image\/(png|jpe?g);)/i', $css ) && 'd' !== $aname ) {
 					$remove = true;
 				}
 				if ( $remove ) {
 					$el->removeAttribute( $attr->nodeName );
 				}
 			}
-			if ( 'style' === $name && preg_match( '/(url\s*\(|expression\s*\(|@import|javascript:)/i', (string) $el->textContent ) ) {
+			if ( 'style' === $name && ! self::safe_css( self::css_decode( (string) $el->textContent ) ) ) {
 				$el->parentNode->removeChild( $el );
 			}
 		}
@@ -125,5 +140,36 @@ final class Reklamo_Svg {
 	/** Fragment references (#id) and embedded raster data only. */
 	private static function safe_url( string $url ): bool {
 		return '' === $url || str_starts_with( $url, '#' ) || 1 === preg_match( '#^data:image/(png|jpe?g);base64,[A-Za-z0-9+/=\s]+$#', $url );
+	}
+
+	/**
+	 * CSS (an attribute or a whole <style> sheet) may only reference local fragments:
+	 * every url(...) must be url(#id); no imports, expressions or script schemes.
+	 */
+	private static function safe_css( string $css ): bool {
+		if ( preg_match( '/(expression\s*\(|@import|javascript:|data:(?!image\/(png|jpe?g);))/i', $css ) ) {
+			return false;
+		}
+		if ( preg_match_all( '/url\s*\(\s*([\'"]?)([^)\'"]*)\1\s*\)/i', $css, $m ) ) {
+			foreach ( $m[2] as $target ) {
+				if ( ! str_starts_with( trim( $target ), '#' ) ) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	/** Undo CSS escapes (\75 rl, u\72 l) and comment splitting so the checks above cannot be dodged. */
+	private static function css_decode( string $css ): string {
+		$css = (string) preg_replace( '#/\*.*?\*/#s', '', $css );
+		return (string) preg_replace_callback(
+			'/\\\\([0-9a-fA-F]{1,6})\s?/',
+			static function ( array $m ): string {
+				$ch = mb_chr( (int) hexdec( $m[1] ), 'UTF-8' );
+				return false === $ch ? '' : $ch;
+			},
+			$css
+		);
 	}
 }

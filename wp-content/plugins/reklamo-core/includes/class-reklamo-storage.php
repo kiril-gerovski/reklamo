@@ -149,6 +149,10 @@ final class Reklamo_Storage {
 		if ( 'svg' === $ext ) {
 			$clean = Reklamo_Svg::sanitize( (string) file_get_contents( $src ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 			if ( false === $clean ) {
+				if ( 'size' === Reklamo_Svg::$reason ) {
+					/* translators: %s: size limit */
+					return new WP_Error( 'reklamo_bad_content', sprintf( __( 'SVG files larger than %s cannot be checked. Please send the logo as PDF or PNG instead.', 'reklamo-core' ), size_format( Reklamo_Svg::MAX_BYTES ) ) );
+				}
 				return new WP_Error( 'reklamo_bad_content', __( 'This SVG could not be accepted (scripts or external references). Please export a plain SVG or send a PDF.', 'reklamo-core' ) );
 			}
 			file_put_contents( $src, $clean ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents

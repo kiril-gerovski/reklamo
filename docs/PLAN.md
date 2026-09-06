@@ -228,6 +228,18 @@ If a change exists only in your local database, it does not exist. That script i
 
 ---
 
+## Hardening round — DONE (2026-09-06)
+
+Three audits (public surfaces, business flow, theme/ops) after the build was complete. Fixed in this round:
+
+**Bugs.** Tracking URL moved to `/moyata-porachka/` (`/porachka/` is the seeded checkout page slug and was being shadowed). Request-form flash key could not collide with the per-IP rate counter any more. Approval and details links check the order's status before acting (a cancelled or advanced order renders "closed"); cancelling expires all action links; a mockup re-sent after approval clears the approval/deposit meta and kills the details link. Resend throttle is set before the send. Token attempt counter resets on a correct secret; expiry copy is purpose-aware. Drag-and-drop now triggers the chunked uploader. Uploader falls back to the plain post on anything but a verdict on the file (403/429/5xx keep the file); a finished upload survives a validation error. Order creation is wrapped in try/catch. SVG: external DOCTYPE dropped (Illustrator default), internal subsets refused, CSS escapes decoded, `url()` in presentation attributes must be local, size limit has its own message. Honeypot label translatable and hidden without theme CSS. Reminders rescheduled on every mockup (re)send; reminder notes only when actually sent. Tracking page lists every logo; `refunded` has its own copy. Hardcoded 50% / 14 days / 20 MB replaced by settings and constants.
+
+**Email domain check.** `Reklamo_Email_Check`: MX, then A/AAAA fallback, cached a day per domain; a dead domain is refused with the domain named. No confirm field, no verification email (owner's choice: basic validation only).
+
+**Flow gaps.** New emails: customer *Order cancelled* (from any status), customer *Deposit received*, admin *Mockup approved — deposit expected*, admin *Order waiting* (sent `reklamo_stale_days` after the last reminder with no reaction; setting under Process). Final-payment reminders. "Recalculate deposit" action plus a warning when the stored deposit no longer matches the total. ЕИК/ДДС/МОЛ/note editable by the owner on the order screen. GDPR exporter and eraser (`Reklamo_Privacy`) for files, tokens and the tracking URL; erasure only for closed orders. Seed carries every declared setting.
+
+**Backlog recorded below under "Open items (audit 2026-09-06)".**
+
 ## Customer order page (tracking link) — DONE (2026-09-06)
 
 Decided with the owner: **no customer accounts**. Every email carries a permanent, passwordless link to the customer's own order page at `/porachka/?s=…&k=…` (`Reklamo_Tracking`, purpose `track` in the tokens table, URL kept in order meta so later emails can repeat it — a DB dump already exposes everything the page shows). The page is **view-only**: progress line (the six homepage steps, `Reklamo_Progress`), what happens next per status, every mockup revision with outcome and the customer's comments, payments (deposit/balance, bank details while due), invoice/delivery details, the logo. Approving and submitting details still need their own single-use tokens, so a forwarded email can read but never act. The one POST is "send me the email again" (re-issues the pending approval/details link, mails only the address on the order, 10-minute throttle). The request form now lands on this page instead of WooCommerce's order-received. After completion the page becomes a read-only record; the retention sweep that deletes the order's files also expires the link, after which the page says so and asks to quote the order number. If repeat customers ever appear, WooCommerce's optional accounts can render the same page inside My Account.
@@ -414,3 +426,13 @@ Dev-only exception: **Query Monitor** locally for debugging — gitignored, neve
 - **Phase 1:** a human completes the full order→approval path in a browser; the order ends in `rq-approved` with the logo downloadable from wp-admin.
 - **Phase 2:** a 250 MB layered PSD uploads successfully *on the real host*, and the canary check confirms the private directory is not publicly reachable.
 - **Every phase:** `scripts/reset.sh` still works, PHPCS clean, E2E green.
+
+## Open items (audit 2026-09-06)
+
+**Legal & content:** withdrawal-right waiver checkbox for personalised goods; real Terms/Privacy text (retention months, IP storage, deposit terms); trader identification in footer (needs `reklamo_eik`/`reklamo_vat`; `reklamo_company_name`/`reklamo_hours` are unused); `woocommerce_feature_order_attribution_enabled no` (guest cookies without a banner).
+
+**Theme / SEO / performance:** meta description + Open Graph + favicon; `404.php`, `search.php`; dequeue WooCommerce styles/scripts outside shop pages and `woocommerce_enable_ajax_add_to_cart no`; drop the gallery lightbox; preload the two Cyrillic woff2, hero `width/height/fetchpriority`; contrast (`--gold-dark → #8a6318`, `--muted → #6b6b6b`); header CTA hidden below 900px; nav Escape/outside-click close, `.rq-drop:focus-within`; textarea label in the full form; footer `h4 → h2`; `BreadcrumbList`; `woocommerce_before/after_main_content` in `archive-product.php`.
+
+**Ops / CI:** DEPLOYMENT.md: HTTPS redirect + HSTS, `WP_DEBUG_LOG` path, `WP_AUTO_UPDATE_CORE minor`, backup cadence + restore drill, `chmod 600 wp-config.php`, wp-login protection / `DISALLOW_FILE_MODS`, `.env` `WC_VERSION` drift, never *delete* the plugin, xmlrpc off; fix §11 (no-SSH path still needs one `seed.sh` run). GitHub Actions: lint + PHPUnit + E2E; mobile Playwright project; axe; rate-limit spec with limits on.
+
+**Other:** proxy-aware `client_ip()` behind Cloudflare; `route_complete` lock + rate limit; `.cdr` accepts any ZIP; cart/Store-API add-to-cart nonce; fate of the unused cart/checkout stack; quantity / multi-package request form.

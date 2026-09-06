@@ -18,7 +18,7 @@ final class Reklamo_Emails {
 	/** WC_Email exists only once the mailer loads, hence the lazy requires. */
 	public static function register( array $emails ): array {
 		require_once REKLAMO_PATH . 'includes/emails/class-reklamo-email.php';
-		foreach ( array( 'request-received', 'mockup-sent', 'deposit-request', 'production-started', 'final-payment', 'admin-changes', 'admin-details' ) as $slug ) {
+		foreach ( array( 'request-received', 'mockup-sent', 'deposit-request', 'deposit-received', 'production-started', 'final-payment', 'cancelled', 'admin-changes', 'admin-details', 'admin-approved', 'admin-stale' ) as $slug ) {
 			require_once REKLAMO_PATH . 'includes/emails/class-reklamo-email-' . $slug . '.php';
 		}
 		$emails['Reklamo_Email_Request_Received']   = new Reklamo_Email_Request_Received();
@@ -28,6 +28,10 @@ final class Reklamo_Emails {
 		$emails['Reklamo_Email_Final_Payment']      = new Reklamo_Email_Final_Payment();
 		$emails['Reklamo_Email_Admin_Changes']      = new Reklamo_Email_Admin_Changes();
 		$emails['Reklamo_Email_Admin_Details']      = new Reklamo_Email_Admin_Details();
+		$emails['Reklamo_Email_Deposit_Received']   = new Reklamo_Email_Deposit_Received();
+		$emails['Reklamo_Email_Cancelled']          = new Reklamo_Email_Cancelled();
+		$emails['Reklamo_Email_Admin_Approved']     = new Reklamo_Email_Admin_Approved();
+		$emails['Reklamo_Email_Admin_Stale']        = new Reklamo_Email_Admin_Stale();
 		return $emails;
 	}
 
@@ -41,6 +45,7 @@ final class Reklamo_Emails {
 		foreach ( Reklamo_Statuses::slugs() as $slug ) {
 			$ours[] = 'woocommerce_order_status_' . $slug;
 		}
+		$ours[] = 'woocommerce_order_status_cancelled'; // core only fires cancelled emails from pending/on-hold/processing
 		return array_values( array_unique( array_merge( $actions, $ours ) ) );
 	}
 
@@ -70,5 +75,16 @@ final class Reklamo_Emails {
 		if ( $e ) {
 			$e->trigger( $order->get_id(), $order );
 		}
+	}
+
+	/** Reminder re-send of the final-payment email. */
+	public static function send_final_payment( WC_Order $order, bool $reminder = false ): bool {
+		$e = self::email( 'Reklamo_Email_Final_Payment' );
+		return $e && $e->trigger( $order->get_id(), $order, $reminder );
+	}
+
+	public static function send_admin_stale( WC_Order $order ): bool {
+		$e = self::email( 'Reklamo_Email_Admin_Stale' );
+		return $e && $e->trigger( $order->get_id(), $order );
 	}
 }

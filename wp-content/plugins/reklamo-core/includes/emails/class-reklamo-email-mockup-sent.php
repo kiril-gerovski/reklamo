@@ -34,6 +34,7 @@ class Reklamo_Email_Mockup_Sent extends WC_Email {
 			'{customer_first_name}' => '',
 			'{revision}'            => '',
 			'{approval_url}'        => '',
+			'{deposit_pct}'         => '',
 		);
 
 		parent::__construct();
@@ -61,7 +62,7 @@ class Reklamo_Email_Mockup_Sent extends WC_Email {
 	}
 
 	public function get_default_additional_content() {
-		return __( 'No payment is taken at this stage. After approval we will send our bank details and a request for a 50% deposit.', 'reklamo-core' );
+		return __( 'No payment is taken at this stage. After approval we will send our bank details and a request for a {deposit_pct}% deposit.', 'reklamo-core' );
 	}
 
 	public function init_form_fields() {
@@ -105,6 +106,7 @@ class Reklamo_Email_Mockup_Sent extends WC_Email {
 			$this->placeholders['{customer_first_name}'] = $order->get_billing_first_name();
 			$this->placeholders['{revision}']            = (string) $revision;
 			$this->placeholders['{approval_url}']        = $approval_url;
+			$this->placeholders['{deposit_pct}']         = Reklamo_Settings::get( 'deposit_pct', '50' );
 		}
 
 		$sent = $order instanceof WC_Order && $this->approval_url && Reklamo_Mail::deliver( $this, $order );

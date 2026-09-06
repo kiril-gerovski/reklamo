@@ -27,7 +27,7 @@ final class ProgressTest extends TestCase {
 		$this->assertSame( 2, Reklamo_Progress::step_for_status( 'wc-rq-mockup-sent' ) );
 		$this->assertSame( Reklamo_Progress::DONE, Reklamo_Progress::step_for_status( 'completed' ) );
 		$this->assertSame( Reklamo_Progress::CANCELLED, Reklamo_Progress::step_for_status( 'cancelled' ) );
-		$this->assertSame( Reklamo_Progress::CANCELLED, Reklamo_Progress::step_for_status( 'wc-refunded' ) );
+		$this->assertSame( Reklamo_Progress::REFUNDED, Reklamo_Progress::step_for_status( 'wc-refunded' ) );
 		$this->assertSame( 1, Reklamo_Progress::step_for_status( 'pending' ) );
 	}
 
