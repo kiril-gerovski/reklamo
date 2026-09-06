@@ -37,7 +37,7 @@ final class Reklamo_Cart {
 			return;
 		}
 		$path = REKLAMO_PATH . 'assets/css/reklamo.css';
-		wp_enqueue_style( 'reklamo', REKLAMO_URL . 'assets/css/reklamo.css', array(), file_exists( $path ) ? (string) filemtime( $path ) : REKLAMO_VERSION );
+		wp_enqueue_style( 'reklamo-core', REKLAMO_URL . 'assets/css/reklamo.css', array(), file_exists( $path ) ? (string) filemtime( $path ) : REKLAMO_VERSION );
 		Reklamo_Request::enqueue_uploader();
 	}
 
