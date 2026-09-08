@@ -11,8 +11,14 @@
 .rq-progress { margin-top: .6rem; }
 .rq-progress[hidden] { display: none; }
 .rq-progress__bar { height: 6px; background: var(--wp--preset--color--line, #e8e2d6); border-radius: 3px; overflow: hidden; }
-.rq-progress__bar span { display: block; height: 100%; width: 0; background: var(--wp--preset--color--gold, #b8892b); transition: width .2s; }
-.rq-progress.is-done .rq-progress__bar span { background: #2f7a3b; }
-.rq-progress.is-error .rq-progress__bar span { background: #a3222b; }
+.rq-progress__bar span { display: block; height: 100%; width: 0; background-color: var(--wp--preset--color--gold, #b8892b); transition: width .3s var(--ease, ease-out), background-color .25s; }
+/* A faint sheen moves along the fill only while bytes are in flight; it stops on done / error. */
+.rq-progress:not(.is-done):not(.is-error) .rq-progress__bar span { background-image: linear-gradient(90deg, transparent 0 40%, rgba(255, 255, 255, .28) 50%, transparent 60% 100%); background-size: 200% 100%; animation: rq-sheen 1.4s linear infinite; }
+@keyframes rq-sheen { to { background-position: -200% 0; } }
+.rq-progress.is-done .rq-progress__bar span { background-color: #2f7a3b; }
+.rq-progress.is-error .rq-progress__bar span { background-color: #a3222b; }
 .rq-progress__text { display: block; margin-top: .35rem; font-size: .75rem; color: var(--wp--preset--color--graphite, #555); }
 .rq-progress.is-error .rq-progress__text { color: #a3222b; }
+@media (prefers-reduced-motion: reduce) {
+	.rq-progress__bar span { transition-duration: .01ms; animation: none; }
+}
