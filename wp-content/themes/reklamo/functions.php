@@ -135,6 +135,34 @@ add_shortcode(
 	}
 );
 
+/**
+ * The six-step graphic, for the homepage pattern and the "How it works" page alike. Each
+ * step links to its section on the "How it works" page (seeded slug below); on that page
+ * itself the links are in-page anchors, elsewhere they carry the page URL. With
+ * section="1" the shortcode also wraps the steps in a full-width section with the heading.
+ */
+const REKLAMO_HOW_IT_WORKS_SLUG = 'kak-raboti';
+add_shortcode(
+	'reklamo_steps',
+	static function ( $atts ): string {
+		$atts   = shortcode_atts( array( 'section' => '' ), $atts, 'reklamo_steps' );
+		$target = get_page_by_path( REKLAMO_HOW_IT_WORKS_SLUG );
+		$here   = $target && get_the_ID() === $target->ID;
+		ob_start();
+		get_template_part(
+			'template-parts/steps',
+			null,
+			array(
+				'base'    => $here || ! $target ? '' : get_permalink( $target ),
+				'link'    => (bool) $target,
+				'section' => '' !== $atts['section'],
+				'heading' => $here ? 'h1' : 'h2', // on its own page the section is the page heading
+			)
+		);
+		return (string) ob_get_clean();
+	}
+);
+
 /** Body classes for page-specific layout. */
 add_filter(
 	'body_class',

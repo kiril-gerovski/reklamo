@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-04T21:14:08+00:00\n"
+"POT-Creation-Date: 2026-09-08T10:11:23+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: reklamo\n"
@@ -148,6 +148,62 @@ msgctxt "Pattern description"
 msgid "Security · Quality · Personal service · Fast turnaround."
 msgstr ""
 
+#: template-parts/steps.php:28
+msgid "Choose a package"
+msgstr ""
+
+#: template-parts/steps.php:28
+msgid "You see the exact price and quantity."
+msgstr ""
+
+#: template-parts/steps.php:29
+msgid "Upload your logo"
+msgstr ""
+
+#: template-parts/steps.php:29
+msgid "AI, EPS, PDF, SVG or a high-quality PNG."
+msgstr ""
+
+#: template-parts/steps.php:30
+msgid "Get a mockup"
+msgstr ""
+
+#: template-parts/steps.php:30
+msgid "Our designer prepares a mockup of the products."
+msgstr ""
+
+#: template-parts/steps.php:31
+msgid "Approve the design"
+msgstr ""
+
+#: template-parts/steps.php:31
+msgid "You can request changes until you are fully happy."
+msgstr ""
+
+#: template-parts/steps.php:32
+msgid "Pay the deposit"
+msgstr ""
+
+#: template-parts/steps.php:32
+msgid "After approval you pay a 50% deposit and we start the order."
+msgstr ""
+
+#: template-parts/steps.php:33
+msgid "Pay the balance and receive"
+msgstr ""
+
+#: template-parts/steps.php:33
+msgid "You pay the rest before dispatch and receive your order."
+msgstr ""
+
+#: template-parts/steps.php:38
+msgid "How does the order work?"
+msgstr ""
+
+#: template-parts/steps.php:40
+msgid "How the order works"
+msgstr ""
+
 #: template-parts/trust-strip.php:11
 msgid "Security"
 msgstr ""
@@ -180,7 +236,7 @@ msgstr ""
 msgid "Production and delivery on agreed dates."
 msgstr ""
 
-#: template-parts/trust-strip.php:17
+#: template-parts/trust-strip.php:18
 msgid "Why us"
 msgstr ""
 
@@ -273,23 +329,23 @@ msgstr ""
 msgid "Promo packages"
 msgstr ""
 
-#: templates/page-request.php:59
+#: templates/page-request.php:65
 msgid "branding included"
 msgstr ""
 
-#: templates/page-request.php:84
+#: templates/page-request.php:90
 msgid "What happens next?"
 msgstr ""
 
-#: templates/page-request.php:97
+#: templates/page-request.php:103
 msgid "Need help?"
 msgstr ""
 
-#: templates/page-request.php:98
+#: templates/page-request.php:104
 msgid "Our consultant is available to help you."
 msgstr ""
 
-#: templates/page-request.php:101
+#: templates/page-request.php:107
 msgid "Contact us"
 msgstr ""
 

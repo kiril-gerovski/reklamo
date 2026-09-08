@@ -1,7 +1,8 @@
 <?php
 /**
- * Pages. The front page is built from full-width patterns and shows no title;
- * every other page gets a narrow reading column.
+ * Pages. The front page is built from full-width patterns and shows no title; a page that
+ * opens with the six-step section ([reklamo_steps]) is full width with that section as its
+ * heading; every other page gets a narrow reading column.
  *
  * @package Reklamo
  */
@@ -16,6 +17,13 @@ while ( have_posts() ) {
 		?>
 		<article id="post-<?php the_ID(); ?>" <?php post_class( 'front-page' ); ?>>
 			<?php the_content(); ?>
+		</article>
+		<?php
+	} elseif ( has_shortcode( get_the_content(), 'reklamo_steps' ) ) {
+		// "How it works": the six-step section is the page's own heading, and the text runs full width.
+		?>
+		<article id="post-<?php the_ID(); ?>" <?php post_class( 'page-wide container' ); ?>>
+			<div class="entry-content"><?php the_content(); ?></div>
 		</article>
 		<?php
 	} else {

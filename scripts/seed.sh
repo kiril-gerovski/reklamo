@@ -175,7 +175,72 @@ fill_if_empty() { # slug content
   local id; id=$(page_id "$1"); [ -n "$id" ] || return 0
   [ -z "$(wp post get "$id" --field=post_content)" ] && wp post update "$id" --post_content="$2" >/dev/null || true
 }
-fill_if_empty kak-raboti "<!-- wp:paragraph --><p>Избираш пакет, качваш логото си и получаваш визуализация до 24 работни часа. След одобрение плащаш 50% аванс по банков път, произвеждаме и доставяме.</p><!-- /wp:paragraph -->"
+# "How it works": the six homepage steps, each explained in detail (deposit % and file limits mirror the seeded settings above).
+fill_if_empty kak-raboti "$(cat <<'HTML'
+<!-- wp:shortcode -->
+[reklamo_steps section="1"]
+<!-- /wp:shortcode -->
+
+<!-- wp:paragraph {"className":"lead"} -->
+<p class="lead">Избираш пакет, качваш логото си и получаваш визуализация до 24 работни часа. След одобрение плащаш 50% аванс по банков път, произвеждаме и доставяме. Ето какво се случва на всяка стъпка.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"anchor":"stapka-1"} -->
+<h2 class="wp-block-heading" id="stapka-1">1. Избираш пакет</h2>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Всеки промо пакет е с фиксирано съдържание, количество и цена с ДДС — това, което виждаш на страницата, е крайната сума. Няма скрити разходи за подготовка на файлове или за брандиране; те са включени в цената. Ако пакетите не отговарят на нуждите ти, пиши ни и ще предложим вариант.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"anchor":"stapka-2"} -->
+<h2 class="wp-block-heading" id="stapka-2">2. Качваш логото</h2>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Във формата „Качи лого“ прикачваш файла с логото, оставяш име и имейл и по желание — указания към дизайнера (цвят, разположение, размер). Приемаме AI, EPS, PDF, PSD, CDR, SVG, PNG и JPG до 300 MB. Най-добър резултат дават векторните формати (AI, EPS, PDF, SVG); при PNG или JPG е нужно логото да е с висока резолюция.</p>
+<!-- /wp:paragraph -->
+<!-- wp:paragraph -->
+<p>На този етап не се извършва плащане и не се създава акаунт. Веднага след изпращането получаваш имейл с връзка към <strong>страницата на твоята поръчка</strong> — там следиш напредъка, виждаш визуализациите и плащанията. Запази този имейл: връзката е твоят достъп до поръчката.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"anchor":"stapka-3"} -->
+<h2 class="wp-block-heading" id="stapka-3">3. Получаваш визуализация</h2>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Наш дизайнер подготвя визуализация (mockup) на продуктите от пакета с твоето лого — обикновено до 24 работни часа. Когато е готова, получаваш имейл, а визуализацията се появява и на страницата на поръчката.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"anchor":"stapka-4"} -->
+<h2 class="wp-block-heading" id="stapka-4">4. Одобряваш визията</h2>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Разглеждаш визуализацията и решаваш направо от страницата на поръчката: <strong>„Одобрявам“</strong> или <strong>„Искам промени“</strong> с описание какво да се коригира. Дизайнерът подготвя нова версия и получаваш нов имейл. Няма ограничение в броя корекции — работим до пълно одобрение. Всички версии остават видими на страницата на поръчката, заедно с твоите коментари.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"anchor":"stapka-5"} -->
+<h2 class="wp-block-heading" id="stapka-5">5. Плащаш аванс</h2>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>След одобрението виждаш дължимия аванс — 50% от стойността на поръчката — и банковите ни данни. Плащането е само по банков път, а номерът на поръчката е основанието за превода. На същата страница попълваш данните за фактура (фирма с ЕИК и МОЛ или частно лице) и адреса за доставка; можеш да ги коригираш, докато авансът бъде потвърден.</p>
+<!-- /wp:paragraph -->
+<!-- wp:paragraph -->
+<p>Потвърждаваме превода ръчно в работни дни и те уведомяваме по имейл. От този момент поръчката влиза в производство — ако след одобрението поискаш нова визуализация, авансът и данните се нулират и стъпката започва отначало.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"anchor":"stapka-6"} -->
+<h2 class="wp-block-heading" id="stapka-6">6. Доплащаш и получаваш</h2>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Когато продуктите са готови, получаваш имейл с остатъка за плащане (другите 50%) и банковите данни. Изпращаме поръчката веднага след постъпване на превода, на адреса от данните за доставка. Фактурата се издава по данните, които си попълнил. Страницата на поръчката остава достъпна и след това — като архив на визуализациите и плащанията.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Имаш въпрос по време на поръчката?</h2>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Пиши ни или се обади — данните са в <a href="/kontakti/">Контакти</a>. Посочи номера на поръчката и ще ти отговорим бързо. Подробности за сроковете има в <a href="/dostavka-i-srokove/">Доставка и срокове</a>, а за начина на плащане — в <a href="/plashtane/">Плащане</a>.</p>
+<!-- /wp:paragraph -->
+HTML
+)"
 fill_if_empty za-biznesa "<!-- wp:paragraph --><p>Брандирани продукти за екипи, събития и клиенти — с фиксирани количества и ясни цени.</p><!-- /wp:paragraph -->"
 fill_if_empty vdahnovenie "<!-- wp:paragraph --><p>Идеи и примери за брандиране.</p><!-- /wp:paragraph -->"
 fill_if_empty kontakti "<!-- wp:paragraph --><p>Пишете ни на office@reklamo.bg или се обадете на +359 88 123 4567.</p><!-- /wp:paragraph -->"
@@ -277,6 +342,8 @@ menu_add_page() { # menu slug
   wp menu item list "$1" --fields=object_id --format=csv | tail -n +2 | grep -x "$pid" >/dev/null || wp menu item add-post "$1" "$pid" >/dev/null
 }
 ensure_menu "Главно меню"
+# "Начало" first: a front-page link so visitors can get back home from the header.
+wp menu item list "Главно меню" --fields=object_id --format=csv | tail -n +2 | grep -x "$home_id" >/dev/null || wp menu item add-post "Главно меню" "$home_id" --position=1 >/dev/null
 [ -n "$shop_id" ] && { wp menu item list "Главно меню" --fields=object_id --format=csv | tail -n +2 | grep -x "$shop_id" >/dev/null || wp menu item add-post "Главно меню" "$shop_id" >/dev/null; }
 for s in kak-raboti za-biznesa vdahnovenie kontakti; do menu_add_page "Главно меню" "$s"; done
 wp menu location assign "Главно меню" primary >/dev/null 2>&1 || true

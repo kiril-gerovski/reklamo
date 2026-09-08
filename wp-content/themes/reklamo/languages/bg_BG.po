@@ -254,7 +254,7 @@ msgstr "Бързи срокове"
 msgid "Production and delivery on agreed dates."
 msgstr "Производство и доставка в договорени срокове."
 
-#: template-parts/trust-strip.php:17
+#: template-parts/trust-strip.php:18
 msgid "Why us"
 msgstr "Защо ние"
 
@@ -347,23 +347,23 @@ msgstr "Начало"
 msgid "Promo packages"
 msgstr "Промо пакети"
 
-#: templates/page-request.php:59
+#: templates/page-request.php:65
 msgid "branding included"
 msgstr "с включено брандиране"
 
-#: templates/page-request.php:84
+#: templates/page-request.php:90
 msgid "What happens next?"
 msgstr "Какво следва?"
 
-#: templates/page-request.php:97
+#: templates/page-request.php:103
 msgid "Need help?"
 msgstr "Нуждаете се от помощ?"
 
-#: templates/page-request.php:98
+#: templates/page-request.php:104
 msgid "Our consultant is available to help you."
 msgstr "Наш консултант е на разположение да ви помогне."
 
-#: templates/page-request.php:101
+#: templates/page-request.php:107
 msgid "Contact us"
 msgstr "Свържи се с нас"
 
@@ -400,3 +400,59 @@ msgstr "5"
 msgctxt "Space size name"
 msgid "6"
 msgstr "6"
+
+#: template-parts/steps.php:28
+msgid "Choose a package"
+msgstr "Избираш пакет"
+
+#: template-parts/steps.php:28
+msgid "You see the exact price and quantity."
+msgstr "Виждаш точна цена и количество."
+
+#: template-parts/steps.php:29
+msgid "Upload your logo"
+msgstr "Качваш логото"
+
+#: template-parts/steps.php:29
+msgid "AI, EPS, PDF, SVG or a high-quality PNG."
+msgstr "AI, EPS, PDF, SVG или качествен PNG."
+
+#: template-parts/steps.php:30
+msgid "Get a mockup"
+msgstr "Получаваш визуализация"
+
+#: template-parts/steps.php:30
+msgid "Our designer prepares a mockup of the products."
+msgstr "Наш дизайнер подготвя mockup на продуктите."
+
+#: template-parts/steps.php:31
+msgid "Approve the design"
+msgstr "Одобряваш визията"
+
+#: template-parts/steps.php:31
+msgid "You can request changes until you are fully happy."
+msgstr "Можеш да поискаш промени до пълно одобрение."
+
+#: template-parts/steps.php:32
+msgid "Pay the deposit"
+msgstr "Плащаш аванс"
+
+#: template-parts/steps.php:32
+msgid "After approval you pay a 50% deposit and we start the order."
+msgstr "След одобрение плащаш 50% аванс и стартираме поръчката."
+
+#: template-parts/steps.php:33
+msgid "Pay the balance and receive"
+msgstr "Доплащаш и получаваш"
+
+#: template-parts/steps.php:33
+msgid "You pay the rest before dispatch and receive your order."
+msgstr "Плащаш остатъка преди изпращане и получаваш поръчката си."
+
+#: template-parts/steps.php:40
+msgid "How the order works"
+msgstr "Как става поръчката"
+
+#: template-parts/steps.php:38
+msgid "How does the order work?"
+msgstr "Как става поръчката?"
