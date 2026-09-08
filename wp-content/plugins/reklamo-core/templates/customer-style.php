@@ -34,6 +34,8 @@ defined( 'ABSPATH' ) || exit;
 	.seg input { display: none; }
 	.seg input:checked + span { font-weight: 600; color: #9a7020; }
 	.seg label:has(input:checked) { border-color: #b8892b; background: #f3ead6; }
+	.grid [hidden] { display: none; }
+	form:has(input[name="d_customer_type"][value="person"]:checked) .only-company, form:has(input[name="d_customer_type"][value="company"]:checked) .only-person { display: none; }
 	.bank-details { display: grid; grid-template-columns: max-content 1fr; gap: .35rem 1.25rem; margin: 1rem 0; padding: 1rem 1.25rem; background: #faf8f4; border: 1px solid #e8e2d6; border-radius: 6px; font-size: .9375rem; }
 	.bank-details dt { color: #555; }
 	.bank-details dd { margin: 0; font-weight: 500; }
@@ -69,6 +71,5 @@ defined( 'ABSPATH' ) || exit;
 	.kv { display: grid; grid-template-columns: max-content 1fr; gap: .35rem 1.25rem; margin: .5rem 0; font-size: .9375rem; }
 	.kv dt { color: #555; }
 	.kv dd { margin: 0; }
-	.inline-form { display: inline; }
 	@media (max-width: 640px) { .grid { grid-template-columns: 1fr; } .steps { grid-template-columns: repeat(3, 1fr); row-gap: 1.25rem; } .steps li:nth-child(3)::after { display: none; } }
 </style>

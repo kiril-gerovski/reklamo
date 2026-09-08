@@ -65,7 +65,7 @@ final class Reklamo_Approval {
 		global $wpdb;
 		$placeholders = implode( ',', array_fill( 0, count( $purposes ), '%s' ) );
 		$wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-			$wpdb->prepare(
+			$wpdb->prepare( // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- the argument list is built dynamically (one %s per purpose).
 				"UPDATE {$wpdb->prefix}reklamo_tokens SET expires_at = %s WHERE order_id = %d AND used_at IS NULL AND expires_at > %s AND purpose IN ({$placeholders})", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				array_merge( array( current_time( 'mysql', true ), $order_id, current_time( 'mysql', true ) ), $purposes )
 			)
@@ -276,11 +276,28 @@ final class Reklamo_Approval {
 			self::render( 'used', $vars );
 		}
 
+		$details_url = self::decide( $order, (int) $row->revision, (int) $row->file_id, $action, $message );
+		if ( 'approve' === $action ) {
+			wp_safe_redirect( $details_url );
+			exit;
+		}
+		$vars['token']->used_action = 'changes';
+		self::render( 'changes', $vars );
+	}
+
+	/**
+	 * Record the customer's decision on a mockup. Shared by the emailed one-time link and
+	 * the order page. The caller has already established that the order is awaiting this
+	 * decision and has consumed whatever token authorised it.
+	 *
+	 * @return string The details URL after an approval (the deposit email carries it too), '' after a change request.
+	 */
+	public static function decide( WC_Order $order, int $revision, int $file_id, string $action, string $message ): string {
 		$ip = Reklamo_Storage::client_ip();
 		if ( 'approve' === $action ) {
 			$deposit = Reklamo_Money::deposit( (float) $order->get_total(), (int) Reklamo_Settings::get( 'deposit_pct', '50' ) );
 			$order->update_meta_data( '_reklamo_approved_at', current_time( 'mysql', true ) );
-			$order->update_meta_data( '_reklamo_approved_revision', (int) $row->revision );
+			$order->update_meta_data( '_reklamo_approved_revision', $revision );
 			$order->update_meta_data( '_reklamo_deposit_amount', wc_format_decimal( $deposit, 2 ) );
 			$order->save();
 			$order->update_status(
@@ -288,43 +305,61 @@ final class Reklamo_Approval {
 				sprintf(
 					/* translators: 1: mockup revision number, 2: IP address */
 					__( 'Customer approved mockup #%1$d (IP %2$s).', 'reklamo-core' ),
-					(int) $row->revision,
+					$revision,
 					$ip ? $ip : '-'
 				)
 			);
 			// Straight on to the details step; the deposit email (with this same link) goes out too.
-			$details_url = self::issue( $order, (int) $row->file_id, (int) $row->revision, 'details' );
+			$details_url = self::issue( $order, $file_id, $revision, 'details' );
 			Reklamo_Emails::send_deposit_request( $order, $details_url );
-			wp_safe_redirect( $details_url );
-			exit;
+			return $details_url;
 		}
 
 		$order->add_order_note(
 			sprintf(
 				/* translators: 1: mockup revision number, 2: customer message */
 				__( 'Customer requested changes to mockup #%1$d: %2$s', 'reklamo-core' ),
-				(int) $row->revision,
+				$revision,
 				$message
 			)
 		);
 		$order->update_meta_data( '_reklamo_last_change_request', $message );
-		$history                         = (array) $order->get_meta( '_reklamo_change_requests' );
-		$history[ (int) $row->revision ] = $message;
+		$history              = (array) $order->get_meta( '_reklamo_change_requests' );
+		$history[ $revision ] = $message;
 		$order->update_meta_data( '_reklamo_change_requests', $history );
 		$order->save();
 		$order->update_status( Reklamo_Statuses::CHANGES, __( 'Changes requested — back to the designer.', 'reklamo-core' ) );
-		$vars['token']->used_action = 'changes';
-		self::render( 'changes', $vars );
+		return '';
+	}
+
+	/**
+	 * Consume the live approval token(s) of a revision when the decision was made on the
+	 * order page instead of through the emailed link, so that link then reports "already
+	 * processed" rather than offering a second decision. Returns how many were consumed.
+	 */
+	public static function consume_approval_tokens( int $order_id, int $revision, string $action ): int {
+		global $wpdb;
+		$wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			$wpdb->prepare(
+				"UPDATE {$wpdb->prefix}reklamo_tokens SET used_at = %s, used_action = %s WHERE order_id = %d AND purpose = 'approval' AND revision = %d AND used_at IS NULL",
+				current_time( 'mysql', true ),
+				$action,
+				$order_id,
+				$revision
+			)
+		);
+		return (int) $wpdb->rows_affected;
 	}
 
 	/* ------------------------------------------------------------------- details */
 
 	/** Fields collected after approval, all stored on the order. */
-	const DETAIL_FIELDS = array( 'customer_type', 'company', 'eik', 'vat', 'mol', 'phone', 'address_1', 'city', 'postcode', 'note' );
+	const DETAIL_FIELDS = array( 'customer_type', 'name', 'company', 'eik', 'vat', 'mol', 'phone', 'address_1', 'city', 'postcode', 'note' );
 
 	public static function details( WC_Order $order ): array {
 		return array(
 			'customer_type' => (string) $order->get_meta( '_reklamo_customer_type' ),
+			'name'          => trim( $order->get_billing_first_name() . ' ' . $order->get_billing_last_name() ),
 			'company'       => $order->get_billing_company(),
 			'eik'           => (string) $order->get_meta( '_reklamo_eik' ),
 			'vat'           => (string) $order->get_meta( '_reklamo_vat' ),
@@ -381,6 +416,8 @@ final class Reklamo_Approval {
 			if ( '' === $in['mol'] ) {
 				$errors[] = __( 'Please enter the responsible person (МОЛ).', 'reklamo-core' );
 			}
+		} elseif ( '' === $in['name'] ) {
+			$errors[] = __( 'Please enter your name.', 'reklamo-core' );
 		}
 		foreach ( array( 'phone', 'address_1', 'city', 'postcode' ) as $req ) {
 			if ( '' === $in[ $req ] ) {
@@ -395,6 +432,12 @@ final class Reklamo_Approval {
 		}
 
 		$first_time = '' === (string) $order->get_meta( '_reklamo_details_at' );
+		if ( 'person' === $in['customer_type'] ) {
+			// The invoice goes to the person: the name they give here replaces the one from the request form.
+			$parts = preg_split( '/\s+/', $in['name'], 2 );
+			$order->set_billing_first_name( $parts[0] );
+			$order->set_billing_last_name( $parts[1] ?? '' );
+		}
 		$order->set_billing_company( 'company' === $in['customer_type'] ? $in['company'] : '' );
 		$order->set_billing_phone( $in['phone'] );
 		$order->set_billing_address_1( $in['address_1'] );
@@ -457,6 +500,10 @@ final class Reklamo_Approval {
 	 */
 	private static function render( string $view, array $vars ): void {
 		$vars['view'] = $view;
+		if ( isset( $vars['order'] ) ) {
+			// Computed here, after any status change above, so the header is current.
+			$vars['progress'] = Reklamo_Tracking::view_data( $vars['order'] );
+		}
 		( static function ( array $vars ): void { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
 			include REKLAMO_PATH . 'templates/approval.php';
 		} )( $vars );

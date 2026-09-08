@@ -17,7 +17,7 @@ final class Reklamo_Email_Check {
 	/** Lower-cased, ASCII (punycode) domain part of an address, or '' when there is none. */
 	public static function domain( string $email ): string {
 		$at = strrpos( $email, '@' );
-		if ( false === $at || $at === strlen( $email ) - 1 ) {
+		if ( false === $at || strlen( $email ) - 1 === $at ) {
 			return '';
 		}
 		$domain = strtolower( trim( substr( $email, $at + 1 ), " \t\n\r\0\x0B." ) );

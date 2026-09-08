@@ -115,5 +115,30 @@ services:
       WP_CLI_CACHE_DIR: /tmp/wp-cli-cache   # runs as uid 1000 with no HOME
     volumes: *wp-volumes
 
+  # Scheduled jobs (reminders, cleanup, WooCommerce housekeeping) run through WP-Cron.
+  # Inside the container WP-Cron's loopback to WP_HOME (localhost:8080) cannot connect,
+  # so nothing would ever run and wp-admin shows "past-due actions". This sidecar plays
+  # the role of the real cron job production has (docs/DEPLOYMENT.md §9).
+  cron:
+    image: wordpress:cli-2-php8.3
+    user: "1000:1000"
+    depends_on:
+      db:
+        condition: service_healthy
+      wp:
+        condition: service_started
+    environment:
+      <<: *wp-env
+      WP_CLI_CACHE_DIR: /tmp/wp-cli-cache
+    volumes: *wp-volumes
+    command:
+      - sh
+      - -c
+      - |
+        while true; do
+          wp cron event run --due-now --quiet 2>/dev/null || true
+          sleep 60
+        done
+
 volumes:
   db_data:

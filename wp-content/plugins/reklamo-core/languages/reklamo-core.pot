@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-06T13:36:42+00:00\n"
+"POT-Creation-Date: 2026-09-07T19:00:24+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: reklamo-core\n"
@@ -153,8 +153,8 @@ msgstr ""
 #. translators: %s: date
 #: includes/class-reklamo-admin-order.php:200
 #: includes/class-reklamo-admin-order.php:206
-#: templates/tracking.php:241
-#: templates/tracking.php:243
+#: templates/tracking.php:231
+#: templates/tracking.php:233
 #, php-format
 msgid "received %s"
 msgstr ""
@@ -176,19 +176,19 @@ msgstr ""
 #: includes/class-reklamo-admin-order.php:217
 #: includes/class-reklamo-admin-order.php:224
 #: templates/emails/reklamo-generic.php:55
-#: templates/tracking.php:253
+#: templates/tracking.php:243
 msgid "Company"
 msgstr ""
 
 #: includes/class-reklamo-admin-order.php:218
-#: templates/approval.php:143
+#: templates/approval.php:184
 msgid "Private person"
 msgstr ""
 
 #: includes/class-reklamo-admin-order.php:220
-#: templates/approval.php:148
+#: templates/approval.php:190
 #: templates/emails/reklamo-generic.php:56
-#: templates/tracking.php:253
+#: templates/tracking.php:243
 msgid "Company ID (ЕИК)"
 msgstr ""
 
@@ -198,7 +198,7 @@ msgid "VAT no."
 msgstr ""
 
 #: includes/class-reklamo-admin-order.php:222
-#: templates/approval.php:150
+#: templates/approval.php:192
 #: templates/emails/reklamo-generic.php:58
 msgid "Responsible person (МОЛ)"
 msgstr ""
@@ -210,15 +210,15 @@ msgstr ""
 
 #: includes/class-reklamo-admin-order.php:225
 #: includes/class-reklamo-settings-page.php:48
-#: templates/approval.php:151
+#: templates/approval.php:193
 #: templates/emails/reklamo-generic.php:59
-#: templates/tracking.php:256
+#: templates/tracking.php:246
 msgid "Phone"
 msgstr ""
 
 #: includes/class-reklamo-admin-order.php:226
-#: templates/approval.php:152
-#: templates/tracking.php:255
+#: templates/approval.php:194
+#: templates/tracking.php:245
 msgid "Delivery address"
 msgstr ""
 
@@ -354,68 +354,75 @@ msgstr ""
 msgid "A new mockup was sent after approval: the earlier approval, its deposit amount and the details link are void."
 msgstr ""
 
-#: includes/class-reklamo-approval.php:259
+#: includes/class-reklamo-approval.php:260
+#: templates/tracking.php:71
 msgid "Please describe the changes you would like."
 msgstr ""
 
 #. translators: 1: mockup revision number, 2: IP address
-#: includes/class-reklamo-approval.php:289
+#: includes/class-reklamo-approval.php:307
 #, php-format
 msgid "Customer approved mockup #%1$d (IP %2$s)."
 msgstr ""
 
 #. translators: 1: mockup revision number, 2: customer message
-#: includes/class-reklamo-approval.php:304
+#: includes/class-reklamo-approval.php:321
 #, php-format
 msgid "Customer requested changes to mockup #%1$d: %2$s"
 msgstr ""
 
-#: includes/class-reklamo-approval.php:314
+#: includes/class-reklamo-approval.php:331
 msgid "Changes requested — back to the designer."
 msgstr ""
 
 #. translators: %s: order number
-#: includes/class-reklamo-approval.php:351
-#: includes/class-reklamo-tracking.php:297
+#: includes/class-reklamo-approval.php:387
+#: includes/class-reklamo-tracking.php:310
 #: includes/emails/class-reklamo-email.php:108
+#: templates/approval.php:59
+#: templates/customer-head.php:17
 #: templates/emails/plain/reklamo-generic.php:23
 #: templates/emails/reklamo-generic.php:47
 #: templates/tracking.php:37
-#: templates/tracking.php:81
 #, php-format
 msgid "Order %s"
 msgstr ""
 
-#: includes/class-reklamo-approval.php:372
+#: includes/class-reklamo-approval.php:408
 msgid "Please enter the company name."
 msgstr ""
 
-#: includes/class-reklamo-approval.php:375
+#: includes/class-reklamo-approval.php:411
 msgid "The company ID (ЕИК) must be 9 or 13 digits."
 msgstr ""
 
-#: includes/class-reklamo-approval.php:378
+#: includes/class-reklamo-approval.php:414
 msgid "The VAT number should look like BG123456789."
 msgstr ""
 
-#: includes/class-reklamo-approval.php:381
+#: includes/class-reklamo-approval.php:417
 msgid "Please enter the responsible person (МОЛ)."
 msgstr ""
 
-#: includes/class-reklamo-approval.php:386
+#: includes/class-reklamo-approval.php:420
+#: includes/class-reklamo-request.php:283
+msgid "Please enter your name."
+msgstr ""
+
+#: includes/class-reklamo-approval.php:424
 msgid "Please fill in phone and delivery address."
 msgstr ""
 
-#: includes/class-reklamo-approval.php:417
+#: includes/class-reklamo-approval.php:461
 msgid "Customer submitted invoice and delivery details."
 msgstr ""
 
-#: includes/class-reklamo-approval.php:417
+#: includes/class-reklamo-approval.php:461
 msgid "Customer updated invoice and delivery details."
 msgstr ""
 
 #: includes/class-reklamo-cart.php:54
-#: templates/tracking.php:260
+#: templates/tracking.php:250
 msgid "Your logo"
 msgstr ""
 
@@ -769,7 +776,7 @@ msgstr ""
 #. translators: %d: revision
 #. translators: %d: mockup revision
 #: includes/class-reklamo-privacy.php:59
-#: templates/tracking.php:217
+#: templates/tracking.php:207
 #, php-format
 msgid "Mockup #%d"
 msgstr ""
@@ -938,10 +945,6 @@ msgstr ""
 msgid "Please choose a package."
 msgstr ""
 
-#: includes/class-reklamo-request.php:283
-msgid "Please enter your name."
-msgstr ""
-
 #: includes/class-reklamo-request.php:286
 msgid "Please enter a valid email address."
 msgstr ""
@@ -988,7 +991,7 @@ msgid "Shown in the footer, the contact blocks and the emails. Edit here once; e
 msgstr ""
 
 #: includes/class-reklamo-settings-page.php:37
-#: templates/approval.php:147
+#: templates/approval.php:189
 msgid "Company name"
 msgstr ""
 
@@ -1102,7 +1105,7 @@ msgid "Payment reference"
 msgstr ""
 
 #: includes/class-reklamo-statuses.php:53
-#: includes/class-reklamo-tracking.php:269
+#: includes/class-reklamo-tracking.php:281
 msgid "Request received"
 msgstr ""
 
@@ -1262,38 +1265,36 @@ msgstr ""
 msgid "%s (deleted by retention policy)"
 msgstr ""
 
-#: includes/class-reklamo-tracking.php:107
+#: includes/class-reklamo-tracking.php:108
 msgid "Track your order"
 msgstr ""
 
-#: includes/class-reklamo-tracking.php:108
+#: includes/class-reklamo-tracking.php:109
 msgid "Progress, mockups and payments for this order, any time, without a password. Keep this email."
 msgstr ""
 
-#: includes/class-reklamo-tracking.php:220
-msgid "Customer asked for the email to be sent again from the order page."
-msgstr ""
-
-#: includes/class-reklamo-tracking.php:270
-#: templates/approval.php:182
+#: includes/class-reklamo-tracking.php:282
+#: templates/approval.php:135
+#: templates/tracking.php:96
 msgid "Mockup"
 msgstr ""
 
-#: includes/class-reklamo-tracking.php:271
+#: includes/class-reklamo-tracking.php:283
 msgid "Approval"
 msgstr ""
 
-#: includes/class-reklamo-tracking.php:272
-#: templates/tracking.php:240
-#: templates/tracking.php:245
+#: includes/class-reklamo-tracking.php:284
+#: templates/approval.php:119
+#: templates/tracking.php:230
+#: templates/tracking.php:235
 msgid "Deposit"
 msgstr ""
 
-#: includes/class-reklamo-tracking.php:273
+#: includes/class-reklamo-tracking.php:285
 msgid "Production"
 msgstr ""
 
-#: includes/class-reklamo-tracking.php:274
+#: includes/class-reklamo-tracking.php:286
 msgid "Final payment & delivery"
 msgstr ""
 
@@ -1497,6 +1498,7 @@ msgid "Hello {customer_first_name}, your mockup is approved. Two short steps rem
 msgstr ""
 
 #: includes/emails/class-reklamo-email-deposit-request.php:37
+#: templates/tracking.php:142
 msgid "Fill in invoice and delivery details"
 msgstr ""
 
@@ -1556,7 +1558,6 @@ msgid "Your mockup for order {order_number} is ready — {site_title}"
 msgstr ""
 
 #: includes/emails/class-reklamo-email-mockup-sent.php:53
-#: templates/approval.php:162
 msgid "Your mockup is ready"
 msgstr ""
 
@@ -1643,177 +1644,212 @@ msgstr ""
 msgid "Reklamo Core needs WooCommerce to be active."
 msgstr ""
 
-#: templates/approval.php:54
+#. translators: %s: order number
+#: templates/approval.php:59
 msgid "Mockup approval"
 msgstr ""
 
-#: templates/approval.php:62
+#: templates/approval.php:67
 #: templates/tracking.php:45
 msgid "This link is not valid"
 msgstr ""
 
-#: templates/approval.php:63
+#: templates/approval.php:68
 #: templates/tracking.php:46
 msgid "Please open the link exactly as it appears in the email, or contact us."
 msgstr ""
 
-#: templates/approval.php:66
+#: templates/approval.php:71
 #: templates/tracking.php:49
 msgid "Too many attempts"
 msgstr ""
 
-#: templates/approval.php:67
+#: templates/approval.php:72
 #: templates/tracking.php:50
 msgid "Please try again in an hour."
 msgstr ""
 
-#: templates/approval.php:70
+#: templates/approval.php:83
 msgid "This link has expired"
 msgstr ""
 
 #. translators: %d: days
-#: templates/approval.php:74
+#: templates/approval.php:87
 #, php-format
-msgid "The link to your invoice and delivery details is valid for %d days. Use the order page below, or write to us, to get a new one."
+msgid "The link to your invoice and delivery details is valid for %d days. Open your order page below to get a new one."
 msgstr ""
 
 #. translators: %d: days
-#: templates/approval.php:76
+#: templates/approval.php:89
 #, php-format
-msgid "Approval links are valid for %d days. Use the order page below to have a new one sent, or reply to our email."
+msgid "Approval links are valid for %d days. You can still decide on the mockup from your order page below."
 msgstr ""
 
-#: templates/approval.php:82
+#: templates/approval.php:95
 msgid "This order is no longer waiting for this step"
 msgstr ""
 
-#: templates/approval.php:83
-msgid "The order has moved on or was cancelled since this email was sent, so this link cannot act any more. The order page below shows the current state."
+#: templates/approval.php:96
+msgid "The order has moved on or was cancelled since this email was sent, so this link cannot act any more. Your order page below shows the current state."
 msgstr ""
 
-#: templates/approval.php:86
+#: templates/approval.php:99
 msgid "This mockup has already been processed"
 msgstr ""
 
-#: templates/approval.php:90
-msgid "You approved it — thank you. We will be in touch about the next step."
+#: templates/approval.php:103
+msgid "You approved it — thank you. Your order page below shows the next step."
 msgstr ""
 
-#: templates/approval.php:92
+#: templates/approval.php:105
 msgid "You requested changes. Our designer is working on a new version."
 msgstr ""
 
-#: templates/approval.php:98
+#: templates/approval.php:111
 msgid "Approved — thank you!"
 msgstr ""
 
 #. translators: %s: deposit percentage
-#: templates/approval.php:99
+#: templates/approval.php:112
 #, php-format
 msgid "We will now send you our bank details and a request for the %s%% deposit. Production starts once it arrives."
 msgstr ""
 
-#: templates/approval.php:102
+#: templates/approval.php:115
 msgid "Thank you — we received your comments"
 msgstr ""
 
-#: templates/approval.php:103
+#: templates/approval.php:116
 msgid "Our designer will prepare a revised mockup and you will get a new email to review it."
 msgstr ""
 
-#: templates/approval.php:106
-msgid "Thank you — details saved"
+#: templates/approval.php:121
+msgid "The deposit is confirmed and your details are locked. Contact us if something needs to change."
 msgstr ""
 
-#: templates/approval.php:106
-msgid "Approved — one more step"
-msgstr ""
-
-#. translators: %s: order number
-#: templates/approval.php:111
-#, php-format
-msgid "Order %s · mockup approved. Fill in your invoice and delivery details and transfer the deposit; production starts when it arrives."
+#: templates/approval.php:123
+msgid "The mockup is approved. Transfer the deposit and fill in your invoice and delivery details below; production starts when the deposit arrives."
 msgstr ""
 
 #. translators: %s: deposit amount
-#: templates/approval.php:118
-#: templates/tracking.php:140
+#: templates/approval.php:125
+#: templates/tracking.php:130
 #, php-format
 msgid "Deposit due: %s"
 msgstr ""
 
-#: templates/approval.php:123
-msgid "We received your details. You can still correct them from this link until the deposit is confirmed."
+#: templates/approval.php:128
+msgid "The order number is your payment reference. We confirm the deposit manually on working days and let you know by email."
 msgstr ""
 
-#: templates/approval.php:133
-msgid "The deposit is confirmed and your details are locked. Contact us if something needs to change."
-msgstr ""
-
-#: templates/approval.php:142
-msgid "Company (invoice)"
-msgstr ""
-
-#: templates/approval.php:149
-msgid "VAT no. (optional)"
-msgstr ""
-
-#: templates/approval.php:153
-#: templates/emails/reklamo-generic.php:61
-msgid "City"
-msgstr ""
-
-#: templates/approval.php:154
-#: templates/emails/reklamo-generic.php:62
-msgid "Postcode"
-msgstr ""
-
-#: templates/approval.php:155
-msgid "Delivery note (optional)"
-msgstr ""
-
-#: templates/approval.php:157
-msgid "Update details"
-msgstr ""
-
-#: templates/approval.php:157
-msgid "Save details"
-msgstr ""
-
-#: templates/approval.php:159
-msgid "Prices include VAT. The invoice is issued from these details; the order number is your payment reference."
-msgstr ""
-
-#. translators: 1: order number, 2: mockup revision
-#: templates/approval.php:167
+#. translators: %d: mockup revision
+#: templates/approval.php:132
+#: templates/tracking.php:92
 #, php-format
-msgid "Order %1$s · mockup #%2$d"
+msgid "Mockup #%d is waiting for your decision"
 msgstr ""
 
-#: templates/approval.php:184
+#: templates/approval.php:137
+#: templates/tracking.php:98
 msgid "Download the mockup (PDF)"
 msgstr ""
 
-#: templates/approval.php:198
+#: templates/approval.php:151
+#: templates/tracking.php:106
 msgid "Approve the mockup"
 msgstr ""
 
-#: templates/approval.php:202
+#: templates/approval.php:155
+#: templates/tracking.php:109
 msgid "I would like changes"
 msgstr ""
 
-#: templates/approval.php:203
+#: templates/approval.php:156
+#: templates/tracking.php:110
 msgid "Describe what should change…"
 msgstr ""
 
-#: templates/approval.php:204
+#: templates/approval.php:157
+#: templates/tracking.php:111
 msgid "Request changes"
 msgstr ""
 
 #. translators: %s: deposit percentage
-#: templates/approval.php:207
+#: templates/approval.php:160
+#: templates/tracking.php:114
 #, php-format
 msgid "No payment is taken at this stage. After approval we will send bank details for a %s%% deposit."
+msgstr ""
+
+#: templates/approval.php:165
+#: templates/tracking.php:240
+msgid "Invoice & delivery"
+msgstr ""
+
+#: templates/approval.php:167
+msgid "We received your details. You can still correct them from this link until the deposit is confirmed."
+msgstr ""
+
+#: templates/approval.php:183
+msgid "Company (invoice)"
+msgstr ""
+
+#: templates/approval.php:188
+msgid "Full name"
+msgstr ""
+
+#: templates/approval.php:191
+msgid "VAT no. (optional)"
+msgstr ""
+
+#: templates/approval.php:195
+#: templates/emails/reklamo-generic.php:61
+msgid "City"
+msgstr ""
+
+#: templates/approval.php:196
+#: templates/emails/reklamo-generic.php:62
+msgid "Postcode"
+msgstr ""
+
+#: templates/approval.php:197
+msgid "Delivery note (optional)"
+msgstr ""
+
+#: templates/approval.php:199
+msgid "Update details"
+msgstr ""
+
+#: templates/approval.php:199
+msgid "Save details"
+msgstr ""
+
+#: templates/approval.php:201
+msgid "Prices include VAT. The invoice is issued from these details; the order number is your payment reference."
+msgstr ""
+
+#: templates/approval.php:220
+msgid "Back to your order page"
+msgstr ""
+
+#: templates/approval.php:220
+msgid "progress, mockups and payments"
+msgstr ""
+
+#. translators: %s: date
+#: templates/customer-head.php:23
+#, php-format
+msgid "requested on %s"
+msgstr ""
+
+#. translators: %s: amount
+#: templates/customer-head.php:25
+#, php-format
+msgid "total %s incl. VAT"
+msgstr ""
+
+#: templates/customer-head.php:29
+msgid "Progress"
 msgstr ""
 
 #: templates/emails/reklamo-generic.php:34
@@ -1848,238 +1884,187 @@ msgstr ""
 msgid "We have emailed you a confirmation with a link to this page — keep it, it is how you follow the order."
 msgstr ""
 
-#. translators: %s: email address
 #: templates/tracking.php:69
-#, php-format
-msgid "Sent. Check the inbox of %s (and the spam folder)."
-msgstr ""
-
-#: templates/tracking.php:71
-msgid "The email was sent a few minutes ago. Please check your spam folder before asking again."
+msgid "Thank you — we received your comments. Our designer will prepare a revised mockup and you will get an email when it is ready."
 msgstr ""
 
 #: templates/tracking.php:73
-msgid "The email could not be sent right now. Please contact us."
+msgid "This step is no longer open — the page below shows the current state."
 msgstr ""
 
 #: templates/tracking.php:75
-msgid "Nothing to send at the moment."
-msgstr ""
-
-#: templates/tracking.php:77
 msgid "The page had been open for too long. Please try the button again."
 msgstr ""
 
-#. translators: %s: date
-#: templates/tracking.php:87
-#, php-format
-msgid "requested on %s"
-msgstr ""
-
-#. translators: %s: amount
-#: templates/tracking.php:89
-#, php-format
-msgid "total %s incl. VAT"
-msgstr ""
-
-#: templates/tracking.php:93
-msgid "Progress"
-msgstr ""
-
-#: templates/tracking.php:110
+#: templates/tracking.php:86
 msgid "Our designer is preparing your mockup"
 msgstr ""
 
 #. translators: %s: hours
-#: templates/tracking.php:111
+#: templates/tracking.php:87
 #, php-format
 msgid "You will get an email with a link to review it, usually within %s hours on working days. Nothing to do until then."
 msgstr ""
 
-#. translators: %d: mockup revision
-#: templates/tracking.php:116
-#, php-format
-msgid "Mockup #%d is waiting for your decision"
-msgstr ""
-
-#. translators: %d: mockup revision
-#: templates/tracking.php:117
-msgid "Open the link in the email \"Your mockup is ready\" to approve it or ask for changes. That link is personal and works once."
-msgstr ""
-
-#: templates/tracking.php:118
-#: templates/tracking.php:148
-msgid "Cannot find the email?"
-msgstr ""
-
-#: templates/tracking.php:122
-#: templates/tracking.php:152
-msgid "Send it again"
-msgstr ""
-
-#: templates/tracking.php:129
+#: templates/tracking.php:119
 msgid "We received your comments — a revised mockup is on the way"
 msgstr ""
 
-#: templates/tracking.php:133
+#: templates/tracking.php:123
 msgid "You will get a new email when it is ready."
 msgstr ""
 
-#: templates/tracking.php:138
+#: templates/tracking.php:128
 msgid "Approved — the deposit starts production"
 msgstr ""
 
-#: templates/tracking.php:144
+#: templates/tracking.php:134
 msgid "We still need your invoice and delivery details."
 msgstr ""
 
-#: templates/tracking.php:144
-msgid "Use the link in the email \"Approved — deposit and details\"."
-msgstr ""
-
-#: templates/tracking.php:146
+#: templates/tracking.php:136
 msgid "Your invoice and delivery details are in. We confirm the deposit manually on working days and let you know by email."
 msgstr ""
 
-#: templates/tracking.php:159
+#: templates/tracking.php:142
+msgid "Update my details"
+msgstr ""
+
+#: templates/tracking.php:149
 msgid "Deposit received — thank you"
 msgstr ""
 
-#: templates/tracking.php:160
+#: templates/tracking.php:150
 msgid "Production is being scheduled. You will get an email when it starts."
 msgstr ""
 
-#: templates/tracking.php:165
+#: templates/tracking.php:155
 msgid "Your order is in production"
 msgstr ""
 
-#: templates/tracking.php:166
+#: templates/tracking.php:156
 msgid "We will email you when it is ready, together with the request for the final payment."
 msgstr ""
 
-#: templates/tracking.php:171
+#: templates/tracking.php:161
 msgid "Ready — final payment before dispatch"
 msgstr ""
 
 #. translators: %s: balance amount
-#: templates/tracking.php:173
+#: templates/tracking.php:163
 #, php-format
 msgid "Balance due: %s"
 msgstr ""
 
-#: templates/tracking.php:176
+#: templates/tracking.php:166
 msgid "We dispatch as soon as the transfer arrives."
 msgstr ""
 
 #. translators: %s: date
-#: templates/tracking.php:181
+#: templates/tracking.php:171
 #, php-format
 msgid "Completed on %s — thank you!"
 msgstr ""
 
 #. translators: %s: date
-#: templates/tracking.php:181
+#: templates/tracking.php:171
 msgid "Completed — thank you!"
 msgstr ""
 
 #. translators: %s: date
-#: templates/tracking.php:182
+#: templates/tracking.php:172
 msgid "Your order is paid in full and on its way or delivered. This page stays available for a while as your record."
 msgstr ""
 
-#: templates/tracking.php:188
+#: templates/tracking.php:178
 msgid "This order was refunded"
 msgstr ""
 
-#: templates/tracking.php:189
+#: templates/tracking.php:179
 msgid "The amounts you paid have been returned. Contact us if anything is unclear."
 msgstr ""
 
-#: templates/tracking.php:193
+#: templates/tracking.php:183
 msgid "This order was cancelled"
 msgstr ""
 
-#: templates/tracking.php:194
+#: templates/tracking.php:184
 msgid "If that is a surprise, please contact us."
 msgstr ""
 
-#: templates/tracking.php:206
+#: templates/tracking.php:196
 msgid "Mockups"
 msgstr ""
 
-#: templates/tracking.php:210
+#: templates/tracking.php:200
 msgid "removed"
 msgstr ""
 
 #. translators: %s: date
-#: templates/tracking.php:219
+#: templates/tracking.php:209
 #, php-format
 msgid "Approved on %s"
 msgstr ""
 
 #. translators: %s: date
-#: templates/tracking.php:221
+#: templates/tracking.php:211
 #, php-format
 msgid "Changes requested on %s"
 msgstr ""
 
-#: templates/tracking.php:226
+#: templates/tracking.php:216
 msgid "Awaiting your decision"
 msgstr ""
 
-#: templates/tracking.php:229
+#: templates/tracking.php:219
 msgid "Open"
 msgstr ""
 
-#: templates/tracking.php:236
+#: templates/tracking.php:226
 msgid "Payments"
 msgstr ""
 
-#: templates/tracking.php:238
+#: templates/tracking.php:228
 msgid "Total"
 msgstr ""
 
-#: templates/tracking.php:238
+#: templates/tracking.php:228
 msgid "incl. VAT"
 msgstr ""
 
 #. translators: %s: date
-#: templates/tracking.php:241
+#: templates/tracking.php:231
 msgid "awaiting transfer"
 msgstr ""
 
 #. translators: %s: date
-#: templates/tracking.php:242
+#: templates/tracking.php:232
 msgid "Balance"
 msgstr ""
 
 #. translators: %s: date
-#: templates/tracking.php:243
+#: templates/tracking.php:233
 msgid "due before dispatch"
 msgstr ""
 
-#: templates/tracking.php:245
+#: templates/tracking.php:235
 msgid "set after you approve the mockup"
 msgstr ""
 
 #: templates/tracking.php:250
-msgid "Invoice & delivery"
-msgstr ""
-
-#: templates/tracking.php:260
 msgid "Your logos"
 msgstr ""
 
-#: templates/tracking.php:270
+#: templates/tracking.php:260
 msgid "No file on record."
 msgstr ""
 
-#: templates/tracking.php:275
+#: templates/tracking.php:265
 msgid "Questions about this order?"
 msgstr ""
 
 #. translators: %s: order number
-#: templates/tracking.php:282
+#: templates/tracking.php:272
 #, php-format
 msgid "quote order %s"
 msgstr ""

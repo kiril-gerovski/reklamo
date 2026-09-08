@@ -7,7 +7,7 @@
  * @var string        $selector
  * @var string        $secret
  * @var string        $url
- * @var string        $flash  ok | failed | wait | none | expired | ''
+ * @var string        $flash  changes | message | none | nonce | ''
  * @var bool          $fresh  just created from the request form
  *
  * @package Reklamo
@@ -65,41 +65,17 @@ $file_url = static fn( int $id ): string => add_query_arg( 'view', $id, $url );
 		<?php if ( $fresh ) : ?>
 			<p class="notice ok"><strong><?php esc_html_e( 'Your request has been received. No payment is taken at this stage.', 'reklamo-core' ); ?></strong> <?php esc_html_e( 'We have emailed you a confirmation with a link to this page — keep it, it is how you follow the order.', 'reklamo-core' ); ?></p>
 		<?php endif; ?>
-		<?php if ( 'ok' === $flash ) : ?>
-			<p class="notice ok"><?php echo esc_html( sprintf( /* translators: %s: email address */ __( 'Sent. Check the inbox of %s (and the spam folder).', 'reklamo-core' ), $order->get_billing_email() ) ); ?></p>
-		<?php elseif ( 'wait' === $flash ) : ?>
-			<p class="notice err"><?php esc_html_e( 'The email was sent a few minutes ago. Please check your spam folder before asking again.', 'reklamo-core' ); ?></p>
-		<?php elseif ( 'failed' === $flash ) : ?>
-			<p class="notice err"><?php esc_html_e( 'The email could not be sent right now. Please contact us.', 'reklamo-core' ); ?></p>
+		<?php if ( 'changes' === $flash ) : ?>
+			<p class="notice ok"><?php esc_html_e( 'Thank you — we received your comments. Our designer will prepare a revised mockup and you will get an email when it is ready.', 'reklamo-core' ); ?></p>
+		<?php elseif ( 'message' === $flash ) : ?>
+			<p class="notice err"><?php esc_html_e( 'Please describe the changes you would like.', 'reklamo-core' ); ?></p>
 		<?php elseif ( 'none' === $flash ) : ?>
-			<p class="notice err"><?php esc_html_e( 'Nothing to send at the moment.', 'reklamo-core' ); ?></p>
+			<p class="notice err"><?php esc_html_e( 'This step is no longer open — the page below shows the current state.', 'reklamo-core' ); ?></p>
 		<?php elseif ( 'nonce' === $flash ) : ?>
 			<p class="notice err"><?php esc_html_e( 'The page had been open for too long. Please try the button again.', 'reklamo-core' ); ?></p>
 		<?php endif; ?>
 
-		<div class="head">
-			<h1 data-order="<?php echo esc_attr( (string) $order->get_id() ); ?>"><?php echo esc_html( sprintf( /* translators: %s: order number */ __( 'Order %s', 'reklamo-core' ), $order->get_order_number() ) ); ?></h1>
-			<span class="badge <?php echo $v['completed'] ? 'done' : ( $v['cancelled'] ? 'off' : '' ); ?>"><?php echo esc_html( $v['status_label'] ); ?></span>
-		</div>
-		<p class="meta">
-			<?php echo esc_html( implode( ', ', $v['items'] ) ); ?>
-			<?php if ( $v['created'] ) : ?>
-				· <?php echo esc_html( sprintf( /* translators: %s: date */ __( 'requested on %s', 'reklamo-core' ), $v['created'] ) ); ?>
-			<?php endif; ?>
-			· <?php echo esc_html( sprintf( /* translators: %s: amount */ __( 'total %s incl. VAT', 'reklamo-core' ), $v['total'] ) ); ?>
-		</p>
-
-		<?php if ( ! $v['cancelled'] ) : ?>
-			<ol class="steps" aria-label="<?php esc_attr_e( 'Progress', 'reklamo-core' ); ?>">
-				<?php foreach ( $v['step_labels'] as $i => $label ) : ?>
-					<?php
-					$n     = $i + 1;
-					$class = Reklamo_Progress::is_step_done( $n, $v['step'], $v['completed'] ) ? 'done' : ( $n === $v['step'] ? 'now' : '' );
-					?>
-					<li class="<?php echo esc_attr( $class ); ?>"><?php echo esc_html( $label ); ?></li>
-				<?php endforeach; ?>
-			</ol>
-		<?php endif; ?>
+		<?php require REKLAMO_PATH . 'templates/customer-head.php'; ?>
 
 		<div class="next">
 		<?php
@@ -114,14 +90,28 @@ $file_url = static fn( int $id ): string => add_query_arg( 'view', $id, $url );
 			case Reklamo_Statuses::MOCKUP_SENT:
 				?>
 				<h2><?php echo esc_html( sprintf( /* translators: %d: mockup revision */ __( 'Mockup #%d is waiting for your decision', 'reklamo-core' ), $v['pending_rev'] ) ); ?></h2>
-				<p><?php esc_html_e( 'Open the link in the email "Your mockup is ready" to approve it or ask for changes. That link is personal and works once.', 'reklamo-core' ); ?></p>
-				<div><?php esc_html_e( 'Cannot find the email?', 'reklamo-core' ); ?>
-					<form class="inline-form" method="post" action="<?php echo esc_url( home_url( '/' . Reklamo_Tracking::SLUG . '/' ) ); ?>">
-						<input type="hidden" name="s" value="<?php echo esc_attr( $selector ); ?>"><input type="hidden" name="k" value="<?php echo esc_attr( $vars['secret'] ?? '' ); ?>">
-						<?php wp_nonce_field( 'reklamo_track_' . $selector, '_reklamo_nonce' ); ?>
-						<button type="submit" class="secondary" style="padding:.5rem .9rem"><?php esc_html_e( 'Send it again', 'reklamo-core' ); ?></button>
-					</form>
-				</div>
+				<?php if ( $v['pending'] && ! $v['pending']['gone'] ) : ?>
+					<div class="preview">
+						<?php if ( $v['pending']['is_image'] ) : ?>
+							<a href="<?php echo esc_url( $file_url( (int) $v['pending']['file']->id ) ); ?>" target="_blank" rel="noopener noreferrer"><img src="<?php echo esc_url( $file_url( (int) $v['pending']['file']->id ) ); ?>" alt="<?php esc_attr_e( 'Mockup', 'reklamo-core' ); ?>"></a>
+						<?php else : ?>
+							<a class="btn" href="<?php echo esc_url( $file_url( (int) $v['pending']['file']->id ) ); ?>"><?php esc_html_e( 'Download the mockup (PDF)', 'reklamo-core' ); ?></a>
+						<?php endif; ?>
+					</div>
+				<?php endif; ?>
+				<form method="post" action="<?php echo esc_url( home_url( '/' . Reklamo_Tracking::SLUG . '/' ) ); ?>">
+					<input type="hidden" name="s" value="<?php echo esc_attr( $selector ); ?>"><input type="hidden" name="k" value="<?php echo esc_attr( $vars['secret'] ?? '' ); ?>">
+					<?php wp_nonce_field( 'reklamo_track_' . $selector, '_reklamo_nonce' ); ?>
+					<div class="actions">
+						<button type="submit" name="act" value="approve"><?php esc_html_e( 'Approve the mockup', 'reklamo-core' ); ?></button>
+					</div>
+					<details <?php echo 'message' === $flash ? 'open' : ''; ?>>
+						<summary><?php esc_html_e( 'I would like changes', 'reklamo-core' ); ?></summary>
+						<p><textarea name="message" placeholder="<?php esc_attr_e( 'Describe what should change…', 'reklamo-core' ); ?>"></textarea></p>
+						<button type="submit" name="act" value="changes" class="secondary"><?php esc_html_e( 'Request changes', 'reklamo-core' ); ?></button>
+					</details>
+				</form>
+				<p class="muted"><?php echo esc_html( sprintf( /* translators: %s: deposit percentage */ __( 'No payment is taken at this stage. After approval we will send bank details for a %s%% deposit.', 'reklamo-core' ), Reklamo_Settings::get( 'deposit_pct', '50' ) ) ); ?></p>
 				<?php
 				break;
 			case Reklamo_Statuses::CHANGES:
@@ -141,17 +131,17 @@ $file_url = static fn( int $id ): string => add_query_arg( 'view', $id, $url );
 				<?php endif; ?>
 				<?php echo wp_kses_post( $v['bank'] ); ?>
 				<?php if ( empty( $v['details']['submitted_at'] ) ) : ?>
-					<p><strong><?php esc_html_e( 'We still need your invoice and delivery details.', 'reklamo-core' ); ?></strong> <?php esc_html_e( 'Use the link in the email "Approved — deposit and details".', 'reklamo-core' ); ?></p>
+					<p><strong><?php esc_html_e( 'We still need your invoice and delivery details.', 'reklamo-core' ); ?></strong></p>
 				<?php else : ?>
 					<p><?php esc_html_e( 'Your invoice and delivery details are in. We confirm the deposit manually on working days and let you know by email.', 'reklamo-core' ); ?></p>
 				<?php endif; ?>
-				<div><?php esc_html_e( 'Cannot find the email?', 'reklamo-core' ); ?>
-					<form class="inline-form" method="post" action="<?php echo esc_url( home_url( '/' . Reklamo_Tracking::SLUG . '/' ) ); ?>">
-						<input type="hidden" name="s" value="<?php echo esc_attr( $selector ); ?>"><input type="hidden" name="k" value="<?php echo esc_attr( $vars['secret'] ?? '' ); ?>">
-						<?php wp_nonce_field( 'reklamo_track_' . $selector, '_reklamo_nonce' ); ?>
-						<button type="submit" class="secondary" style="padding:.5rem .9rem"><?php esc_html_e( 'Send it again', 'reklamo-core' ); ?></button>
-					</form>
-				</div>
+				<form method="post" action="<?php echo esc_url( home_url( '/' . Reklamo_Tracking::SLUG . '/' ) ); ?>">
+					<input type="hidden" name="s" value="<?php echo esc_attr( $selector ); ?>"><input type="hidden" name="k" value="<?php echo esc_attr( $vars['secret'] ?? '' ); ?>">
+					<?php wp_nonce_field( 'reklamo_track_' . $selector, '_reklamo_nonce' ); ?>
+					<div class="actions">
+						<button type="submit" name="act" value="details" class="<?php echo empty( $v['details']['submitted_at'] ) ? '' : 'secondary'; ?>"><?php echo empty( $v['details']['submitted_at'] ) ? esc_html__( 'Fill in invoice and delivery details', 'reklamo-core' ) : esc_html__( 'Update my details', 'reklamo-core' ); ?></button>
+					</div>
+				</form>
 				<?php
 				break;
 			case Reklamo_Statuses::DEPOSIT_PAID:

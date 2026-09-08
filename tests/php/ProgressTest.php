@@ -1,6 +1,7 @@
 <?php
 /**
- * Customer progress line: every status lands on exactly one of the six steps.
+ * Customer progress line: every status lands on exactly one of the six steps — the one in
+ * progress, with everything before it done (an approved mockup puts "Deposit" in progress).
  */
 
 use PHPUnit\Framework\TestCase;
@@ -9,11 +10,11 @@ final class ProgressTest extends TestCase {
 
 	public function test_every_custom_status_maps_to_a_step(): void {
 		$expected = array(
-			Reklamo_Statuses::RECEIVED     => 1,
-			Reklamo_Statuses::MOCKUP_SENT  => 2,
+			Reklamo_Statuses::RECEIVED     => 2,
+			Reklamo_Statuses::MOCKUP_SENT  => 3,
 			Reklamo_Statuses::CHANGES      => 2,
-			Reklamo_Statuses::APPROVED     => 3,
-			Reklamo_Statuses::DEPOSIT_PAID => 4,
+			Reklamo_Statuses::APPROVED     => 4,
+			Reklamo_Statuses::DEPOSIT_PAID => 5,
 			Reklamo_Statuses::PRODUCTION   => 5,
 			Reklamo_Statuses::FINAL_DUE    => 6,
 		);
@@ -24,11 +25,11 @@ final class ProgressTest extends TestCase {
 	}
 
 	public function test_prefixed_and_core_statuses(): void {
-		$this->assertSame( 2, Reklamo_Progress::step_for_status( 'wc-rq-mockup-sent' ) );
+		$this->assertSame( 3, Reklamo_Progress::step_for_status( 'wc-rq-mockup-sent' ) );
 		$this->assertSame( Reklamo_Progress::DONE, Reklamo_Progress::step_for_status( 'completed' ) );
 		$this->assertSame( Reklamo_Progress::CANCELLED, Reklamo_Progress::step_for_status( 'cancelled' ) );
 		$this->assertSame( Reklamo_Progress::REFUNDED, Reklamo_Progress::step_for_status( 'wc-refunded' ) );
-		$this->assertSame( 1, Reklamo_Progress::step_for_status( 'pending' ) );
+		$this->assertSame( 2, Reklamo_Progress::step_for_status( 'pending' ) );
 	}
 
 	public function test_steps_before_current_are_done_and_completed_finishes_all(): void {

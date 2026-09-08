@@ -2,8 +2,10 @@
 /**
  * The customer's order page at /moyata-porachka/?s=<selector>&k=<secret>: progress, mockup
  * history, payments, and what happens next. Passwordless — the link in every email is
- * the login. View-only: approving and submitting details still need their own
- * single-use tokens, so a forwarded email can read but never act.
+ * the login. The customer decides on a mockup here as well as through the emailed
+ * one-time link (owner's decision: no hunting for emails). Whoever holds the link can
+ * therefore act on the order, which is the same trust the emailed links already place
+ * in the mailbox.
  *
  * The token lives in the same table as approval links (purpose `track`). Unlike them
  * its URL is kept in order meta — every later email must carry it, and the secret
@@ -18,12 +20,11 @@ defined( 'ABSPATH' ) || exit;
 
 final class Reklamo_Tracking {
 
-	const SLUG       = 'moyata-porachka'; // NOT 'porachka': that is the seeded checkout page slug.
-	const QUERY_VAR  = 'reklamo_track';
-	const PURPOSE    = 'track';
-	const META_URL   = '_reklamo_track_url';
-	const TTL_YEARS  = 10;
-	const RESEND_GAP = 10 * MINUTE_IN_SECONDS;
+	const SLUG      = 'moyata-porachka'; // NOT 'porachka': that is the seeded checkout page slug.
+	const QUERY_VAR = 'reklamo_track';
+	const PURPOSE   = 'track';
+	const META_URL  = '_reklamo_track_url';
+	const TTL_YEARS = 10;
 
 	public static function init(): void {
 		add_action( 'init', array( __CLASS__, 'rewrite' ) );
@@ -169,57 +170,63 @@ final class Reklamo_Tracking {
 		}
 
 		if ( $is_post ) {
-			self::handle_resend( $order, $vars );
+			self::handle_action( $order, $vars );
 		}
 
-		$vars['flash'] = isset( $_GET['sent'] ) ? sanitize_key( wp_unslash( $_GET['sent'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$vars['flash'] = isset( $_GET['msg'] ) ? sanitize_key( wp_unslash( $_GET['msg'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$vars['fresh'] = isset( $_GET['new'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		self::render( 'track', array_merge( $vars, self::view_data( $order ) ) );
 	}
 
 	/**
-	 * "Send me the email again": re-issues the pending action link (approval or details)
-	 * and re-sends its email. The only thing a POST here can do — and it only ever mails
-	 * the address on the order, so a forwarded link cannot redirect anything.
+	 * The three things a customer can do from here, each a nonce-protected POST:
+	 *  approve / changes — decide on the pending mockup (same code path as the emailed link;
+	 *                      that link is consumed so it cannot decide a second time),
+	 *  details           — get a fresh link to the invoice/delivery form (a POST, because it
+	 *                      supersedes the emailed one and a GET must never change anything).
 	 */
-	private static function handle_resend( WC_Order $order, array $vars ): void {
+	private static function handle_action( WC_Order $order, array $vars ): void {
 		$back = $vars['url'];
 		if ( ! isset( $_POST['_reklamo_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_reklamo_nonce'] ) ), 'reklamo_track_' . $vars['selector'] ) ) {
-			wp_safe_redirect( add_query_arg( 'sent', 'nonce', $back ) );
+			wp_safe_redirect( add_query_arg( 'msg', 'nonce', $back ) );
 			exit;
 		}
-		$gap_key = 'reklamo_track_resend_' . $order->get_id();
-		if ( get_transient( $gap_key ) ) {
-			wp_safe_redirect( add_query_arg( 'sent', 'wait', $back ) );
-			exit;
-		}
-		// Throttle before sending: a failing mail server must not turn this into a token mint.
-		set_transient( $gap_key, 1, self::RESEND_GAP );
-		$ok = false;
-		if ( $order->has_status( Reklamo_Statuses::MOCKUP_SENT ) ) {
-			$rev  = Reklamo_Approval::latest_revision( $order->get_id() );
-			$file = null;
-			foreach ( Reklamo_Storage::for_order( $order->get_id(), 'mockup' ) as $m ) {
-				if ( (int) $m->revision === $rev ) {
-					$file = $m;
-				}
+		$action  = isset( $_POST['act'] ) ? sanitize_key( wp_unslash( $_POST['act'] ) ) : '';
+		$message = isset( $_POST['message'] ) ? sanitize_textarea_field( wp_unslash( $_POST['message'] ) ) : '';
+
+		if ( 'details' === $action ) {
+			if ( ! $order->has_status( Reklamo_Statuses::APPROVED ) ) {
+				wp_safe_redirect( add_query_arg( 'msg', 'none', $back ) );
+				exit;
 			}
-			if ( $file ) {
-				$url = Reklamo_Approval::issue( $order, (int) $file->id, $rev, 'approval' );
-				$ok  = Reklamo_Emails::send_mockup( $order, $url, $rev );
-			}
-		} elseif ( $order->has_status( Reklamo_Statuses::APPROVED ) ) {
-			$url = Reklamo_Approval::issue( $order, 0, (int) $order->get_meta( '_reklamo_approved_revision' ), 'details' );
-			$ok  = Reklamo_Emails::send_deposit_request( $order, $url );
-		} else {
-			wp_safe_redirect( add_query_arg( 'sent', 'none', $back ) );
+			wp_safe_redirect( Reklamo_Approval::issue( $order, 0, (int) $order->get_meta( '_reklamo_approved_revision' ), 'details' ) );
 			exit;
 		}
-		if ( $ok ) {
-			Reklamo_Reminders::schedule_for( $order );
-			$order->add_order_note( __( 'Customer asked for the email to be sent again from the order page.', 'reklamo-core' ) );
+
+		if ( ! in_array( $action, array( 'approve', 'changes' ), true ) || ! $order->has_status( Reklamo_Statuses::MOCKUP_SENT ) ) {
+			wp_safe_redirect( add_query_arg( 'msg', 'none', $back ) );
+			exit;
 		}
-		wp_safe_redirect( add_query_arg( 'sent', $ok ? 'ok' : 'failed', $back ) );
+		if ( 'changes' === $action && '' === trim( $message ) ) {
+			wp_safe_redirect( add_query_arg( 'msg', 'message', $back ) );
+			exit;
+		}
+		$revision = Reklamo_Approval::latest_revision( $order->get_id() );
+		$file     = null;
+		foreach ( Reklamo_Storage::for_order( $order->get_id(), 'mockup' ) as $m ) {
+			if ( (int) $m->revision === $revision ) {
+				$file = $m;
+			}
+		}
+		if ( ! $file ) {
+			wp_safe_redirect( add_query_arg( 'msg', 'none', $back ) );
+			exit;
+		}
+		// Single decision per revision: consuming the emailed token is the atomic gate when one
+		// is live; without one (expired), the status check above is what we have.
+		Reklamo_Approval::consume_approval_tokens( $order->get_id(), $revision, $action );
+		$details_url = Reklamo_Approval::decide( $order, $revision, (int) $file->id, $action, $message );
+		wp_safe_redirect( 'approve' === $action ? $details_url : add_query_arg( 'msg', 'changes', $back ) );
 		exit;
 	}
 
@@ -265,6 +272,11 @@ final class Reklamo_Tracking {
 
 		$logos = Reklamo_Storage::for_order( $order->get_id(), 'logo' ); // one per line item on the cart path
 
+		$pending = null; // the mockup awaiting a decision, shown with its buttons
+		if ( $order->has_status( Reklamo_Statuses::MOCKUP_SENT ) && $mockups ) {
+			$pending = $mockups[0];
+		}
+
 		$step_labels = array(
 			__( 'Request received', 'reklamo-core' ),
 			__( 'Mockup', 'reklamo-core' ),
@@ -287,6 +299,7 @@ final class Reklamo_Tracking {
 			'completed_on' => $order->get_date_completed() ? wc_format_datetime( $order->get_date_completed(), 'd.m.Y' ) : '',
 			'mockups'      => $mockups,
 			'logos'        => $logos,
+			'pending'      => $pending,
 			'pending_rev'  => Reklamo_Approval::latest_revision( $order->get_id() ),
 			'last_comment' => (string) $order->get_meta( '_reklamo_last_change_request' ),
 			'total'        => $price( $total ),

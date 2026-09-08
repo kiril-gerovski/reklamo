@@ -40,7 +40,9 @@ test( 'customer places a request with a logo and no payment', async ( { page } )
 	orderId = await page.locator( 'h1[data-order]' ).getAttribute( 'data-order' );
 	trackUrl = page.url().replace( /&new=1$/, '' );
 	await expect( page.locator( 'body' ) ).toContainText( 'Заявката Ви е получена' );
-	await expect( page.locator( '.steps li.now' ) ).toHaveText( 'Заявка приета' );
+	// The request is in (done); the mockup is the step in progress.
+	await expect( page.locator( '.steps li.done' ) ).toHaveText( [ 'Заявка приета' ] );
+	await expect( page.locator( '.steps li.now' ) ).toHaveText( 'Визуализация' );
 	await expect( page.locator( '.badge' ) ).toHaveText( 'Заявка приета' );
 
 	const mail = await mailpitFind( `Получихме Вашата заявка ${ orderId }` );
@@ -167,7 +169,7 @@ test( 'admin sees the logo and sends a mockup', async ( { page } ) => {
 	approvalUrl = m[ 0 ];
 } );
 
-test( 'order page: shows the pending mockup, re-sends the email, never acts, guards its files', async ( { page } ) => {
+test( 'order page: shows the pending mockup with its decision buttons, guards its files', async ( { page } ) => {
 	const anon = await request.newContext();
 	expect( trackUrl ).toContain( '/moyata-porachka/' );
 	// The seeded checkout page keeps its own slug — the tracking rule must not shadow it.
@@ -183,28 +185,27 @@ test( 'order page: shows the pending mockup, re-sends the email, never acts, gua
 	await page.context().clearCookies();
 	await page.goto( trackUrl );
 	await expect( page.locator( '.badge' ) ).toHaveText( 'Изпратена визуализация' );
-	await expect( page.locator( '.steps li.now' ) ).toHaveText( 'Визуализация' );
+	await expect( page.locator( '.steps li.now' ) ).toHaveText( 'Одобрение' );
 	await expect( page.locator( '.next h2' ) ).toContainText( 'Визуализация №1 очаква Вашето решение' );
-	// The mockup is visible here, but nothing on this page can approve it.
-	await expect( page.locator( '.rev img' ) ).toBeVisible();
-	await expect( page.locator( 'button[name="decision"]' ) ).toHaveCount( 0 );
-	const img = await page.locator( '.rev img' ).getAttribute( 'src' );
+	await expect( page.locator( '.next .preview img' ) ).toBeVisible();
+	await expect( page.locator( 'button[name="act"][value="approve"]' ) ).toHaveCount( 1 );
+	// GET changed nothing: the order is still awaiting the decision.
+	const img = await page.locator( '.next .preview img' ).getAttribute( 'src' );
 	const r = await anon.get( img );
 	expect( r.status() ).toBe( 200 );
 	expect( r.headers()[ 'content-type' ] ).toContain( 'image/png' );
 	// A file id from another order is refused.
 	const foreign = await anon.get( img.replace( /view=\d+/, 'view=1' ) );
 	expect( foreign.status() ).toBe( 404 );
-
-	// "Send it again" re-issues the approval link; a second click within minutes is throttled.
-	await page.getByRole( 'button', { name: 'Изпрати отново' } ).click();
-	await expect( page.locator( '.notice.ok' ) ).toContainText( 'Изпратено' );
-	const again = await mailpitFind( `Визуализацията за поръчка ${ orderId }` );
-	const m = again.text.match( /https?:\/\/\S+odobrenie\/\?s=[A-Za-z0-9]+&k=[A-Za-z0-9_-]+/ );
-	expect( m[ 0 ] ).not.toBe( approvalUrl );
-	approvalUrl = m[ 0 ]; // the old link is superseded — the fresh one is what the customer now holds.
-	await page.getByRole( 'button', { name: 'Изпрати отново' } ).click();
-	await expect( page.locator( '.notice.err' ) ).toContainText( 'преди няколко минути' );
+	// A POST without the nonce is refused and changes nothing.
+	const forged = await anon.post( trackUrl.split( '?' )[ 0 ], { form: { s: trackUrl.match( /s=([^&]+)/ )[ 1 ], k: trackUrl.match( /k=([^&]+)/ )[ 1 ], act: 'approve' } } );
+	expect( forged.url() ).toContain( 'msg=nonce' );
+	await page.reload();
+	await expect( page.locator( 'button[name="act"][value="approve"]' ) ).toHaveCount( 1 );
+	// "Changes" without a message is refused with a hint.
+	await page.click( '.next details summary' );
+	await page.click( 'button[name="act"][value="changes"]' );
+	await expect( page.locator( '.notice.err' ) ).toContainText( 'опишете' );
 } );
 
 test( 'approval link: GET is idempotent, POST approves once, replay is refused', async ( { page } ) => {
@@ -213,7 +214,7 @@ test( 'approval link: GET is idempotent, POST approves once, replay is refused',
 	for ( let i = 0; i < 2; i++ ) {
 		const r = await anon.get( approvalUrl );
 		expect( r.status() ).toBe( 200 );
-		expect( await r.text() ).toContain( 'Визуализацията Ви е готова' );
+		expect( await r.text() ).toContain( 'очаква Вашето решение' );
 		expect( r.headers()[ 'x-robots-tag' ] ).toContain( 'noindex' );
 		expect( r.headers()[ 'referrer-policy' ] ).toBe( 'no-referrer' );
 	}
@@ -224,12 +225,16 @@ test( 'approval link: GET is idempotent, POST approves once, replay is refused',
 	// The customer asks for changes first (logged out).
 	await page.context().clearCookies();
 	await page.goto( approvalUrl );
-	await expect( page.locator( 'h1' ) ).toHaveText( 'Визуализацията Ви е готова' );
+	// The emailed link shows the same order header and progress as the order page.
+	await expect( page.locator( 'h1[data-order]' ) ).toHaveAttribute( 'data-order', orderId );
+	await expect( page.locator( '.steps li.now' ) ).toHaveText( 'Одобрение' );
+	await expect( page.locator( '.next h2' ) ).toContainText( 'Визуализация №1 очаква Вашето решение' );
 	await expect( page.locator( '.preview img' ) ).toBeVisible();
 	await page.click( 'details summary' );
 	await page.fill( 'textarea[name="message"]', 'E2E: логото по-голямо, моля.' );
 	await page.click( 'button[name="decision"][value="changes"]' );
-	await expect( page.locator( 'h1' ) ).toContainText( 'получихме' );
+	await expect( page.locator( '.next h2' ) ).toContainText( 'получихме' );
+	await expect( page.locator( '.badge' ) ).toHaveText( 'Заявени корекции' );
 	const changes = await mailpitFind( `Заявени корекции по поръчка ${ orderId }` );
 	expect( changes.text ).toContain( 'по-голямо' );
 
@@ -247,23 +252,26 @@ test( 'approval link: GET is idempotent, POST approves once, replay is refused',
 	// The link for #1 is used up and reports so; it cannot approve #2.
 	await page.context().clearCookies();
 	await page.goto( approvalUrl );
-	await expect( page.locator( 'h1' ) ).toHaveText( 'Тази визуализация вече е обработена' );
+	await expect( page.locator( '.next h2' ) ).toHaveText( 'Тази визуализация вече е обработена' );
 	approvalUrl = second[ 0 ];
 
 	// Now approve #2.
 	await page.goto( approvalUrl );
-	await expect( page.locator( '.meta' ) ).toContainText( '№2' );
+	await expect( page.locator( '.next h2' ) ).toContainText( '№2' );
 	await page.click( 'button[name="decision"][value="approve"]' );
-	// Approval lands on the details step (its own signed link) with the deposit amount and bank details.
+	// Approval lands on the deposit step (its own signed link): approval done, deposit in progress, bank details.
 	await page.waitForURL( /odobrenie\/\?s=/ );
-	await expect( page.locator( 'h1' ) ).toHaveText( 'Одобрено — още една стъпка' );
+	await expect( page.locator( '.next h2' ) ).toHaveText( 'Аванс' );
+	await expect( page.locator( '.badge' ) ).toHaveText( 'Одобрена — чака аванс' );
+	await expect( page.locator( '.steps li.now' ) ).toHaveText( 'Аванс' );
+	await expect( page.locator( '.steps li.done' ) ).toHaveCount( 3 );
 	await expect( page.locator( '.amount' ) ).toContainText( 'Дължим аванс' );
 	await expect( page.locator( '.bank-details' ) ).toContainText( 'IBAN' );
 	detailsUrl = page.url();
 
 	// Replay: the same link now only reports the outcome, and cannot approve again.
 	await page.goto( approvalUrl );
-	await expect( page.locator( 'h1' ) ).toHaveText( 'Тази визуализация вече е обработена' );
+	await expect( page.locator( '.next h2' ) ).toHaveText( 'Тази визуализация вече е обработена' );
 	await expect( page.locator( 'button[name="decision"]' ) ).toHaveCount( 0 );
 } );
 
@@ -282,13 +290,22 @@ test( 'approval tells the shop; a mockup re-sent after approval voids the deposi
 	// The old details link (with bank details) is dead now.
 	await page.context().clearCookies();
 	await page.goto( detailsUrl );
-	await expect( page.locator( 'h1' ) ).toHaveText( 'Тази връзка е изтекла' );
-	// Approve #3 to get back on track, with a fresh details link.
-	const third = ( await mailpitFind( `Визуализацията за поръчка ${ orderId }` ) ).text.match( /https?:\/\/\S+odobrenie\/\?s=[A-Za-z0-9]+&k=[A-Za-z0-9_-]+/ );
-	await page.goto( third[ 0 ] );
-	await page.click( 'button[name="decision"][value="approve"]' );
+	await expect( page.locator( '.next h2' ) ).toHaveText( 'Тази връзка е изтекла' );
+	await expect( page.locator( '.track a' ) ).toHaveAttribute( 'href', trackUrl );
+	// Approve #3 from the order page this time; the emailed link is consumed by that.
+	const third = ( await mailpitFind( `Визуализацията за поръчка ${ orderId }` ) ).text.match( /https?:\/\/\S+odobrenie\/\?s=[A-Za-z0-9]+&k=[A-Za-z0-9_-]+/ )[ 0 ];
+	await page.goto( trackUrl );
+	await expect( page.locator( '.next h2' ) ).toContainText( '№3' );
+	await page.click( 'button[name="act"][value="approve"]' );
 	await page.waitForURL( /odobrenie\/\?s=/ );
+	await expect( page.locator( '.next h2' ) ).toHaveText( 'Аванс' );
+	await expect( page.locator( '.steps li.now' ) ).toHaveText( 'Аванс' );
 	detailsUrl = page.url();
+	await page.goto( third );
+	await expect( page.locator( '.next h2' ) ).toHaveText( 'Тази визуализация вече е обработена' );
+	// Back on the order page: approved, with a button to the details form.
+	await page.goto( trackUrl );
+	await expect( page.locator( 'button[name="act"][value="details"]' ) ).toHaveCount( 1 );
 } );
 
 test( 'a cancelled order tells the customer and its links stop acting', async ( { page } ) => {
@@ -308,7 +325,8 @@ test( 'a cancelled order tells the customer and its links stop acting', async ( 
 	await page.context().clearCookies();
 	await page.goto( link );
 	await expect( page.locator( 'button[name="decision"]' ) ).toHaveCount( 0 );
-	await expect( page.locator( 'h1' ) ).toContainText( 'вече не очаква' );
+	await expect( page.locator( '.next h2' ) ).toContainText( 'вече не очаква' );
+	await expect( page.locator( '.badge' ) ).toHaveText( 'Отказана' );
 	const track = mail.text.match( /https?:\/\/\S+moyata-porachka\/\?s=[A-Za-z0-9]+&k=[A-Za-z0-9_-]+/ )[ 0 ];
 	await page.goto( track );
 	await expect( page.locator( '.badge' ) ).toHaveText( 'Отказана' );
@@ -322,7 +340,15 @@ test( 'deposit email arrived; customer fills invoice and delivery details', asyn
 
 	await page.context().clearCookies();
 	await page.goto( detailsUrl );
-	await page.check( 'input[name="d_customer_type"][value="company"]' );
+	// Private person: company fields disappear, a name field appears (prefilled from the request).
+	await page.locator( '.seg label', { hasText: 'Частно лице' } ).click();
+	await expect( page.locator( 'input[name="d_eik"]' ) ).toBeHidden();
+	await expect( page.locator( 'input[name="d_mol"]' ) ).toBeHidden();
+	await expect( page.locator( 'input[name="d_name"]' ) ).toBeVisible();
+	await expect( page.locator( 'input[name="d_name"]' ) ).toHaveValue( 'Е2Е Тест' );
+	await page.locator( '.seg label', { hasText: 'Фирма' } ).click();
+	await expect( page.locator( 'input[name="d_name"]' ) ).toBeHidden();
+	await expect( page.locator( 'input[name="d_eik"]' ) ).toBeVisible();
 	await page.fill( 'input[name="d_company"]', 'Ноубъл ЕООД' );
 	await page.fill( 'input[name="d_eik"]', '123456789' );
 	await page.fill( 'input[name="d_vat"]', 'BG123456789' );
@@ -332,7 +358,8 @@ test( 'deposit email arrived; customer fills invoice and delivery details', asyn
 	await page.fill( 'input[name="d_city"]', 'София' );
 	await page.fill( 'input[name="d_postcode"]', '1000' );
 	await page.click( 'form button[type="submit"]' );
-	await expect( page.locator( 'h1' ) ).toHaveText( 'Благодарим — данните са запазени' );
+	await expect( page.locator( '.notice.ok' ) ).toContainText( 'Получихме данните Ви' );
+	await expect( page.locator( '.next h2' ) ).toHaveText( 'Аванс' );
 
 	// Bad ЕИК is refused, good values are kept.
 	await page.fill( 'input[name="d_eik"]', '12' );
