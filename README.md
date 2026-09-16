@@ -19,7 +19,10 @@ gitignored, so the owner can still update them from the dashboard.
 wp-content/themes/reklamo/        theme — presentation only
 wp-content/plugins/reklamo-core/  plugin — all business logic (statuses, uploads, emails)
 scripts/seed.sh                   THE site configuration, as WP-CLI commands
+scripts/host/                     runs ON the hosting account: install.sh / update.sh / check.sh / bootstrap.sh
+scripts/deploy.sh                 drives the hosting account over SSH from your workstation
 scripts/worktree/                 per-branch isolated stacks (wt-new / wt-build / wt-push / wt-merge / wt-drop)
+versions.env                      WordPress + WooCommerce version pins, used locally and on the server
 docker-compose.yml                local environment (Apache, MariaDB, Mailpit)
 ```
 
@@ -57,6 +60,21 @@ scripts/make-fixtures.sh 150  # test files with real magic bytes (AI/PSD/CDR/EPS
 docker compose logs -f wp
 ```
 
+## Deploying to SuperHosting
+
+```bash
+cp .env.deploy.example .env.deploy    # cPanel user, host, repo, branch
+scripts/deploy.sh install             # fresh account → live site (asks for URL, admin, mailbox)
+scripts/deploy.sh update [tag]        # ship a version: checkout, WP/WC pins, seed, flush, health check
+scripts/deploy.sh check --mail-test you@example.com
+scripts/deploy.sh wp plugin list      # any WP-CLI command on the server
+```
+
+The server runs the same `scripts/seed.sh` and `scripts/wp` natively (`WP_PATH` set in its
+`.env`). WordPress and WooCommerce versions come from `versions.env`; bump it, test with
+`scripts/reset.sh` + `scripts/e2e.sh`, then `scripts/deploy.sh update`. Everything else, including
+the clicks in cPanel that no script can do: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
+
 ## Working on a branch in an isolated stack
 
 ```bash
@@ -84,9 +102,14 @@ Claude Code. Details: [`scripts/worktree/README.md`](scripts/worktree/README.md)
 
 ## The configuration rule
 
-The database is not in git — **`scripts/seed.sh` is**. The same script runs on the hosting account (`WP_PATH=/home/<user>/public_html REKLAMO_ENV=production scripts/seed.sh`) — see `docs/DEPLOYMENT.md`. Every setting you click in the dashboard
+The database is not in git — **`scripts/seed.sh` is**. The same script runs on the hosting account on every `scripts/deploy.sh update` — see `docs/DEPLOYMENT.md`. Every setting you click in the dashboard
 must become a line in `seed.sh`, otherwise it does not exist. `scripts/reset.sh` proves that
 nothing lives only in the local database.
+
+Two kinds of lines: `opt` enforces configuration (currency, tax, statuses, pages, menus) on every
+run; `opt_default` seeds owner-editable content (company details, bank data, texts) once and leaves
+the dashboard value alone afterwards. Sample products are created when their SKU is missing and
+never updated. That is what makes re-running the seed on the live site safe.
 
 The PHP limits in `config/php/uploads.ini` are deliberately low (64M) to mimic shared hosting.
 Do not raise them to "make a test pass".

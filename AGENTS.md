@@ -25,6 +25,16 @@ the verified environment facts. Going live: [`docs/DEPLOYMENT.md`](docs/DEPLOYME
   in the dashboard has to become a line in `seed.sh` or it does not exist. `scripts/reset.sh`
   destroys everything and rebuilds from zero, which is what proves nothing lives only in the
   local database — run it as the master test.
+- **The seed runs on the live site on every update, so it must stay safe there.** Configuration
+  uses `opt` (enforced every run); owner-editable content — company details, bank data, prices,
+  page texts — uses `opt_default` / `fill_if_empty` / create-if-missing and is never overwritten.
+  Ask which kind a new line is before adding it.
+- **Version pins live in `versions.env`**, nowhere else. `scripts/setup.sh` and
+  `scripts/host/update.sh` both read it; the `wordpress:` image tag in `docker-compose.yml` has
+  to match `WP_VERSION`.
+- **Server scripts run through `PHP_BIN` and never assume `wp` exists.** `scripts/lib.sh` picks the
+  host's `wp-cli`, `wp`, or our downloaded phar. Anything that must also run on the hosting
+  account (seed, host scripts) avoids python and other tools a cPanel shell may lack.
 - **The low PHP limits are deliberate.** `config/php/uploads.ini` caps uploads at 64M to mimic
   shared hosting. Never raise them to make a test pass.
 - **English source, Bulgarian content.** Identifiers, comments, docs and `__()` source strings
@@ -35,6 +45,10 @@ the verified environment facts. Going live: [`docs/DEPLOYMENT.md`](docs/DEPLOYME
 - **Branch work goes in an isolated stack.** `scripts/worktree/wt-new.sh <branch>` brings up a
   second stack on `:8081`; `wt-build.sh` restarts and flushes. Do not test a branch against the
   main stack.
+- **Deploying is `scripts/deploy.sh`** (`install`, `update`, `check`, `wp`, `ssh`) over SSH to
+  the SuperHosting account; the server side is `scripts/host/`. Hosting facts and the manual cPanel
+  steps are in `docs/DEPLOYMENT.md`. There is no account to test against from here: after touching
+  `scripts/host/`, run the container simulation described in `docs/PLAN.md` § Deployment scripts.
 
 ## Environment
 

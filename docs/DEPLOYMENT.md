@@ -1,178 +1,161 @@
 # Deployment — SuperHosting.bg
 
-How to put Reklamo.bg live on a SuperHosting shared account, and how to ship updates afterwards. The
-same repo runs locally in Docker and on the host natively; only the `.env` and `wp-config.php` differ.
+How Reklamo.bg goes live on a SuperHosting shared account and how updates ship afterwards. The
+same repo runs locally in Docker and on the host natively; only the `.env` differs.
 
-Principle unchanged from local dev: **WordPress core and WooCommerce are installed on the server, not
-committed. Our code (theme + plugin) is a git checkout the site symlinks to. `scripts/seed.sh` is the
-site configuration and runs on the server too.**
+**What SuperHosting is, in the terms that matter here.** Bulgarian shared hosting on cPanel with
+CloudLinux, Apache and `.htaccess`. PHP is chosen per account in *PHP Manager by SuperHosting*
+(8.3 available). Every plan has WP-CLI preinstalled as the command `wp-cli`. SSH exists on the
+**СуперПро** and **СуперХостинг** plans only, is off until enabled in the client profile, and
+listens on **port 1022** with the cPanel user. Git and the cPanel `uapi` command are available in
+that shell. Outbound ports 22, 25, 26 and 465 to *external* hosts are blocked; GitHub is reached
+on `ssh.github.com:443` and mail goes through the account's own mail server.
+
+Principle unchanged from local dev: **WordPress core and WooCommerce are installed on the server,
+never committed. Our code (theme + plugin) is a git checkout the site symlinks into.
+`scripts/seed.sh` is the site configuration and runs on the server too.**
 
 ```
 /home/<user>/
-├── public_html/                      WordPress core (installed by WP-CLI), wp-config.php, uploads
+├── public_html/                      WordPress core (WP-CLI), wp-config.php, uploads, .user.ini
 │   └── wp-content/
-│       ├── plugins/woocommerce/      installed by WP-CLI, pinned version
-│       ├── plugins/reklamo-core  →   symlink to ../../../reklamo/wp-content/plugins/reklamo-core
-│       └── themes/reklamo        →   symlink to ../../../reklamo/wp-content/themes/reklamo
-├── reklamo/                          this git repository (git pull = deploy)
-└── reklamo-private/                  customer logos & mockups — ABOVE the web root, never served
+│       ├── plugins/woocommerce/      installed by WP-CLI, version from versions.env
+│       ├── plugins/reklamo-core  →   symlink to ~/reklamo/wp-content/plugins/reklamo-core
+│       └── themes/reklamo        →   symlink to ~/reklamo/wp-content/themes/reklamo
+├── reklamo/                          this git repository; .env here is the server .env
+├── reklamo-private/                  customer logos & mockups — ABOVE the web root, never served
+├── reklamo-backups/                  database dumps taken before every WP/WC version change
+└── .reklamo/wp-cli.phar              only when the host's wp-cli is unusable
 ```
 
-## 0. Prerequisites
+## The scripts
 
-| Need | Notes |
-|---|---|
-| **Plan with SSH** | SSH is included on **СуперПро** and **СуперХостинг** plans only, and is off by default. Without SSH use the fallback in §11. |
-| Domain pointed at the account | DNS A record → the account's shared IP (cPanel → Основна информация). Allow propagation before SSL. |
-| A mailbox on the domain | e.g. `office@reklamo.bg`, created in cPanel → Email Accounts. WooCommerce sends *from* it and SMTP authenticates *as* it. |
-| Decisions not yet taken | VAT handling (`docs/PLAN.md` → Open questions) — decide **before** entering real products. |
+| Where | Script | Does |
+|---|---|---|
+| workstation | `scripts/deploy.sh install` | copies `bootstrap.sh` over SSH and runs it |
+| workstation | `scripts/deploy.sh update [tag\|branch]` | runs `update.sh` on the server |
+| workstation | `scripts/deploy.sh check [--mail-test a@b]`, `wp …`, `ssh` | health report, remote WP-CLI, shell |
+| server | `scripts/host/bootstrap.sh <repo> [dir] [ref]` | deploy key for GitHub over 443, clone, hand over to `install.sh` |
+| server | `scripts/host/install.sh` | zero → live site; idempotent, converges an existing install with its `.env` |
+| server | `scripts/host/update.sh [ref] [--no-seed]` | fetch, maintenance mode, checkout, WP/WC pins, `seed.sh`, flush, `check.sh` |
+| server | `scripts/host/check.sh [--mail-test a@b]` | read-only report: versions, symlinks, config, cron, web PHP probe, mail |
 
-## 1. Enable SSH and add your key
+`scripts/deploy.sh` reads `.env.deploy` (copy `.env.deploy.example`, gitignored). The server
+scripts read `~/reklamo/.env`, created from `.env.server.example` on the first run.
+`scripts/lib.sh` runs every `wp` call through `PHP_BIN` so the CLI uses the same PHP as the site;
+the `php` on PATH is the server default and may be older.
 
-1. my.superhosting.bg → Хостинг акаунти → Настройки → **SSH достъп → Активиране**. Credentials arrive by email.
-2. cPanel → **SSH Access → Manage SSH Keys** → import your public key (or generate one there) and **Authorize** it.
-3. Connect — note the non-standard port:
-   ```bash
-   ssh -p 1022 <cpanel-user>@<domain-or-server>.superhosting.bg
-   ```
-   Handy in `~/.ssh/config` on your laptop: `Host reklamo-prod` / `HostName reklamo.bg` / `Port 1022` / `User <cpanel-user>`.
+## 0. Before the first deploy (clicks in cPanel, once)
 
-## 2. PHP version and limits
+| Step | Where | Notes |
+|---|---|---|
+| Enable SSH | my.superhosting.bg → Хостинг акаунти → Настройки → SSH достъп → Активиране | Credentials arrive by email. |
+| Authorise your key | cPanel → SSH Access → Manage SSH Keys → Import → Authorize | Then `ssh -p 1022 <cpanel-user>@<domain>` works. |
+| PHP version | cPanel → PHP Manager by SuperHosting → PHP 8.3 | Same major.minor as `PHP_BIN` in the server `.env`. `check.sh` compares web and CLI. |
+| PHP directives | PHP Manager → Change PHP directives | `upload_max_filesize` ≥ 128M, `post_max_size` ≥ same, `max_execution_time` 120, `max_input_time` 300, `memory_limit` 256M. `install.sh` also writes `.user.ini`; `check.sh` shows which values the web server really applies. |
+| Mailbox | cPanel → Email Accounts → `office@reklamo.bg` | WooCommerce sends from it; SMTP authenticates as it. |
+| DNS | A record → the account's IP (cPanel → General Information) | Until it propagates, set `WP_HOST_IP` in the server `.env` so `check.sh` can probe. |
 
-cPanel → **PHP Manager by SuperHosting**:
+The database is **not** a manual step: `install.sh` creates it through cPanel's `uapi`
+(`<user>_reklamo`). If `uapi` turns out to be unavailable in the shell, create it in cPanel →
+MySQL Databases and fill `DB_NAME`, `DB_USER`, `DB_PASSWORD` in the server `.env`.
 
-- **PHP version: 8.3** (what we develop and test on). Do not pick 8.4+ until tested locally.
-- **Change PHP Directives** — set for the whole account:
-
-  | Directive | Value | Why |
-  |---|---|---|
-  | `upload_max_filesize` | the largest offered (≥ 128M) | logo uploads; until chunked upload (hardening phase) this is the ceiling customers hit |
-  | `post_max_size` | same or larger | must be ≥ `upload_max_filesize` |
-  | `max_execution_time` | 120 | mockup uploads, WooCommerce admin |
-  | `max_input_time` | 300 | a 100 MB upload on a slow uplink needs minutes to arrive |
-  | `memory_limit` | 256M | WooCommerce |
-
-  Write the values you got into `docs/PLAN.md` (Phase "uploads hardening" needs them); if the maximum offered is small, that phase's chunked upload becomes mandatory rather than nice-to-have.
-
-## 3. Database
-
-cPanel → **MySQL® Databases**: create database `<user>_reklamo`, a user with a long generated password, add the user to the database with **ALL PRIVILEGES**. Keep the three values for step 5.
-
-## 4. WP-CLI on the server
+## 1. First deploy
 
 ```bash
-wp --info || true          # SuperHosting normally ships wp-cli; if not:
-mkdir -p ~/bin && curl -sSLo ~/bin/wp https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && chmod +x ~/bin/wp
-echo 'export PATH=$HOME/bin:$PATH' >> ~/.bashrc && source ~/.bashrc
+cp .env.deploy.example .env.deploy      # DEPLOY_USER, DEPLOY_HOST, DEPLOY_REPO, DEPLOY_REF
+scripts/deploy.sh install
 ```
 
-## 5. Install WordPress (once)
+What happens on the server:
+
+1. `bootstrap.sh` writes a `~/.ssh/config` stanza pointing `github.com` at `ssh.github.com:443`,
+   generates `~/.ssh/reklamo_deploy` and prints the public key. Add it as a **read-only deploy
+   key** on the GitHub repository, press Enter, and it clones `~/reklamo` at `DEPLOY_REF`.
+2. `install.sh` creates `~/reklamo/.env` from `.env.server.example` with the cPanel user filled
+   in, and asks for the empty values: site URL, admin login and email, mailbox and its password.
+   `SMTP_HOST` defaults to the server's own hostname, whose TLS certificate matches (465/ssl).
+3. Checks PHP ≥ 8.1 and the required extensions, finds WP-CLI, creates the database, downloads
+   WordPress (`WP_VERSION`), writes `wp-config.php` with the production constants from `.env`
+   (`chmod 600`), installs, installs the Bulgarian language pack, symlinks theme and plugin,
+   installs WooCommerce (`WC_VERSION`), activates everything, writes `.user.ini`, adds the cron
+   line, runs `seed.sh` and finishes with `check.sh`.
+4. Prints the admin password **once** when it had to generate one. It is stored nowhere.
+
+Every step is idempotent: re-run `scripts/deploy.sh install` after a failure or after editing
+the server `.env` (for example a new mailbox password) and it converges.
+
+Constants written to `wp-config.php`: `WP_HOME`, `WP_SITEURL`, `WP_ENVIRONMENT_TYPE production`,
+`WP_DEBUG false`, `DISALLOW_FILE_EDIT`, `FORCE_SSL_ADMIN`, `WP_MEMORY_LIMIT 256M`,
+`WP_AUTO_UPDATE_CORE minor` (security releases apply themselves; plugins never auto-update, that is
+seeded), `DISABLE_WP_CRON`, `REKLAMO_PRIVATE_DIR`, `REKLAMO_SMTP_*`. `REKLAMO_DISABLE_RATE_LIMITS`
+is removed if present: the per-IP limits on the request form, the uploader and the approval page are
+part of the site's protection.
+
+Cron: `*/5 * * * * cd ~/public_html && /opt/cpanel/ea-php83/root/usr/bin/php wp-cron.php`. If the
+shell cannot write the crontab, the script prints the line to paste into cPanel → Cron Jobs.
+
+## 2. After the first deploy (once)
+
+1. cPanel → **SSL/TLS Status** → AutoSSL for the domain and `www`. `WP_HOME` already says https.
+2. cPanel → **Email Deliverability** → install the suggested **SPF** and **DKIM** records, add a
+   **DMARC** TXT record: `v=DMARC1; p=quarantine; rua=mailto:office@reklamo.bg`.
+3. `scripts/deploy.sh check --mail-test you@gmail.com` → expect `sent`, then check inbox **and**
+   spam. Repeat to an abv.bg and a mail.bg address, the customers' providers. If 465/ssl is
+   refused, set `SMTP_PORT=587`, `SMTP_SECURE=tls` in the server `.env` and re-run `install`;
+   port 25 without encryption is SuperHosting's documented last resort.
+4. WooCommerce → **Reklamo diagnostics** on the live site: storage *outside the web root*, `DOM`
+   and `finfo` available, cleanup scheduled. Click **Run probe**; the uploader sends 2 MB chunks,
+   so once 2 MB passes, uploads of any size work. Record the largest accepted size in
+   `docs/PLAN.md`.
+5. Enter the real values in the dashboard: WooCommerce → Настройки → Reklamo (phone, email,
+   address, social, bank details), product prices and photos, page texts. `seed.sh` seeds these
+   once and never overwrites them afterwards.
+6. Walk the flow with a real address: homepage → package → request → upload → email → wp-admin →
+   send mockup → approval link. Delete the test order.
+7. Turn on WooCommerce → **Analytics**; Legacy Reports ignore our statuses.
+8. cPanel → **Backup** (or JetBackup): confirm `~/reklamo-private` and `~/reklamo-backups` are in
+   scope. The logo files exist nowhere else.
+
+## 3. Shipping an update
 
 ```bash
-cd ~/public_html
-# If the host pre-installed anything here (index.html, cgi-bin), move it aside first.
-wp core download --locale=bg_BG --version=7.1
-wp config create --dbname=<user>_reklamo --dbuser=<user>_dbuser --dbpass='<password>' --dbhost=localhost --dbprefix=wp_
-wp core install --url=https://reklamo.bg --title="Reklamo.bg" --admin_user=<owner-login> --admin_password='<strong>' --admin_email=office@reklamo.bg --skip-email --locale=bg_BG
+scripts/deploy.sh update            # fast-forward the deployed branch
+scripts/deploy.sh update v1.4.0     # deploy a tag (detached checkout)
+scripts/deploy.sh update main       # back onto a branch
 ```
 
-Then add the production constants to `wp-config.php` (above `/* That's all, stop editing! */`):
+`update.sh` refuses a dirty checkout, fetches, prints the incoming commits, enables maintenance
+mode, checks out the target, brings WordPress and WooCommerce to the versions in `versions.env`
+(database dump to `~/reklamo-backups/` first, then `wp core update` / `wp plugin install --force`,
+`update-db`, `wp wc update`), runs `seed.sh`, flushes caches and rewrite rules, leaves maintenance
+mode and ends with `check.sh`. Code is symlinked, so PHP and CSS are live the moment the checkout
+moves. Compiled `.mo` files are committed, nothing to build.
 
-```php
-define( 'WP_HOME',    'https://reklamo.bg' );
-define( 'WP_SITEURL', 'https://reklamo.bg' );
-define( 'WP_ENVIRONMENT_TYPE', 'production' );
-define( 'DISALLOW_FILE_EDIT', true );
-define( 'WP_DEBUG', false );
-define( 'WP_MEMORY_LIMIT', '256M' );
-define( 'FORCE_SSL_ADMIN', true );
+**Rollback** is `scripts/deploy.sh update <previous tag>`. WooCommerce database migrations are
+forward-only, so a rollback across a `WC_VERSION` bump also needs the dump from
+`~/reklamo-backups/` (`scripts/deploy.sh wp db import …`).
 
-// Customer logos live ABOVE the web root — never publicly addressable.
-define( 'REKLAMO_PRIVATE_DIR', '/home/<user>/reklamo-private' );
+**Updating WordPress or WooCommerce**: change `versions.env`, keep the `wordpress:` image tag in
+`docker-compose.yml` on the same WordPress version, run `scripts/reset.sh` and `scripts/e2e.sh`
+locally, commit, then `scripts/deploy.sh update`.
 
-// Outgoing mail through the account's own mailbox (see step 8).
-define( 'REKLAMO_SMTP_HOST',   'mail.reklamo.bg' );      // or <servername>.superhosting.bg
-define( 'REKLAMO_SMTP_PORT',   465 );
-define( 'REKLAMO_SMTP_SECURE', 'ssl' );                  // 587 + 'tls' also works
-define( 'REKLAMO_SMTP_USER',   'office@reklamo.bg' );
-define( 'REKLAMO_SMTP_PASS',   '<mailbox password>' );
-
-// Do NOT define REKLAMO_DISABLE_RATE_LIMITS here — the per-IP limits on the request form,
-// the chunked uploader and the approval page are part of the site's protection.
-
-// Real cron instead of visitor-triggered WP-Cron (see step 9).
-define( 'DISABLE_WP_CRON', true );
-```
+## 4. Everyday remote commands
 
 ```bash
-mkdir -p ~/reklamo-private && chmod 750 ~/reklamo-private
+scripts/deploy.sh check                       # health report, exit 1 when something needs attention
+scripts/deploy.sh wp plugin list              # any WP-CLI command on the server
+scripts/deploy.sh wp db export - | gzip > backup.sql.gz
+scripts/deploy.sh ssh
 ```
 
-## 6. Clone the repo and link our code
+On the server itself: `cd ~/reklamo && scripts/wp …` runs the same WP-CLI through `PHP_BIN`.
 
-```bash
-cd ~ && git clone git@github.com:kiril-gerovski/reklamo.git     # add a deploy key in cPanel SSH Access first, or use HTTPS
-cd ~/public_html/wp-content
-rm -rf themes/twentytwenty* plugins/akismet plugins/hello.php   # stock noise
-ln -s ~/reklamo/wp-content/themes/reklamo   themes/reklamo
-ln -s ~/reklamo/wp-content/plugins/reklamo-core plugins/reklamo-core
-```
+## 5. No SSH? cPanel Git fallback
 
-Symlinks (not copies) are the point: a deploy is `git pull`, a rollback is `git checkout <tag>`.
-
-## 7. WooCommerce, theme, plugin, configuration
-
-```bash
-cd ~/reklamo
-cp .env.example .env
-```
-Edit `.env`: `WP_URL=https://reklamo.bg`, `WP_ADMIN_USER=<owner-login>`, `WP_PATH=/home/<user>/public_html`, `REKLAMO_ENV=production`. The DB_* / MAIL_PORT / WP_ADMIN_PASS lines are irrelevant on the server (Docker-only) — leave them.
-
-```bash
-set -a; . ./.env; set +a
-wp --path="$WP_PATH" plugin install woocommerce --version="$WC_VERSION" --activate
-wp --path="$WP_PATH" language core install bg_BG --activate
-wp --path="$WP_PATH" language plugin install woocommerce bg_BG
-wp --path="$WP_PATH" theme activate reklamo
-wp --path="$WP_PATH" plugin activate reklamo-core
-scripts/seed.sh                     # THE site configuration, same script as locally
-```
-
-`seed.sh` in production mode allows indexing (`blog_public 1`) and otherwise does exactly what it does locally: pages, menus, packages, gateway, shipping, request page, homepage from patterns, company settings. **Afterwards, edit the real values in the dashboard**: WooCommerce → Настройки → Reklamo (phone, email, address, social), product prices and photos, page texts. Re-running `seed.sh` later never overwrites a homepage the owner has edited.
-
-Disable WooCommerce/WordPress auto-updates stay disabled (seeded). Updates are done deliberately, see §10.
-
-## 8. Email — the step that decides whether approval links arrive
-
-1. cPanel → **Email Accounts** → create `office@reklamo.bg` (used in step 5 constants).
-2. cPanel → **Email Deliverability** → for reklamo.bg click **Manage** and install the suggested **SPF** and **DKIM** records (one click if DNS is at SuperHosting; otherwise copy them to your DNS). Add a **DMARC** TXT record: `v=DMARC1; p=quarantine; rua=mailto:office@reklamo.bg`.
-3. SuperHosting's own guidance for WordPress SMTP is `<servername>.superhosting.bg`, port 25, authenticated. Prefer the encrypted variants above (465/ssl or 587/tls) — both are standard on cPanel mail; fall back to 25 only if they fail.
-4. Test from the server: `wp --path=$WP_PATH eval 'var_dump( wp_mail("you@gmail.com","SMTP test","ok") );'` → expect `bool(true)`, then check the inbox **and** spam folder. Repeat to an abv.bg and a mail.bg address — those are the customers' providers.
-
-No plugin is involved: the SMTP transport is `Reklamo_Mail` in the plugin, driven by the constants.
-
-## 9. Cron
-
-WP-Cron only fires on visits; on a low-traffic site scheduled jobs (WooCommerce Action Scheduler, future reminders) simply don't run. With `DISABLE_WP_CRON` set, add a real one — cPanel → **Cron Jobs**, every 5 minutes:
-
-```
-*/5 * * * * cd /home/<user>/public_html && /usr/local/bin/php wp-cron.php >/dev/null 2>&1
-```
-
-(or use SuperHosting's *Manager for WordPress → Cron Jobs (WP-Cron) → Move*, which does the same).
-
-## 10. SSL and final checks
-
-- **Run WooCommerce → Reklamo diagnostics** on the live site: it must say the storage is *outside the web root*, `DOM` and `finfo` available, cleanup scheduled. Click **Run probe** — the uploader uses 2 MB chunks, so as long as 2 MB is accepted, customer uploads of any size work regardless of the PHP limits from §2. Note the largest accepted size here for future reference.
-
-- cPanel → **SSL/TLS Status** → AutoSSL (Let's Encrypt) for reklamo.bg and www. Once issued, `WP_HOME`/`WP_SITEURL` already say https.
-- Verify the private directory is not reachable: `curl -I https://reklamo.bg/reklamo-private/` must be 404 (it is outside `public_html`, so it should be).
-- Walk the flow once with a real email address: homepage → Red Business Pack → request page → upload → order → email arrives → wp-admin → send mockup → approval link works. Then delete the test order (or keep it as the first "example").
-- Set the WooCommerce store address, and turn on **Analytics** (WooCommerce → Analytics) — Legacy Reports ignore our statuses.
-
-## 11. No SSH? cPanel Git fallback
-
-If the plan lacks SSH, cPanel → **Git™ Version Control → Create** → clone `https://github.com/kiril-gerovski/reklamo.git` into `/home/<user>/reklamo`. Deployment then copies files instead of symlinking: commit a `.cpanel.yml` in the repo root —
+Plans without SSH cannot run the scripts. cPanel → **Git™ Version Control → Create** → clone the
+repository into `/home/<user>/reklamo`, and commit a `.cpanel.yml` that copies the two directories
+into `public_html/wp-content/` on **Deploy HEAD Commit**:
 
 ```yaml
 ---
@@ -183,23 +166,37 @@ deployment:
     - /bin/cp -R wp-content/plugins/reklamo-core $DEPLOYPATH/plugins/
 ```
 
-— and click **Update from Remote** then **Deploy HEAD Commit** after each release. Caveats from cPanel: deleted files are not removed from the target, and dot-files are not copied. WordPress itself is then installed with SuperHosting's *Manager for WordPress* and configured through the dashboard (no `seed.sh`).
+cPanel copies without deleting and skips dot-files. WordPress is then installed with *Manager for
+WordPress* and configured by hand from `seed.sh`, which is a real cost: the SSH plan is cheaper.
 
-## 12. Shipping an update
+## 6. Facts about SuperHosting the scripts rely on
 
-```bash
-ssh reklamo-prod
-cd ~/reklamo && git pull --ff-only
-set -a; . ./.env; set +a
-scripts/seed.sh                                  # only if scripts/seed.sh changed in the pull
-wp --path="$WP_PATH" cache flush && wp --path="$WP_PATH" rewrite flush
-```
+From help.superhosting.bg:
 
-Code is symlinked, so PHP/CSS changes are live the moment `git pull` finishes. If a release adds translatable strings, the compiled `.mo` files are committed, nothing to build. Rollback: `git checkout <previous-tag>` in `~/reklamo`.
+- SSH: plans СуперПро and СуперХостинг, activation in the client profile, port 1022, cPanel user
+  and password or an authorised key. cPanel's browser Terminal is available once SSH is on.
+- WP-CLI is installed on every shared Linux server as `/usr/local/bin/wp-cli`.
+- PHP CLI binaries: `/opt/cpanel/ea-phpXX/root/usr/bin/php`; the bare `php` is the server default
+  and its `php.ini` is the system one, so the web PHP version chosen in PHP Manager does not
+  change what `php` on the shell is.
+- Cron commands should use the full `/opt/cpanel/ea-phpXX/root/usr/bin/php` path.
+- Git works in the shell. GitHub over SSH needs `Hostname ssh.github.com` / `Port 443` in
+  `~/.ssh/config` because outbound 22 is blocked.
+- Sending mail from a script: host = the domain or `serverNN.superhosting.bg`, authenticated with
+  a real mailbox; the ports page lists 465 SSL/TLS and 587 STARTTLS on the server hostname, the
+  script page documents 25 unencrypted. Outbound 25/26/465 to *other* servers is blocked.
+- Apache with `.htaccess` (the deny rules on the private directory and WordPress permalinks work).
+- PHP directives and modules are set per account in PHP Manager; `.user.ini` is the per-directory
+  route that `check.sh` verifies rather than assumes.
 
-Updating WordPress or WooCommerce: test the new version locally first (`WC_VERSION` in `.env.example`, `scripts/reset.sh`, `scripts/e2e.sh`), then on the server `wp core update` / `wp plugin update woocommerce`.
+## 7. Confirm on the real account
 
-## 13. Backups and staging
+Not verifiable without an account; `check.sh` reports each one:
 
-- cPanel → **Backup** (or JetBackup if offered): make sure `~/reklamo-private` is inside the backup scope — it holds the customers' logo files, which exist nowhere else.
-- Before the first real order, create `staging.reklamo.bg` as a cPanel **subdomain** with its own DB and a second checkout (`~/reklamo-staging`), and try upgrades there first. Cheap hosting has no undo button.
+- `uapi` present in the jailed shell (database creation). Fallback: cPanel → MySQL Databases.
+- `/usr/local/bin/wp-cli` is a phar (run through `PHP_BIN`) or a launcher (gets `WP_CLI_PHP`).
+  Fallback: `install.sh` downloads `~/.reklamo/wp-cli.phar`.
+- `crontab` writable from the shell. Fallback: the printed line in cPanel → Cron Jobs.
+- Apache follows the theme/plugin symlinks (`SymLinksIfOwnerMatch`, same owner). `check.sh` fetches
+  the theme's `style.css` through the symlink.
+- `.user.ini` honoured by the FastCGI PHP. `check.sh` prints the values the web server applies.

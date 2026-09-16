@@ -14,10 +14,13 @@ wc() { wp wc "$@" --user="$WP_ADMIN_USER"; }
 # Warn-and-continue: WooCommerce refuses direct writes to a few of its admin
 # options; a cosmetic setting must never abort the seed.
 opt() { wp option update "$1" "$2" "${@:3}" >/dev/null 2>&1 || echo "  ! could not set $1"; }
+# Owner-editable content (company details, bank data, prices, texts): seeded once, then
+# whatever the owner sets in the dashboard wins on every later run.
+opt_default() { wp option add "$1" "$2" "${@:3}" >/dev/null 2>&1 || true; }
 
 echo "→ general settings"
 opt blogname "$WP_TITLE"
-opt blogdescription "Промо пакети с вашето лого"
+opt_default blogdescription "Промо пакети с вашето лого"
 opt timezone_string "Europe/Sofia"
 opt date_format "d.m.Y"
 opt time_format "H:i"
@@ -31,9 +34,9 @@ wp rewrite structure '/%postname%/' >/dev/null
 wp rewrite flush --hard >/dev/null 2>&1 || wp rewrite flush >/dev/null
 
 echo "→ WooCommerce store settings"
-opt woocommerce_store_address "ул. Примерна 1"
-opt woocommerce_store_city "София"
-opt woocommerce_store_postcode "1000"
+opt_default woocommerce_store_address "ул. Примерна 1"
+opt_default woocommerce_store_city "София"
+opt_default woocommerce_store_postcode "1000"
 opt woocommerce_default_country "BG"
 opt woocommerce_allowed_countries "specific"
 opt woocommerce_specific_allowed_countries '["BG"]' --format=json
@@ -68,9 +71,9 @@ opt woocommerce_enable_myaccount_registration "no"
 opt woocommerce_enable_coupons "no"
 opt woocommerce_enable_reviews "no"
 # Emails
-opt woocommerce_email_from_name "Reklamo.bg"
-opt woocommerce_email_from_address "office@reklamo.bg"
-opt woocommerce_email_footer_text "Reklamo.bg — промо пакети с вашето лого"
+opt_default woocommerce_email_from_name "Reklamo.bg"
+opt_default woocommerce_email_from_address "office@reklamo.bg"
+opt_default woocommerce_email_footer_text "Reklamo.bg — промо пакети с вашето лого"
 # Silence the noise
 opt woocommerce_allow_tracking "no"
 opt woocommerce_show_marketplace_suggestions "no"
@@ -99,17 +102,17 @@ echo "  HPOS enabled: " . ( Automattic\WooCommerce\Utilities\OrderUtil::custom_o
 '
 
 echo "→ company & process settings (WooCommerce → Settings → Reklamo)"
-opt reklamo_company_name "Reklamo.bg"
-opt reklamo_tagline "Промоционални пакети и брандирани продукти за твоя бизнес. Ясни цени, качествено изпълнение и персонално обслужване."
-opt reklamo_phone "+359 88 123 4567"
-opt reklamo_email "office@reklamo.bg"
-opt reklamo_address "София, България"
-opt reklamo_facebook "https://facebook.com/"
-opt reklamo_instagram "https://instagram.com/"
-opt reklamo_linkedin "https://linkedin.com/"
-opt reklamo_mockup_deadline 24
-opt reklamo_deposit_pct 50
-opt reklamo_note_max 300
+opt_default reklamo_company_name "Reklamo.bg"
+opt_default reklamo_tagline "Промоционални пакети и брандирани продукти за твоя бизнес. Ясни цени, качествено изпълнение и персонално обслужване."
+opt_default reklamo_phone "+359 88 123 4567"
+opt_default reklamo_email "office@reklamo.bg"
+opt_default reklamo_address "София, България"
+opt_default reklamo_facebook "https://facebook.com/"
+opt_default reklamo_instagram "https://instagram.com/"
+opt_default reklamo_linkedin "https://linkedin.com/"
+opt_default reklamo_mockup_deadline 24
+opt_default reklamo_deposit_pct 50
+opt_default reklamo_note_max 300
 
 echo "→ tax rate (BG 20% standard)"
 if [ "$(wc tax list --format=count 2>/dev/null || echo 0)" = "0" ]; then
@@ -117,14 +120,14 @@ if [ "$(wc tax list --format=count 2>/dev/null || echo 0)" = "0" ]; then
 fi
 
 echo "→ bank details (WooCommerce → Settings → Reklamo → Bank details) — placeholders, owner fills the real ones"
-opt reklamo_bank_name "УниКредит Булбанк"
-opt reklamo_iban "BG00UNCR00000000000000"
-opt reklamo_bic "UNCRBGSF"
-opt reklamo_account_holder "Рекламо ЕООД"
-opt reklamo_reminder_days "3,7,14"
-opt reklamo_stale_days 7
-opt reklamo_max_upload_mb 300
-opt reklamo_retention_months 12
+opt_default reklamo_bank_name "УниКредит Булбанк"
+opt_default reklamo_iban "BG00UNCR00000000000000"
+opt_default reklamo_bic "UNCRBGSF"
+opt_default reklamo_account_holder "Рекламо ЕООД"
+opt_default reklamo_reminder_days "3,7,14"
+opt_default reklamo_stale_days 7
+opt_default reklamo_max_upload_mb 300
+opt_default reklamo_retention_months 12
 
 echo "→ payment gateways"
 # Our no-payment gateway is the only one enabled. Title/description are site content (Bulgarian).
@@ -263,7 +266,7 @@ opt page_on_front "$home_id"
 # Request page: the design's single request step, rendered by the theme template.
 req_id=$(page_id kachi-logo)
 wp post meta update "$req_id" _wp_page_template "templates/page-request.php" >/dev/null
-wp post update "$req_id" --post_content="<!-- wp:paragraph --><p>Изпратете вашето лого и ние ще подготвим професионална визуализация на избрания пакет.</p><!-- /wp:paragraph -->" >/dev/null
+fill_if_empty kachi-logo "<!-- wp:paragraph --><p>Изпратете вашето лого и ние ще подготвим професионална визуализация на избрания пакет.</p><!-- /wp:paragraph -->"
 opt reklamo_request_page_id "$req_id"
 
 # Homepage: expand the theme's patterns into real, owner-editable blocks — only while the
@@ -358,26 +361,23 @@ for s in dostavka-i-srokove plashtane chesto-zadavani-vaprosi obshti-usloviya po
 wp menu location assign "Футър — Информация" footer-info >/dev/null 2>&1 || true
 
 echo "→ products (from design/preview.webp)"
-cat_id=$(wc product_cat list --search="Пакети" --format=json | python3 -c 'import sys,json; c=[x for x in json.load(sys.stdin) if x["name"]=="Пакети"]; print(c[0]["id"] if c else "")')
+cat_id=$(wc product_cat list --slug=paketi --field=id | head -n1)
 [ -n "$cat_id" ] || cat_id=$(wc product_cat create --name="Пакети" --slug="paketi" --porcelain)
 
-ensure_product() { # sku name price short_description menu_order
-  local id; id=$(wc product list --sku="$1" --format=json | python3 -c 'import sys,json; p=json.load(sys.stdin); print(p[0]["id"] if p else "")')
-  if [ -z "$id" ]; then
-    wc product create --type=simple --status=publish --sku="$1" --name="$2" --regular_price="$3" \
-      --short_description="$4" --menu_order="$5" --manage_stock=false --sold_individually=false \
-      --categories="[{\"id\":$cat_id}]" --porcelain >/dev/null
-  else
-    wc product update "$id" --name="$2" --regular_price="$3" --short_description="$4" --menu_order="$5" >/dev/null
-  fi
+product_id() { wc product list --sku="$1" --field=id | head -n1; }
+# Sample packages exist only until the owner has products: created when the SKU is
+# missing, never updated — names, prices and texts belong to the dashboard afterwards.
+ensure_product() { # sku name price short_description menu_order [featured]
+  [ -n "$(product_id "$1")" ] && return 0
+  wc product create --type=simple --status=publish --sku="$1" --name="$2" --regular_price="$3" \
+    --short_description="$4" --menu_order="$5" --manage_stock=false --sold_individually=false \
+    --featured="${6:-false}" --categories="[{\"id\":$cat_id}]" --porcelain >/dev/null
 }
-ensure_product RBP "Red Business Pack"   100 "<ul><li>20 червени тефтера</li><li>20 червени химикалки</li></ul>" 1
+ensure_product RBP "Red Business Pack"   100 "<ul><li>20 червени тефтера</li><li>20 червени химикалки</li></ul>" 1 true   # "Най-популярен" badge
 ensure_product OSP "Office Starter Pack" 119 "<ul><li>20 чаши</li><li>20 химикалки</li></ul>" 2
 ensure_product EVP "Event Pack"          149 "<ul><li>20 текстилни торби</li><li>20 метални бутилки</li></ul>" 3
 ensure_product PRP "Premium Pack"        169 "<ul><li>20 бележника</li><li>20 метални химикалки</li></ul>" 4
 opt woocommerce_default_catalog_orderby "menu_order"
-rbp_id=$(wc product list --sku=RBP --format=json | python3 -c 'import sys,json; p=json.load(sys.stdin); print(p[0]["id"] if p else "")')
-[ -n "$rbp_id" ] && wc product update "$rbp_id" --featured=true >/dev/null   # "Най-популярен" badge
 
 echo "→ flushing caches"
 wp cache flush >/dev/null 2>&1 || true

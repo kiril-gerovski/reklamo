@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 # WP-CLI. Locally: inside the Docker stack (reusing a running helper container if a
-# scripts/ script has one). On a server: set WP_PATH and it runs the native `wp`.
+# scripts/ script has one). On a server: set WP_PATH and it runs the native install.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 [ -f .env ] && { set -a; . ./.env; set +a; }
 if [ -n "${WP_PATH:-}" ]; then
-  exec wp --path="$WP_PATH" "$@"
+  . scripts/lib.sh
+  wp "$@"
+  exit
 fi
 cli="${COMPOSE_PROJECT_NAME:-reklamo}-cli"
 if docker ps -q -f name="^${cli}\$" | grep . >/dev/null; then
