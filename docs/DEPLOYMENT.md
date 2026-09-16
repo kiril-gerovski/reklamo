@@ -40,8 +40,10 @@ never committed. Our code (theme + plugin) is a git checkout the site symlinks i
 | server | `scripts/host/update.sh [ref] [--no-seed]` | fetch, maintenance mode, checkout, WP/WC pins, `seed.sh`, flush, `check.sh` |
 | server | `scripts/host/check.sh [--mail-test a@b]` | read-only report: versions, symlinks, config, cron, web PHP probe, mail |
 
-`scripts/deploy.sh` reads `.env.deploy` (copy `.env.deploy.example`, gitignored). The server
-scripts read `~/reklamo/.env`, created from `.env.server.example` on the first run.
+`scripts/deploy.sh` takes `DEPLOY_USER`, `DEPLOY_HOST` and optionally `DEPLOY_PORT` (1022),
+`DEPLOY_DIR` (reklamo), `DEPLOY_REF` (main), `DEPLOY_REPO` (the checkout's `origin`) from the
+environment; `.env.deploy` (copy `.env.deploy.example`, gitignored) fills whatever is not set. The
+server scripts read `~/reklamo/.env`, created from `.env.server.example` on the first run.
 `scripts/lib.sh` runs every `wp` call through `PHP_BIN` so the CLI uses the same PHP as the site;
 the `php` on PATH is the server default and may be older.
 
@@ -63,9 +65,10 @@ MySQL Databases and fill `DB_NAME`, `DB_USER`, `DB_PASSWORD` in the server `.env
 ## 1. First deploy
 
 ```bash
-cp .env.deploy.example .env.deploy      # DEPLOY_USER, DEPLOY_HOST, DEPLOY_REPO, DEPLOY_REF
-scripts/deploy.sh install
+DEPLOY_USER=<cpanel-user> DEPLOY_HOST=reklamo.bg scripts/deploy.sh install
 ```
+
+or put the same values in `.env.deploy` once and call `scripts/deploy.sh install`.
 
 What happens on the server:
 

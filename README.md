@@ -63,7 +63,7 @@ docker compose logs -f wp
 ## Deploying to SuperHosting
 
 ```bash
-cp .env.deploy.example .env.deploy    # cPanel user, host, repo, branch
+export DEPLOY_USER=<cpanel-user> DEPLOY_HOST=reklamo.bg   # or put them in .env.deploy
 scripts/deploy.sh install             # fresh account → live site (asks for URL, admin, mailbox)
 scripts/deploy.sh update [tag]        # ship a version: checkout, WP/WC pins, seed, flush, health check
 scripts/deploy.sh check --mail-test you@example.com
