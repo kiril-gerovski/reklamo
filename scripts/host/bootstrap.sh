@@ -28,8 +28,10 @@ if [[ $repo == git@github.com:* || $repo == ssh://git@github.com* ]]; then
     echo
     read -r -p "Press Enter once it is added… " _
   fi
-  ssh -T -o StrictHostKeyChecking=accept-new git@github.com 2>&1 | grep -q 'successfully authenticated' \
-    || die "GitHub did not accept ~/.ssh/reklamo_deploy.pub — add it as a deploy key and re-run"
+  # GitHub answers the auth test with exit 1 even on success, so judge the text, not the status.
+  out=$(ssh -T -o StrictHostKeyChecking=accept-new -o ConnectTimeout=20 git@github.com 2>&1 || true)
+  grep -q 'successfully authenticated' <<<"$out" \
+    || die "GitHub did not accept ~/.ssh/reklamo_deploy.pub — add it as a deploy key and re-run. GitHub said: $out"
 fi
 
 if [ -d "$dir/.git" ]; then
