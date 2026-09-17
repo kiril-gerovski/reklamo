@@ -23,6 +23,18 @@ env_set() { # key value
   chmod 600 .env
 }
 
+# Merge a KEY=value file into .env: filled values win, empty ones keep what .env has
+# (so uapi-generated DB credentials survive a re-upload). CPANEL_USER is expanded.
+env_merge_file() { # file
+  local k v
+  while IFS='=' read -r k v || [ -n "$k" ]; do
+    case "$k" in ''|'#'*) continue;; esac
+    v=${v//CPANEL_USER/$(id -un)}
+    case "$v" in "'"*"'"|'"'*'"') v=${v:1:-1};; esac
+    [ -n "$v" ] && env_set "$k" "$v"
+  done < "$1"
+}
+
 # Ask for a value when the .env line is empty; -s hides the typing.
 env_need() { # key prompt [-s]
   local key=$1 prompt=$2 value

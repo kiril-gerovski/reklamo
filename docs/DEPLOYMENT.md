@@ -76,8 +76,13 @@ What happens on the server:
    generates `~/.ssh/reklamo_deploy` and prints the public key. Add it as a **read-only deploy
    key** on the GitHub repository, press Enter, and it clones `~/reklamo` at `DEPLOY_REF`.
 2. `install.sh` creates `~/reklamo/.env` from `.env.server.example` with the cPanel user filled
-   in, and asks for the empty values: site URL, admin login and email, mailbox and its password.
-   `SMTP_HOST` defaults to the server's own hostname, whose TLS certificate matches (465/ssl).
+   in. To skip every prompt, copy `.env.server.example` to `.env.server` on the workstation
+   (gitignored) and fill it in: `deploy.sh install` uploads it, `install.sh` merges the filled
+   values into the server `.env` and deletes the upload. Whatever is still empty is asked for:
+   site URL, admin login and email, mailbox and its password. `SMTP_HOST` defaults to the
+   server's own hostname, whose TLS certificate matches (465/ssl). Re-uploading with a changed
+   value updates the server; an empty value never erases what is there, so the generated
+   database credentials survive.
 3. Checks PHP ≥ 8.1 and the required extensions, finds WP-CLI, creates the database, downloads
    WordPress (`WP_VERSION`), writes `wp-config.php` with the production constants from `.env`
    (`chmod 600`), installs, installs the Bulgarian language pack, symlinks theme and plugin,

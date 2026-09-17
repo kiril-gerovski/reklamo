@@ -64,7 +64,8 @@ docker compose logs -f wp
 
 ```bash
 export DEPLOY_USER=<cpanel-user> DEPLOY_HOST=reklamo.bg   # or put them in .env.deploy
-scripts/deploy.sh install             # fresh account → live site (asks for URL, admin, mailbox)
+cp .env.server.example .env.server    # optional: fill it in and no prompt is asked
+scripts/deploy.sh install             # fresh account → live site
 scripts/deploy.sh update [tag]        # ship a version: checkout, WP/WC pins, seed, flush, health check
 scripts/deploy.sh check --mail-test you@example.com
 scripts/deploy.sh wp plugin list      # any WP-CLI command on the server

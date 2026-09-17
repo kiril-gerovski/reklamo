@@ -10,7 +10,13 @@ cpuser=$(id -un)
 if [ ! -f .env ]; then
   sed "s/CPANEL_USER/$cpuser/g" .env.server.example > .env
   chmod 600 .env
-  say "created .env from .env.server.example — answer the prompts, edit .env later if needed"
+  say "created .env from .env.server.example"
+fi
+uploaded="$HOME/$(basename "$PWD").env"
+if [ -f "$uploaded" ]; then
+  say "applying $(basename "$uploaded") uploaded by deploy.sh"
+  env_merge_file "$uploaded"
+  rm -f "$uploaded"
 fi
 env_need WP_URL "Site URL (https://reklamo.bg)"
 env_need WP_ADMIN_USER "WordPress admin login"

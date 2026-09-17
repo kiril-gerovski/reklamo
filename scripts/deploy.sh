@@ -2,7 +2,8 @@
 # Drive the hosting account from your workstation over SSH. Settings come from DEPLOY_*
 # environment variables, with .env.deploy (copy .env.deploy.example) filling the gaps.
 # SSH access must be enabled in my.superhosting.bg first.
-#   scripts/deploy.sh install                 fresh account → live site (clone + install)
+#   scripts/deploy.sh install                 fresh account → live site (clone + install);
+#                                             copy .env.server.example to .env.server first to skip prompts
 #   scripts/deploy.sh update [tag|branch]     ship a new version
 #   scripts/deploy.sh check [--mail-test a@b] health report
 #   scripts/deploy.sh wp <args…>              WP-CLI on the server
@@ -26,6 +27,8 @@ cmd=${1:-}; shift || true
 case "$cmd" in
   install)
     : "${DEPLOY_REPO:?DEPLOY_REPO is empty in .env.deploy}"
+    # Filled-in values skip the prompts; the file is merged into ~/<dir>/.env and deleted.
+    [ -f .env.server ] && scp -q -p -P "$DEPLOY_PORT" .env.server "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_DIR.env"
     scp -q -P "$DEPLOY_PORT" scripts/host/bootstrap.sh "$DEPLOY_USER@$DEPLOY_HOST:reklamo-bootstrap.sh"
     remote "bash reklamo-bootstrap.sh $(quoted "$DEPLOY_REPO" "$DEPLOY_DIR" "$DEPLOY_REF"); rc=\$?; rm -f reklamo-bootstrap.sh; exit \$rc"
     ;;
