@@ -21,22 +21,20 @@ if [ -n "${WP_PATH:-}" ]; then
   : "${PHP_BIN:=php}"
   command -v "$PHP_BIN" >/dev/null || { echo "ERROR: PHP_BIN=$PHP_BIN is not executable" >&2; exit 1; }
 
-  # SuperHosting ships WP-CLI as /usr/local/bin/wp-cli. A phar is run through PHP_BIN so
-  # the CLI uses the same PHP version as the website; a launcher script only gets the hint.
+  # Only a real phar is accepted, run through PHP_BIN so the CLI uses the site's PHP version.
+  # SuperHosting's /usr/local/bin/wp-cli is a bash launcher that picks the newest PHP on the
+  # box and ignores WP_CLI_PHP; the phar next to it is what we want. Same list as
+  # ensure_wp_cli in scripts/host/common.sh.
+  reklamo_is_phar() { head -c 200 "$1" 2>/dev/null | grep -q '<?php'; }
   reklamo_find_wp_cli() {
     local c
-    for c in "${WP_CLI_PHAR:-}" "$(command -v wp-cli 2>/dev/null)" "$(command -v wp 2>/dev/null)" "$HOME/.reklamo/wp-cli.phar"; do
-      [ -n "$c" ] && [ -f "$c" ] && { echo "$c"; return 0; }
+    for c in "${WP_CLI_PHAR:-}" /usr/local/bin/wp-cli.phar "$(command -v wp-cli 2>/dev/null)" "$(command -v wp 2>/dev/null)" "$HOME/.reklamo/wp-cli.phar"; do
+      [ -n "$c" ] && [ -f "$c" ] && reklamo_is_phar "$c" && { echo "$c"; return 0; }
     done
     return 1
   }
-  REKLAMO_WP_CLI="$(reklamo_find_wp_cli)" || { echo "ERROR: WP-CLI not found (wp-cli, wp or ~/.reklamo/wp-cli.phar) — scripts/host/install.sh downloads it" >&2; exit 1; }
-  if head -c 64 "$REKLAMO_WP_CLI" | grep -q php; then
-    WP_CMD=("$PHP_BIN" -d memory_limit=512M "$REKLAMO_WP_CLI")
-  else
-    export WP_CLI_PHP="$PHP_BIN" WP_CLI_PHP_ARGS="-d memory_limit=512M"
-    WP_CMD=("$REKLAMO_WP_CLI")
-  fi
+  REKLAMO_WP_CLI="$(reklamo_find_wp_cli)" || { echo "ERROR: no WP-CLI phar found (wp-cli.phar, wp-cli, wp or ~/.reklamo/wp-cli.phar) — scripts/host/install.sh downloads one" >&2; exit 1; }
+  WP_CMD=("$PHP_BIN" -d memory_limit=512M "$REKLAMO_WP_CLI")
   cli_up()   { :; }
   cli_down() { :; }
   wp() { "${WP_CMD[@]}" --path="$WP_PATH" "$@"; }

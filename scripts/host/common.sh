@@ -59,11 +59,12 @@ uapi_call() { # Module function key=value…
   return 1
 }
 
-# WP-CLI: prefer the host's wp-cli, otherwise a phar of our own under ~/.reklamo.
+# WP-CLI: a phar the host already has, otherwise one of our own under ~/.reklamo.
+# Same candidate list and phar test as scripts/lib.sh; launcher scripts are skipped.
 ensure_wp_cli() {
   local c
-  for c in "${WP_CLI_PHAR:-}" "$(command -v wp-cli 2>/dev/null)" "$(command -v wp 2>/dev/null)" "$HOME/.reklamo/wp-cli.phar"; do
-    [ -n "$c" ] && [ -f "$c" ] && return 0
+  for c in "${WP_CLI_PHAR:-}" /usr/local/bin/wp-cli.phar "$(command -v wp-cli 2>/dev/null)" "$(command -v wp 2>/dev/null)" "$HOME/.reklamo/wp-cli.phar"; do
+    [ -n "$c" ] && [ -f "$c" ] && head -c 200 "$c" 2>/dev/null | grep -q '<?php' && return 0
   done
   say "downloading WP-CLI to ~/.reklamo/wp-cli.phar"
   mkdir -p "$HOME/.reklamo"

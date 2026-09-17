@@ -193,8 +193,9 @@ From help.superhosting.bg:
 - `/usr/bin/curl` is root-only (`-r-x------`) for hosting accounts. `wget` works, and PHP's curl
   extension is loaded. The host scripts use PHP streams for their HTTP probes and `wget` for the
   WP-CLI download fallback.
-- `/usr/local/bin/wp-cli` is a bash launcher, not a phar; `scripts/lib.sh` hands it `WP_CLI_PHP`
-  so it runs on `PHP_BIN`.
+- `/usr/local/bin/wp-cli` is a bash launcher that runs `/usr/local/bin/wp-cli.phar` on the
+  **newest** PHP installed (8.5 on saturn) and ignores `WP_CLI_PHP`. `scripts/lib.sh` skips
+  launchers and runs the phar itself through `PHP_BIN`, so WP-CLI and the site share one PHP.
 - Cron commands should use the full `/opt/cpanel/ea-phpXX/root/usr/bin/php` path.
 - Git works in the shell. GitHub over SSH needs `Hostname ssh.github.com` / `Port 443` in
   `~/.ssh/config` because outbound 22 is blocked.
@@ -210,8 +211,8 @@ From help.superhosting.bg:
 Not verifiable without an account; `check.sh` reports each one:
 
 - `uapi` present in the jailed shell (database creation). Fallback: cPanel → MySQL Databases.
-- `/usr/local/bin/wp-cli` is a phar (run through `PHP_BIN`) or a launcher (gets `WP_CLI_PHP`).
-  Fallback: `install.sh` downloads `~/.reklamo/wp-cli.phar`.
+- A WP-CLI phar exists (`/usr/local/bin/wp-cli.phar` on saturn). Fallback: `install.sh`
+  downloads `~/.reklamo/wp-cli.phar` with `wget`.
 - `crontab` writable from the shell. Fallback: the printed line in cPanel → Cron Jobs.
 - Apache follows the theme/plugin symlinks (`SymLinksIfOwnerMatch`, same owner). `check.sh` fetches
   the theme's `style.css` through the symlink.
