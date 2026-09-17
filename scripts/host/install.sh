@@ -39,7 +39,6 @@ ok "CLI PHP $("$PHP_BIN" -r 'echo PHP_VERSION;') ($PHP_BIN)"
 
 say "tools"
 command -v git >/dev/null || die "git is not available"
-command -v curl >/dev/null || die "curl is not available"
 ensure_wp_cli
 . scripts/lib.sh
 ok "WP-CLI $(wp cli version | awk '{print $2}') via ${WP_CMD[0]}"

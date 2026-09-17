@@ -31,7 +31,10 @@ the verified environment facts. Going live: [`docs/DEPLOYMENT.md`](docs/DEPLOYME
   Ask which kind a new line is before adding it.
 - **Version pins live in `versions.env`**, nowhere else. `scripts/setup.sh` and
   `scripts/host/update.sh` both read it; the `wordpress:` image tag in `docker-compose.yml` has
-  to match `WP_VERSION`.
+  to match `WP_VERSION`. The pins are floors: the server is raised to them, never lowered. When
+  the live site is ahead, bump the pin here after testing, do not downgrade production.
+- **PHP is 8.4 everywhere**: the `wordpress:*-php8.4` images locally, `ea-php84` on the host.
+  Change both together or not at all.
 - **Server scripts run through `PHP_BIN` and never assume `wp` exists.** `scripts/lib.sh` picks the
   host's `wp-cli`, `wp`, or our downloaded phar. Anything that must also run on the hosting
   account (seed, host scripts) avoids python and other tools a cPanel shell may lack.

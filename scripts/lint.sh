@@ -6,4 +6,4 @@ if [ ! -d vendor ]; then
   echo "→ installing dev tooling"
   docker run --rm -u "$(id -u):$(id -g)" -v "$PWD":/app -w /app composer:2 install --no-interaction --quiet
 fi
-docker run --rm -u "$(id -u):$(id -g)" -v "$PWD":/app -w /app php:8.3-cli vendor/bin/phpcs "$@"
+docker run --rm -u "$(id -u):$(id -g)" -v "$PWD":/app -w /app php:8.4-cli vendor/bin/phpcs "$@"

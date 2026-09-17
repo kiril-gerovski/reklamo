@@ -29,9 +29,13 @@ done
 say "versions"
 cli_php=$("$PHP_BIN" -r 'echo PHP_VERSION;')
 ok "CLI PHP $cli_php ($PHP_BIN)"
-cur_wp=$(wp core version); cur_wc=$(wp plugin get woocommerce --field=version 2>/dev/null || echo none)
-[ "$cur_wp" = "$WP_VERSION" ] && ok "WordPress $cur_wp" || bad "WordPress $cur_wp, pinned $WP_VERSION (scripts/host/update.sh)"
-[ "$cur_wc" = "$WC_VERSION" ] && ok "WooCommerce $cur_wc" || bad "WooCommerce $cur_wc, pinned $WC_VERSION (scripts/host/update.sh)"
+cur_wp=$(wp core version); cur_wc=$(wp plugin get woocommerce --field=version 2>/dev/null || echo 0)
+if version_lt "$cur_wp" "$WP_VERSION"; then bad "WordPress $cur_wp behind the pin $WP_VERSION (scripts/host/update.sh)"
+elif [ "$cur_wp" != "$WP_VERSION" ]; then warn "WordPress $cur_wp ahead of versions.env ($WP_VERSION) — bump the pin after testing locally"
+else ok "WordPress $cur_wp"; fi
+if version_lt "$cur_wc" "$WC_VERSION"; then bad "WooCommerce $cur_wc behind the pin $WC_VERSION (scripts/host/update.sh)"
+elif [ "$cur_wc" != "$WC_VERSION" ]; then warn "WooCommerce $cur_wc ahead of versions.env ($WC_VERSION) — bump the pin after testing locally"
+else ok "WooCommerce $cur_wc"; fi
 [ "$(wp theme list --status=active --field=name)" = reklamo ] && ok "theme reklamo active" || bad "theme reklamo is not active"
 wp plugin is-active reklamo-core >/dev/null 2>&1 && ok "plugin reklamo-core active" || bad "plugin reklamo-core is not active"
 
@@ -54,22 +58,14 @@ due=$(wp cron event list --format=count 2>/dev/null || echo 0)
 ok "$due scheduled WP-Cron events (run by the system cron)"
 
 say "web"
-host=${WP_URL#*://}; host=${host%%/*}
-curl_site() {
-  if [ -n "${WP_HOST_IP:-}" ]; then
-    curl -sS --max-time 20 --resolve "$host:443:$WP_HOST_IP" --resolve "$host:80:$WP_HOST_IP" "$@"
-  else
-    curl -sS --max-time 20 "$@"
-  fi
-}
-code=$(curl_site -o /dev/null -w '%{http_code}' -L "$WP_URL/" 2>/dev/null || true)
+code=$(http_code "$WP_URL/" -L)
 if [ "$code" = 200 ]; then
   ok "$WP_URL/ → 200"
-  code=$(curl_site -o /dev/null -w '%{http_code}' "$WP_URL/wp-content/themes/reklamo/style.css" 2>/dev/null || true)
+  code=$(http_code "$WP_URL/wp-content/themes/reklamo/style.css")
   [ "$code" = 200 ] && ok "theme assets served through the symlink" || bad "theme style.css → $code: Apache does not follow the symlink (FollowSymLinks / SymLinksIfOwnerMatch)"
   probe="reklamo-probe-$(random_token 12).php"
   printf '%s\n' '<?php header( "Content-Type: text/plain" ); echo json_encode( array( "php" => PHP_VERSION, "server" => $_SERVER["SERVER_SOFTWARE"] ?? "", "ini" => array_combine( $k = array( "upload_max_filesize", "post_max_size", "max_execution_time", "max_input_time", "memory_limit" ), array_map( "ini_get", $k ) ) ) );' > "$WP_PATH/$probe"
-  out=$(curl_site "$WP_URL/$probe" 2>/dev/null || true)
+  out=$(http_body "$WP_URL/$probe")
   rm -f "$WP_PATH/$probe"
   if [ -n "$out" ] && "$PHP_BIN" -r 'exit( json_decode( $argv[1] ) ? 0 : 1 );' "$out"; then
     web_php=$("$PHP_BIN" -r 'echo json_decode( $argv[1] )->php;' "$out")
@@ -81,7 +77,7 @@ if [ "$code" = 200 ]; then
   else
     bad "PHP probe did not run at $WP_URL/$probe (got: ${out:-nothing})"
   fi
-  [ -n "${REKLAMO_PRIVATE_DIR:-}" ] && { code=$(curl_site -o /dev/null -w '%{http_code}' "$WP_URL/$(basename "$REKLAMO_PRIVATE_DIR")/" 2>/dev/null || true); [ "$code" = 404 ] && ok "$(basename "$REKLAMO_PRIVATE_DIR")/ not reachable over HTTP" || bad "$WP_URL/$(basename "$REKLAMO_PRIVATE_DIR")/ answers $code"; }
+  [ -n "${REKLAMO_PRIVATE_DIR:-}" ] && { code=$(http_code "$WP_URL/$(basename "$REKLAMO_PRIVATE_DIR")/"); [ "$code" = 404 ] && ok "$(basename "$REKLAMO_PRIVATE_DIR")/ not reachable over HTTP" || bad "$WP_URL/$(basename "$REKLAMO_PRIVATE_DIR")/ answers $code"; }
 else
   warn "$WP_URL/ → $code — DNS not pointed here yet? Set WP_HOST_IP in .env to probe through the server IP"
 fi

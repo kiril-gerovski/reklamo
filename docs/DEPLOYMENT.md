@@ -5,7 +5,7 @@ same repo runs locally in Docker and on the host natively; only the `.env` diffe
 
 **What SuperHosting is, in the terms that matter here.** Bulgarian shared hosting on cPanel with
 CloudLinux, Apache and `.htaccess`. PHP is chosen per account in *PHP Manager by SuperHosting*
-(8.3 available). Every plan has WP-CLI preinstalled as the command `wp-cli`. SSH exists on the
+(5.2 through 8.5 installed; the account default on saturn is 8.4, which the local stack matches). Every plan has WP-CLI preinstalled as the command `wp-cli`. SSH exists on the
 **СуперПро** and **СуперХостинг** plans only, is off until enabled in the client profile, and
 listens on **port 1022** with the cPanel user. Git and the cPanel `uapi` command are available in
 that shell. Outbound ports 22, 25, 26 and 465 to *external* hosts are blocked; GitHub is reached
@@ -53,7 +53,7 @@ the `php` on PATH is the server default and may be older.
 |---|---|---|
 | Enable SSH | my.superhosting.bg → Хостинг акаунти → Настройки → SSH достъп → Активиране | Credentials arrive by email. |
 | Authorise your key | cPanel → SSH Access → Manage SSH Keys → Import → Authorize | Then `ssh -p 1022 <cpanel-user>@<domain>` works. |
-| PHP version | cPanel → PHP Manager by SuperHosting → PHP 8.3 | Same major.minor as `PHP_BIN` in the server `.env`. `check.sh` compares web and CLI. |
+| PHP version | cPanel → PHP Manager by SuperHosting → PHP 8.4 | Same major.minor as `PHP_BIN` in the server `.env` and as the `wordpress:*-php8.4` images in `docker-compose.yml`. `check.sh` compares web and CLI. |
 | PHP directives | PHP Manager → Change PHP directives | `upload_max_filesize` ≥ 128M, `post_max_size` ≥ same, `max_execution_time` 120, `max_input_time` 300, `memory_limit` 256M. `install.sh` also writes `.user.ini`; `check.sh` shows which values the web server really applies. |
 | Mailbox | cPanel → Email Accounts → `office@reklamo.bg` | WooCommerce sends from it; SMTP authenticates as it. |
 | DNS | A record → the account's IP (cPanel → General Information) | Until it propagates, set `WP_HOST_IP` in the server `.env` so `check.sh` can probe. |
@@ -95,7 +95,7 @@ seeded), `DISABLE_WP_CRON`, `REKLAMO_PRIVATE_DIR`, `REKLAMO_SMTP_*`. `REKLAMO_DI
 is removed if present: the per-IP limits on the request form, the uploader and the approval page are
 part of the site's protection.
 
-Cron: `*/5 * * * * cd ~/public_html && /opt/cpanel/ea-php83/root/usr/bin/php wp-cron.php`. If the
+Cron: `*/5 * * * * cd ~/public_html && /opt/cpanel/ea-php84/root/usr/bin/php wp-cron.php`. If the
 shell cannot write the crontab, the script prints the line to paste into cPanel → Cron Jobs.
 
 ## 2. After the first deploy (once)
@@ -129,10 +129,12 @@ scripts/deploy.sh update main       # back onto a branch
 ```
 
 `update.sh` refuses a dirty checkout, fetches, prints the incoming commits, enables maintenance
-mode, checks out the target, brings WordPress and WooCommerce to the versions in `versions.env`
+mode, checks out the target, raises WordPress and WooCommerce to the versions in `versions.env`
 (database dump to `~/reklamo-backups/` first, then `wp core update` / `wp plugin install --force`,
 `update-db`, `wp wc update`), runs `seed.sh`, flushes caches and rewrite rules, leaves maintenance
-mode and ends with `check.sh`. Code is symlinked, so PHP and CSS are live the moment the checkout
+mode and ends with `check.sh`. **It never lowers a version.** A site that is ahead of the pin,
+because a minor security release applied itself or someone updated from the dashboard, is left
+alone and reported, and the right response is to bump `versions.env` after testing locally. Code is symlinked, so PHP and CSS are live the moment the checkout
 moves. Compiled `.mo` files are committed, nothing to build.
 
 **Rollback** is `scripts/deploy.sh update <previous tag>`. WooCommerce database migrations are
@@ -181,7 +183,13 @@ From help.superhosting.bg:
 - WP-CLI is installed on every shared Linux server as `/usr/local/bin/wp-cli`.
 - PHP CLI binaries: `/opt/cpanel/ea-phpXX/root/usr/bin/php`; the bare `php` is the server default
   and its `php.ini` is the system one, so the web PHP version chosen in PHP Manager does not
-  change what `php` on the shell is.
+  change what `php` on the shell is. On saturn the default is 8.4 and ea-php52 through ea-php85
+  are installed.
+- `/usr/bin/curl` is root-only (`-r-x------`) for hosting accounts. `wget` works, and PHP's curl
+  extension is loaded. The host scripts use PHP streams for their HTTP probes and `wget` for the
+  WP-CLI download fallback.
+- `/usr/local/bin/wp-cli` is a bash launcher, not a phar; `scripts/lib.sh` hands it `WP_CLI_PHP`
+  so it runs on `PHP_BIN`.
 - Cron commands should use the full `/opt/cpanel/ea-phpXX/root/usr/bin/php` path.
 - Git works in the shell. GitHub over SSH needs `Hostname ssh.github.com` / `Port 443` in
   `~/.ssh/config` because outbound 22 is blocked.

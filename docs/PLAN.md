@@ -51,7 +51,7 @@ Checked on this VM, not assumed:
 - **Ports 8000, 8001, 8002, 3306, 6379, 9000, 11000, 13000 are taken** by a running ERP stack. `8080`, `8081`, `8025`, `3307` are free.
 - SSH on **22 and 22022**; public IP `178.104.78.114`.
 - **RAM is tight**: 7.6 GB total, ~1.9 GB free with the ERP stack up. WP + MariaDB + Mailpit needs ~600 MB — it fits, but stop the ERP worktrees if it drags.
-- `mariadb:11.8` already cached. All four image tags confirmed to resolve: `wordpress:7.1-php8.3-apache`, `wordpress:cli-2-php8.3`, `axllent/mailpit:v1.31`.
+- `mariadb:11.8` already cached. All four image tags confirmed to resolve: `wordpress:7.1-php8.4-apache`, `wordpress:cli-2-php8.4`, `axllent/mailpit:v1.31`.
 
 Current upstream (both newer than my training data — checked live):
 
@@ -64,7 +64,8 @@ Three external facts that shape the build:
 - **Bulgaria joined the euro 1 Jan 2026, and mandatory BGN/EUR dual price display expired 8 Aug 2026** — four weeks ago. The store is **single-currency EUR**, matching the document's € pricing. No dual-display work.
 **SuperHosting.bg** (from help.superhosting.bg, the target host; full list in `docs/DEPLOYMENT.md` § 6):
 
-- cPanel + CloudLinux + Apache with `.htaccess`. PHP per account via *PHP Manager by SuperHosting*, 8.3 offered. CLI binaries at `/opt/cpanel/ea-phpXX/root/usr/bin/php`; bare `php` is the server default, not the web version.
+- cPanel + CloudLinux + Apache with `.htaccess`. PHP per account via *PHP Manager by SuperHosting*, ea-php52 through ea-php85 installed on saturn, account default **8.4**. CLI binaries at `/opt/cpanel/ea-phpXX/root/usr/bin/php`; bare `php` is the server default, not the web version. The local stack runs `php8.4` images to match.
+- On saturn (checked over SSH): WP-CLI 2.12.0 as a bash launcher at `/usr/local/bin/wp-cli`, git 2.48, `uapi` present, `wget` works, `/usr/bin/curl` is root-only. All PHP extensions the plugin needs are loaded in ea-php84. `public_html` holds only the SuperHosting placeholder page. One mailbox exists (the cPanel user's own), no databases yet.
 - SSH only on the СуперПро / СуперХостинг plans, enabled in the client profile, **port 1022**, cPanel user. Git and `uapi` in the shell.
 - WP-CLI preinstalled on every shared server as **`wp-cli`**, not `wp`. `scripts/lib.sh` handles both and runs a phar through `PHP_BIN`.
 - Outbound 22/25/26/465 to external hosts blocked: GitHub via `ssh.github.com:443`, mail only through the account's own server (465 ssl / 587 tls on `serverNN.superhosting.bg`, 25 plain as documented fallback).
@@ -175,10 +176,10 @@ Four services, all bound to `127.0.0.1` only — never the public IP:
 
 | Service | Image | Port |
 |---|---|---|
-| `wp` | `wordpress:7.1-php8.3-apache` | 8080 |
+| `wp` | `wordpress:7.1-php8.4-apache` | 8080 |
 | `db` | `mariadb:11.8` | — |
 | `mail` | `axllent/mailpit:v1.31` | 8025 |
-| `cli` | `wordpress:cli-2-php8.3` | — |
+| `cli` | `wordpress:cli-2-php8.4` | — |
 
 **Apache, not nginx, on purpose** — SuperHosting and Jump.bg run Apache/LiteSpeed with `.htaccess`, so the rules protecting customer logo files get genuinely exercised locally instead of discovered broken in production.
 
@@ -371,7 +372,7 @@ Goal: **`git clone` → `scripts/setup.sh` → a working Bulgarian WooCommerce s
 | `scripts/setup.sh` | Bring stack up, wait for health, `wp core install --locale=bg_BG`, install **pinned** WooCommerce 11.1.0, language packs, activate theme + plugin, then `seed.sh` |
 | `scripts/seed.sh` | All dashboard configuration as `wp option update` / `wp wc …` commands (see below) |
 | `scripts/reset.sh` | `docker compose down -v` → `setup.sh`. The master test. |
-| `scripts/lint.sh` | PHPCS + WPCS via a throwaway `php:8.3-cli` container (no PHP on host) |
+| `scripts/lint.sh` | PHPCS + WPCS via a throwaway `php:8.4-cli` container (no PHP on host) |
 | `wp-content/themes/reklamo/` | Minimal activatable skeleton: `style.css`, `index.php`, `header.php`, `footer.php`, `functions.php` (`add_theme_support('woocommerce')`), `theme.json` v3 |
 | `wp-content/plugins/reklamo-core/reklamo-core.php` | Bootstrap: `FeaturesUtil` declarations (`custom_order_tables`, `cart_checkout_blocks`) + `phpmailer_init` SMTP hook reading `REKLAMO_SMTP_*` constants |
 | `composer.json` | dev-only: `wp-coding-standards/wpcs`, `phpcompatibility` |
@@ -383,7 +384,7 @@ Goal: **`git clone` → `scripts/setup.sh` → a working Bulgarian WooCommerce s
 - **`./private/` (gitignored) mounted at `/var/www/private`** with `REKLAMO_PRIVATE_DIR` pointing at it — mirrors the production layout of "logo storage above web root" from day one.
 - **`WORDPRESS_CONFIG_EXTRA`** carries: `WP_HOME`, `WP_SITEURL`, `WP_DEBUG`, `WP_DEBUG_LOG`, `WP_DEBUG_DISPLAY=false`, `SCRIPT_DEBUG`, `DISABLE_WP_CRON` (real cron comes later), `REKLAMO_PRIVATE_DIR`, `REKLAMO_SMTP_HOST=mail`, `REKLAMO_SMTP_PORT=1025`.
 - **Mail goes through the same `phpmailer_init` SMTP code path as production**, just pointed at Mailpit. So Phase 0 already exercises the exact mail code that will run on SuperHosting — only the constants differ.
-- `cli` uses `wordpress:cli-2-php8.3`, run as `1000:1000`, sharing `./wp`, and is invoked with `run --rm` (never idles).
+- `cli` uses `wordpress:cli-2-php8.4`, run as `1000:1000`, sharing `./wp`, and is invoked with `run --rm` (never idles).
 
 ### What `seed.sh` configures
 
@@ -449,17 +450,17 @@ Dev-only exception: **Query Monitor** locally for debugging — gitignored, neve
 
 `scripts/deploy.sh` (workstation) → `scripts/host/{bootstrap,install,update,check}.sh` (server). `install.sh` is idempotent and converges an existing account with its `.env`; `update.sh` fetches, switches the checkout under maintenance mode, converges WordPress/WooCommerce to `versions.env` (database dump first, `wp core update --force`, `wp plugin install --force`, `update-db`, `wp wc update`), re-runs `seed.sh`, flushes and runs `check.sh`. `check.sh` drops a one-off PHP probe into `public_html`, fetches it over HTTP and compares web PHP with `PHP_BIN`, prints the applied `upload_max_filesize` and friends, fetches the theme's `style.css` through the symlink and confirms the private directory is not addressable.
 
-Decisions: theme and plugin are **symlinks** into the checkout (deploy = checkout move, rollback = older tag). `seed.sh` runs on **every** update, which is why owner-editable content uses `opt_default` / create-if-missing. `WP_AUTO_UPDATE_CORE minor` on the host: security releases apply themselves, plugins and major versions stay pinned. The admin password is generated on first install and printed once, never stored.
+Decisions: theme and plugin are **symlinks** into the checkout (deploy = checkout move, rollback = older tag). `seed.sh` runs on **every** update, which is why owner-editable content uses `opt_default` / create-if-missing. `converge_versions` only ever **raises** WordPress and WooCommerce to the pins; a site ahead of `versions.env` is kept and reported, because `WP_AUTO_UPDATE_CORE minor` legitimately moves the server first. `WP_AUTO_UPDATE_CORE minor` on the host: security releases apply themselves, plugins and major versions stay pinned. The admin password is generated on first install and printed once, never stored.
 
-**Simulation** (there is no SuperHosting account to test against): copy the repo to `/tmp/hosttest/reklamo` without `wp/`, `private/`, `vendor/`, write a server `.env` (`WP_PATH=/home/hosttest/public_html`, `PHP_BIN=/usr/local/bin/php`, `DB_HOST=db`, DB created in the dev MariaDB), and run inside `wordpress:cli-2-php8.3` on the compose network:
+**Simulation** (there is no SuperHosting account to test against): copy the repo to `/tmp/hosttest/reklamo` without `wp/`, `private/`, `vendor/`, write a server `.env` (`WP_PATH=/home/hosttest/public_html`, `PHP_BIN=/usr/local/bin/php`, `DB_HOST=db`, DB created in the dev MariaDB), and run inside `wordpress:cli-2-php8.4` on the compose network:
 
 ```bash
 docker run --rm --user root --network reklamo_default -v /tmp/hosttest:/home/hosttest \
-  -v "$PWD:$PWD:ro" -w /home/hosttest/reklamo wordpress:cli-2-php8.3 bash -c '
+  -v "$PWD:$PWD:ro" -w /home/hosttest/reklamo wordpress:cli-2-php8.4 bash -c '
   apk add -q git; adduser -D -u 1000 -h /home/hosttest -s /bin/bash hosttest
   su hosttest -c "cd ~/reklamo && scripts/host/install.sh"'
 ```
 
-Point the copy's `origin` at the main checkout to exercise `update.sh`; `php -S 127.0.0.1:8088 -t ~/public_html` inside the container exercises the web probe. Verified this way: install from zero, second run idempotent, update with no changes, WooCommerce 11.1.0 → 11.0.0 → 11.1.0 with dumps and migrations, `check.sh` web section. Not verifiable here and reported by `check.sh` on the real account: `uapi`, `crontab`, symlink following by Apache, `.user.ini`.
+Point the copy's `origin` at the main checkout to exercise `update.sh`; `php -S 127.0.0.1:8088 -t ~/public_html` inside the container exercises the web probe. Verified this way: install from zero (also with `curl` made non-executable, as on saturn), second run idempotent, update with no changes, WooCommerce 11.0.0 → 11.1.0 with dump and migrations, `check.sh` web section. `converge_versions` with pins below the installed versions was run against the dev stack through the `cli` service and left WordPress and WooCommerce untouched with a warning. Not verifiable here and reported by `check.sh` on the real account: `uapi`, `crontab`, symlink following by Apache, `.user.ini`.
 
 **Other:** proxy-aware `client_ip()` behind Cloudflare; `route_complete` lock + rate limit; `.cdr` accepts any ZIP; cart/Store-API add-to-cart nonce; fate of the unused cart/checkout stack; quantity / multi-package request form.

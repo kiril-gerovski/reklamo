@@ -73,7 +73,7 @@ services:
       MP_SMTP_AUTH_ALLOW_INSECURE: "1"
 
   wp:
-    image: wordpress:7.1-php8.3-apache
+    image: wordpress:7.1-php8.4-apache
     depends_on:
       db:
         condition: service_healthy
@@ -104,7 +104,7 @@ services:
 
   # WP-CLI, run on demand via scripts/wp — never idles.
   cli:
-    image: wordpress:cli-2-php8.3
+    image: wordpress:cli-2-php8.4
     profiles: ["cli"]
     user: "1000:1000"
     depends_on:
@@ -120,7 +120,7 @@ services:
   # so nothing would ever run and wp-admin shows "past-due actions". This sidecar plays
   # the role of the real cron job production has (docs/DEPLOYMENT.md §9).
   cron:
-    image: wordpress:cli-2-php8.3
+    image: wordpress:cli-2-php8.4
     user: "1000:1000"
     depends_on:
       db:
