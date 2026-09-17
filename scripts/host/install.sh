@@ -24,6 +24,11 @@ env_need WP_ADMIN_EMAIL "WordPress admin email"
 env_need SMTP_USER "Mailbox for outgoing mail, created in cPanel → Email Accounts"
 env_need SMTP_PASS "Password of that mailbox" -s
 [ -n "$(env_get SMTP_HOST)" ] || env_set SMTP_HOST "$(hostname -f 2>/dev/null || hostname)"
+# The account's IP is not the server hostname's IP; cPanel knows which vhost is ours.
+if [ -z "$(env_get WP_HOST_IP)" ] && command -v uapi >/dev/null; then
+  ip=$(uapi --output=json DomainInfo domains_data format=hash 2>/dev/null | grep -oE '"ip" *: *"[0-9.]+"' | head -n1 | grep -oE '[0-9.]+$' || true)
+  [ -n "$ip" ] && env_set WP_HOST_IP "$ip" && say "account IP $ip (WP_HOST_IP) from cPanel"
+fi
 load_env
 [ "${REKLAMO_ENV:-}" = production ] || die "REKLAMO_ENV must be production in the server .env"
 [ -n "${WP_PATH:-}" ] || die "WP_PATH is empty in .env"

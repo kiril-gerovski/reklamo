@@ -27,3 +27,6 @@ Thumbs.db
 /tests/e2e/node_modules/
 /tests/e2e/package-lock.json
 .phpunit.result.cache
+
+# PHP CLI on cPanel writes its error log into the working directory
+error_log

@@ -33,7 +33,7 @@ the verified environment facts. Going live: [`docs/DEPLOYMENT.md`](docs/DEPLOYME
   `scripts/host/update.sh` both read it; the `wordpress:` image tag in `docker-compose.yml` has
   to match `WP_VERSION`. The pins are floors: the server is raised to them, never lowered. When
   the live site is ahead, bump the pin here after testing, do not downgrade production.
-- **PHP is 8.4 everywhere**: the `wordpress:*-php8.4` images locally, `ea-php84` on the host.
+- **PHP is 8.4 everywhere**: the `wordpress:*-php8.5` images locally, `ea-php85` on the host.
   Change both together or not at all.
 - **Server scripts run through `PHP_BIN` and never assume `wp` exists.** `scripts/lib.sh` runs a
   WP-CLI *phar* (the host's `wp-cli.phar` or our downloaded one) on `PHP_BIN`; launcher scripts

@@ -20,8 +20,8 @@ load_env
 ensure_wp_cli
 . scripts/lib.sh
 
-[ -z "$(git status --porcelain)" ] || die "the checkout has local changes — production is deploy-only:
-$(git status --short)"
+[ -z "$(git status --porcelain --untracked-files=no)" ] || die "the checkout has local changes — production is deploy-only:
+$(git status --short --untracked-files=no)"
 
 say "fetching"
 git fetch -q --tags --prune origin

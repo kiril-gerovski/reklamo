@@ -5,7 +5,7 @@ same repo runs locally in Docker and on the host natively; only the `.env` diffe
 
 **What SuperHosting is, in the terms that matter here.** Bulgarian shared hosting on cPanel with
 CloudLinux, Apache and `.htaccess`. PHP is chosen per account in *PHP Manager by SuperHosting*
-(5.2 through 8.5 installed; the account default on saturn is 8.4, which the local stack matches). Every plan has WP-CLI preinstalled as the command `wp-cli`. SSH exists on the
+(5.2 through 8.5 installed; the web default on saturn is 8.5, which the local stack matches). Every plan has WP-CLI preinstalled as the command `wp-cli`. SSH exists on the
 **СуперПро** and **СуперХостинг** plans only, is off until enabled in the client profile, and
 listens on **port 1022** with the cPanel user. Git and the cPanel `uapi` command are available in
 that shell. Outbound ports 22, 25, 26 and 465 to *external* hosts are blocked; GitHub is reached
@@ -53,10 +53,10 @@ the `php` on PATH is the server default and may be older.
 |---|---|---|
 | Enable SSH | my.superhosting.bg → Хостинг акаунти → Настройки → SSH достъп → Активиране | Credentials arrive by email. |
 | Authorise your key | cPanel → SSH Access → Manage SSH Keys → Import → Authorize | Then `ssh -p 1022 <cpanel-user>@<domain>` works. |
-| PHP version | cPanel → PHP Manager by SuperHosting → PHP 8.4 | Same major.minor as `PHP_BIN` in the server `.env` and as the `wordpress:*-php8.4` images in `docker-compose.yml`. `check.sh` compares web and CLI. |
+| PHP version | cPanel → PHP Manager by SuperHosting → PHP 8.4 | Same major.minor as `PHP_BIN` in the server `.env` and as the `wordpress:*-php8.5` images in `docker-compose.yml`. `check.sh` compares web and CLI. |
 | PHP directives | PHP Manager → Change PHP directives | `upload_max_filesize` ≥ 128M, `post_max_size` ≥ same, `max_execution_time` 120, `max_input_time` 300, `memory_limit` 256M. `install.sh` also writes `.user.ini`; `check.sh` shows which values the web server really applies. |
 | Mailbox | cPanel → Email Accounts → `office@reklamo.bg` | WooCommerce sends from it; SMTP authenticates as it. |
-| DNS | A record → the account's IP (cPanel → General Information) | Until it propagates, set `WP_HOST_IP` in the server `.env` so `check.sh` can probe. |
+| DNS | nameservers of the account (my.superhosting.bg → Настройки → DNS сървъри; `ns299`/`ns300` for saturn) | Until it propagates the site answers only on the account's IP. `install.sh` records that IP from cPanel as `WP_HOST_IP`, so `check.sh` probes work before DNS. The account IP is not the server hostname's IP. |
 
 The database is **not** a manual step: `install.sh` creates it through cPanel's `uapi`
 (`<user>_reklamo`). If `uapi` turns out to be unavailable in the shell, create it in cPanel →
@@ -100,7 +100,7 @@ seeded), `DISABLE_WP_CRON`, `REKLAMO_PRIVATE_DIR`, `REKLAMO_SMTP_*`. `REKLAMO_DI
 is removed if present: the per-IP limits on the request form, the uploader and the approval page are
 part of the site's protection.
 
-Cron: `*/5 * * * * cd ~/public_html && /opt/cpanel/ea-php84/root/usr/bin/php wp-cron.php`. If the
+Cron: `*/5 * * * * cd ~/public_html && /opt/cpanel/ea-php85/root/usr/bin/php wp-cron.php`. If the
 shell cannot write the crontab, the script prints the line to paste into cPanel → Cron Jobs.
 
 ## 2. After the first deploy (once)
@@ -188,7 +188,8 @@ From help.superhosting.bg:
 - WP-CLI is installed on every shared Linux server as `/usr/local/bin/wp-cli`.
 - PHP CLI binaries: `/opt/cpanel/ea-phpXX/root/usr/bin/php`; the bare `php` is the server default
   and its `php.ini` is the system one, so the web PHP version chosen in PHP Manager does not
-  change what `php` on the shell is. On saturn the default is 8.4 and ea-php52 through ea-php85
+  change what `php` on the shell is. On saturn the web serves PHP 8.5 while the shell's bare `php`
+  is 8.4, which is why `check.sh` compares the two instead of assuming. ea-php52 through ea-php85
   are installed.
 - `/usr/bin/curl` is root-only (`-r-x------`) for hosting accounts. `wget` works, and PHP's curl
   extension is loaded. The host scripts use PHP streams for their HTTP probes and `wget` for the

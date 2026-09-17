@@ -20,7 +20,7 @@ bad() { warn "$*"; problems=$((problems + 1)); }
 
 say "code"
 ok "checkout $(git describe --tags --always) on $(git symbolic-ref --short -q HEAD || echo 'detached HEAD')"
-[ -z "$(git status --porcelain)" ] || bad "checkout has local changes"
+[ -z "$(git status --porcelain --untracked-files=no)" ] || bad "checkout has local changes: $(git status --short --untracked-files=no | tr '\n' ' ')"
 for pair in themes/reklamo plugins/reklamo-core; do
   link="$WP_PATH/wp-content/$pair"
   [ -L "$link" ] && [ "$(readlink "$link")" = "$PWD/wp-content/$pair" ] && ok "$pair symlinked" || bad "$link is not a symlink into this checkout"
