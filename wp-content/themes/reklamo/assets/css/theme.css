@@ -49,6 +49,14 @@ p { margin: 0 0 1em; }
 .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: 1.75rem; flex-wrap: wrap; }
 .section-head .link-more { font-size: .8125rem; letter-spacing: .1em; text-transform: uppercase; }
 .section { padding-block: 3.5rem; }
+/* Constrained block groups on the front page carry no side padding of their own, and their
+   1200px content box is 40px wider than .container's; line both up with the header. */
+.front-page > .wp-block-group { padding-inline: 1.25rem; }
+.front-page > .wp-block-group > * { max-width: calc(var(--container) - 2.5rem); }
+@media (max-width: 560px) {
+	.section, .wp-block-group.section { padding-block: 2.5rem; }
+	.section-head { margin-bottom: 1.25rem; }
+}
 
 /* ---------- buttons ---------- */
 .btn, .wp-block-button__link, .rq-button, button.button, .woocommerce a.button, .woocommerce button.button {
@@ -66,6 +74,7 @@ p { margin: 0 0 1em; }
 .btn--outline, .is-style-outline .wp-block-button__link, .woocommerce a.button, .woocommerce button.button { background: var(--white); color: var(--gold-dark); }
 .btn--outline:hover { background: var(--gold-soft); color: var(--gold-dark); }
 .btn--sm { padding: .7rem 1.1rem; font-size: .6875rem; }
+.btn--card, .rq-submit .rq-button { line-height: 1.3; }
 .btn--card { width: 100%; }
 .wp-block-buttons { gap: .75rem; }
 
@@ -101,6 +110,7 @@ p { margin: 0 0 1em; }
 
 /* ---------- hero (pattern) ---------- */
 .hero { padding-block: 3.5rem 3rem; }
+@media (max-width: 560px) { .hero { padding-block: 2rem 2.5rem; } .hero h1 { font-size: 2rem; } .hero__features { margin-top: 1.75rem; } }
 .hero .wp-block-columns { align-items: center; gap: 3rem; }
 .hero h1 { font-size: clamp(2.25rem, 4.4vw, 3.25rem); line-height: 1.1; margin-bottom: 1.5rem; }
 .hero h1 .gold { color: var(--gold); display: block; }
@@ -125,6 +135,8 @@ ul.products, .wc-block-grid__products { list-style: none; margin: 0; padding: 0;
 .woocommerce ul.products li.product, ul.products li.product { float: none; width: auto; margin: 0; }
 @media (max-width: 1000px) { ul.products { grid-template-columns: repeat(2, 1fr) !important; } }
 @media (max-width: 560px) { ul.products { grid-template-columns: 1fr !important; } }
+/* woocommerce-smallscreen.css floats the cards at 48%; the grid owns the layout here. */
+body.woocommerce ul.products[class*="columns-"] li.product, body.woocommerce-page ul.products[class*="columns-"] li.product { width: auto; float: none; clear: none; margin: 0; }
 .package-card { display: flex; flex-direction: column; overflow: hidden; transition: box-shadow var(--base) var(--ease), transform var(--base) var(--ease), border-color var(--base); }
 .package-card:hover, .package-card:focus-within { box-shadow: var(--shadow); transform: translateY(-3px); border-color: #ddd3c0; }
 .package-card__media img { transition: transform .4s var(--ease); }
@@ -141,6 +153,7 @@ ul.products, .wc-block-grid__products { list-style: none; margin: 0; padding: 0;
 .package-card__contents p { margin: 0; }
 .package-card__price, .woocommerce .price { font-family: var(--serif); font-size: 1.375rem; color: var(--gold-dark); }
 .package-card__price .woocommerce-Price-amount { color: inherit; }
+.woocommerce-price-suffix { font: 400 .6875rem/1 var(--sans); color: var(--graphite); white-space: nowrap; margin-left: .2rem; }
 .woocommerce .products .price del, .woocommerce .price del { color: var(--muted); font-size: .8em; }
 
 /* ---------- steps (pattern) ---------- */
@@ -242,7 +255,7 @@ a.steps__link:focus-visible .steps__icon { box-shadow: var(--focus), 0 0 0 1px v
 .package-summary__name { font-size: 1.125rem; margin: 0 0 .15rem; }
 .package-summary__contents { font-size: .75rem; color: var(--graphite); }
 .package-summary__price { font-family: var(--serif); color: var(--gold-dark); font-size: 1.375rem; margin-top: .25rem; }
-.package-summary__price small { font: .6875rem/1 var(--sans); color: var(--graphite); }
+.package-summary__price small { display: block; font: .6875rem/1.4 var(--sans); color: var(--graphite); margin-top: .2rem; }
 .steps-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; list-style: none; margin: 0 0 1.75rem; padding: .9rem 1rem; background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); }
 .steps-strip__item { display: flex; gap: .8rem; align-items: center; padding-inline: .5rem; position: relative; }
 .steps-strip__item + .steps-strip__item::before { content: "→"; position: absolute; left: -.6rem; color: var(--muted); }
@@ -271,6 +284,13 @@ a.steps__link:focus-visible .steps__icon { box-shadow: var(--focus), 0 0 0 1px v
 	.steps-strip { grid-template-columns: repeat(2, 1fr); row-gap: 1rem; }
 	.steps-strip__item + .steps-strip__item::before { display: none; }
 }
+@media (max-width: 560px) {
+	.steps-strip { grid-template-columns: 1fr; row-gap: .9rem; }
+	.package-summary { min-width: 0; }
+	.request-page__title h1 { font-size: 1.75rem; }
+	.request-page__form, .next-steps, .help-card { padding: 1.25rem; }
+	.quick-start { padding: 1.25rem; }
+}
 
 /* ---------- generic pages / WooCommerce pages ---------- */
 /* Reading column: a 3-column grid so a full-width block (.steps--page) can break out of the 780px middle. */
@@ -287,8 +307,10 @@ html { scroll-behavior: smooth; }
 .entry-content h2, .entry-content h3 { color: var(--ink); margin-top: 1.5em; }
 .shop-page { padding-block: 2.5rem 4rem; }
 .section-intro { color: var(--graphite); max-width: 60ch; }
-.woocommerce div.product { padding-block: 2.5rem; }
+/* WooCommerce prints the single product without a wrapper of ours and floats gallery and summary. */
+.woocommerce div.product { max-width: var(--container); margin-inline: auto; padding: 2.5rem 1.25rem; display: flow-root; }
 .woocommerce div.product .product_title { font-size: 2rem; }
+@media (max-width: 560px) { .woocommerce div.product { padding-block: 1.5rem 2.5rem; } .woocommerce div.product .product_title { font-size: 1.75rem; } }
 .product-cta { margin-top: 1.5rem; }
 .nopay-hint { font-size: .75rem; color: var(--graphite); margin: .6rem 0 0; }
 .nopay-hint::before { content: "✓ "; color: var(--gold); }
@@ -327,7 +349,8 @@ html { scroll-behavior: smooth; }
 /* ---------- bank details block ([reklamo_bank_details]) ---------- */
 .bank-details { display: grid; grid-template-columns: max-content 1fr; gap: .4rem 1.5rem; margin: 1.5rem 0; padding: 1.25rem 1.5rem; background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); }
 .bank-details dt { color: var(--graphite); font-size: .8125rem; }
-.bank-details dd { margin: 0; font-weight: 500; color: var(--ink); }
+.bank-details dd { margin: 0; font-weight: 500; color: var(--ink); overflow-wrap: anywhere; }
+@media (max-width: 560px) { .bank-details { grid-template-columns: 1fr; gap: 0; padding: 1rem 1.25rem; } .bank-details dt { margin-top: .6rem; } .bank-details dt:first-child { margin-top: 0; } }
 
 /* ---------- motion off for those who asked for it ---------- */
 @media (prefers-reduced-motion: reduce) {

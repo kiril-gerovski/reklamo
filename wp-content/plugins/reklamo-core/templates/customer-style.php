@@ -90,4 +90,16 @@ defined( 'ABSPATH' ) || exit;
 	.kv dd { margin: 0; }
 	@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; animation-delay: 0s !important; } }
 	@media (max-width: 640px) { .grid { grid-template-columns: 1fr; } .steps { grid-template-columns: repeat(3, 1fr); row-gap: 1.25rem; } .steps li:nth-child(3)::after { display: none; } }
+	@media (max-width: 480px) {
+		.wrap { padding: 1.25rem 1rem 3rem; }
+		.card { padding: 1.25rem 1rem; }
+		h1 { font-size: 1.5rem; }
+		.kv, .bank-details { grid-template-columns: 1fr; gap: 0; }
+		.kv dt, .bank-details dt { font-size: .8125rem; margin-top: .6rem; }
+		.kv dt:first-child, .bank-details dt:first-child { margin-top: 0; }
+		.kv dd, .bank-details dd { overflow-wrap: anywhere; }
+		.rev { grid-template-columns: 72px 1fr; gap: .75rem; }
+		.rev img, .rev .thumb { width: 72px; height: 54px; }
+		.actions button, .actions .btn { flex: 1 1 100%; }
+	}
 </style>
