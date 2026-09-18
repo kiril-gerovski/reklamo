@@ -208,6 +208,15 @@ final class Reklamo_Admin_Order {
 				</ul>
 			<?php endif; ?>
 
+			<?php if ( $order->get_meta( '_reklamo_consent_at' ) ) : ?>
+				<p class="description">
+					<?php echo esc_html( sprintf( /* translators: 1: date/time, 2: version of the legal texts */ __( 'Consent to the Terms and the Privacy Policy: %1$s (version %2$s).', 'reklamo-core' ), $fmt_date( $order->get_meta( '_reklamo_consent_at' ) ), $order->get_meta( '_reklamo_consent_version' ) ? $order->get_meta( '_reklamo_consent_version' ) : '-' ) ); ?>
+					<?php if ( $order->get_meta( '_reklamo_waiver_at' ) ) : ?>
+						<?php esc_html_e( 'Withdrawal-right waiver accepted.', 'reklamo-core' ); ?>
+					<?php endif; ?>
+				</p>
+			<?php endif; ?>
+
 			<h4><?php esc_html_e( 'Invoice & delivery details', 'reklamo-core' ); ?></h4>
 			<?php if ( $details['submitted_at'] ) : ?>
 				<?php // Inside the order form, so "Update" saves them (see save_details()). Address and phone are WooCommerce billing fields, edited in their own box. ?>

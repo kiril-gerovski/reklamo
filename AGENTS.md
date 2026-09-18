@@ -11,7 +11,9 @@ can update them from the dashboard.
 
 Read [`README.md`](README.md) for the environment, the everyday commands and how the site is put
 together. [`docs/PLAN.md`](docs/PLAN.md) is the full plan and carries the settled decisions and
-the verified environment facts. Going live: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
+the verified environment facts. Going live: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md). Personal
+data, retention and the legal pages: [`docs/GDPR.md`](docs/GDPR.md), read it before touching
+anything that stores customer data.
 
 ## Ground rules
 
@@ -85,6 +87,10 @@ time:
 - WC-CLI has no write command for `shipping_zone_location`, WooCommerce refuses a direct
   `update_option` on some admin task-list options, and the WP/WC sample pages are drafts — select
   them with `--post_name__in`, not `--name`.
+- Personal data leaves the system through `Reklamo_Privacy` only (anonymisation, erasure) and
+  `Reklamo_Cleanup::purge_order()` (deletion). A new piece of customer data needs a line in
+  `Reklamo_Privacy::PERSONAL_META` or a flagged note via `personal_note()`, plus an entry in
+  `docs/GDPR.md` § 1. Order notes that quote the customer or an IP go through `personal_note()`.
 - `wp rewrite flush --hard` writes `.htaccess` only with `apache_modules: [mod_rewrite]` in
   `wp-cli.yml` (repo root, read by the server scripts). Locally the Docker image ships the file,
   so a missing `.htaccess` only shows on the host as "homepage works, everything else 404".

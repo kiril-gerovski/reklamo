@@ -76,7 +76,10 @@ final class Reklamo_Reminders {
 		}
 	}
 
-	private static function unschedule_for_order( int $order_id ): void {
+	public static function unschedule_for_order( int $order_id ): void {
+		if ( ! self::available() ) {
+			return;
+		}
 		foreach ( as_get_scheduled_actions(
 			array(
 				'group'    => self::GROUP,

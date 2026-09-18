@@ -181,7 +181,7 @@ final class Reklamo_Storage {
 			'mime'       => Reklamo_Filetypes::CANONICAL[ $ext ] ?? 'application/octet-stream',
 			'bytes'      => $bytes,
 			'sha256'     => hash_file( 'sha256', $dest ),
-			'created_ip' => self::client_ip(),
+			'created_ip' => null,
 			'created_at' => current_time( 'mysql', true ),
 		);
 		$wpdb->insert( self::table(), $row ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery

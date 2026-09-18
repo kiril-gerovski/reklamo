@@ -300,8 +300,9 @@ final class Reklamo_Approval {
 			$order->update_meta_data( '_reklamo_approved_revision', $revision );
 			$order->update_meta_data( '_reklamo_deposit_amount', wc_format_decimal( $deposit, 2 ) );
 			$order->save();
-			$order->update_status(
-				Reklamo_Statuses::APPROVED,
+			$order->update_status( Reklamo_Statuses::APPROVED );
+			Reklamo_Privacy::personal_note(
+				$order,
 				sprintf(
 					/* translators: 1: mockup revision number, 2: IP address */
 					__( 'Customer approved mockup #%1$d (IP %2$s).', 'reklamo-core' ),
@@ -315,7 +316,8 @@ final class Reklamo_Approval {
 			return $details_url;
 		}
 
-		$order->add_order_note(
+		Reklamo_Privacy::personal_note(
+			$order,
 			sprintf(
 				/* translators: 1: mockup revision number, 2: customer message */
 				__( 'Customer requested changes to mockup #%1$d: %2$s', 'reklamo-core' ),

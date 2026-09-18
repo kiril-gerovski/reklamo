@@ -179,6 +179,12 @@ final class Reklamo_Request {
 					</span>
 				</label>
 			</div>
+			<div class="rq-field rq-field--consent">
+				<label>
+					<input type="checkbox" name="rq_waiver" value="1" required <?php checked( ! empty( $values['waiver'] ) ); ?>>
+					<span><?php esc_html_e( 'I understand that the products are made to my specification with my logo, so the 14-day right of withdrawal does not apply once production has started (Art. 57(3) of the Consumer Protection Act).', 'reklamo-core' ); ?></span>
+				</label>
+			</div>
 
 			<div class="rq-submit">
 				<button type="submit" class="rq-button"><?php $compact ? esc_html_e( 'Send for a mockup', 'reklamo-core' ) : esc_html_e( 'Send and request a mockup', 'reklamo-core' ); ?> <span aria-hidden="true">→</span></button>
@@ -259,6 +265,7 @@ final class Reklamo_Request {
 			'email'      => isset( $_POST['rq_email'] ) ? sanitize_email( wp_unslash( $_POST['rq_email'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			'note'       => isset( $_POST['reklamo_note'] ) ? sanitize_textarea_field( wp_unslash( $_POST['reklamo_note'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			'consent'    => ! empty( $_POST['rq_consent'] ), // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			'waiver'     => ! empty( $_POST['rq_waiver'] ), // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			// A finished chunked upload survives a validation round-trip (minutes of upload otherwise lost).
 			'file_token' => isset( $_POST['reklamo_file_token'] ) ? sanitize_text_field( wp_unslash( $_POST['reklamo_file_token'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			'file_name'  => isset( $_POST['reklamo_file_name'] ) ? sanitize_text_field( wp_unslash( $_POST['reklamo_file_name'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Missing
@@ -296,6 +303,9 @@ final class Reklamo_Request {
 		}
 		if ( ! $values['consent'] ) {
 			$errors[] = __( 'Please accept the Terms and Conditions and the Privacy Policy.', 'reklamo-core' );
+		}
+		if ( ! $values['waiver'] ) {
+			$errors[] = __( 'Please confirm that you understand the right of withdrawal does not apply to products made to your specification.', 'reklamo-core' );
 		}
 		// Chunked path hands us a token of a finished upload; otherwise a plain file post.
 		$token     = $values['file_token'];
@@ -354,6 +364,7 @@ final class Reklamo_Request {
 			$order->set_billing_country( 'BG' );
 			$order->set_customer_ip_address( Reklamo_Storage::client_ip() );
 			$order->set_customer_user_agent( wc_get_user_agent() );
+			Reklamo_Privacy::record_consent( $order, $values['waiver'] );
 
 			$gateways = WC()->payment_gateways()->payment_gateways();
 			if ( isset( $gateways[ Reklamo_Gateway::ID ] ) ) {

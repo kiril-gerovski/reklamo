@@ -2067,3 +2067,86 @@ msgstr "напредък, визуализации и плащания"
 #: templates/approval.php:188
 msgid "Full name"
 msgstr "Име и фамилия"
+
+#: includes/class-reklamo-settings-page.php
+msgid "Legal & privacy"
+msgstr "Правна информация и лични данни"
+
+#: includes/class-reklamo-settings-page.php
+msgid "Trader identification printed in the footer and by the [reklamo_company] shortcode, and the data-protection periods the Privacy Policy quotes through [reklamo_value key=\"...\"]."
+msgstr "Идентификация на търговеца, отпечатвана във футъра и от шорткода [reklamo_company], и сроковете за защита на данните, които Политиката за поверителност цитира чрез [reklamo_value key=\"...\"]."
+
+#: includes/class-reklamo-settings-page.php
+msgid "Registered address"
+msgstr "Седалище и адрес на управление"
+
+#: includes/class-reklamo-settings-page.php
+msgid "The seat from the company register. Empty = the contact address is used."
+msgstr "Адресът от Търговския регистър. Празно = използва се адресът за контакт."
+
+#: includes/class-reklamo-settings-page.php
+msgid "Terms / Privacy version"
+msgstr "Версия на Общите условия / Политиката"
+
+#: includes/class-reklamo-settings-page.php
+msgid "Recorded on every order together with the moment of consent. Change it whenever the Terms or the Privacy Policy change."
+msgstr "Записва се във всяка поръчка заедно с момента на съгласието. Променяйте я при всяка промяна на Общите условия или Политиката за поверителност."
+
+#: includes/class-reklamo-settings-page.php
+msgid "Anonymise orders after (months)"
+msgstr "Анонимизиране на поръчките след (месеци)"
+
+#: includes/class-reklamo-settings-page.php
+msgid "This many months after a completed or cancelled order closed, its name, address, contact details, notes and links are removed; totals and dates stay for accounting. 0 = never. Must not be shorter than the file period."
+msgstr "Толкова месеца след приключване или отказ на поръчка се премахват име, адрес, данни за контакт, бележки и връзки; сумите и датите остават за счетоводството. 0 = никога. Не може да е по-кратък от срока за файловете."
+
+#: includes/class-reklamo-request.php
+msgid "I understand that the products are made to my specification with my logo, so the 14-day right of withdrawal does not apply once production has started (Art. 57(3) of the Consumer Protection Act)."
+msgstr "Разбирам, че продуктите се изработват по моя спецификация с моето лого и след започване на производството не се прилага 14-дневното право на отказ (чл. 57, т. 3 от Закона за защита на потребителите)."
+
+#: includes/class-reklamo-request.php
+msgid "Please confirm that you understand the right of withdrawal does not apply to products made to your specification."
+msgstr "Моля, потвърдете, че разбирате, че правото на отказ не се прилага за продукти, изработени по Ваша спецификация."
+
+#. translators: 1: date/time, 2: version of the legal texts
+#: includes/class-reklamo-admin-order.php
+msgid "Consent to the Terms and the Privacy Policy: %1$s (version %2$s)."
+msgstr "Съгласие с Общите условия и Политиката за поверителност: %1$s (версия %2$s)."
+
+#: includes/class-reklamo-admin-order.php
+msgid "Withdrawal-right waiver accepted."
+msgstr "Приет отказ от правото на отказ."
+
+#: includes/class-reklamo-privacy.php
+msgid "[removed: personal data]"
+msgstr "[премахнато: лични данни]"
+
+#: includes/class-reklamo-privacy.php
+msgid "Reklamo order files, consent and links"
+msgstr "Reklamo — файлове, съгласие и връзки по поръчки"
+
+#: includes/class-reklamo-privacy.php
+msgid "Consent to Terms and Privacy Policy"
+msgstr "Съгласие с Общите условия и Политиката за поверителност"
+
+#: includes/class-reklamo-privacy.php
+msgid "version"
+msgstr "версия"
+
+#: includes/class-reklamo-privacy.php
+msgid "Withdrawal-right waiver (goods made to specification)"
+msgstr "Отказ от правото на отказ (стоки по спецификация)"
+
+#: includes/class-reklamo-privacy.php
+msgid "Mockup approved"
+msgstr "Одобрена визуализация"
+
+#. translators: %d: mockup revision
+#: includes/class-reklamo-privacy.php
+msgid "Change request to mockup #%d"
+msgstr "Заявка за корекции по визуализация №%d"
+
+#. translators: %s: order number
+#: includes/class-reklamo-privacy.php
+msgid "Order %s is still open; its data is kept until it is closed."
+msgstr "Поръчка %s е още активна; данните ѝ се пазят до приключването ѝ."

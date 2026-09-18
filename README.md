@@ -5,7 +5,7 @@ Online shop for promotional packages branded with the customer's logo — **Vari
 custom-built theme. WooCommerce is the only third-party plugin; everything else is our own code
 plus configuration from the dashboard.
 
-Full plan: [`docs/PLAN.md`](docs/PLAN.md). Design mockups: [`design/`](design/). Going live: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
+Full plan: [`docs/PLAN.md`](docs/PLAN.md). Design mockups: [`design/`](design/). Going live: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md). Personal data and legal compliance: [`docs/GDPR.md`](docs/GDPR.md).
 
 Convention: code, comments and docs are in English. Site content (pages, products, menus,
 emails) is Bulgarian — that is data, seeded by `scripts/seed.sh`.
@@ -100,7 +100,7 @@ Claude Code. Details: [`scripts/worktree/README.md`](scripts/worktree/README.md)
 - **Uploads**: logos are uploaded in 2 MB chunks to our REST API (progress bar, retries), checked by real file signature (`.ai` is a PDF, CorelDRAW X4+ is a ZIP…), SVG sanitised, stored outside the web root, never served inline. Abandoned/unclaimed files and old orders' files are cleaned hourly (retention in Settings → Reklamo → Files). WooCommerce → **Reklamo diagnostics** shows the host's real limits and probes them.
 - **Customer order page**: every customer email carries a passwordless link (`/moyata-porachka/?s=…&k=…`) to a page with progress, mockup history and payments. The customer approves or requests changes to the pending mockup right there (the emailed one-time link works too, and is consumed by either route). No accounts. The link expires together with the order's files under the retention setting.
 - **Emails the shop receives**: new order, changes requested, mockup approved (deposit expected), invoice details submitted, and an "order waiting" alert when a customer ignores every reminder (days under Settings → Reklamo → Process). The customer additionally gets deposit-received and order-cancelled emails.
-- **Data protection**: Tools → Export / Erase Personal Data cover the customer's files, emailed links and tracking URL (erasure only for closed orders).
+- **Data protection**: the request form records consent (time, text version from Settings → Reklamo → Legal & privacy, hashed IP) and the withdrawal-right waiver on the order. Tools → Export / Erase Personal Data cover files, links, consent and change requests; erasure anonymises closed orders through WooCommerce's own routine and reports open ones as retained. The hourly cleanup deletes files after the file period and anonymises closed orders after the anonymisation period, both settings. Deleting an order from the dashboard removes its files, links, notes and reminders. The storefront sets no cookies, so there is no banner. Trader identification (ЕИК, ДДС №, seat) prints in the footer and through `[reklamo_company]`; `[reklamo_value key="retention_months"]` puts a setting into page text. Plan and rationale: [`docs/GDPR.md`](docs/GDPR.md).
 - **Order flow** (WooCommerce → Orders → order → "Mockup & approval" box): send mockup → customer approves via one-time link → customer fills invoice/delivery details → *Deposit received* → *Start production* → *Request final payment* → *Complete*. The status dropdown refuses jumps outside this path. Emails at every step are editable under WooCommerce → Settings → Emails; bank details under Settings → Reklamo → Bank details; reminder days under Settings → Reklamo → Process.
 
 ## The configuration rule

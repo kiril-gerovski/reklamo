@@ -25,7 +25,7 @@ class Reklamo_Email_Admin_Changes extends Reklamo_Email {
 			'title'       => __( 'Recipient(s)', 'reklamo-core' ),
 			'type'        => 'text',
 			/* translators: %s: admin email */
-			'description' => sprintf( __( 'Comma-separated. Defaults to %s.', 'reklamo-core' ), '<code>' . esc_html( get_option( 'admin_email' ) ) . '</code>' ),
+			'description' => sprintf( __( 'Comma-separated. Defaults to %s.', 'reklamo-core' ), '<code>' . esc_html( get_option( 'woocommerce_email_from_address', get_option( 'admin_email' ) ) ) . '</code>' ),
 			'default'     => '',
 			'desc_tip'    => true,
 		);
@@ -50,7 +50,7 @@ class Reklamo_Email_Admin_Changes extends Reklamo_Email {
 		}
 		if ( $order instanceof WC_Order ) {
 			$this->prepare( $order );
-			$this->recipient                        = $this->get_option( 'recipient', get_option( 'admin_email' ) );
+			$this->recipient                        = $this->get_option( 'recipient', get_option( 'woocommerce_email_from_address', get_option( 'admin_email' ) ) );
 			$this->placeholders['{revision}']       = (string) Reklamo_Approval::latest_revision( $order->get_id() );
 			$this->placeholders['{change_request}'] = (string) $order->get_meta( '_reklamo_last_change_request' );
 			$this->dispatch();

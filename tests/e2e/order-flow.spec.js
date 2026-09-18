@@ -33,6 +33,7 @@ test( 'customer places a request with a logo and no payment', async ( { page } )
 	await page.fill( 'input[name="rq_name"]', 'Е2Е Тест' );
 	await page.fill( 'input[name="rq_email"]', 'e2e@example.com' );
 	await page.check( 'input[name="rq_consent"]' );
+	await page.check( 'input[name="rq_waiver"]' );
 	await page.getByRole( 'button', { name: /Изпрати и заяви визуализация/ } ).click();
 
 	// The confirmation page is the customer's own order page (passwordless, keyed by the link).
@@ -61,6 +62,7 @@ test( 'request form validation: missing consent and file are refused, values are
 	await page.getByRole( 'button', { name: /Изпрати и заяви визуализация/ } ).click();
 	await page.waitForURL( /rq=/ );
 	await expect( page.locator( '.rq-errors' ) ).toContainText( 'Общите условия' );
+	await expect( page.locator( '.rq-errors' ) ).toContainText( 'правото на отказ' );
 	await expect( page.locator( '.rq-errors' ) ).toContainText( 'файл с Вашето лого' );
 	await expect( page.locator( 'input[name="rq_name"]' ) ).toHaveValue( 'Без файл' );
 } );
@@ -72,6 +74,7 @@ test( 'a mistyped email domain is refused, values are kept', async ( { page } ) 
 	await page.fill( 'input[name="rq_name"]', 'Грешен Домейн' );
 	await page.fill( 'input[name="rq_email"]', 'nobody@abv.bh' );
 	await page.check( 'input[name="rq_consent"]' );
+	await page.check( 'input[name="rq_waiver"]' );
 	await page.getByRole( 'button', { name: /Изпрати и заяви визуализация/ } ).click();
 	await expect( page.locator( '.rq-errors' ) ).toContainText( 'abv.bh' );
 	await expect( page.locator( 'input[name="rq_name"]' ) ).toHaveValue( 'Грешен Домейн' );
@@ -91,6 +94,7 @@ test( 'homepage quick-start form creates a request too', async ( { page } ) => {
 	await form.locator( 'input[name="rq_name"]' ).fill( 'Бърз Старт' );
 	await form.locator( 'input[name="rq_email"]' ).fill( 'quick@example.com' );
 	await form.locator( 'input[name="rq_consent"]' ).check();
+	await form.locator( 'input[name="rq_waiver"]' ).check();
 	await form.getByRole( 'button', { name: /Изпрати за визуализация/ } ).click();
 	await page.waitForURL( /porachka\/\?s=/ );
 	await expect( page.locator( 'body' ) ).toContainText( 'Заявката Ви е получена' );
@@ -106,6 +110,7 @@ test( 'chunked upload: a 150 MB PSD gets through a 64 MB PHP limit', async ( { p
 	await page.fill( 'input[name="rq_name"]', 'Голям Файл' );
 	await page.fill( 'input[name="rq_email"]', 'big@example.com' );
 	await page.check( 'input[name="rq_consent"]' );
+	await page.check( 'input[name="rq_waiver"]' );
 	await page.getByRole( 'button', { name: /Изпрати и заяви визуализация/ } ).click();
 	await page.waitForURL( /porachka\/\?s=/ );
 	bigOrderId = await page.locator( 'h1[data-order]' ).getAttribute( 'data-order' );
@@ -125,6 +130,7 @@ test( 'SVG with a script is stored sanitised', async ( { page } ) => {
 	await page.fill( 'input[name="rq_name"]', 'СВГ Тест' );
 	await page.fill( 'input[name="rq_email"]', 'svg@example.com' );
 	await page.check( 'input[name="rq_consent"]' );
+	await page.check( 'input[name="rq_waiver"]' );
 	await page.getByRole( 'button', { name: /Изпрати и заяви визуализация/ } ).click();
 	await page.waitForURL( /porachka\/\?s=/ );
 	const id = await page.locator( 'h1[data-order]' ).getAttribute( 'data-order' );
@@ -155,6 +161,8 @@ test( 'admin sees the logo and sends a mockup', async ( { page } ) => {
 
 	await expect( page.locator( '#order_status' ) ).toHaveValue( 'wc-rq-received' );
 	await expect( page.locator( '#reklamo_mockup' ) ).toContainText( 'logo.ai' );
+	await expect( page.locator( '#reklamo_mockup' ) ).toContainText( 'Съгласие с Общите условия и Политиката за поверителност' );
+	await expect( page.locator( '#reklamo_mockup' ) ).toContainText( 'Приет отказ от правото на отказ' );
 	// The note is line-item meta, shown with the order items — not in the mockup box.
 	await expect( page.locator( '#woocommerce-order-items' ) ).toContainText( 'E2E: златно лого' );
 
@@ -433,4 +441,43 @@ test( 'diagnostics: storage protected, probe finds the real single-request ceili
 	const rows = await page.locator( '#reklamo-probe-results tr' ).allTextContents();
 	expect( rows.find( ( r ) => r.startsWith( '2 MB' ) ) ).toContain( 'приета' );
 	expect( rows.some( ( r ) => r.includes( 'отхвърлена' ) ) ).toBe( true );
+} );
+
+test( 'storefront sets no cookies: home, product, request and order pages', async ( { browser } ) => {
+	const ctx = await browser.newContext();
+	const p = await ctx.newPage();
+	for ( const url of [ '/', '/product/red-business-pack/', '/kachi-logo/?paket=red-business-pack', trackUrl, '/promo-paketi/' ] ) {
+		await p.goto( url );
+		await p.waitForLoadState( 'networkidle' );
+	}
+	const cookies = await ctx.cookies();
+	expect( cookies.map( ( c ) => c.name ), 'no cookie may be set without consent' ).toEqual( [] );
+	await ctx.close();
+} );
+
+test( 'deleting an order removes its files, links and notes', async ( { page } ) => {
+	await adminLogin( page );
+	await page.goto( `/wp-admin/admin.php?page=wc-orders&action=edit&id=${ svgOrderId }` );
+	const download = await page.locator( '#reklamo_mockup a[href*="reklamo_download"]' ).first().getAttribute( 'href' );
+	const track = await page.locator( '#reklamo_mockup a[href*="moyata-porachka"]' ).first().getAttribute( 'href' );
+	expect( ( await page.request.get( download ) ).status() ).toBe( 200 );
+
+	// Trash from the list, then delete permanently from the trash view: the real dashboard path
+	// (the orders list has no per-row links; both are bulk actions on the checkbox).
+	const bulk = async ( status, action ) => {
+		await page.goto( `/wp-admin/admin.php?page=wc-orders${ status ? `&status=${ status }` : '' }&s=${ svgOrderId }` );
+		await page.check( `input[name="id[]"][value="${ svgOrderId }"]` );
+		await page.selectOption( '#bulk-action-selector-top', action );
+		await page.click( '#doaction' );
+		await page.waitForLoadState( 'networkidle' );
+	};
+	await bulk( '', 'trash' );
+	await bulk( 'trash', 'delete' );
+	await expect( page.locator( `input[name="id[]"][value="${ svgOrderId }"]` ) ).toHaveCount( 0 );
+
+	// The download URL is nonce-guarded: only the logged-in context can tell "gone" (404) from "no nonce" (400).
+	expect( ( await page.request.get( download ) ).status(), 'file row and file gone' ).toBe( 404 );
+	const anon = await request.newContext();
+	expect( ( await anon.get( track ) ).status(), 'tracking token gone' ).toBe( 404 );
+	await anon.dispose();
 } );

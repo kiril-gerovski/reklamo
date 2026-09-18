@@ -32,11 +32,53 @@ final class Reklamo_Settings {
 		'reklamo_stale_days'       => '7',
 		'reklamo_max_upload_mb'    => '300',
 		'reklamo_retention_months' => '12',
+		'reklamo_anonymize_months' => '36',
+		'reklamo_legal_version'    => '',
+		'reklamo_eik'              => '',
+		'reklamo_vat'              => '',
+		'reklamo_legal_address'    => '',
 	);
+
+	/** Settings the [reklamo_value] shortcode may print on public pages. */
+	const PUBLIC_KEYS = array( 'company_name', 'phone', 'email', 'address', 'hours', 'eik', 'vat', 'legal_address', 'retention_months', 'anonymize_months', 'legal_version', 'deposit_pct', 'mockup_deadline', 'max_upload_mb' );
 
 	public static function init(): void {
 		add_filter( 'woocommerce_get_settings_pages', array( __CLASS__, 'add_page' ) );
 		add_shortcode( 'reklamo_bank_details', array( __CLASS__, 'bank_details_shortcode' ) );
+		add_shortcode( 'reklamo_company', array( __CLASS__, 'company_shortcode' ) );
+		add_shortcode( 'reklamo_value', array( __CLASS__, 'value_shortcode' ) );
+	}
+
+	/** @return array<string,string> label => value, only the filled ones (trader identification) */
+	public static function company_details(): array {
+		$rows = array(
+			__( 'Company', 'reklamo-core' )            => self::get( 'company_name' ),
+			__( 'Company ID (ЕИК)', 'reklamo-core' )   => self::get( 'eik' ),
+			__( 'VAT no.', 'reklamo-core' )            => self::get( 'vat' ),
+			__( 'Registered address', 'reklamo-core' ) => self::get( 'legal_address' ) ? self::get( 'legal_address' ) : self::get( 'address' ),
+			__( 'Email', 'reklamo-core' )              => self::get( 'email' ),
+			__( 'Phone', 'reklamo-core' )              => self::get( 'phone' ),
+		);
+		return array_filter( $rows );
+	}
+
+	/** Trader identification as a definition list, for the Terms and Privacy pages. */
+	public static function company_shortcode(): string {
+		$rows = self::company_details();
+		if ( ! $rows ) {
+			return '';
+		}
+		$out = '<dl class="company-details">';
+		foreach ( $rows as $label => $value ) {
+			$out .= '<dt>' . esc_html( $label ) . '</dt><dd>' . esc_html( $value ) . '</dd>';
+		}
+		return $out . '</dl>';
+	}
+
+	/** [reklamo_value key="retention_months"]: a setting inline in page text, so the legal pages never go stale. */
+	public static function value_shortcode( $atts ): string {
+		$key = sanitize_key( (string) ( ( (array) $atts )['key'] ?? '' ) );
+		return in_array( $key, self::PUBLIC_KEYS, true ) ? esc_html( self::get( $key ) ) : '';
 	}
 
 	/** @return array<string,string> label => value, only the filled ones */

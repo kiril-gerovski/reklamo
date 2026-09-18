@@ -74,8 +74,17 @@ opt woocommerce_enable_reviews "no"
 opt_default woocommerce_email_from_name "Reklamo.bg"
 opt_default woocommerce_email_from_address "office@reklamo.bg"
 opt_default woocommerce_email_footer_text "Reklamo.bg — промо пакети с вашето лого"
+# Shop notifications carry customer data: they go to the shop's own mailbox, never to a consumer
+# address. Filled once when the recipient is empty; the owner may change it under WooCommerce → Emails.
+wp eval '
+$from = (string) get_option( "woocommerce_email_from_address" );
+$o    = (array) get_option( "woocommerce_new_order_settings", array() );
+if ( is_email( $from ) && empty( $o["recipient"] ) ) { $o["recipient"] = $from; update_option( "woocommerce_new_order_settings", $o ); echo "  new-order recipient → $from\n"; }
+'
 # Silence the noise
 opt woocommerce_allow_tracking "no"
+# Order Attribution sets sbjs_* tracking cookies on every visitor without consent; off keeps the storefront cookie-free.
+opt woocommerce_feature_order_attribution_enabled "no"
 opt woocommerce_show_marketplace_suggestions "no"
 opt woocommerce_merchant_email_notifications "no"
 opt woocommerce_onboarding_profile '{"skipped":true,"completed":true,"is_store_country_set":true}' --format=json
@@ -129,6 +138,10 @@ opt_default reklamo_stale_days 7
 opt_default reklamo_max_upload_mb 300
 opt_default reklamo_retention_months 12
 
+echo "→ legal & privacy (WooCommerce → Settings → Reklamo → Legal & privacy) — ЕИК, ДДС № and address are the owner's to fill"
+opt_default reklamo_anonymize_months 36
+opt_default reklamo_legal_version "2026-09"
+
 echo "→ payment gateways"
 # Our no-payment gateway is the only one enabled. Title/description are site content (Bulgarian).
 opt woocommerce_reklamo_request_settings '{"enabled":"yes","title":"Заявка без плащане","description":"На този етап не се извършва плащане. Ще подготвим визуализация за одобрение и ще ви изпратим банковите данни след това.","instructions":"Благодарим! Ще получите визуализация за одобрение до 24 работни часа."}' --format=json
@@ -177,6 +190,12 @@ ensure_page politika-za-poveritelnost "Политика за поверител�
 fill_if_empty() { # slug content
   local id; id=$(page_id "$1"); [ -n "$id" ] || return 0
   [ -z "$(wp post get "$id" --field=post_content)" ] && wp post update "$id" --post_content="$2" >/dev/null || true
+}
+# Like fill_if_empty, and also replaces a page that still holds an earlier seed placeholder.
+fill_if_placeholder() { # slug placeholder content
+  local id cur; id=$(page_id "$1"); [ -n "$id" ] || return 0
+  cur=$(wp post get "$id" --field=post_content)
+  if [ -z "$cur" ] || [ "$cur" = "$2" ]; then wp post update "$id" --post_content="$3" >/dev/null && echo "  $1 filled from template"; fi
 }
 # "How it works": the six homepage steps, each explained in detail (deposit % and file limits mirror the seeded settings above).
 fill_if_empty kak-raboti "$(cat <<'HTML'
@@ -258,8 +277,166 @@ if [ -n "$pl_id" ] && ! wp post get "$pl_id" --field=post_content | grep -q rekl
 <!-- /wp:shortcode -->" >/dev/null
 fi
 fill_if_empty chesto-zadavani-vaprosi "<!-- wp:paragraph --><p>Често задавани въпроси.</p><!-- /wp:paragraph -->"
-fill_if_empty obshti-usloviya "<!-- wp:paragraph --><p>Общи условия.</p><!-- /wp:paragraph -->"
-fill_if_empty politika-za-poveritelnost "<!-- wp:paragraph --><p>Политика за поверителност.</p><!-- /wp:paragraph -->"
+# Legal pages: structure and every number come from the settings through shortcodes, so the texts
+# never contradict the configuration. A lawyer reviews the wording; the owner edits in the block editor.
+fill_if_placeholder obshti-usloviya "<!-- wp:paragraph --><p>Общи условия.</p><!-- /wp:paragraph -->" "$(cat <<'HTML'
+<!-- wp:paragraph {"className":"lead"} -->
+<p class="lead">Тези общи условия уреждат поръчките на промоционални пакети, брандирани с логото на клиента, през сайта Reklamo.bg. С изпращането на заявка приемате условията по-долу.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">1. Търговец</h2>
+<!-- /wp:heading -->
+<!-- wp:shortcode -->
+[reklamo_company]
+<!-- /wp:shortcode -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">2. Продукти и цени</h2>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Всеки пакет е с фиксирано съдържание, количество и цена. Цените са в евро и включват ДДС и брандирането с едно лого. Доставката в България е включена в цената.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">3. Поръчка и одобрение</h2>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Заявката се изпраща без плащане. До [reklamo_value key="mockup_deadline"] работни часа получавате визуализация за одобрение. Договорът се сключва с одобрението на визуализацията от Ваша страна. Броят корекции преди одобрение не е ограничен.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">4. Плащане</h2>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Плащането е само по банков път. След одобрение дължите аванс от [reklamo_value key="deposit_pct"]% от стойността; производството започва след постъпването му. Остатъкът се заплаща преди изпращане. Номерът на поръчката е основанието за превода. Фактура се издава по данните, които попълвате на страницата на поръчката.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">5. Срокове и доставка</h2>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Срокът за производство се съобщава с потвърждението на аванса. Доставката е с куриер до посочения адрес в България. Вижте и <a href="/dostavka-i-srokove/">Доставка и срокове</a>.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">6. Право на отказ</h2>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Продуктите се изработват по индивидуална спецификация с Вашето лого. Съгласно чл. 57, т. 3 от Закона за защита на потребителите 14-дневното право на отказ не се прилага за такива стоки. Потвърждавате това изрично при изпращане на заявката. До одобрение на визуализацията можете да се откажете без разходи.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">7. Рекламации</h2>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>За несъответствие с одобрената визуализация или дефект ни пишете на посочения имейл с номера на поръчката и снимки. Отговаряме в работни дни. При спор можете да се обърнете към Комисията за защита на потребителите (<a href="https://kzp.bg" target="_blank" rel="noopener">kzp.bg</a>).</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">8. Лични данни</h2>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Как обработваме личните Ви данни е описано в <a href="/politika-za-poveritelnost/">Политиката за поверителност</a>.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph {"className":"muted"} -->
+<p class="muted">Версия [reklamo_value key="legal_version"]. Прилага се българското право.</p>
+<!-- /wp:paragraph -->
+HTML
+)"
+fill_if_placeholder politika-za-poveritelnost "<!-- wp:paragraph --><p>Политика за поверителност.</p><!-- /wp:paragraph -->" "$(cat <<'HTML'
+<!-- wp:paragraph {"className":"lead"} -->
+<p class="lead">Тази политика обяснява какви лични данни обработваме, когато поръчвате през Reklamo.bg, защо, колко време ги пазим и какви права имате съгласно Регламент (ЕС) 2016/679 (GDPR) и Закона за защита на личните данни.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">1. Администратор</h2>
+<!-- /wp:heading -->
+<!-- wp:shortcode -->
+[reklamo_company]
+<!-- /wp:shortcode -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">2. Какви данни обработваме</h2>
+<!-- /wp:heading -->
+<!-- wp:list -->
+<ul class="wp-block-list">
+<li><strong>При заявка:</strong> име, имейл, файлът с логото и бележката към дизайнера.</li>
+<li><strong>При одобрение и фактура:</strong> фирма, ЕИК, ДДС №, МОЛ или име на частно лице, телефон, адрес за доставка, изпратените визуализации и Вашите коментари към тях.</li>
+<li><strong>Технически:</strong> IP адрес и браузър при изпращане на заявката и при одобрение на визуализация, като доказателство за сключения договор и за защита от злоупотреби; моментът и версията на условията, с които сте се съгласили.</li>
+</ul>
+<!-- /wp:list -->
+<!-- wp:paragraph -->
+<p>Не създаваме потребителски профили и не изискваме пароли. Достъпът до Вашата поръчка е чрез лична връзка, изпратена на имейла Ви; пазете я както парола.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">3. Защо и на какво основание</h2>
+<!-- /wp:heading -->
+<!-- wp:list -->
+<ul class="wp-block-list">
+<li><strong>Изпълнение на договора</strong> (чл. 6, пар. 1, б. „б“ GDPR): изготвяне на визуализация, производство, доставка, комуникация по поръчката и напомняния за нея.</li>
+<li><strong>Законово задължение</strong> (б. „в“): издаване и съхранение на счетоводни документи.</li>
+<li><strong>Легитимен интерес</strong> (б. „е“): защита от злоупотреби и доказване на одобрението (IP адрес, ограничение на броя заявки).</li>
+</ul>
+<!-- /wp:list -->
+<!-- wp:paragraph -->
+<p>Не изпращаме маркетингови съобщения и не продаваме данни.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">4. Кой получава данните</h2>
+<!-- /wp:heading -->
+<!-- wp:list -->
+<ul class="wp-block-list">
+<li><strong>СуперХостинг.БГ</strong> — хостинг и имейл сървър в България (обработващ лични данни).</li>
+<li><strong>Куриер</strong> — име, телефон и адрес за доставката.</li>
+<li><strong>Счетоводител</strong> — данните за фактура.</li>
+</ul>
+<!-- /wp:list -->
+<!-- wp:paragraph -->
+<p>Данните не се предават извън Европейския съюз.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">5. Колко време пазим данните</h2>
+<!-- /wp:heading -->
+<!-- wp:list -->
+<ul class="wp-block-list">
+<li>Логото и визуализациите се изтриват <strong>[reklamo_value key="retention_months"] месеца</strong> след приключване или отказ на поръчката; тогава спира да работи и личната връзка към поръчката.</li>
+<li>Име, адрес, данни за контакт, коментари и IP адреси се анонимизират <strong>[reklamo_value key="anonymize_months"] месеца</strong> след приключване на поръчката; сумите и датите остават като статистика без връзка с лице.</li>
+<li>Счетоводните документи (фактури) се пазят в сроковете по Закона за счетоводството, извън сайта.</li>
+<li>Качени файлове без изпратена заявка се изтриват до 48 часа. Резервните копия на хостинга се пазят до 30 дни.</li>
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">6. Вашите права</h2>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Имате право на достъп, коригиране, изтриване, ограничаване на обработването, преносимост и възражение. Пишете ни на посочения имейл; отговаряме до един месец. Данните по активна поръчка не могат да бъдат изтрити преди тя да приключи или бъде отказана. Имате право на жалба до Комисията за защита на личните данни (<a href="https://www.cpdp.bg" target="_blank" rel="noopener">cpdp.bg</a>).</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">7. Бисквитки</h2>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Сайтът не използва аналитични, рекламни или проследяващи бисквитки и не зарежда съдържание от трети страни. Стриктно необходими технически бисквитки се създават единствено при вход в административния панел. Затова няма банер за бисквитки.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">8. Сигурност</h2>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Връзката е криптирана (HTTPS). Файловете се съхраняват извън публичната директория на сайта и се достъпват само чрез личната Ви връзка. Връзките за одобрение са еднократни и с срок. Достъп до данните има само екипът, който изпълнява поръчката.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph {"className":"muted"} -->
+<p class="muted">Версия [reklamo_value key="legal_version"]. При промяна публикуваме новата версия тук; версията, с която сте се съгласили, е записана в поръчката Ви.</p>
+<!-- /wp:paragraph -->
+HTML
+)"
 opt show_on_front "page"
 opt page_on_front "$home_id"
 

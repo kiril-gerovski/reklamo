@@ -21,6 +21,55 @@ class Reklamo_Settings_Page extends WC_Settings_Page {
 			'bank'    => __( 'Bank details', 'reklamo-core' ),
 			'process' => __( 'Process', 'reklamo-core' ),
 			'files'   => __( 'Files', 'reklamo-core' ),
+			'legal'   => __( 'Legal & privacy', 'reklamo-core' ),
+		);
+	}
+
+	protected function get_settings_for_legal_section() {
+		return array(
+			array(
+				'type'  => 'title',
+				'id'    => 'reklamo_legal',
+				'title' => __( 'Legal & privacy', 'reklamo-core' ),
+				'desc'  => __( 'Trader identification printed in the footer and by the [reklamo_company] shortcode, and the data-protection periods the Privacy Policy quotes through [reklamo_value key="..."].', 'reklamo-core' ),
+			),
+			array(
+				'id'    => 'reklamo_eik',
+				'title' => __( 'Company ID (ЕИК)', 'reklamo-core' ),
+				'type'  => 'text',
+			),
+			array(
+				'id'    => 'reklamo_vat',
+				'title' => __( 'VAT no.', 'reklamo-core' ),
+				'type'  => 'text',
+			),
+			array(
+				'id'          => 'reklamo_legal_address',
+				'title'       => __( 'Registered address', 'reklamo-core' ),
+				'type'        => 'text',
+				'description' => __( 'The seat from the company register. Empty = the contact address is used.', 'reklamo-core' ),
+				'desc_tip'    => true,
+			),
+			array(
+				'id'          => 'reklamo_legal_version',
+				'title'       => __( 'Terms / Privacy version', 'reklamo-core' ),
+				'type'        => 'text',
+				'description' => __( 'Recorded on every order together with the moment of consent. Change it whenever the Terms or the Privacy Policy change.', 'reklamo-core' ),
+				'desc_tip'    => true,
+			),
+			array(
+				'id'                => 'reklamo_anonymize_months',
+				'title'             => __( 'Anonymise orders after (months)', 'reklamo-core' ),
+				'type'              => 'number',
+				'default'           => '36',
+				'description'       => __( 'This many months after a completed or cancelled order closed, its name, address, contact details, notes and links are removed; totals and dates stay for accounting. 0 = never. Must not be shorter than the file period.', 'reklamo-core' ),
+				'desc_tip'          => true,
+				'custom_attributes' => array( 'min' => 0 ),
+			),
+			array(
+				'type' => 'sectionend',
+				'id'   => 'reklamo_legal',
+			),
 		);
 	}
 

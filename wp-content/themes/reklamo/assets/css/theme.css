@@ -364,6 +364,7 @@ html { scroll-behavior: smooth; }
 .social a:hover, .social a:focus-visible { border-color: var(--gold); color: var(--gold-dark); transform: translateY(-1px); }
 .site-footer__bottom { border-top: 1px solid var(--line); padding-block: 1.1rem; font-size: .75rem; color: var(--muted); text-align: center; }
 .site-footer__bottom p { margin: 0; }
+.site-footer__legal { margin-bottom: .4rem !important; }
 @media (max-width: 900px) { .site-footer__grid { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 560px) { .site-footer__grid { grid-template-columns: 1fr; } }
 
@@ -372,9 +373,9 @@ html { scroll-behavior: smooth; }
 .has-gold-color { color: var(--gold) !important; }
 
 /* ---------- bank details block ([reklamo_bank_details]) ---------- */
-.bank-details { display: grid; grid-template-columns: max-content 1fr; gap: .4rem 1.5rem; margin: 1.5rem 0; padding: 1.25rem 1.5rem; background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); }
-.bank-details dt { color: var(--graphite); font-size: .8125rem; }
-.bank-details dd { margin: 0; font-weight: 500; color: var(--ink); overflow-wrap: anywhere; }
+.bank-details, .company-details { display: grid; grid-template-columns: max-content 1fr; gap: .4rem 1.5rem; margin: 1.5rem 0; padding: 1.25rem 1.5rem; background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); }
+.bank-details dt, .company-details dt { color: var(--graphite); font-size: .8125rem; }
+.bank-details dd, .company-details dd { margin: 0; font-weight: 500; color: var(--ink); overflow-wrap: anywhere; }
 @media (max-width: 560px) { .bank-details { grid-template-columns: 1fr; gap: 0; padding: 1rem 1.25rem; } .bank-details dt { margin-top: .6rem; } .bank-details dt:first-child { margin-top: 0; } }
 
 /* ---------- motion off for those who asked for it ---------- */

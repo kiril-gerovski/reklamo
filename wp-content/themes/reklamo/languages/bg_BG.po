@@ -496,3 +496,13 @@ msgstr "Нищо не е намерено за „%s“."
 #: search.php:51
 msgid "Try a different word, or start from the packages."
 msgstr "Опитайте с друга дума или започнете от пакетите."
+
+#. translators: %s: company registration number
+#: footer.php
+msgid "Company ID %s"
+msgstr "ЕИК %s"
+
+#. translators: %s: VAT number
+#: footer.php
+msgid "VAT no. %s"
+msgstr "ДДС № %s"

@@ -29,7 +29,7 @@ class Reklamo_Email_Admin_Stale extends Reklamo_Email {
 			'title'       => __( 'Recipient(s)', 'reklamo-core' ),
 			'type'        => 'text',
 			/* translators: %s: admin email */
-			'description' => sprintf( __( 'Comma-separated. Defaults to %s.', 'reklamo-core' ), '<code>' . esc_html( get_option( 'admin_email' ) ) . '</code>' ),
+			'description' => sprintf( __( 'Comma-separated. Defaults to %s.', 'reklamo-core' ), '<code>' . esc_html( get_option( 'woocommerce_email_from_address', get_option( 'admin_email' ) ) ) . '</code>' ),
 			'default'     => '',
 			'desc_tip'    => true,
 		);
@@ -58,7 +58,7 @@ class Reklamo_Email_Admin_Stale extends Reklamo_Email {
 		}
 		if ( $order instanceof WC_Order ) {
 			$this->prepare( $order );
-			$this->recipient                      = $this->get_option( 'recipient', get_option( 'admin_email' ) );
+			$this->recipient                      = $this->get_option( 'recipient', get_option( 'woocommerce_email_from_address', get_option( 'admin_email' ) ) );
 			$this->button_url                     = $order->get_edit_order_url();
 			$this->placeholders['{status}']       = wc_get_order_status_name( $order->get_status() );
 			$modified                             = $order->get_date_modified();

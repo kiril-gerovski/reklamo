@@ -10,6 +10,14 @@ defined( 'ABSPATH' ) || exit;
 $reklamo_phone   = reklamo_setting( 'phone' );
 $reklamo_email   = reklamo_setting( 'email' );
 $reklamo_address = reklamo_setting( 'address' );
+$reklamo_legal   = array_filter(
+	array(
+		reklamo_setting( 'company_name' ),
+		reklamo_setting( 'eik' ) ? sprintf( /* translators: %s: company registration number */ __( 'Company ID %s', 'reklamo' ), reklamo_setting( 'eik' ) ) : '',
+		reklamo_setting( 'vat' ) ? sprintf( /* translators: %s: VAT number */ __( 'VAT no. %s', 'reklamo' ), reklamo_setting( 'vat' ) ) : '',
+		reklamo_setting( 'legal_address' ) ? reklamo_setting( 'legal_address' ) : $reklamo_address,
+	)
+);
 $reklamo_social  = array_filter(
 	array(
 		'facebook'  => reklamo_setting( 'facebook' ),
@@ -81,6 +89,9 @@ $reklamo_social  = array_filter(
 		</div>
 	</div>
 	<div class="container site-footer__bottom">
+		<?php if ( reklamo_setting( 'eik' ) ) : ?>
+			<p class="site-footer__legal"><?php echo esc_html( implode( ' · ', $reklamo_legal ) ); ?></p>
+		<?php endif; ?>
 		<p>
 			<?php
 			/* translators: %1$s: year, %2$s: site name */
