@@ -313,6 +313,21 @@ a.steps__link:focus-visible .steps__icon { box-shadow: var(--focus), 0 0 0 1px v
 .entry-content [id] { scroll-margin-top: 6rem; }
 html { scroll-behavior: smooth; }
 .page-title { margin-bottom: 1rem; }
+.page-actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1.5rem; }
+.search-query { color: var(--gold-dark); }
+.search-result { padding: 1.25rem 0; border-bottom: 1px solid var(--line); }
+.search-result:first-child { padding-top: .25rem; }
+.search-result__title { font-size: 1.25rem; margin: 0 0 .35rem; }
+.search-result__title a { color: var(--ink); }
+.search-result__title a:hover { color: var(--gold-dark); }
+.search-result__excerpt { color: var(--graphite); font-size: .9375rem; }
+.search-result__excerpt p { margin: 0; }
+.pagination { margin-top: 1.5rem; }
+.pagination .nav-links { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+.pagination .page-numbers { display: inline-flex; min-width: 2.5rem; height: 2.5rem; padding: 0 .75rem; align-items: center; justify-content: center; border: 1px solid var(--line); border-radius: 6px; color: var(--ink); background: var(--white); }
+.pagination .page-numbers.current { background: var(--gold); border-color: var(--gold); color: var(--white); }
+.pagination .page-numbers.dots { border: 0; background: none; }
+@media (max-width: 560px) { .page-actions .btn { flex: 1 1 100%; justify-content: center; } .badge { font-size: .625rem; } }
 .entry-content { color: var(--graphite); }
 .entry-content h2, .entry-content h3 { color: var(--ink); margin-top: 1.5em; }
 .shop-page { padding-block: 2.5rem 4rem; }

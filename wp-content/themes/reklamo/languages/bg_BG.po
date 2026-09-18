@@ -456,3 +456,43 @@ msgstr "Как става поръчката"
 #: template-parts/steps.php:38
 msgid "How does the order work?"
 msgstr "Как става поръчката?"
+
+#: 404.php:15
+msgid "Page not found"
+msgstr "Страницата не е открита"
+
+#: 404.php:17
+msgid "The page you are looking for does not exist or has been moved."
+msgstr "Страницата, която търсите, не съществува или е преместена."
+
+#: 404.php:19 search.php:53
+msgid "Browse the packages"
+msgstr "Разгледай пакетите"
+
+#: 404.php:20 search.php:54
+msgid "Back to the homepage"
+msgstr "Към началната страница"
+
+#. translators: %s: the search query
+#: search.php:18
+#, php-format
+msgid "Search results for “%s”"
+msgstr "Резултати от търсенето за „%s“"
+
+#: search.php:40
+msgid "Previous"
+msgstr "Назад"
+
+#: search.php:41
+msgid "Next"
+msgstr "Напред"
+
+#. translators: %s: the search query
+#: search.php:48
+#, php-format
+msgid "Nothing found for “%s”."
+msgstr "Нищо не е намерено за „%s“."
+
+#: search.php:51
+msgid "Try a different word, or start from the packages."
+msgstr "Опитайте с друга дума или започнете от пакетите."
