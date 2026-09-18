@@ -37,7 +37,7 @@ never committed. Our code (theme + plugin) is a git checkout the site symlinks i
 | workstation | `scripts/deploy.sh check [--mail-test a@b]`, `wp …`, `ssh` | health report, remote WP-CLI, shell |
 | server | `scripts/host/bootstrap.sh <repo> [dir] [ref]` | deploy key for GitHub over 443, clone, hand over to `install.sh` |
 | server | `scripts/host/install.sh` | zero → live site; idempotent, converges an existing install with its `.env` |
-| server | `scripts/host/update.sh [ref] [--no-seed]` | fetch, maintenance mode, checkout, WP/WC pins, `seed.sh`, flush, `check.sh` |
+| server | `scripts/host/update.sh [ref] [--seed]` | fetch, maintenance mode, checkout, WP/WC pins, flush, `check.sh`; `seed.sh` only with `--seed` |
 | server | `scripts/host/check.sh [--mail-test a@b]` | read-only report: versions, symlinks, config, cron, web PHP probe, mail |
 
 `scripts/deploy.sh` takes `DEPLOY_USER`, `DEPLOY_HOST` and optionally `DEPLOY_PORT` (1022),
@@ -131,13 +131,17 @@ shell cannot write the crontab, the script prints the line to paste into cPanel 
 scripts/deploy.sh update            # fast-forward the deployed branch
 scripts/deploy.sh update v1.4.0     # deploy a tag (detached checkout)
 scripts/deploy.sh update main       # back onto a branch
+scripts/deploy.sh update --seed     # also re-apply scripts/seed.sh
 ```
 
 `update.sh` refuses a dirty checkout, fetches, prints the incoming commits, enables maintenance
 mode, checks out the target, raises WordPress and WooCommerce to the versions in `versions.env`
 (database dump to `~/reklamo-backups/` first, then `wp core update` / `wp plugin install --force`,
-`update-db`, `wp wc update`), runs `seed.sh`, flushes caches and rewrite rules, leaves maintenance
-mode and ends with `check.sh`. **It never lowers a version.** A site that is ahead of the pin,
+`update-db`, `wp wc update`), flushes caches and rewrite rules, leaves maintenance mode and ends
+with `check.sh`. **It does not run `seed.sh` unless you pass `--seed`.** The owner edits settings
+in the dashboard after go-live, and the seed's `opt` lines would enforce the repo's values over
+those edits. Use `--seed` when a release changes `scripts/seed.sh` and you want that change applied,
+knowing every `opt` line is enforced then; `opt_default`, page texts and products stay untouched. **It never lowers a version.** A site that is ahead of the pin,
 because a minor security release applied itself or someone updated from the dashboard, is left
 alone and reported, and the right response is to bump `versions.env` after testing locally. Code is symlinked, so PHP and CSS are live the moment the checkout
 moves. Compiled `.mo` files are committed, nothing to build.

@@ -4,7 +4,7 @@
 # SSH access must be enabled in my.superhosting.bg first.
 #   scripts/deploy.sh install                 fresh account → live site (clone + install);
 #                                             copy .env.server.example to .env.server first to skip prompts
-#   scripts/deploy.sh update [tag|branch]     ship a new version
+#   scripts/deploy.sh update [tag|branch] [--seed]   ship a new version (--seed re-applies seed.sh)
 #   scripts/deploy.sh check [--mail-test a@b] health report
 #   scripts/deploy.sh wp <args…>              WP-CLI on the server
 #   scripts/deploy.sh ssh                     interactive shell

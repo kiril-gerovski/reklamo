@@ -66,7 +66,8 @@ docker compose logs -f wp
 export DEPLOY_USER=<cpanel-user> DEPLOY_HOST=reklamo.bg   # or put them in .env.deploy
 cp .env.server.example .env.server    # optional: fill it in and no prompt is asked
 scripts/deploy.sh install             # fresh account → live site
-scripts/deploy.sh update [tag]        # ship a version: checkout, WP/WC pins, seed, flush, health check
+scripts/deploy.sh update [tag]        # ship a version: checkout, WP/WC pins, flush, health check
+scripts/deploy.sh update --seed       # same, plus re-apply scripts/seed.sh (only when the seed changed)
 scripts/deploy.sh check --mail-test you@example.com
 scripts/deploy.sh wp plugin list      # any WP-CLI command on the server
 ```
@@ -103,14 +104,15 @@ Claude Code. Details: [`scripts/worktree/README.md`](scripts/worktree/README.md)
 
 ## The configuration rule
 
-The database is not in git — **`scripts/seed.sh` is**. The same script runs on the hosting account on every `scripts/deploy.sh update` — see `docs/DEPLOYMENT.md`. Every setting you click in the dashboard
+The database is not in git — **`scripts/seed.sh` is**. The same script runs on the hosting account at install and whenever `scripts/deploy.sh update --seed` is used — see `docs/DEPLOYMENT.md`. Every setting you click in the dashboard
 must become a line in `seed.sh`, otherwise it does not exist. `scripts/reset.sh` proves that
 nothing lives only in the local database.
 
 Two kinds of lines: `opt` enforces configuration (currency, tax, statuses, pages, menus) on every
 run; `opt_default` seeds owner-editable content (company details, bank data, texts) once and leaves
 the dashboard value alone afterwards. Sample products are created when their SKU is missing and
-never updated. That is what makes re-running the seed on the live site safe.
+never updated. A plain `update` does not seed at all, so the owner's dashboard changes to `opt`
+settings survive releases; pass `--seed` when the seed itself changed and you want it applied.
 
 The PHP limits in `config/php/uploads.ini` are deliberately low (64M) to mimic shared hosting.
 Do not raise them to "make a test pass".

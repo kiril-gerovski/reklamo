@@ -25,10 +25,11 @@ the verified environment facts. Going live: [`docs/DEPLOYMENT.md`](docs/DEPLOYME
   in the dashboard has to become a line in `seed.sh` or it does not exist. `scripts/reset.sh`
   destroys everything and rebuilds from zero, which is what proves nothing lives only in the
   local database — run it as the master test.
-- **The seed runs on the live site on every update, so it must stay safe there.** Configuration
-  uses `opt` (enforced every run); owner-editable content — company details, bank data, prices,
-  page texts — uses `opt_default` / `fill_if_empty` / create-if-missing and is never overwritten.
-  Ask which kind a new line is before adding it.
+- **The seed runs on the live site at install and on `deploy.sh update --seed`, so it must stay
+  safe there.** A plain `update` never seeds: the owner edits settings in the dashboard and `opt`
+  lines would overwrite them. Configuration uses `opt` (enforced when the seed runs); owner-editable
+  content — company details, bank data, prices, page texts — uses `opt_default` / `fill_if_empty` /
+  create-if-missing and is never overwritten. Ask which kind a new line is before adding it.
 - **Version pins live in `versions.env`**, nowhere else. `scripts/setup.sh` and
   `scripts/host/update.sh` both read it and raise core to `WP_VERSION`; the `wordpress:` image
   tag in `docker-compose.yml` carries the major.minor of `WP_VERSION` (`7.1` for `7.1.1`). The

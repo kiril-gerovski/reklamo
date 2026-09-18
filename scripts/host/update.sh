@@ -2,16 +2,17 @@
 # Ship a new version to the hosting account. Runs ON the server from ~/reklamo.
 #   scripts/host/update.sh              fast-forward the deployed branch
 #   scripts/host/update.sh v1.4.0       deploy a tag (detached checkout; pass a branch to leave it)
-#   scripts/host/update.sh --no-seed    skip scripts/seed.sh
+#   scripts/host/update.sh --seed       also run scripts/seed.sh (off by default: the owner
+#                                       edits settings in the dashboard, the seed would enforce ours)
 # Theme and plugin are symlinked, so the checkout IS the deploy. WordPress/WooCommerce
 # follow versions.env (database backed up first). Maintenance mode covers the switch.
 set -euo pipefail
 cd "$(dirname "$0")/../.."
 . scripts/host/common.sh
 
-ref="" seed=1
+ref="" seed=0
 for a in "$@"; do
-  case "$a" in --no-seed) seed=0;; -*) die "unknown option $a";; *) ref=$a;; esac
+  case "$a" in --seed) seed=1;; -*) die "unknown option $a";; *) ref=$a;; esac
 done
 
 [ -f .env ] || die "no .env — run scripts/host/install.sh first"
@@ -61,6 +62,8 @@ converge_versions
 if [ "$seed" = 1 ]; then
   say "site configuration (scripts/seed.sh)"
   scripts/seed.sh
+else
+  ok "seed skipped (pass --seed to apply scripts/seed.sh)"
 fi
 
 say "flushing"
