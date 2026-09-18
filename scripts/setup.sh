@@ -46,6 +46,15 @@ echo "→ Bulgarian language pack"
 wp language core install bg_BG >/dev/null 2>&1 || true
 wp site switch-language bg_BG >/dev/null 2>&1 || wp language core activate bg_BG >/dev/null 2>&1 || true
 
+# The image tag tracks major.minor; the point release comes from versions.env, same as on the host.
+cur_wp=$(wp core version)
+if [ "$cur_wp" != "$WP_VERSION" ]; then
+  echo "→ WordPress $cur_wp → $WP_VERSION (versions.env)"
+  # Point releases have no bg_BG package; fetch en_US and let the language pack follow.
+  wp core update --version="$WP_VERSION" --locale=en_US >/dev/null && wp core update-db >/dev/null 2>&1 || echo "  ! core is ahead of the pin or the update failed — kept $cur_wp"
+  wp language core update >/dev/null 2>&1 || true
+fi
+
 if wp plugin is-installed woocommerce >/dev/null 2>&1; then
   echo "→ WooCommerce present ($(wp plugin get woocommerce --field=version))"
 else

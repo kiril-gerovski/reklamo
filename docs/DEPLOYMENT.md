@@ -147,8 +147,14 @@ forward-only, so a rollback across a `WC_VERSION` bump also needs the dump from
 `~/reklamo-backups/` (`scripts/deploy.sh wp db import …`).
 
 **Updating WordPress or WooCommerce**: change `versions.env`, keep the `wordpress:` image tag in
-`docker-compose.yml` on the same WordPress version, run `scripts/reset.sh` and `scripts/e2e.sh`
-locally, commit, then `scripts/deploy.sh update`.
+`docker-compose.yml` on the same WordPress major.minor, run `scripts/reset.sh` and `scripts/e2e.sh`
+locally, commit, then `scripts/deploy.sh update`. Point releases (`7.1.1`) need no image change:
+`setup.sh` raises the bind-mounted core to the pin, exactly as `update.sh` does on the host.
+
+**When the host is ahead**: `WP_AUTO_UPDATE_CORE minor` lets WordPress apply security point
+releases itself, so `check.sh` will occasionally report "WordPress 7.1.x ahead of versions.env".
+That is the cue to bump `WP_VERSION`, run `scripts/setup.sh` and `scripts/e2e.sh` locally, and
+commit. Never the other way round.
 
 ## 4. Everyday remote commands
 
@@ -204,6 +210,10 @@ From help.superhosting.bg:
   a real mailbox; the ports page lists 465 SSL/TLS and 587 STARTTLS on the server hostname, the
   script page documents 25 unencrypted. Outbound 25/26/465 to *other* servers is blocked.
 - Apache with `.htaccess` (the deny rules on the private directory and WordPress permalinks work).
+  Nothing ships a `.htaccess` for `public_html`: without one every URL except the homepage is a
+  404. WP-CLI writes it on `wp rewrite flush --hard` only when told mod_rewrite exists, which is
+  what `wp-cli.yml` in the repo root does (`apache_modules: [mod_rewrite]`). The seed runs that
+  flush, and `check.sh` verifies both the file and a live pretty URL.
 - PHP directives and modules are set per account in PHP Manager; `.user.ini` is the per-directory
   route that `check.sh` verifies rather than assumes.
 
@@ -214,6 +224,9 @@ Not verifiable without an account; `check.sh` reports each one:
 - `uapi` present in the jailed shell (database creation). Fallback: cPanel → MySQL Databases.
 - A WP-CLI phar exists (`/usr/local/bin/wp-cli.phar` on saturn). Fallback: `install.sh`
   downloads `~/.reklamo/wp-cli.phar` with `wget`.
+- `wp core update --version=X` on the bg_BG site needs `--locale=en_US`: wordpress.org has no
+  Bulgarian package for point releases and the update fails to download otherwise. The scripts
+  pass it and refresh the language pack afterwards.
 - `crontab` writable from the shell. Fallback: the printed line in cPanel → Cron Jobs.
 - Apache follows the theme/plugin symlinks (`SymLinksIfOwnerMatch`, same owner). `check.sh` fetches
   the theme's `style.css` through the symlink.

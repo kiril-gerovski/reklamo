@@ -46,6 +46,7 @@ x-wp-volumes: &wp-volumes
   - ./wp-content/themes/reklamo:/var/www/html/wp-content/themes/reklamo
   - ./wp-content/plugins/reklamo-core:/var/www/html/wp-content/plugins/reklamo-core
   - ./private:/var/www/private
+  - ./config/php/cli.ini:/usr/local/etc/php/conf.d/zz-reklamo-cli.ini:ro
 
 services:
   db:

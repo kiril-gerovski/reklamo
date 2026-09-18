@@ -52,6 +52,7 @@ else
   warn "crontab not readable here — confirm the wp-cron.php job in cPanel → Cron Jobs"
 fi
 [ "$(stat -c %a "$WP_PATH/wp-config.php")" = 600 ] && ok "wp-config.php is 600" || bad "wp-config.php is $(stat -c %a "$WP_PATH/wp-config.php"), expected 600"
+grep -qs 'BEGIN WordPress' "$WP_PATH/.htaccess" && ok ".htaccess has the WordPress rewrite block" || bad "$WP_PATH/.htaccess lacks the WordPress rewrite block — run: scripts/wp rewrite flush --hard"
 [ "$(wp option get woocommerce_coming_soon)" = no ] && ok "storefront live (not coming soon)" || bad "WooCommerce coming-soon mode is on"
 [ "$(wp option get blog_public)" = 1 ] && ok "search engines allowed" || bad "blog_public is 0 — seed.sh was not run with REKLAMO_ENV=production"
 due=$(wp cron event list --format=count 2>/dev/null || echo 0)
@@ -61,6 +62,8 @@ say "web"
 code=$(http_code "$WP_URL/" -L)
 if [ "$code" = 200 ]; then
   ok "$WP_URL/ → 200"
+  code=$(http_code "$WP_URL/kachi-logo/")
+  [ "$code" = 200 ] && ok "pretty permalinks work (/kachi-logo/ → 200)" || bad "/kachi-logo/ → $code: rewrite rules not applied (.htaccess / mod_rewrite)"
   code=$(http_code "$WP_URL/wp-content/themes/reklamo/style.css")
   [ "$code" = 200 ] && ok "theme assets served through the symlink" || bad "theme style.css → $code: Apache does not follow the symlink (FollowSymLinks / SymLinksIfOwnerMatch)"
   probe="reklamo-probe-$(random_token 12).php"

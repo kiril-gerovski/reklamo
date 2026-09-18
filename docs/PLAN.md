@@ -55,7 +55,7 @@ Checked on this VM, not assumed:
 
 Current upstream (both newer than my training data — checked live):
 
-- **WordPress 7.1** "Mary Lou" (19 Aug 2026); WP 7.0 shipped the admin redesign in May 2026.
+- **WordPress 7.1** "Mary Lou" (19 Aug 2026); WP 7.0 shipped the admin redesign in May 2026. **7.1.1** reached the live host by minor auto-update the night after the first deploy; `versions.env` follows it. Docker Hub publishes only the `7.1` tag, which tracks the point releases with a delay, so `setup.sh` raises the bind-mounted core to the pin itself.
 - **WooCommerce 11.1.0**, requires WP ≥ 7.0, PHP ≥ 7.4.
 
 Three external facts that shape the build:
@@ -69,7 +69,9 @@ Three external facts that shape the build:
 - SSH only on the СуперПро / СуперХостинг plans, enabled in the client profile, **port 1022**, cPanel user. Git and `uapi` in the shell.
 - WP-CLI preinstalled on every shared server as **`wp-cli`**, not `wp`. `scripts/lib.sh` handles both and runs a phar through `PHP_BIN`.
 - Outbound 22/25/26/465 to external hosts blocked: GitHub via `ssh.github.com:443`, mail only through the account's own server (465 ssl / 587 tls on `serverNN.superhosting.bg`, 25 plain as documented fallback).
-- **No localised WordPress zip for every release**: `wp core download --locale=bg_BG --version=7.1` fails with "Release not found". Core is downloaded en_US and the `bg_BG` pack installed afterwards, locally and on the server.
+- **WP-CLI does not write `.htaccess` from the shell by default.** `wp rewrite flush --hard` silently skips the file unless `wp-cli.yml` declares `apache_modules: [mod_rewrite]`, because the CLI cannot see Apache's modules. The Docker image ships a `.htaccess`, so this never showed locally; on saturn the first deploy had a working homepage and a 404 on every other URL. `wp-cli.yml` in the repo root fixes it for the server scripts, which run from the repo root.
+- **No localised WordPress zip for every release**: `wp core download --locale=bg_BG --version=7.1` fails with "Release not found", and `wp core update --version=7.1.1` on a bg_BG site fails with "error downloading the update" for the same reason. Both run with `--locale=en_US`; the `bg_BG` pack is installed or refreshed afterwards, locally and on the server.
+- **WP-CLI 2.12 on PHP 8.5 prints a deprecation from its own colour library on every call** (`php-cli-tools/lib/cli/Colors.php`). `config/php/cli.ini` sets `error_reporting = E_ALL & ~E_DEPRECATED` for the `cli` and `cron` containers only; the web container keeps full reporting, so deprecations in our own code still land in `debug.log` on page loads.
 
 - ⚠️ **Bulgarian translation is incomplete and nobody has costed it.** Core `bg_BG` lags at **7.0.4** behind 7.1. The WooCommerce `bg_BG` pack exists for 11.1.0 (refreshed 2026‑09‑03) but has **4,704 untranslated strings**, and WordPress silently falls back to English for each. Since "изцяло на български език" is a headline promise, this needs a real **translation audit**: crawl every customer-facing page and email, list the English leaks, ship our own `bg_BG.mo` from the plugin to override. Code and config, so it respects the no-plugins rule — but it is real work.
 

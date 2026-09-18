@@ -99,7 +99,8 @@ converge_versions() {
   if version_lt "$cur_wp" "$WP_VERSION"; then
     db_backup; backed_up=1
     say "WordPress $cur_wp → $WP_VERSION"
-    wp core update --version="$WP_VERSION"
+    # Point releases have no bg_BG package; fetch en_US and let the language pack follow.
+    wp core update --version="$WP_VERSION" --locale=en_US
     wp core update-db
     wp language core update >/dev/null 2>&1 || true
   elif [ "$cur_wp" != "$WP_VERSION" ]; then
