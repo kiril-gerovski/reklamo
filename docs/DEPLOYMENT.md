@@ -80,7 +80,7 @@ What happens on the server:
    (gitignored) and fill it in: `deploy.sh install` uploads it, `install.sh` merges the filled
    values into the server `.env` and deletes the upload. Whatever is still empty is asked for:
    site URL, admin login and email, mailbox and its password. `SMTP_HOST` defaults to the
-   server's own hostname, whose TLS certificate matches (465/ssl). Re-uploading with a changed
+   server's own hostname, whose TLS certificate matches (587/tls). Re-uploading with a changed
    value updates the server; an empty value never erases what is there, so the generated
    database credentials survive.
 3. Checks PHP ≥ 8.1 and the required extensions, finds WP-CLI, creates the database, downloads
@@ -109,9 +109,12 @@ shell cannot write the crontab, the script prints the line to paste into cPanel 
 2. cPanel → **Email Deliverability** → install the suggested **SPF** and **DKIM** records, add a
    **DMARC** TXT record: `v=DMARC1; p=quarantine; rua=mailto:office@reklamo.bg`.
 3. `scripts/deploy.sh check --mail-test you@gmail.com` → expect `sent`, then check inbox **and**
-   spam. Repeat to an abv.bg and a mail.bg address, the customers' providers. If 465/ssl is
-   refused, set `SMTP_PORT=587`, `SMTP_SECURE=tls` in the server `.env` and re-run `install`;
-   port 25 without encryption is SuperHosting's documented last resort.
+   spam. Repeat to an abv.bg and a mail.bg address, the customers' providers. Port 465 is closed on
+   saturn, even from the server itself; 587 with STARTTLS is what works, and the mail server
+   refuses any envelope sender that is not a real mailbox on the account (Exim sender verify), which
+   is why the sender must be the `SMTP_USER` mailbox. `install.sh` sets WooCommerce's sender address
+   to `SMTP_USER`, and the plugin sets the envelope sender (Return-Path) to `SMTP_USER` on every
+   authenticated send, so a display address changed in the dashboard cannot break delivery.
 4. WooCommerce → **Reklamo diagnostics** on the live site: storage *outside the web root*, `DOM`
    and `finfo` available, cleanup scheduled. Click **Run probe**; the uploader sends 2 MB chunks,
    so once 2 MB passes, uploads of any size work. Record the largest accepted size in
@@ -212,7 +215,9 @@ From help.superhosting.bg:
   `~/.ssh/config` because outbound 22 is blocked.
 - Sending mail from a script: host = the domain or `serverNN.superhosting.bg`, authenticated with
   a real mailbox; the ports page lists 465 SSL/TLS and 587 STARTTLS on the server hostname, the
-  script page documents 25 unencrypted. Outbound 25/26/465 to *other* servers is blocked.
+  script page documents 25 unencrypted. On saturn only 587 (STARTTLS) and 25 accept connections;
+  465 is refused even locally. Exim verifies the envelope sender against existing mailboxes.
+  Outbound 25/26/465 to *other* servers is blocked.
 - Apache with `.htaccess` (the deny rules on the private directory and WordPress permalinks work).
   Nothing ships a `.htaccess` for `public_html`: without one every URL except the homepage is a
   404. WP-CLI writes it on `wp rewrite flush --hard` only when told mod_rewrite exists, which is

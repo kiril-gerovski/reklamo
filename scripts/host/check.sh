@@ -87,7 +87,8 @@ fi
 
 if [ -n "$mail_to" ]; then
   say "mail test → $mail_to"
-  res=$(wp eval 'echo wp_mail( $args[0], "Reklamo SMTP test", "ok " . gmdate( "c" ) ) ? "sent" : "FAILED: " . Reklamo_Mail::last_error();' "$mail_to" 2>&1 || true)
+  [[ $mail_to =~ ^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$ ]] || die "--mail-test needs an email address, got: $mail_to"
+  res=$(REKLAMO_MAIL_TO="$mail_to" wp eval 'echo wp_mail( getenv( "REKLAMO_MAIL_TO" ), "Reklamo SMTP test", "ok " . gmdate( "c" ) ) ? "sent" : "FAILED: " . Reklamo_Mail::last_error();' 2>&1 | grep -v Deprecated || true)
   case "$res" in sent*) ok "$res — check the inbox and the spam folder";; *) bad "$res";; esac
 fi
 

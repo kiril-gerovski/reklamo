@@ -168,6 +168,10 @@ fi
 say "site configuration (scripts/seed.sh)"
 scripts/seed.sh
 
+# WooCommerce copies the admin email as sender at install, before the seed's set-once line.
+# Mail must leave as the mailbox it authenticates with, or SPF/DMARC fail at the receivers.
+wp option update woocommerce_email_from_address "$SMTP_USER" --quiet
+
 echo
 scripts/host/check.sh || true
 

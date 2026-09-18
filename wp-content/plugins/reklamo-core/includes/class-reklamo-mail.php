@@ -42,6 +42,10 @@ final class Reklamo_Mail {
 			$phpmailer->Username   = $user;
 			$phpmailer->Password   = defined( 'REKLAMO_SMTP_PASS' ) ? (string) REKLAMO_SMTP_PASS : '';
 			$phpmailer->SMTPSecure = defined( 'REKLAMO_SMTP_SECURE' ) && '' !== REKLAMO_SMTP_SECURE ? REKLAMO_SMTP_SECURE : 'tls';
+			// cPanel's Exim refuses an envelope sender that is not a mailbox on the account.
+			if ( is_email( $user ) ) {
+				$phpmailer->Sender = $user;
+			}
 		} else {
 			// Mailpit / unauthenticated relay: no auth, no opportunistic TLS.
 			$phpmailer->SMTPAuth    = false;
