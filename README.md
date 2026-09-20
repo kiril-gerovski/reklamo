@@ -115,6 +115,11 @@ the dashboard value alone afterwards. Sample products are created when their SKU
 never updated. A plain `update` does not seed at all, so the owner's dashboard changes to `opt`
 settings survive releases; pass `--seed` when the seed itself changed and you want it applied.
 
+Each package gets its own photo from `wp-content/themes/reklamo/assets/img/packages/`, imported
+only when the product has no image, so an owner's upload is never replaced. Those four files were
+cut out of the design mockup by `scripts/crop-previews.php` and are stand-ins at catalogue size:
+replace them with real photography in Products → edit → Product image.
+
 The PHP limits in `config/php/uploads.ini` are deliberately low (64M) to mimic shared hosting.
 Do not raise them to "make a test pass".
 

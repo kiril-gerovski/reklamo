@@ -550,10 +550,28 @@ ensure_product() { # sku name price short_description menu_order [featured]
     --short_description="$4" --menu_order="$5" --manage_stock=false --sold_individually=false \
     --featured="${6:-false}" --categories="[{\"id\":$cat_id}]" --porcelain >/dev/null
 }
+# Package photos cut from design/preview.webp by scripts/crop-previews.php, one per package.
+# Set only when the product has no image: the owner's own photos are never replaced.
+set_product_image() { # sku slug alt
+  local pid att path
+  pid=$(product_id "$1"); [ -n "$pid" ] || return 0
+  [ -n "$(wp post meta get "$pid" _thumbnail_id 2>/dev/null || true)" ] && return 0
+  # Resolved and checked inside WP-CLI: locally that runs in the container, where the path differs.
+  path=$(wp eval "\$p = get_theme_file_path( 'assets/img/packages/$2.webp' ); echo file_exists( \$p ) ? \$p : '';")
+  [ -n "$path" ] || { echo "  $2: image missing, skipped"; return 0; }
+  att=$(wp media import "$path" --post_id="$pid" --featured_image --title="$3" --alt="$3" --porcelain 2>/dev/null | tail -n1)
+  [ -n "$att" ] && echo "  $2: image set"
+}
+
 ensure_product RBP "Red Business Pack"   100 "<ul><li>20 червени тефтера</li><li>20 червени химикалки</li></ul>" 1 true   # "Най-популярен" badge
 ensure_product OSP "Office Starter Pack" 119 "<ul><li>20 чаши</li><li>20 химикалки</li></ul>" 2
 ensure_product EVP "Event Pack"          149 "<ul><li>20 текстилни торби</li><li>20 метални бутилки</li></ul>" 3
 ensure_product PRP "Premium Pack"        169 "<ul><li>20 бележника</li><li>20 метални химикалки</li></ul>" 4
+
+set_product_image RBP red-business-pack   "Red Business Pack — червен тефтер и химикалка с лого"
+set_product_image OSP office-starter-pack "Office Starter Pack — чаша и химикалка с лого"
+set_product_image EVP event-pack          "Event Pack — текстилна торба и метална бутилка с лого"
+set_product_image PRP premium-pack        "Premium Pack — бележник и метална химикалка с лого"
 opt woocommerce_default_catalog_orderby "menu_order"
 
 echo "→ flushing caches"
