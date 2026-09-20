@@ -79,6 +79,14 @@ Three external facts that shape the build:
   `wp eval 'echo file_exists( $p = get_theme_file_path( ... ) ) ? $p : "";'`. A `[ -f ]` test in the
   shell checks the wrong filesystem and silently skips.
 - **Three layout traps only visible on a phone** (found on the live site, fixed in `theme.css`): constrained block groups (`layout: constrained`) add no side padding, so pattern sections touch the screen edge unless the theme pads them; `woocommerce-smallscreen.css` (≤768px) floats `.woocommerce ul.products[class*=columns-] li.product` at 48% and beats a plain `li.product` rule on specificity. The `.woocommerce` class is on the `[products]` shortcode's wrapper `div`, not on `body` (the front page has no `woocommerce` body class), so the override has to repeat WooCommerce's own selector, plus its `:nth-child(2n)` variant, with `!important`; the single product page has no wrapper of ours and floats gallery and summary, so `div.product` needs the container width and `display: flow-root`. Reproduce with `playwright-cli open --device="iPhone 15"`.
+- **A fixed-size round badge over an image needs a phone rule of its own.** The hero's 170 px
+  `.hero__badge` covered the whole notebook once the hero column dropped to ~350 px, so it is 118 px
+  below 560 px. Shrinking it is not enough: text inside a circle has to fit the *inscribed square*
+  (diameter ÷ √2), and the top line is the one that spills, because the disc is already curving away
+  there. What made the stack too tall was the paragraph strut — `small` was 9 px inside a 15 px
+  paragraph, so each line box stayed 25 px; setting `font-size` and `line-height` on
+  `.hero__badge p` shortens the stack and moves the first line down to where the circle is wide.
+  Check it by measuring each line against the chord at both its top and bottom edge, not its middle.
 - **WP-CLI 2.12 on PHP 8.5 prints a deprecation from its own colour library on every call** (`php-cli-tools/lib/cli/Colors.php`). `config/php/cli.ini` sets `error_reporting = E_ALL & ~E_DEPRECATED` for the `cli` and `cron` containers only; the web container keeps full reporting, so deprecations in our own code still land in `debug.log` on page loads.
 
 - ⚠️ **Bulgarian translation is incomplete and nobody has costed it.** Core `bg_BG` lags at **7.0.4** behind 7.1. The WooCommerce `bg_BG` pack exists for 11.1.0 (refreshed 2026‑09‑03) but has **4,704 untranslated strings**, and WordPress silently falls back to English for each. Since "изцяло на български език" is a headline promise, this needs a real **translation audit**: crawl every customer-facing page and email, list the English leaks, ship our own `bg_BG.mo` from the plugin to override. Code and config, so it respects the no-plugins rule — but it is real work.

@@ -127,6 +127,16 @@ p { margin: 0 0 1em; }
 .hero__badge small { font-size: .6875rem; color: var(--graphite); line-height: 1.4; }
 .hero__badge strong { font-family: var(--serif); font-size: 1.5rem; font-weight: 400; margin-top: .25rem; color: var(--gold-dark); }
 @media (max-width: 900px) { .hero__features { grid-template-columns: repeat(2, 1fr); } }
+/* At phone width the hero image is only ~350px wide, so the badge has to give the product room. */
+@media (max-width: 560px) {
+	.hero__badge { right: .75rem; bottom: .75rem; width: 118px; height: 118px; padding: .5rem; }
+	/* The paragraph strut is what makes the stack tall, and a tall stack pushes the first line into
+	   the narrow top of the circle, where it spills out over the photo. */
+	.hero__badge p { font-size: .5625rem; line-height: 1.35; }
+	.hero__badge .eyebrow { font-size: .40625rem; letter-spacing: .06em; margin-bottom: .25rem; }
+	.hero__badge small { font-size: .5625rem; line-height: 1.35; }
+	.hero__badge strong { font-size: 1.0625rem; margin-top: .2rem; }
+}
 
 /* ---------- cards / packages ---------- */
 .card { background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); }
