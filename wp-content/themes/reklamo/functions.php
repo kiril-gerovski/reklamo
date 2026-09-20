@@ -13,6 +13,7 @@ defined( 'ABSPATH' ) || exit;
 define( 'REKLAMO_THEME_VERSION', '0.2.0' );
 
 require get_template_directory() . '/inc/icons.php';
+require get_template_directory() . '/inc/seo.php';
 
 /**
  * Theme supports, menus, pattern category.
