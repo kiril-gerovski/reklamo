@@ -56,7 +56,7 @@ Checked on this VM, not assumed:
 Current upstream (both newer than my training data — checked live):
 
 - **WordPress 7.1** "Mary Lou" (19 Aug 2026); WP 7.0 shipped the admin redesign in May 2026. **7.1.1** reached the live host by minor auto-update the night after the first deploy; `versions.env` follows it. Docker Hub publishes only the `7.1` tag, which tracks the point releases with a delay, so `setup.sh` raises the bind-mounted core to the pin itself.
-- **WooCommerce 11.1.0**, requires WP ≥ 7.0, PHP ≥ 7.4.
+- **WooCommerce 11.1.1**, requires WP ≥ 7.0, PHP ≥ 7.4.
 
 Three external facts that shape the build:
 
@@ -89,7 +89,7 @@ Three external facts that shape the build:
   Check it by measuring each line against the chord at both its top and bottom edge, not its middle.
 - **WP-CLI 2.12 on PHP 8.5 prints a deprecation from its own colour library on every call** (`php-cli-tools/lib/cli/Colors.php`). `config/php/cli.ini` sets `error_reporting = E_ALL & ~E_DEPRECATED` for the `cli` and `cron` containers only; the web container keeps full reporting, so deprecations in our own code still land in `debug.log` on page loads.
 
-- ⚠️ **Bulgarian translation is incomplete and nobody has costed it.** Core `bg_BG` lags at **7.0.4** behind 7.1. The WooCommerce `bg_BG` pack exists for 11.1.0 (refreshed 2026‑09‑03) but has **4,704 untranslated strings**, and WordPress silently falls back to English for each. Since "изцяло на български език" is a headline promise, this needs a real **translation audit**: crawl every customer-facing page and email, list the English leaks, ship our own `bg_BG.mo` from the plugin to override. Code and config, so it respects the no-plugins rule — but it is real work.
+- ⚠️ **Bulgarian translation is incomplete and nobody has costed it.** Core `bg_BG` lags at **7.0.4** behind 7.1. The WooCommerce `bg_BG` pack exists for the 11.1 series but has **4,704 untranslated strings**, and WordPress silently falls back to English for each. Since "изцяло на български език" is a headline promise, this needs a real **translation audit**: crawl every customer-facing page and email, list the English leaks, ship our own `bg_BG.mo` from the plugin to override. Code and config, so it respects the no-plugins rule — but it is real work.
 
 ---
 
@@ -362,7 +362,7 @@ Open for Phase 2/3: upload dir diagnostics screen, chunking, magic-byte sniffer,
 
 ## Phase 0 — status: DONE (2026-09-04)
 
-Verified on the dev VM: `scripts/setup.sh` → Bulgarian storefront on :8080, WP 7.1 + WooCommerce 11.1.0 (pinned), HPOS enabled, block Cart/Checkout, 4 real packages, menus, free-shipping zone BG, Mailpit capturing mail through the plugin's `phpmailer_init` path. A test order placed through the block checkout via Playwright landed in `wp_wc_orders` and produced two Bulgarian emails. `scripts/seed.sh` is idempotent (two consecutive runs, no changes). PHPCS clean.
+Verified on the dev VM: `scripts/setup.sh` → Bulgarian storefront on :8080, WP 7.1 + WooCommerce 11.1.1 (pinned), HPOS enabled, block Cart/Checkout, 4 real packages, menus, free-shipping zone BG, Mailpit capturing mail through the plugin's `phpmailer_init` path. A test order placed through the block checkout via Playwright landed in `wp_wc_orders` and produced two Bulgarian emails. `scripts/seed.sh` is idempotent (two consecutive runs, no changes). PHPCS clean.
 
 Lessons that changed the scripts:
 - WooCommerce refuses direct writes to some admin options → `opt()` warns and continues.
@@ -387,7 +387,7 @@ Goal: **`git clone` → `scripts/setup.sh` → a working Bulgarian WooCommerce s
 | `config/php/uploads.ini` | **Restrictive on purpose**: `upload_max_filesize=64M`, `post_max_size=64M`, `max_input_time=60`, `memory_limit=256M` |
 | `config/mariadb/low-mem.cnf` | `innodb_buffer_pool_size=128M` — the VM has ~1.9 GB free |
 | `scripts/wp` | `docker compose run --rm cli wp "$@"` |
-| `scripts/setup.sh` | Bring stack up, wait for health, `wp core install --locale=bg_BG`, install **pinned** WooCommerce 11.1.0, language packs, activate theme + plugin, then `seed.sh` |
+| `scripts/setup.sh` | Bring stack up, wait for health, `wp core install --locale=bg_BG`, install the WooCommerce version **pinned in `versions.env`**, language packs, activate theme + plugin, then `seed.sh` |
 | `scripts/seed.sh` | All dashboard configuration as `wp option update` / `wp wc …` commands (see below) |
 | `scripts/reset.sh` | `docker compose down -v` → `setup.sh`. The master test. |
 | `scripts/lint.sh` | PHPCS + WPCS via a throwaway `php:8.5-cli` container (no PHP on host) |
