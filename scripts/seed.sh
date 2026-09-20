@@ -15,8 +15,13 @@ wc() { wp wc "$@" --user="$WP_ADMIN_USER"; }
 # options; a cosmetic setting must never abort the seed.
 opt() { wp option update "$1" "$2" "${@:3}" >/dev/null 2>&1 || echo "  ! could not set $1"; }
 # Owner-editable content (company details, bank data, prices, texts): seeded once, then
-# whatever the owner sets in the dashboard wins on every later run.
-opt_default() { wp option add "$1" "$2" "${@:3}" >/dev/null 2>&1 || true; }
+# whatever the owner sets in the dashboard wins on every later run. Missing *or empty* counts as
+# unseeded — WordPress and WooCommerce pre-create several of these as empty strings, and `wp option
+# add` refuses to touch a key that already exists.
+opt_default() {
+  [ -n "$(wp option get "$1" 2>/dev/null || true)" ] && return 0
+  wp option update "$1" "$2" "${@:3}" >/dev/null 2>&1 || echo "  ! could not set $1"
+}
 
 echo "→ general settings"
 opt blogname "$WP_TITLE"
@@ -91,10 +96,16 @@ opt woocommerce_onboarding_profile '{"skipped":true,"completed":true,"is_store_c
 opt woocommerce_task_list_hidden "yes"
 opt woocommerce_extended_task_list_hidden "yes"
 opt woocommerce_admin_customize_store_completed "yes"
-# New WooCommerce installs boot in "coming soon" mode. We want the storefront live.
-opt woocommerce_coming_soon "no"
-opt woocommerce_store_pages_only "no"
-opt woocommerce_private_link "no"
+# New WooCommerce installs boot in "coming soon" mode, so a fresh install publishes the storefront.
+# Later runs never touch it: going live is the owner's decision, and `update --seed` must not be
+# able to publish a site that is deliberately still hidden.
+if [ "${REKLAMO_INSTALL:-0}" = 1 ]; then
+  opt woocommerce_coming_soon "no"
+  opt woocommerce_store_pages_only "no"
+  opt woocommerce_private_link "no"
+elif [ "$(wp option get woocommerce_coming_soon 2>/dev/null || true)" = "yes" ]; then
+  echo "  note: the store is in \"coming soon\" mode — publish it from WooCommerce → Settings → Site visibility"
+fi
 # Disable WooCommerce/WP auto-updates (pinned version; gateway JS sits on a moving API).
 opt auto_update_plugins '[]' --format=json
 opt auto_update_themes '[]' --format=json

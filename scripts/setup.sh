@@ -72,7 +72,7 @@ wp plugin activate reklamo-core >/dev/null
 for p in akismet hello; do wp plugin is-installed "$p" >/dev/null 2>&1 && wp plugin delete "$p" >/dev/null || true; done
 for t in $(wp theme list --status=inactive --field=name); do wp theme delete "$t" >/dev/null || true; done
 
-if [ "${SKIP_SEED:-0}" = 1 ]; then echo "→ skipping seed (SKIP_SEED=1)"; else scripts/seed.sh; fi
+if [ "${SKIP_SEED:-0}" = 1 ]; then echo "→ skipping seed (SKIP_SEED=1)"; else REKLAMO_INSTALL=1 scripts/seed.sh; fi
 
 echo
 echo "✔ ready"

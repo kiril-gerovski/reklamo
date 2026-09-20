@@ -31,7 +31,13 @@ anything that stores customer data.
   safe there.** A plain `update` never seeds: the owner edits settings in the dashboard and `opt`
   lines would overwrite them. Configuration uses `opt` (enforced when the seed runs); owner-editable
   content — company details, bank data, prices, page texts — uses `opt_default` / `fill_if_empty` /
-  create-if-missing and is never overwritten. Ask which kind a new line is before adding it.
+  create-if-missing and is never overwritten. `opt_default` treats **missing or empty** as unseeded,
+  because WordPress and WooCommerce pre-create options such as `blogdescription` and
+  `woocommerce_store_address` as empty strings. Ask which kind a new line is before adding it.
+- **Nothing in the seed may publish the site.** Site visibility (`woocommerce_coming_soon` and its
+  two companions) is set only when `REKLAMO_INSTALL=1`, which `setup.sh` and `host/install.sh` pass
+  on a fresh install. A later `update --seed` prints that the store is hidden and leaves it alone —
+  going live is the owner's decision, taken in the dashboard.
 - **Version pins live in `versions.env`**, nowhere else. `scripts/setup.sh` and
   `scripts/host/update.sh` both read it and raise core to `WP_VERSION`; the `wordpress:` image
   tag in `docker-compose.yml` carries the major.minor of `WP_VERSION` (`7.1` for `7.1.1`). The

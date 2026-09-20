@@ -166,7 +166,7 @@ else
 fi
 
 say "site configuration (scripts/seed.sh)"
-scripts/seed.sh
+REKLAMO_INSTALL=1 scripts/seed.sh
 
 # WooCommerce copies the admin email as sender at install, before the seed's set-once line.
 # Mail must leave as the mailbox it authenticates with, or SPF/DMARC fail at the receivers.

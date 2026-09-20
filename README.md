@@ -112,7 +112,10 @@ nothing lives only in the local database.
 
 Two kinds of lines: `opt` enforces configuration (currency, tax, statuses, pages, menus) on every
 run; `opt_default` seeds owner-editable content (company details, bank data, texts) once and leaves
-the dashboard value alone afterwards. Sample products are created when their SKU is missing and
+the dashboard value alone afterwards — "once" meaning while the option is missing **or empty**,
+since WordPress and WooCommerce pre-create some of them blank. Site visibility is the exception to
+both: the seed only publishes the storefront during a fresh install (`REKLAMO_INSTALL=1`), so
+`update --seed` can never take a deliberately hidden site live. Sample products are created when their SKU is missing and
 never updated. A plain `update` does not seed at all, so the owner's dashboard changes to `opt`
 settings survive releases; pass `--seed` when the seed itself changed and you want it applied.
 
