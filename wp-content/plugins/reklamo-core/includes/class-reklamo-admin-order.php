@@ -117,6 +117,8 @@ final class Reklamo_Admin_Order {
 			}
 		}
 		$next_rev = count( $mockups ) + 1;
+		$comments = (array) $order->get_meta( '_reklamo_change_requests' ); // keyed by revision
+		$last_rev = $mockups ? max( array_map( static fn( $x ): int => (int) $x->revision, $mockups ) ) : 0;
 		$details  = Reklamo_Approval::details( $order );
 		$can_send = $order->has_status( array( Reklamo_Statuses::RECEIVED, Reklamo_Statuses::CHANGES, Reklamo_Statuses::MOCKUP_SENT, Reklamo_Statuses::APPROVED ) );
 		$deposit  = (float) $order->get_meta( '_reklamo_deposit_amount' );
@@ -155,7 +157,8 @@ final class Reklamo_Admin_Order {
 				<ol>
 				<?php
 				foreach ( $mockups as $m ) :
-					$t = $tokens[ (int) $m->id ] ?? null;
+					$t       = $tokens[ (int) $m->id ] ?? null;
+					$comment = (string) ( $comments[ (int) $m->revision ] ?? '' );
 					?>
 					<li>
 						<a href="<?php echo esc_url( Reklamo_Storage::download_url( (int) $m->id ) ); ?>"><?php echo esc_html( Reklamo_Storage::describe( $m ) ); ?></a>
@@ -173,14 +176,21 @@ final class Reklamo_Admin_Order {
 						}
 						?>
 						</span>
+						<?php
+						if ( '' !== $comment ) :
+							// The open request keeps full contrast; the ones already answered recede.
+							$open = (int) $m->revision === $last_rev && $order->has_status( Reklamo_Statuses::CHANGES );
+							?>
+							<p class="<?php echo $open ? '' : 'description'; ?>" style="margin:.2em 0 .8em">
+								<strong><?php esc_html_e( 'Requested changes', 'reklamo-core' ); ?>:</strong>
+								<?php echo esc_html( $comment ); ?>
+							</p>
+						<?php endif; ?>
 					</li>
 				<?php endforeach; ?>
 				</ol>
 			<?php else : ?>
 				<p class="description"><?php esc_html_e( 'No mockup sent yet.', 'reklamo-core' ); ?></p>
-			<?php endif; ?>
-			<?php if ( $order->get_meta( '_reklamo_last_change_request' ) && $order->has_status( Reklamo_Statuses::CHANGES ) ) : ?>
-				<p><strong><?php esc_html_e( 'Requested changes', 'reklamo-core' ); ?>:</strong> <?php echo esc_html( $order->get_meta( '_reklamo_last_change_request' ) ); ?></p>
 			<?php endif; ?>
 
 			<?php if ( $order->get_meta( '_reklamo_approved_at' ) ) : ?>
