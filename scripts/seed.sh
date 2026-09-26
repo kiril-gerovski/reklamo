@@ -35,6 +35,14 @@ opt default_comment_status closed
 opt default_ping_status closed
 if [ "${REKLAMO_ENV:-local}" = production ]; then opt blog_public 1; else opt blog_public 0; fi   # indexing only on production
 opt uploads_use_yearmonth_folders 1
+# Browser-tab icon, from the theme's brand mark. Imported once; an icon the owner uploads stays.
+if [ -z "$(wp option get site_icon 2>/dev/null || true)" ] || [ "$(wp option get site_icon 2>/dev/null || true)" = "0" ]; then
+  icon_path=$(wp eval "\$p = get_theme_file_path( 'assets/img/icon.png' ); echo file_exists( \$p ) ? \$p : '';")
+  if [ -n "$icon_path" ]; then
+    icon_att=$(wp media import "$icon_path" --title="Reklamo.bg" --alt="Reklamo.bg" --porcelain 2>/dev/null | tail -n1)
+    [ -n "$icon_att" ] && opt site_icon "$icon_att" && echo "  site icon set"
+  fi
+fi
 wp rewrite structure '/%postname%/' >/dev/null
 wp rewrite flush --hard >/dev/null 2>&1 || wp rewrite flush >/dev/null
 
@@ -190,7 +198,11 @@ ensure_page() { # slug title [content]
 home_id=$(ensure_page nachalo "Начало" "<!-- wp:paragraph --><p>Избери пакет. Изпрати логото. Ние правим останалото.</p><!-- /wp:paragraph -->")
 ensure_page kak-raboti "Как работи" >/dev/null
 ensure_page za-biznesa "За бизнеса" >/dev/null
+# Landing page behind the ПРОДУКТИ menu item. The native WooCommerce shortcode lists every
+# top-level product category, so a category added later shows up without touching the page.
+ensure_page produkti "Продукти" '<!-- wp:shortcode -->[product_categories parent="0" hide_empty="0" columns="3"]<!-- /wp:shortcode -->' >/dev/null
 ensure_page vdahnovenie "Вдъхновение" >/dev/null
+ensure_page za-nas "За нас" >/dev/null
 ensure_page kontakti "Контакти" >/dev/null
 ensure_page kachi-logo "Качи лого и визуализирай" >/dev/null
 ensure_page dostavka-i-srokove "Доставка и срокове" >/dev/null
@@ -290,6 +302,38 @@ fi
 fill_if_empty chesto-zadavani-vaprosi "<!-- wp:paragraph --><p>Често задавани въпроси.</p><!-- /wp:paragraph -->"
 # Legal pages: structure and every number come from the settings through shortcodes, so the texts
 # never contradict the configuration. A lawyer reviews the wording; the owner edits in the block editor.
+# "About us": the company's own copy.
+fill_if_empty za-nas "$(cat <<'HTML'
+<!-- wp:paragraph {"className":"lead"} -->
+<p class="lead">REKLAMO.BG – реклама, която работи за Вашия бизнес.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>REKLAMO.BG предлага цялостни решения в областта на рекламата, печата и брандирането, създадени да помогнат на бизнеса да бъде разпознаваем, професионално представен и запомнящ се.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Предлагаме брандиране на рекламни и бизнес подаръци, както и изработка на календари, визитки, флаери и разнообразни печатни рекламни материали. Независимо дали става въпрос за малка поръчка, рекламна кампания, фирмено събитие или подаръци за клиенти и партньори, подхождаме индивидуално към всеки проект.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>За нас добрата реклама започва с правилната идея и завършва с качественото изпълнение. Затова обръщаме внимание на всеки детайл – от избора на подходящ продукт и подготовката на дизайна до печата, брандирането и готовия краен резултат.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>В REKLAMO.BG можете да избирате както отделни рекламни продукти, така и специално подбрани промо пакети, които комбинират различни артикули и услуги на атрактивна цена. Преди изработката подготвяме визуализация за одобрение, за да сте сигурни как ще изглежда Вашият бранд върху крайния продукт.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Нашата цел е да бъдем надежден рекламен партньор за Вашия бизнес – от визитката, която оставяте след среща, до рекламния подарък, който остава при клиента.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph {"className":"lead"} -->
+<p class="lead">REKLAMO.BG – Вашата идея. Вашият бранд. Нашето изпълнение.</p>
+<!-- /wp:paragraph -->
+HTML
+)"
+
 fill_if_placeholder obshti-usloviya "<!-- wp:paragraph --><p>Общи условия.</p><!-- /wp:paragraph -->" "$(cat <<'HTML'
 <!-- wp:paragraph {"className":"lead"} -->
 <p class="lead">Тези общи условия уреждат поръчките на промоционални пакети, брандирани с логото на клиента, през сайта Reklamo.bg. С изпращането на заявка приемате условията по-долу.</p>
@@ -473,6 +517,24 @@ if ( $p && ( "" === trim( $p->post_content ) || str_contains( $p->post_content, 
 }
 '
 
+# An already-built homepage still carries the brand mark the pattern drew inline before the client
+# supplied a logo. Swap that one block for the shortcode, which always renders the current asset.
+wp eval '
+$id = (int) get_option( "page_on_front" );
+$p  = get_post( $id );
+if ( $p && str_contains( $p->post_content, "brand__mark" ) && ! str_contains( $p->post_content, "[reklamo_mark" ) ) {
+	$new = preg_replace(
+		"~<!-- wp:html -->\s*<span class=\"brand__mark\">.*?</span>\s*<!-- /wp:html -->~s",
+		"<!-- wp:shortcode -->\n[reklamo_mark size=\"76\"]\n<!-- /wp:shortcode -->",
+		$p->post_content
+	);
+	if ( $new && $new !== $p->post_content ) {
+		wp_update_post( array( "ID" => $id, "post_content" => $new ) );
+		echo "  homepage brand mark switched to the shortcode\n";
+	}
+}
+'
+
 
 # WooCommerce creates Shop/Cart/Checkout/My account on activation (block versions).
 # Make sure they exist, then give the shop page the design's name.
@@ -525,23 +587,67 @@ if ( $p ) {
 ' 
 opt wp_page_for_privacy_policy "$(page_id politika-za-poveritelnost)"
 
+echo "→ product categories"
+ensure_cat() { # slug name
+  local id; id=$(wc product_cat list --slug="$1" --field=id | head -n1)
+  [ -n "$id" ] || id=$(wc product_cat create --name="$2" --slug="$1" --porcelain)
+  echo "$id"
+}
+# The ПРОДУКТИ dropdown, in the order the design lists it. Underscores stand in for the
+# spaces the word-split loop would otherwise break on.
+PRODUCT_CATS="kalendari:Календари tefteri:Тефтери himikalki:Химикалки butilki-i-chashi:Бутилки_и_чаши zapalki:Запалки chanti:Чанти tekstil:Текстил tehnologii:Технологии ofis-artikuli:Офис_артикули"
+for pair in $PRODUCT_CATS; do
+  ensure_cat "${pair%%:*}" "$(echo "${pair#*:}" | tr '_' ' ')" >/dev/null
+done
+# WooCommerce ships an "Uncategorized" term and refuses to delete whichever one is the default,
+# so hand the default to Пакети first and only then drop it — and only while it holds nothing.
+opt default_product_cat "$(ensure_cat paketi "Пакети")"
+uncat=$(wc product_cat list --slug=uncategorized --fields=id,count --format=csv | tail -n +2 | tr -d '"')
+if [ -n "$uncat" ] && [ "${uncat#*,}" = "0" ]; then
+  wp term delete product_cat "${uncat%%,*}" >/dev/null 2>&1 && echo "  removed the empty Uncategorized category"
+fi
+
 echo "→ menus"
 # WP-CLI CSV quotes non-ASCII names → strip quotes; no grep -q (SIGPIPE under pipefail).
 ensure_menu() { wp menu list --fields=name --format=csv | tail -n +2 | tr -d '"' | grep -x "$1" >/dev/null || wp menu create "$1" >/dev/null; }
-menu_add_page() { # menu slug
+menu_item_id() { # menu type object_id  →  the nav_menu_item's own id
+  wp menu item list "$1" --fields=db_id,type,object_id --format=csv | tail -n +2 | tr -d '"' |
+    awk -F, -v t="$2" -v o="$3" '$2==t && $3==o {print $1; exit}'
+}
+menu_add_term() { # menu term_id parent_item_id
+  [ -n "$(menu_item_id "$1" taxonomy "$2")" ] && return 0
+  wp menu item add-term "$1" product_cat "$2" --parent-id="$3" >/dev/null
+}
+menu_add_page() { # menu slug [position]
   local pid; pid=$(page_id "$2"); [ -n "$pid" ] || return 0
-  wp menu item list "$1" --fields=object_id --format=csv | tail -n +2 | grep -x "$pid" >/dev/null || wp menu item add-post "$1" "$pid" >/dev/null
+  wp menu item list "$1" --fields=object_id --format=csv | tail -n +2 | grep -x "$pid" >/dev/null && return 0
+  wp menu item add-post "$1" "$pid" ${3:+--position="$3"} >/dev/null
 }
 ensure_menu "Главно меню"
 # "Начало" first: a front-page link so visitors can get back home from the header.
 wp menu item list "Главно меню" --fields=object_id --format=csv | tail -n +2 | grep -x "$home_id" >/dev/null || wp menu item add-post "Главно меню" "$home_id" --position=1 >/dev/null
 [ -n "$shop_id" ] && { wp menu item list "Главно меню" --fields=object_id --format=csv | tail -n +2 | grep -x "$shop_id" >/dev/null || wp menu item add-post "Главно меню" "$shop_id" >/dev/null; }
-for s in kak-raboti za-biznesa vdahnovenie kontakti; do menu_add_page "Главно меню" "$s"; done
+menu_add_page "Главно меню" produkti 3
+for s in kak-raboti za-biznesa kontakti; do menu_add_page "Главно меню" "$s"; done
+# The nine categories hang under ПРОДУКТИ, in the design's order.
+produkti_item=$(menu_item_id "Главно меню" post_type "$(page_id produkti)")
+if [ -n "$produkti_item" ]; then
+  for pair in $PRODUCT_CATS; do
+    menu_add_term "Главно меню" "$(wc product_cat list --slug="${pair%%:*}" --field=id | head -n1)" "$produkti_item"
+  done
+fi
+# The redesign replaced Вдъхновение with Продукти in the header; it stays in the footer.
+# Done once, so an owner who puts it back keeps it.
+if [ -z "$(wp option get reklamo_seeded_nav 2>/dev/null || true)" ]; then
+  old=$(menu_item_id "Главно меню" post_type "$(page_id vdahnovenie)")
+  [ -n "$old" ] && wp menu item delete "$old" >/dev/null 2>&1 && echo "  Вдъхновение removed from the header menu"
+  opt reklamo_seeded_nav "1"
+fi
 wp menu location assign "Главно меню" primary >/dev/null 2>&1 || true
 
 ensure_menu "Футър — Навигация"
 [ -n "$shop_id" ] && { wp menu item list "Футър — Навигация" --fields=object_id --format=csv | tail -n +2 | grep -x "$shop_id" >/dev/null || wp menu item add-post "Футър — Навигация" "$shop_id" >/dev/null; }
-for s in kak-raboti za-biznesa vdahnovenie kontakti; do menu_add_page "Футър — Навигация" "$s"; done
+for s in kak-raboti za-biznesa vdahnovenie za-nas kontakti; do menu_add_page "Футър — Навигация" "$s"; done
 wp menu location assign "Футър — Навигация" footer-nav >/dev/null 2>&1 || true
 
 ensure_menu "Футър — Информация"
@@ -549,26 +655,27 @@ for s in dostavka-i-srokove plashtane chesto-zadavani-vaprosi obshti-usloviya po
 wp menu location assign "Футър — Информация" footer-info >/dev/null 2>&1 || true
 
 echo "→ products (from design/preview.webp)"
-cat_id=$(wc product_cat list --slug=paketi --field=id | head -n1)
-[ -n "$cat_id" ] || cat_id=$(wc product_cat create --name="Пакети" --slug="paketi" --porcelain)
+cat_id=$(ensure_cat paketi "Пакети")
 
 product_id() { wc product list --sku="$1" --field=id | head -n1; }
 # Sample packages exist only until the owner has products: created when the SKU is
 # missing, never updated — names, prices and texts belong to the dashboard afterwards.
-ensure_product() { # sku name price short_description menu_order [featured]
+# A Bulgarian name would otherwise become a percent-encoded slug, so latin ones are passed in.
+ensure_product() { # sku name price short_description menu_order [featured] [category_id] [description] [slug]
   [ -n "$(product_id "$1")" ] && return 0
   wc product create --type=simple --status=publish --sku="$1" --name="$2" --regular_price="$3" \
     --short_description="$4" --menu_order="$5" --manage_stock=false --sold_individually=false \
-    --featured="${6:-false}" --categories="[{\"id\":$cat_id}]" --porcelain >/dev/null
+    --featured="${6:-false}" --categories="[{\"id\":${7:-$cat_id}}]" --description="${8:-}" \
+    ${9:+--slug="$9"} --porcelain >/dev/null
 }
 # Package photos cut from design/preview.webp by scripts/crop-previews.php, one per package.
 # Set only when the product has no image: the owner's own photos are never replaced.
-set_product_image() { # sku slug alt
+set_product_image() { # sku path-under-assets-img alt
   local pid att path
   pid=$(product_id "$1"); [ -n "$pid" ] || return 0
   [ -n "$(wp post meta get "$pid" _thumbnail_id 2>/dev/null || true)" ] && return 0
   # Resolved and checked inside WP-CLI: locally that runs in the container, where the path differs.
-  path=$(wp eval "\$p = get_theme_file_path( 'assets/img/packages/$2.webp' ); echo file_exists( \$p ) ? \$p : '';")
+  path=$(wp eval "\$p = get_theme_file_path( 'assets/img/$2.webp' ); echo file_exists( \$p ) ? \$p : '';")
   [ -n "$path" ] || { echo "  $2: image missing, skipped"; return 0; }
   att=$(wp media import "$path" --post_id="$pid" --featured_image --title="$3" --alt="$3" --porcelain 2>/dev/null | tail -n1)
   [ -n "$att" ] && echo "  $2: image set"
@@ -579,10 +686,43 @@ ensure_product OSP "Office Starter Pack" 119 "<ul><li>20 чаши</li><li>20 х�
 ensure_product EVP "Event Pack"          149 "<ul><li>20 текстилни торби</li><li>20 метални бутилки</li></ul>" 3
 ensure_product PRP "Premium Pack"        169 "<ul><li>20 бележника</li><li>20 метални химикалки</li></ul>" 4
 
-set_product_image RBP red-business-pack   "Red Business Pack — червен тефтер и химикалка с лого"
-set_product_image OSP office-starter-pack "Office Starter Pack — чаша и химикалка с лого"
-set_product_image EVP event-pack          "Event Pack — текстилна торба и метална бутилка с лого"
-set_product_image PRP premium-pack        "Premium Pack — бележник и метална химикалка с лого"
+set_product_image RBP packages/red-business-pack   "Red Business Pack — червен тефтер и химикалка с лого"
+set_product_image OSP packages/office-starter-pack "Office Starter Pack — чаша и химикалка с лого"
+set_product_image EVP packages/event-pack          "Event Pack — текстилна торба и метална бутилка с лого"
+set_product_image PRP packages/premium-pack        "Premium Pack — бележник и метална химикалка с лого"
+
+# Business calendars, one product per quantity tier (client artwork in design/logo-kit-and-redesign.zip).
+# Prices are the "крайна цена" from the client's mockups, VAT included like every other price here.
+cal_id=$(wc product_cat list --slug=kalendari --field=id | head -n1)
+# The design splits these: dimensions under "Описание", materials under "Спецификации".
+cal_desc='<p>Размер на подложката 320 x 240 мм. Размер на главата 320 x 240 мм.</p>'
+cal_specs=$(cat <<'HTML'
+<p>Всички тела за календари се изработват от 70 г/м2 офсетова хартия. С перфорация и шапка и прозорче за отбелязване на дата. Съдържат информация за:</p>
+<ul><li>номер на седмица,</li><li>фази на луната,</li><li>начало на астрологичната зодия,</li><li>официални и православни празници в България.</li></ul>
+<p>Подложката е от 295 г/м2 едностранно хромов картон Зенит, бигована за сгъване.</p>
+HTML
+)
+if [ -n "$cal_id" ]; then
+  i=0
+  for tier in "1:20:56.40" "2:50:136.80" "3:100:205.20" "4:200:391.20" "5:300:529.20" "6:500:846.00"; do
+    n=${tier%%:*}; rest=${tier#*:}; qty=${rest%%:*}; price=${rest#*:}
+    i=$((i + 1))
+    ensure_product "CAL-$qty" "Бизнес календар START $n" "$price" \
+      "<p>Готов фирмен пакет за вашия бизнес. Практичен, стилен и запомнящ се.</p><ul><li>$qty броя календари с индивидуален дизайн</li></ul>" \
+      "$((10 + i))" false "$cal_id" "$cal_desc" "biznes-kalendar-start-$n"
+    set_product_image "CAL-$qty" "products/calendar-start-$n" "Бизнес календар START $n — $qty броя с вашето лого"
+    # Specifications: seeded once, then the owner's text in Products → Спецификации wins.
+    cal_pid=$(product_id "CAL-$qty")
+    if [ -n "$cal_pid" ] && [ -z "$(wp post meta get "$cal_pid" _reklamo_specs 2>/dev/null || true)" ]; then
+      wp post meta update "$cal_pid" _reklamo_specs "$cal_specs" >/dev/null
+    fi
+  done
+  # Give the Календари category a real picture instead of the WooCommerce placeholder.
+  if [ -z "$(wp term meta get "$cal_id" thumbnail_id 2>/dev/null || true)" ]; then
+    thumb=$(wp post meta get "$(product_id CAL-20)" _thumbnail_id 2>/dev/null || true)
+    [ -n "$thumb" ] && wp term meta update "$cal_id" thumbnail_id "$thumb" >/dev/null && echo "  Календари category image set"
+  fi
+fi
 opt woocommerce_default_catalog_orderby "menu_order"
 
 echo "→ flushing caches"

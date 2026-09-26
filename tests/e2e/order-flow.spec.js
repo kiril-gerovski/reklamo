@@ -16,7 +16,7 @@ let svgOrderId = '';
 test( 'customer places a request with a logo and no payment', async ( { page } ) => {
 	// Product page leads to the request page — no add-to-cart, no checkout.
 	await page.goto( '/product/red-business-pack/' );
-	await page.getByRole( 'link', { name: /Избери този пакет/ } ).click();
+	await page.getByRole( 'link', { name: /Качи лого и заяви визуализация/i } ).click();
 	await page.waitForURL( /\/kachi-logo\/\?paket=red-business-pack/ );
 
 	await expect( page.locator( 'h1' ) ).toHaveText( 'Качи лого и визуализирай' );
@@ -389,7 +389,7 @@ test( 'shop moves the order: deposit → production → final payment → comple
 	// The status dropdown refuses an illegal jump.
 	await page.selectOption( '#order_status', 'wc-completed' );
 	await page.click( 'button.save_order' );
-	await expect( page.locator( '.notice-warning' ) ).toContainText( 'не е валидна следваща стъпка' );
+	await expect( page.locator( '.reklamo-notice' ) ).toContainText( 'не е валидна следваща стъпка' );
 	await expect( page.locator( '#order_status' ) ).toHaveValue( 'wc-rq-approved' );
 
 	await page.getByRole( 'button', { name: /Аванс получен/ } ).click();

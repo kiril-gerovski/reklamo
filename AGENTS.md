@@ -97,6 +97,12 @@ time:
   `Reklamo_Cleanup::purge_order()` (deletion). A new piece of customer data needs a line in
   `Reklamo_Privacy::PERSONAL_META` or a flagged note via `personal_note()`, plus an entry in
   `docs/GDPR.md` § 1. Order notes that quote the customer or an IP go through `personal_note()`.
+- Brand images are **committed, not built on deploy**: `logo.png` / `logo-light.png` / `mark.png` are
+  cut from the client's logo kit (`design/logo-kit-and-redesign.zip` → `REKLAMO_ALL.pdf`, vector, no
+  text layer), and `share.jpg` / `icon.png` come from `node scripts/render-brand-images.js`. Re-run it
+  after touching the logo. Rasterising that PDF needs pdf.js through Playwright over a local HTTP
+  server — there is no ImageMagick, Ghostscript or pdftotext here, and Chromium downloads a PDF
+  rather than rendering it.
 - `wp rewrite flush --hard` writes `.htaccess` only with `apache_modules: [mod_rewrite]` in
   `wp-cli.yml` (repo root, read by the server scripts). Locally the Docker image ships the file,
   so a missing `.htaccess` only shows on the host as "homepage works, everything else 404".

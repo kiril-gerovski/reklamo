@@ -15,7 +15,7 @@ if ( ! $product instanceof WC_Product || ! $product->is_visible() ) {
 }
 ?>
 <li <?php wc_product_class( 'card package-card', $product ); ?>>
-	<a class="package-card__media" href="<?php echo esc_url( reklamo_request_url( $product ) ); ?>" aria-label="<?php echo esc_attr( $product->get_name() ); ?>">
+	<a class="package-card__media" href="<?php echo esc_url( $product->get_permalink() ); ?>" aria-label="<?php echo esc_attr( $product->get_name() ); ?>">
 		<?php echo $product->get_image( 'woocommerce_thumbnail' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- WC escapes. ?>
 		<?php if ( $product->is_featured() ) : ?>
 			<span class="badge"><?php esc_html_e( 'Most popular', 'reklamo' ); ?></span>
@@ -25,6 +25,6 @@ if ( ! $product instanceof WC_Product || ! $product->is_visible() ) {
 		<h3 class="package-card__name"><a href="<?php echo esc_url( $product->get_permalink() ); ?>"><?php echo esc_html( $product->get_name() ); ?></a></h3>
 		<div class="package-card__contents"><?php echo wp_kses_post( wpautop( $product->get_short_description() ) ); ?></div>
 		<div class="package-card__price"><?php echo wp_kses_post( $product->get_price_html() ); ?></div>
-		<a class="btn btn--card <?php echo $product->is_featured() ? 'btn--primary' : 'btn--outline'; ?>" href="<?php echo esc_url( reklamo_request_url( $product ) ); ?>"><?php esc_html_e( 'Choose package', 'reklamo' ); ?></a>
+		<a class="btn btn--card <?php echo $product->is_featured() ? 'btn--primary' : 'btn--outline'; ?>" href="<?php echo esc_url( $product->get_permalink() ); ?>"><?php esc_html_e( 'View the package', 'reklamo' ); ?></a>
 	</div>
 </li>

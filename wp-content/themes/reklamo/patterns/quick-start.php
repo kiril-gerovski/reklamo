@@ -22,9 +22,9 @@ defined( 'ABSPATH' ) || exit;
 <!-- wp:paragraph -->
 <p>Изпрати ни логото си и ще се свържем с теб с визуализация.</p>
 <!-- /wp:paragraph -->
-<!-- wp:html -->
-<span class="brand__mark"><svg viewBox="0 0 40 40" width="64" height="64" aria-hidden="true"><circle cx="20" cy="20" r="18" fill="none" stroke="#b8892b" stroke-width="2"/><path d="M14 29V11h6.5a5.5 5.5 0 0 1 0 11H14m6.5 0L27 29" fill="none" stroke="#b8892b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-<!-- /wp:html -->
+<!-- wp:shortcode -->
+[reklamo_mark size="76"]
+<!-- /wp:shortcode -->
 </div>
 <!-- /wp:group -->
 <!-- wp:shortcode -->

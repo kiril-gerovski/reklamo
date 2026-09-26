@@ -2150,3 +2150,11 @@ msgstr "Заявка за корекции по визуализация №%d"
 #: includes/class-reklamo-privacy.php
 msgid "Order %s is still open; its data is kept until it is closed."
 msgstr "Поръчка %s е още активна; данните ѝ се пазят до приключването ѝ."
+
+#: includes/class-reklamo-product.php
+msgid "Specifications"
+msgstr "Спецификации"
+
+#: includes/class-reklamo-product.php
+msgid "Paper, print and finishing. Shown as its own tab on the product page; leave empty to hide the tab."
+msgstr "Хартия, печат и довършителни работи. Показва се като отделен таб на страницата на продукта; оставете празно, за да скриете таба."

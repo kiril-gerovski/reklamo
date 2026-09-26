@@ -506,3 +506,123 @@ msgstr "ЕИК %s"
 #: footer.php
 msgid "VAT no. %s"
 msgstr "ДДС № %s"
+
+#. translators: %s: menu item title
+#: inc/class-reklamo-nav-walker.php
+msgid "Show submenu of %s"
+msgstr "Покажи подменюто на %s"
+
+#. translators: %s: product category name
+#: woocommerce/content-single-product.php
+msgid "The %s collection"
+msgstr "Колекция %s"
+
+#: woocommerce/content-single-product.php
+msgid "Premium quality"
+msgstr "Премиум качество"
+
+#: woocommerce/content-single-product.php
+msgid "Selected materials"
+msgstr "Подбрани материали"
+
+#: woocommerce/content-single-product.php
+msgid "Branding"
+msgstr "Брандиране"
+
+#: woocommerce/content-single-product.php
+msgid "With your logo"
+msgstr "С вашето лого"
+
+#: woocommerce/content-single-product.php
+msgid "Fast delivery"
+msgstr "Бърза доставка"
+
+#: woocommerce/content-single-product.php
+msgid "Across Bulgaria"
+msgstr "В цяла България"
+
+#: woocommerce/content-single-product.php
+msgid "Final price"
+msgstr "Крайна цена"
+
+#: woocommerce/content-single-product.php
+msgid "branding included"
+msgstr "с включено брандиране"
+
+#: woocommerce/content-single-product.php
+msgid "What does the package include?"
+msgstr "Какво включва пакетът?"
+
+#: woocommerce/content-single-product.php
+msgid "A mockup prepared before production"
+msgstr "Подготовка на визуализация преди производство"
+
+#: woocommerce/content-single-product.php
+msgid "Free corrections to the design"
+msgstr "Безплатна корекция на дизайна"
+
+#: woocommerce/content-single-product.php
+msgid "Single-colour branding included"
+msgstr "Включено едноцветно брандиране"
+
+#: woocommerce/content-single-product.php
+msgid "Further branding available on request"
+msgstr "Възможност за допълнително брандиране при запитване"
+
+#: woocommerce/content-single-product.php
+msgid "Upload a logo and request a mockup"
+msgstr "Качи лого и заяви визуализация"
+
+#: woocommerce/content-single-product.php
+msgid "No payment at this stage"
+msgstr "Няма плащане на този етап"
+
+#: woocommerce/content-single-product.php
+msgid "How the order works"
+msgstr "Как става поръчката"
+
+#. translators: %d: hours until the mockup is sent
+#: woocommerce/content-single-product.php
+msgid "We send you a mockup within %d working hours."
+msgstr "Ще ви изпратим визуализация до %d работни часа."
+
+#: woocommerce/content-single-product.php
+msgid "Or ask for a correction if you need one."
+msgstr "Или поискайте корекция при нужда."
+
+#. translators: %d: deposit percentage
+#: woocommerce/content-single-product.php
+msgid "Pay a %d%% deposit"
+msgstr "Плащате аванс %d%%"
+
+#: woocommerce/content-single-product.php
+msgid "Production starts once you approve."
+msgstr "След одобрение стартираме поръчката."
+
+#: woocommerce/content-single-product.php
+msgid "Need help?"
+msgstr "Нуждаете се от помощ?"
+
+#: woocommerce/content-single-product.php
+msgid "Our consultant will help you choose the right package for your business."
+msgstr "Наш консултант ще ви помогне да изберете най-подходящия пакет за вашия бизнес."
+
+#: woocommerce/content-single-product.php
+msgid "Get in touch"
+msgstr "Свържи се с нас"
+
+#: functions.php
+msgid "Delivery and deadlines"
+msgstr "Доставка и срокове"
+
+#: functions.php
+msgid "Frequently asked questions"
+msgstr "Често задавани въпроси"
+
+#: woocommerce/content-product.php
+msgid "View the package"
+msgstr "Виж пакета"
+
+#: functions.php
+msgid "Specifications"
+msgstr "Спецификации"

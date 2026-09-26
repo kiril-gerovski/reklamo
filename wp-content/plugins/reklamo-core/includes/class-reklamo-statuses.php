@@ -179,7 +179,7 @@ final class Reklamo_Statuses {
 		$msg = get_transient( 'reklamo_status_guard_' . get_current_user_id() );
 		if ( $msg ) {
 			delete_transient( 'reklamo_status_guard_' . get_current_user_id() );
-			printf( '<div class="notice notice-warning is-dismissible"><p>%s</p></div>', esc_html( $msg ) );
+			printf( '<div class="notice notice-warning is-dismissible reklamo-notice"><p>%s</p></div>', esc_html( $msg ) );
 		}
 	}
 

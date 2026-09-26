@@ -12,6 +12,44 @@
 		} );
 	}
 
+	// Submenus: the button drives them on touch and keyboard; CSS handles hover and focus.
+	var subToggles = document.querySelectorAll( '.sub-toggle' );
+	subToggles.forEach( function ( button ) {
+		var sub = button.parentNode.querySelector( '.sub-menu' );
+		if ( ! sub ) { return; }
+		button.addEventListener( 'click', function () {
+			var open = ! sub.classList.contains( 'is-open' );
+			subToggles.forEach( function ( other ) {
+				if ( other === button ) { return; }
+				other.setAttribute( 'aria-expanded', 'false' );
+				var s = other.parentNode.querySelector( '.sub-menu' );
+				if ( s ) { s.classList.remove( 'is-open' ); }
+			} );
+			sub.classList.toggle( 'is-open', open );
+			button.setAttribute( 'aria-expanded', open ? 'true' : 'false' );
+		} );
+	} );
+
+	document.addEventListener( 'keydown', function ( e ) {
+		if ( 'Escape' !== e.key ) { return; }
+		subToggles.forEach( function ( button ) {
+			var sub = button.parentNode.querySelector( '.sub-menu' );
+			if ( ! sub || ! sub.classList.contains( 'is-open' ) ) { return; }
+			sub.classList.remove( 'is-open' );
+			button.setAttribute( 'aria-expanded', 'false' );
+			button.focus();
+		} );
+	} );
+
+	document.addEventListener( 'click', function ( e ) {
+		if ( e.target.closest( '.primary-menu' ) ) { return; }
+		subToggles.forEach( function ( button ) {
+			var sub = button.parentNode.querySelector( '.sub-menu' );
+			if ( sub ) { sub.classList.remove( 'is-open' ); }
+			button.setAttribute( 'aria-expanded', 'false' );
+		} );
+	} );
+
 	function formatSize( bytes ) {
 		if ( bytes >= 1048576 ) { return ( bytes / 1048576 ).toFixed( 1 ) + ' MB'; }
 		if ( bytes >= 1024 ) { return Math.round( bytes / 1024 ) + ' KB'; }

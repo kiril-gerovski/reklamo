@@ -238,6 +238,95 @@ If a change exists only in your local database, it does not exist. That script i
 
 ---
 
+## Client redesign round — logo kit, products menu, calendars
+
+The client delivered `design/logo-kit-and-redesign.zip`: annotated screenshots of the live pages, a new
+product-page design, six calendar mockups with prices, "За нас" copy, and `REKLAMO_ALL.pdf` — the
+logo kit.
+
+### Reading the kit
+
+`REKLAMO_ALL.pdf` is 23 pages of **vector artwork**: no text layer, no embedded bitmaps, gold
+gradients drawn as shading operators. This VM has no ImageMagick, Ghostscript or pdftotext, and
+Chromium refuses to render a PDF it can only download, so the pages are rasterised through
+**pdf.js driven by Playwright**, served over a throwaway local HTTP server because `file://`
+sub-resources are blocked. `page.render({ background: 'rgba(0,0,0,0)' })` plus
+`screenshot({ omitBackground: true })` preserves transparency.
+
+The pages that matter: **12** horizontal lockup in gold, **15** the same in white, **17** the mark
+alone. Pages that look right on screen but carry a baked-in dark rectangle (1, 5, 7, 9, 11, 16, 22)
+are for print, not for the site.
+
+### Decisions
+
+- **The logo ships as PNG, not SVG.** Converting the artwork would mean re-implementing PDF axial
+  shadings as SVG gradients — 64 `sh` operators across the kit. A 1200 px wide PNG covers every
+  display size the header uses (34 px tall, 27 px on phones) at a fraction of the effort and no
+  visual difference.
+- **Derived images are committed, never generated on deploy.** `scripts/render-brand-images.js`
+  rebuilds `share.jpg` and `icon.png` from `logo.png` / `mark.png`; the server only checks out files.
+- **ПРОДУКТИ replaces ВДЪХНОВЕНИЕ in the header**, as the design shows; Вдъхновение stays in
+  the footer. The removal runs **once**, guarded by `reklamo_seeded_nav`, so an owner who puts the
+  item back keeps it.
+- **The dropdown is a real menu, not a hard-coded list.** The nine categories are WooCommerce terms
+  and genuine menu items, so the owner can reorder or rename them in Appearance → Menus.
+- **The Продукти page uses the native `[product_categories]` shortcode** rather than our own
+  listing code, so a category added later appears without an edit.
+- **"Uncategorized" is deleted** after the default product category is handed to Пакети — WooCommerce
+  refuses to delete whichever term is the default, and only deletes it while it is empty.
+- The nine categories are **deliberately empty** apart from Календари. The client asked for the full
+  dropdown; products follow.
+
+### The calendars
+
+Six products, one per quantity tier, because the design prices each tier separately rather than
+offering a quantity choice. Prices, copy and the paper/print specifications come from the client's
+mockups and `product.png`; the six 1.5 MB PNGs are re-encoded to ~100 KB WebP at full resolution
+through Chromium's canvas, there being no ImageMagick here.
+
+Only "БИЗНЕС КАЛЕНДАР START 1" (20 бр) is named in the design. **START 2–6 is an assumption**,
+cheap to correct: seeded products are created only when their SKU is missing, so a rename is a
+dashboard edit.
+
+WordPress turns a Bulgarian product name into a percent-encoded slug, so `ensure_product` takes an
+explicit latin one — `biznes-kalendar-start-1`, not `%d0%b1%d0%b8%d0%b7…`.
+
+### The product page
+
+`product.png` also settles the **route**, which was wrong before: a card used to jump straight to
+the request form. A card now opens the product page, and the product page's one call to action
+opens `/kachi-logo/?paket=<slug>`.
+
+- Tabs are WooCommerce's own, through the `woocommerce_product_tabs` filter rather than hand-rolled
+  markup. The design lists five. Описание is the product's description; Брандиране,
+  Доставка и срокове and ЧЗВ read the pages that already carry that text, so there is one source
+  of truth. A tab is **dropped while its page holds nothing but its own title**, which is what the
+  seed leaves behind — better no tab than a tab reading "Често задавани въпроси."
+- **Спецификации needed a field of its own.** The client's specifications are a paragraph plus a
+  bulleted list, which WooCommerce attributes would flatten into a key-value table, and there is no
+  native prose field beyond the description. `Reklamo_Product` adds one textarea to the product
+  editor (`_reklamo_specs`) and nothing else. Seeded once per calendar, owner-editable after, and
+  the tab appears only when the box has content — the four promo packages have none, so they show
+  four tabs rather than five.
+- The summary hooks WooCommerce attaches (title, price, excerpt) are **removed, not reordered**: the
+  template prints them itself where the design puts them.
+- The four-step strip reads `mockup_deadline` and `deposit_pct` from settings, so the page follows
+  the dashboard rather than repeating a number.
+- The help card is **text-only**. The design shows a consultant's photograph nobody has supplied;
+  the button points at Контакти and falls back to `mailto:` if that page is gone.
+
+### Still open
+
+- A photograph for the product page's help card.
+- The wishlist icon in the design's header needs a plugin, which the repo forbids; cart and account
+  are fine.
+- `PAGE-2` and `PAGE-3` are consecutive slices of the **home** page, not `/kachi-logo/`. If the
+  client wants the full request page redesigned too, that preview is missing.
+- ЧЗВ, Доставка и срокове and the other placeholder pages still need the client's text; the
+  product tabs pick them up automatically once written.
+
+---
+
 ## Build sequence — walking skeleton first
 
 **Phase 0 — Environment.** Docker stack, repo, `scripts/` scripts, WP + WooCommerce + `bg_BG` installed by WP-CLI, four packages seeded, Mailpit capturing mail. *Done when `scripts/reset.sh` on a clean checkout produces a working Bulgarian store with zero manual clicks.*

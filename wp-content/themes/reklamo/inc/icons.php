@@ -54,13 +54,32 @@ function reklamo_icon( string $name, int $size = 24 ): string {
 	);
 }
 
-/** The brand mark: R in a ring, plus wordmark. */
+/** The brand lockup: the ring-R mark and the wordmark, linked home. */
 function reklamo_logo( bool $dark = false ): string {
-	$name = get_bloginfo( 'name' );
 	return sprintf(
-		'<a class="brand%1$s" href="%2$s" rel="home" aria-label="%3$s"><span class="brand__mark" aria-hidden="true"><svg viewBox="0 0 40 40" width="40" height="40"><circle cx="20" cy="20" r="18" fill="none" stroke="currentColor" stroke-width="2"/><path d="M14 29V11h6.5a5.5 5.5 0 0 1 0 11H14m6.5 0L27 29" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="brand__word">REKLAMO<span class="brand__tld">.BG</span></span></a>',
-		$dark ? ' brand--dark' : '',
+		'<a class="brand" href="%1$s" rel="home"><img class="brand__logo" src="%2$s" width="1200" height="168" alt="%3$s" decoding="async"></a>',
 		esc_url( home_url( '/' ) ),
-		esc_attr( $name )
+		esc_url( get_theme_file_uri( $dark ? 'assets/img/logo-light.png' : 'assets/img/logo.png' ) ),
+		esc_attr( get_bloginfo( 'name' ) )
+	);
+}
+
+// Page content is stored in the database, so a block that hard-codes the mark would keep an old
+// logo forever. The shortcode renders whatever the theme ships today.
+add_shortcode(
+	'reklamo_mark',
+	function ( $atts ) {
+		$a = shortcode_atts( array( 'size' => 76 ), $atts, 'reklamo_mark' );
+		return reklamo_mark( (int) $a['size'] );
+	}
+);
+
+/** The mark on its own, for spots too small or too square for the full lockup. */
+function reklamo_mark( int $size = 64 ): string {
+	return sprintf(
+		'<img class="brand__mark" src="%1$s" width="%2$d" height="%3$d" alt="" decoding="async">',
+		esc_url( get_theme_file_uri( 'assets/img/mark.png' ) ),
+		$size,
+		(int) round( $size * 526 / 512 )
 	);
 }

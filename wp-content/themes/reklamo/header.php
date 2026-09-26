@@ -29,7 +29,8 @@ defined( 'ABSPATH' ) || exit;
 					'container'      => false,
 					'menu_class'     => 'primary-menu',
 					'fallback_cb'    => false,
-					'depth'          => 1,
+					'depth'          => 2,
+					'walker'         => new Reklamo_Nav_Walker(),
 				)
 			);
 			?>
