@@ -1,6 +1,7 @@
 <?php
 /**
- * Shop page — the package grid, nothing else.
+ * Промо пакети (the shop page, packages only) and the product category pages: the catalogue
+ * band with its chips and sorting, then the product grid.
  *
  * @package Reklamo
  */
@@ -8,18 +9,23 @@
 defined( 'ABSPATH' ) || exit;
 
 get_header( 'shop' );
+
+$reklamo_term = is_product_category() ? get_queried_object() : null;
+$reklamo_desc = $reklamo_term instanceof WP_Term ? trim( wp_strip_all_tags( term_description( $reklamo_term ) ) ) : '';
 ?>
 <div class="container shop-page">
-	<header class="section-head">
-		<h1 class="section-title"><?php woocommerce_page_title(); ?></h1>
-		<?php
-		$reklamo_shop_desc = is_shop() ? get_post_field( 'post_content', wc_get_page_id( 'shop' ) ) : term_description();
-		if ( $reklamo_shop_desc ) :
-			?>
-			<div class="section-intro"><?php echo wp_kses_post( wpautop( $reklamo_shop_desc ) ); ?></div>
-		<?php endif; ?>
-	</header>
 	<?php
+	get_template_part(
+		'template-parts/shop-hero',
+		null,
+		array(
+			'title'   => $reklamo_term instanceof WP_Term ? $reklamo_term->name : woocommerce_page_title( false ),
+			'sub'     => '' !== $reklamo_desc ? $reklamo_desc : __( 'Ready-made solutions for your business', 'reklamo' ),
+			'context' => $reklamo_term instanceof WP_Term ? 'products' : 'packages',
+			'active'  => $reklamo_term instanceof WP_Term ? $reklamo_term : reklamo_package_filter(),
+		)
+	);
+
 	if ( woocommerce_product_loop() ) {
 		do_action( 'woocommerce_before_shop_loop' );
 		woocommerce_product_loop_start();

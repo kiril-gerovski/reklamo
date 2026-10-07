@@ -19,11 +19,11 @@ test( 'header and footer show the brand lockup, not drawn text', async ( { page 
 	await page.goto( '/' );
 
 	const logo = page.locator( '.site-header .brand__logo' );
-	await expect( logo ).toHaveAttribute( 'src', /logo\.png$/ );
+	await expect( logo ).toHaveAttribute( 'src', /logo-slogan\.png$/ );
 	await expect( logo ).toHaveAttribute( 'alt', /\S/ );
 	// The lockup must actually decode, not just be referenced.
 	expect( await logo.evaluate( ( img ) => img.naturalWidth ) ).toBeGreaterThan( 0 );
-	await expect( page.locator( '.site-footer .brand__logo' ) ).toHaveCount( 1 );
+	await expect( page.locator( '.site-footer .brand__logo' ) ).toHaveAttribute( 'src', /\/logo\.png$/ );
 
 	// The browser tab icon is seeded, so link previews and tabs are never bare.
 	await expect( page.locator( 'link[rel="icon"]' ).first() ).toHaveAttribute( 'href', /\S/ );
@@ -120,15 +120,28 @@ test( 'on a phone the submenu is an accordion inside the burger menu', async ( {
 	await context.close();
 } );
 
-test( 'the Продукти page lists the categories and has lost Uncategorized', async ( { page } ) => {
+test( 'the Продукти page lists every product with "all products" and the category chips', async ( { page } ) => {
 	await page.goto( '/produkti/' );
 	await expect( page.locator( 'h1' ) ).toHaveText( 'Продукти' );
 
-	const titles = page.locator( '.woocommerce-loop-category__title' );
-	for ( const name of CATEGORIES ) {
-		await expect( titles.filter( { hasText: name } ).first() ).toBeVisible();
-	}
-	await expect( titles.filter( { hasText: 'Uncategorized' } ) ).toHaveCount( 0 );
+	const chips = page.locator( '.shop-chip' );
+	await expect( chips.first() ).toHaveText( /Всички продукти/i );
+	await expect( chips.first() ).toHaveClass( /is-active/ );
+	// Only categories that hold products get a chip, in the ПРОДУКТИ menu's order; never Uncategorized or Пакети.
+	const names = ( await chips.allTextContents() ).map( ( t ) => t.trim() ).slice( 1 );
+	expect( names.length ).toBeGreaterThan( 0 );
+	expect( names.every( ( n ) => CATEGORIES.includes( n ) ) ).toBe( true );
+	expect( names ).toEqual( CATEGORIES.filter( ( c ) => names.includes( c ) ) );
+
+	// Packages and single products together.
+	const cards = page.locator( 'li.product' );
+	await expect( cards.filter( { hasText: 'Red Business Pack' } ) ).toHaveCount( 1 );
+	await expect( cards.filter( { hasText: 'START 1' } ) ).toHaveCount( 1 );
+
+	await chips.filter( { hasText: 'Календари' } ).click();
+	await expect( page ).toHaveURL( /\/product-category\/kalendari\/$/ );
+	await expect( page.locator( '.shop-chip.is-active' ) ).toHaveText( /Календари/i );
+	await expect( page.locator( '.shop-chip' ).first() ).toHaveText( /Всички продукти/i );
 } );
 
 test( 'the homepage order form shows the brand mark from the logo kit', async ( { page } ) => {

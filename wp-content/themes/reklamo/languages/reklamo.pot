@@ -457,3 +457,78 @@ msgstr ""
 msgctxt "Space size name"
 msgid "6"
 msgstr ""
+
+
+
+#: template-parts/faq.php
+msgid "Questions and answers"
+msgstr ""
+
+#: template-parts/faq.php
+msgid "Everything about your order, from the logo to delivery. Cannot find your answer? Write to us and we will reply quickly."
+msgstr ""
+
+#: template-parts/faq.php
+msgid "All questions"
+msgstr ""
+
+#: template-parts/delivery.php
+msgid "From approval to your door"
+msgstr ""
+
+#: template-parts/delivery.php
+msgid "Clear deadlines at every step, and a courier to any address in Bulgaria."
+msgstr ""
+
+#: template-parts/delivery.php
+msgid "Delivery details"
+msgstr ""
+
+#: template-parts/delivery.php
+msgid "How ordering works"
+msgstr ""
+
+#: woocommerce/archive-product.php
+msgid "Ready-made solutions for your business"
+msgstr ""
+
+#: woocommerce/archive-product.php
+msgid "Stylish and practical combinations"
+msgstr ""
+
+#: woocommerce/archive-product.php
+msgid "Personalised with your logo"
+msgstr ""
+
+#: woocommerce/archive-product.php
+msgid "Suitable for any business"
+msgstr ""
+
+#: woocommerce/archive-product.php
+msgid "Filter by category"
+msgstr ""
+
+#: woocommerce/archive-product.php
+msgid "All packages"
+msgstr ""
+
+#: woocommerce/archive-product.php
+msgid "%d pcs."
+msgstr ""
+
+
+#: woocommerce/archive-product.php
+msgid "View more"
+msgstr ""
+
+#: woocommerce/content-product.php
+msgid "incl. VAT"
+msgstr ""
+
+#: page-produkti.php
+msgid "Everything we can brand with your logo"
+msgstr ""
+
+#: template-parts/shop-hero.php
+msgid "All products"
+msgstr ""

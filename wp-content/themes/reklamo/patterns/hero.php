@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
 
 $reklamo_hero_img = get_template_directory_uri() . '/assets/img/hero-placeholder.svg';
 ?>
-<!-- wp:group {"templateLock":"contentOnly","lock":{"move":true,"remove":true},"className":"hero","layout":{"type":"constrained","contentSize":"1200px"}} -->
+<!-- wp:group {"templateLock":"contentOnly","lock":{"move":true,"remove":true},"className":"hero","layout":{"type":"constrained","contentSize":"1320px"}} -->
 <div class="wp-block-group hero">
 <!-- wp:columns {"verticalAlignment":"center"} -->
 <div class="wp-block-columns are-vertically-aligned-center">

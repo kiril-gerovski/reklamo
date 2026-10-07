@@ -626,3 +626,79 @@ msgstr "Виж пакета"
 #: functions.php
 msgid "Specifications"
 msgstr "Спецификации"
+
+
+
+#: template-parts/faq.php
+msgid "Questions and answers"
+msgstr "Въпроси и отговори"
+
+#: template-parts/faq.php
+msgid "Everything about your order, from the logo to delivery. Cannot find your answer? Write to us and we will reply quickly."
+msgstr "Всичко за поръчката — от логото до доставката. Не намирате отговор? Пишете ни и ще отговорим бързо."
+
+#: template-parts/faq.php
+msgid "All questions"
+msgstr "Всички въпроси"
+
+#: template-parts/delivery.php
+msgid "From approval to your door"
+msgstr "От одобрението до вратата Ви"
+
+#: template-parts/delivery.php
+msgid "Clear deadlines at every step, and a courier to any address in Bulgaria."
+msgstr "Ясни срокове на всяка стъпка и куриер до всеки адрес в България."
+
+#: template-parts/delivery.php
+msgid "Delivery details"
+msgstr "Подробно за доставката"
+
+#: template-parts/delivery.php
+msgid "How ordering works"
+msgstr "Как става поръчката"
+
+#: woocommerce/archive-product.php
+msgid "Ready-made solutions for your business"
+msgstr "Готови решения за вашия бизнес"
+
+#: woocommerce/archive-product.php
+msgid "Stylish and practical combinations"
+msgstr "Стилни и практични комбинации"
+
+#: woocommerce/archive-product.php
+msgid "Personalised with your logo"
+msgstr "Персонализирани с вашето лого"
+
+#: woocommerce/archive-product.php
+msgid "Suitable for any business"
+msgstr "Подходящи за всякакъв бизнес"
+
+#: woocommerce/archive-product.php
+msgid "Filter by category"
+msgstr "Филтър по категория"
+
+#: woocommerce/archive-product.php
+msgid "All packages"
+msgstr "Всички пакети"
+
+#: woocommerce/content-product.php
+#, php-format
+msgid "%d pcs."
+msgstr "%d бр."
+
+
+#: woocommerce/archive-product.php
+msgid "View more"
+msgstr "Виж повече"
+
+#: woocommerce/content-product.php
+msgid "incl. VAT"
+msgstr "с ДДС"
+
+#: page-produkti.php
+msgid "Everything we can brand with your logo"
+msgstr "Всичко, което можем да брандираме с вашето лого"
+
+#: template-parts/shop-hero.php
+msgid "All products"
+msgstr "Всички продукти"

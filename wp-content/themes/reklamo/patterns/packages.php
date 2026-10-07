@@ -10,7 +10,7 @@
 
 defined( 'ABSPATH' ) || exit;
 ?>
-<!-- wp:group {"templateLock":"contentOnly","lock":{"move":true,"remove":true},"className":"section packages","layout":{"type":"constrained","contentSize":"1200px"}} -->
+<!-- wp:group {"templateLock":"contentOnly","lock":{"move":true,"remove":true},"className":"section packages","layout":{"type":"constrained","contentSize":"1320px"}} -->
 <div class="wp-block-group section packages">
 <!-- wp:group {"className":"section-head","layout":{"type":"flex","justifyContent":"space-between"}} -->
 <div class="wp-block-group section-head">

@@ -10,7 +10,7 @@
 
 defined( 'ABSPATH' ) || exit;
 ?>
-<!-- wp:group {"templateLock":"contentOnly","lock":{"move":true,"remove":true},"className":"section steps","layout":{"type":"constrained","contentSize":"1200px"}} -->
+<!-- wp:group {"templateLock":"contentOnly","lock":{"move":true,"remove":true},"className":"section steps","layout":{"type":"constrained","contentSize":"1320px"}} -->
 <div class="wp-block-group section steps">
 <!-- wp:heading {"textAlign":"center","className":"section-title"} -->
 <h2 class="wp-block-heading has-text-align-center section-title">Как става поръчката?</h2>

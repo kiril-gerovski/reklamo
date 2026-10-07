@@ -9,7 +9,6 @@
  * @package Reklamo
  */
 
-const REKLAMO_FAQ_SLUG = 'chesto-zadavani-vaprosi';
 
 /** Readable one-line text from stored HTML; list items keep a separator. */
 function reklamo_seo_text( string $html, int $limit = 0 ): string {
@@ -199,17 +198,13 @@ function reklamo_seo_faq(): array {
 	if ( ! is_page( REKLAMO_FAQ_SLUG ) ) {
 		return array();
 	}
-	$blocks = preg_split( '#<h3[^>]*>#i', (string) get_post_field( 'post_content', get_queried_object_id() ) );
-	array_shift( $blocks );
 	$pairs = array();
-	foreach ( (array) $blocks as $block ) {
-		list( $question, $answer ) = array_pad( preg_split( '#</h3>#i', (string) $block, 2 ), 2, '' );
-		$question                  = reklamo_seo_text( $question );
-		$answer                    = reklamo_seo_text( $answer );
-		if ( '' !== $question && '' !== $answer ) {
+	foreach ( reklamo_faq_items() as $item ) {
+		$answer = reklamo_seo_text( $item['answer'] );
+		if ( '' !== $answer ) {
 			$pairs[] = array(
 				'@type'          => 'Question',
-				'name'           => $question,
+				'name'           => $item['question'],
 				'acceptedAnswer' => array(
 					'@type' => 'Answer',
 					'text'  => $answer,

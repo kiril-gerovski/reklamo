@@ -42,6 +42,12 @@ function reklamo_icon( string $name, int $size = 24 ): string {
 		'bag'       => '<path d="M6 7h12l1 14H5L6 7z"/><path d="M9 7a3 3 0 0 1 6 0"/>',
 		'chevron-l' => '<path d="m15 6-6 6 6 6"/>',
 		'chevron-r' => '<path d="m9 6 6 6-6 6"/>',
+		'notebook'  => '<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v18M3 7.5h2M3 12h2M3 16.5h2"/>',
+		'ballpen'   => '<path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4z"/><path d="m14.5 5.5 3 3"/>',
+		'gift'      => '<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M5 12v9h14v-9M12 8v13M12 8S10.5 3 8 4s0 4 4 4zM12 8s1.5-5 4-4 0 4-4 4z"/>',
+		'mug'       => '<path d="M5 8h11v9a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3z"/><path d="M16 10h1.5a2.5 2.5 0 0 1 0 5H16M8.5 3v2.5M12.5 3v2.5"/>',
+		'bottle'    => '<path d="M10 2h4v3l2 3v12a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V8l2-3z"/><path d="M8 12h8"/>',
+		'calendar'  => '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
 	);
 	if ( ! isset( $paths[ $name ] ) ) {
 		return '';
@@ -54,12 +60,24 @@ function reklamo_icon( string $name, int $size = 24 ): string {
 	);
 }
 
-/** The brand lockup: the ring-R mark and the wordmark, linked home. */
-function reklamo_logo( bool $dark = false ): string {
+/**
+ * The brand lockup, linked home: the ring-R mark and the wordmark; with $slogan the version
+ * carrying "Рекламни продукти с характер" (header only).
+ *
+ * @param bool $dark   White lockup for dark backgrounds.
+ * @param bool $slogan Lockup with the slogan line.
+ */
+function reklamo_logo( bool $dark = false, bool $slogan = false ): string {
+	list( $file, $w, $h ) = $slogan
+		? array( 'logo-slogan.png', 852, 162 )
+		: array( $dark ? 'logo-light.png' : 'logo.png', 1200, 168 );
 	return sprintf(
-		'<a class="brand" href="%1$s" rel="home"><img class="brand__logo" src="%2$s" width="1200" height="168" alt="%3$s" decoding="async"></a>',
+		'<a class="brand%5$s" href="%1$s" rel="home"><img class="brand__logo" src="%2$s" width="%3$d" height="%4$d" alt="%6$s" decoding="async"></a>',
 		esc_url( home_url( '/' ) ),
-		esc_url( get_theme_file_uri( $dark ? 'assets/img/logo-light.png' : 'assets/img/logo.png' ) ),
+		esc_url( get_theme_file_uri( 'assets/img/' . $file ) ),
+		$w,
+		$h,
+		$slogan ? ' brand--slogan' : '',
 		esc_attr( get_bloginfo( 'name' ) )
 	);
 }

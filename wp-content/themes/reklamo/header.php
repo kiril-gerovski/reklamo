@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit;
 <a class="skip-link screen-reader-text" href="#content"><?php esc_html_e( 'Skip to content', 'reklamo' ); ?></a>
 <header class="site-header">
 	<div class="container site-header__inner">
-		<?php echo reklamo_logo(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside. ?>
+		<?php echo reklamo_logo( false, true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside. ?>
 
 		<nav class="primary-nav" id="primary-nav" aria-label="<?php esc_attr_e( 'Primary', 'reklamo' ); ?>">
 			<?php

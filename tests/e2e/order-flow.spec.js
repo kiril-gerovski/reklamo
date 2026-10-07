@@ -32,6 +32,7 @@ test( 'customer places a request with a logo and no payment', async ( { page } )
 	await page.fill( 'textarea[name="reklamo_note"]', 'E2E: златно лого, центрирано.' );
 	await page.fill( 'input[name="rq_name"]', 'Е2Е Тест' );
 	await page.fill( 'input[name="rq_email"]', 'e2e@example.com' );
+	await page.fill( 'input[name="rq_phone"]', '0888 123 456' );
 	await page.check( 'input[name="rq_consent"]' );
 	await page.check( 'input[name="rq_waiver"]' );
 	await page.getByRole( 'button', { name: /Изпрати и заяви визуализация/ } ).click();
@@ -56,6 +57,7 @@ test( 'request form validation: missing consent and file are refused, values are
 	await page.goto( '/kachi-logo/?paket=red-business-pack' );
 	await page.fill( 'input[name="rq_name"]', 'Без файл' );
 	await page.fill( 'input[name="rq_email"]', 'nofile@example.com' );
+	await page.fill( 'input[name="rq_phone"]', '12' );
 	// Bypass browser-side "required" to exercise the server-side validation.
 	await page.evaluate( () => document.querySelector( 'form.rq-form' ).setAttribute( 'novalidate', '' ) );
 	await page.evaluate( () => document.querySelectorAll( 'form.rq-form [required]' ).forEach( ( el ) => el.removeAttribute( 'required' ) ) );
@@ -64,6 +66,8 @@ test( 'request form validation: missing consent and file are refused, values are
 	await expect( page.locator( '.rq-errors' ) ).toContainText( 'Общите условия' );
 	await expect( page.locator( '.rq-errors' ) ).toContainText( 'правото на отказ' );
 	await expect( page.locator( '.rq-errors' ) ).toContainText( 'файл с Вашето лого' );
+	await expect( page.locator( '.rq-errors' ) ).toContainText( 'телефонен номер' );
+	await expect( page.locator( 'input[name="rq_phone"]' ) ).toHaveValue( '12' );
 	await expect( page.locator( 'input[name="rq_name"]' ) ).toHaveValue( 'Без файл' );
 } );
 
@@ -73,6 +77,7 @@ test( 'a mistyped email domain is refused, values are kept', async ( { page } ) 
 	await expect( page.locator( '.rq-progress.is-done' ) ).toContainText( 'logo.png' );
 	await page.fill( 'input[name="rq_name"]', 'Грешен Домейн' );
 	await page.fill( 'input[name="rq_email"]', 'nobody@abv.bh' );
+	await page.fill( 'input[name="rq_phone"]', '+359 2 987 65 43' );
 	await page.check( 'input[name="rq_consent"]' );
 	await page.check( 'input[name="rq_waiver"]' );
 	await page.getByRole( 'button', { name: /Изпрати и заяви визуализация/ } ).click();
@@ -93,6 +98,7 @@ test( 'homepage quick-start form creates a request too', async ( { page } ) => {
 	await form.locator( 'input[name="reklamo_logo"]' ).setInputFiles( `${ FIXTURES }/logo.png` );
 	await form.locator( 'input[name="rq_name"]' ).fill( 'Бърз Старт' );
 	await form.locator( 'input[name="rq_email"]' ).fill( 'quick@example.com' );
+	await form.locator( 'input[name="rq_phone"]' ).fill( '0888123456' );
 	await form.locator( 'input[name="rq_consent"]' ).check();
 	await form.locator( 'input[name="rq_waiver"]' ).check();
 	await form.getByRole( 'button', { name: /Изпрати за визуализация/ } ).click();
@@ -109,6 +115,7 @@ test( 'chunked upload: a 150 MB PSD gets through a 64 MB PHP limit', async ( { p
 	await expect( page.locator( '.rq-progress.is-done' ) ).toContainText( '150.0 MB' );
 	await page.fill( 'input[name="rq_name"]', 'Голям Файл' );
 	await page.fill( 'input[name="rq_email"]', 'big@example.com' );
+	await page.fill( 'input[name="rq_phone"]', '0888 123 456' );
 	await page.check( 'input[name="rq_consent"]' );
 	await page.check( 'input[name="rq_waiver"]' );
 	await page.getByRole( 'button', { name: /Изпрати и заяви визуализация/ } ).click();
@@ -129,6 +136,7 @@ test( 'SVG with a script is stored sanitised', async ( { page } ) => {
 	await expect( page.locator( '.rq-progress.is-done' ) ).toContainText( 'xss.svg' );
 	await page.fill( 'input[name="rq_name"]', 'СВГ Тест' );
 	await page.fill( 'input[name="rq_email"]', 'svg@example.com' );
+	await page.fill( 'input[name="rq_phone"]', '0888 123 456' );
 	await page.check( 'input[name="rq_consent"]' );
 	await page.check( 'input[name="rq_waiver"]' );
 	await page.getByRole( 'button', { name: /Изпрати и заяви визуализация/ } ).click();

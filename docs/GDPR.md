@@ -10,8 +10,8 @@ beside the GDPR: ЗЗЛД (personal data), ЗЗП (consumer protection), ЗЕТ 
 
 | Data | Where it lives | Why | Kept today |
 |---|---|---|---|
-| Name, email | WooCommerce order (billing) | contact for the order, tracking link | forever |
-| Company, ЕИК, ДДС №, МОЛ, phone, address, city, postcode | order billing/shipping | invoice and delivery | forever |
+| Name, email, phone | WooCommerce order (billing); phone asked on the request form, confirmed on the details step | contact for the order, tracking link | forever |
+| Company, ЕИК, ДДС №, МОЛ, address, city, postcode | order billing/shipping | invoice and delivery | forever |
 | Logo file, mockup files | `~/reklamo-private`, rows in `wp_reklamo_files` | the product | deleted 12 months after the order closes (`reklamo_retention_months`) |
 | Notes to the designer, change-request messages | order item meta, order meta, order notes | the design work | forever |
 | IP address, user agent | order (`customer_ip_address`, `customer_user_agent`), `created_ip` on file rows, the approval order note | fraud prevention, proof of approval | forever |

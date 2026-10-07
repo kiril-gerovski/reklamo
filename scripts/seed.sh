@@ -136,7 +136,9 @@ opt_default reklamo_phone "+359 88 123 4567"
 opt_default reklamo_email "office@reklamo.bg"
 opt_default reklamo_address "София, България"
 opt_default reklamo_facebook "https://facebook.com/"
-opt_default reklamo_instagram "https://instagram.com/"
+opt_default reklamo_instagram "https://www.instagram.com/reklamo.bg/"
+# Replaces the earlier seed placeholder only, so an owner's own link is never touched.
+[ "$(wp option get reklamo_instagram 2>/dev/null || true)" = "https://instagram.com/" ] && opt reklamo_instagram "https://www.instagram.com/reklamo.bg/"
 opt_default reklamo_linkedin "https://linkedin.com/"
 opt_default reklamo_mockup_deadline 24
 opt_default reklamo_deposit_pct 50
@@ -201,7 +203,6 @@ ensure_page za-biznesa "За бизнеса" >/dev/null
 # Landing page behind the ПРОДУКТИ menu item. The native WooCommerce shortcode lists every
 # top-level product category, so a category added later shows up without touching the page.
 ensure_page produkti "Продукти" '<!-- wp:shortcode -->[product_categories parent="0" hide_empty="0" columns="3"]<!-- /wp:shortcode -->' >/dev/null
-ensure_page vdahnovenie "Вдъхновение" >/dev/null
 ensure_page za-nas "За нас" >/dev/null
 ensure_page kontakti "Контакти" >/dev/null
 ensure_page kachi-logo "Качи лого и визуализирай" >/dev/null
@@ -287,9 +288,36 @@ fill_if_empty kak-raboti "$(cat <<'HTML'
 HTML
 )"
 fill_if_empty za-biznesa "<!-- wp:paragraph --><p>Брандирани продукти за екипи, събития и клиенти — с фиксирани количества и ясни цени.</p><!-- /wp:paragraph -->"
-fill_if_empty vdahnovenie "<!-- wp:paragraph --><p>Идеи и примери за брандиране.</p><!-- /wp:paragraph -->"
 fill_if_empty kontakti "<!-- wp:paragraph --><p>Пишете ни на office@reklamo.bg или се обадете на +359 88 123 4567.</p><!-- /wp:paragraph -->"
-fill_if_empty dostavka-i-srokove "<!-- wp:paragraph --><p>Производство и доставка в договорени срокове след получаване на аванса.</p><!-- /wp:paragraph -->"
+# Delivery: one <h3> per stage and its text under it — the theme shows them as cards on this page
+# and in the homepage band. Numbers come from the settings.
+fill_if_placeholder dostavka-i-srokove "<!-- wp:paragraph --><p>Производство и доставка в договорени срокове след получаване на аванса.</p><!-- /wp:paragraph -->" "$(cat <<'HTML'
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Визуализация до [reklamo_value key="mockup_deadline"] работни часа</h3>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>След заявката нашият дизайнер подготвя визуализация с Вашето лого. Получавате я по имейл и на страницата на поръчката.</p>
+<!-- /wp:paragraph -->
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Производство след аванса</h3>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Изработката започва веднага щом получим аванса от [reklamo_value key="deposit_pct"]%. Срокът за производство Ви съобщаваме с потвърждението на плащането.</p>
+<!-- /wp:paragraph -->
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Доставка с куриер в цяла България</h3>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Изпращаме до адреса, който посочите в данните за доставка на страницата на поръчката.</p>
+<!-- /wp:paragraph -->
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Изпращане след доплащане</h3>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Остатъкът се плаща по банков път, когато продуктите са готови. Поръчката тръгва веднага щом преводът постъпи, а фактурата се издава по Вашите данни.</p>
+<!-- /wp:paragraph -->
+HTML
+)"
 fill_if_empty plashtane "<!-- wp:paragraph --><p>Плащане само по банков път: 50% аванс след одобрение на визуализацията, остатък преди доставка.</p><!-- /wp:paragraph -->"
 # Payment page always carries the live bank details block (one source of truth).
 pl_id=$(page_id plashtane)
@@ -299,7 +327,53 @@ if [ -n "$pl_id" ] && ! wp post get "$pl_id" --field=post_content | grep -q rekl
 [reklamo_bank_details]
 <!-- /wp:shortcode -->" >/dev/null
 fi
-fill_if_empty chesto-zadavani-vaprosi "<!-- wp:paragraph --><p>Често задавани въпроси.</p><!-- /wp:paragraph -->"
+# FAQ: every <h3> is a question and the paragraph under it the answer — the theme shows it as an
+# accordion on this page and in the homepage's closing band, and as FAQPage schema. Numbers come from the settings.
+fill_if_placeholder chesto-zadavani-vaprosi "<!-- wp:paragraph --><p>Често задавани въпроси.</p><!-- /wp:paragraph -->" "$(cat <<'HTML'
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Плащам ли нещо, когато изпращам заявката?</h3>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Не. Заявката и визуализацията са без плащане. Плащате аванс едва след като одобрите визуализацията.</p>
+<!-- /wp:paragraph -->
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">За колко време получавам визуализация?</h3>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>До [reklamo_value key="mockup_deadline"] работни часа след заявката. Изпращаме я по имейл и тя се появява и на страницата на Вашата поръчка.</p>
+<!-- /wp:paragraph -->
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Какви файлове с лого приемате?</h3>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>AI, EPS, PDF, PSD, CDR, SVG, PNG и JPG до [reklamo_value key="max_upload_mb"] MB. Най-добър резултат дават векторните формати (AI, EPS, PDF, SVG); PNG и JPG трябва да са с висока резолюция.</p>
+<!-- /wp:paragraph -->
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Колко корекции мога да поискам?</h3>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Колкото са нужни. Преди одобрение броят на корекциите не е ограничен — всяка нова версия получавате по имейл.</p>
+<!-- /wp:paragraph -->
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Как се плаща?</h3>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Само по банков път. След одобрение на визуализацията плащате аванс [reklamo_value key="deposit_pct"]% от стойността, а остатъка — преди изпращане. Номерът на поръчката е основанието за превода.</p>
+<!-- /wp:paragraph -->
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Кога започва производството?</h3>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Веднага щом получим аванса. Срокът за производство Ви съобщаваме с потвърждението на плащането.</p>
+<!-- /wp:paragraph -->
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Къде доставяте и трябва ли ми регистрация?</h3>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Доставяме с куриер до посочения от Вас адрес в България. Регистрация не е нужна: връзката в имейла отваря страницата на Вашата поръчка, където следите всяка стъпка.</p>
+<!-- /wp:paragraph -->
+HTML
+)"
 # Legal pages: structure and every number come from the settings through shortcodes, so the texts
 # never contradict the configuration. A lawyer reviews the wording; the owner edits in the block editor.
 # "About us": the company's own copy.
@@ -636,7 +710,7 @@ if [ -n "$produkti_item" ]; then
     menu_add_term "Главно меню" "$(wc product_cat list --slug="${pair%%:*}" --field=id | head -n1)" "$produkti_item"
   done
 fi
-# The redesign replaced Вдъхновение with Продукти in the header; it stays in the footer.
+# The redesign replaced Вдъхновение with Продукти in the header.
 # Done once, so an owner who puts it back keeps it.
 if [ -z "$(wp option get reklamo_seeded_nav 2>/dev/null || true)" ]; then
   old=$(menu_item_id "Главно меню" post_type "$(page_id vdahnovenie)")
@@ -647,7 +721,22 @@ wp menu location assign "Главно меню" primary >/dev/null 2>&1 || true
 
 ensure_menu "Футър — Навигация"
 [ -n "$shop_id" ] && { wp menu item list "Футър — Навигация" --fields=object_id --format=csv | tail -n +2 | grep -x "$shop_id" >/dev/null || wp menu item add-post "Футър — Навигация" "$shop_id" >/dev/null; }
-for s in kak-raboti za-biznesa vdahnovenie za-nas kontakti; do menu_add_page "Футър — Навигация" "$s"; done
+for s in kak-raboti za-biznesa za-nas kontakti; do menu_add_page "Футър — Навигация" "$s"; done
+# Вдъхновение was dropped from the site: out of every menu, and its page back to a draft while it
+# still holds only the seed placeholder. Done once, so an owner who brings it back keeps it.
+if [ -z "$(wp option get reklamo_seeded_no_inspiration 2>/dev/null || true)" ]; then
+  insp=$(page_id vdahnovenie)
+  if [ -n "$insp" ]; then
+    for menu in "Главно меню" "Футър — Навигация" "Футър — Информация"; do
+      item=$(menu_item_id "$menu" post_type "$insp")
+      [ -n "$item" ] && wp menu item delete "$item" >/dev/null 2>&1 && echo "  Вдъхновение removed from $menu"
+    done
+    if [ "$(wp post get "$insp" --field=post_content)" = "<!-- wp:paragraph --><p>Идеи и примери за брандиране.</p><!-- /wp:paragraph -->" ]; then
+      wp post update "$insp" --post_status=draft >/dev/null && echo "  Вдъхновение page unpublished (draft)"
+    fi
+  fi
+  opt reklamo_seeded_no_inspiration "1"
+fi
 wp menu location assign "Футър — Навигация" footer-nav >/dev/null 2>&1 || true
 
 ensure_menu "Футър — Информация"
@@ -681,15 +770,99 @@ set_product_image() { # sku path-under-assets-img alt
   [ -n "$att" ] && echo "  $2: image set"
 }
 
-ensure_product RBP "Red Business Pack"   100 "<ul><li>20 червени тефтера</li><li>20 червени химикалки</li></ul>" 1 true   # "Най-популярен" badge
-ensure_product OSP "Office Starter Pack" 119 "<ul><li>20 чаши</li><li>20 химикалки</li></ul>" 2
-ensure_product EVP "Event Pack"          149 "<ul><li>20 текстилни торби</li><li>20 метални бутилки</li></ul>" 3
-ensure_product PRP "Premium Pack"        169 "<ul><li>20 бележника</li><li>20 метални химикалки</li></ul>" 4
+# Texts of an existing product are replaced only while they still hold an earlier seed value
+# (or nothing), so an owner's edit in Products always wins.
+fill_product_if_seeded() { # sku field(excerpt|content) earlier-seed-value new-value
+  local pid cur; pid=$(product_id "$1"); [ -n "$pid" ] || return 0
+  cur=$(wp post get "$pid" --field="post_$2")
+  if [ -z "$cur" ] || [ "$cur" = "$3" ]; then
+    [ "$cur" = "$4" ] || { wp post update "$pid" --post_"$2"="$4" >/dev/null && echo "  $1: $2 filled"; }
+  fi
+}
+
+# Product page layout from the client's design: a lead paragraph, then the contents as a list.
+# Each item is a bold title, optionally followed by a line break and a detail line.
+pkg_lead='<p>Готов фирмен пакет за вашия бизнес. Практичен, стилен и запомнящ се.</p>'
+rbp_short="$pkg_lead"'<ul><li><strong>20 бр. Премиум тефтера</strong><br>A5, твърда корица, 96 листа</li><li><strong>20 бр. Метални химикалки</strong><br>Метална, с гравиране на лого</li><li><strong>Опаковка</strong><br>Елегантна кутия за всеки комплект</li></ul>'
+rbp_desc='<p>Red Business Pack е създаден за компании, които искат да направят силно и професионално впечатление. Комбинацията от тефтер и химикалка е класически избор, който се използва ежедневно и поддържа вашия бранд видим всеки ден.</p><p>Подходящ за събития, обучения, подаръци за клиенти и служители, промоционални кампании и още много.</p>'
+osp_short="$pkg_lead<ul><li>20 чаши</li><li>20 химикалки</li></ul>"
+evp_short="$pkg_lead<ul><li>20 текстилни торби</li><li>20 метални бутилки</li></ul>"
+prp_short="$pkg_lead<ul><li>20 бележника</li><li>20 метални химикалки</li></ul>"
+
+ensure_product RBP "Red Business Pack"   100 "$rbp_short" 1 true "" "$rbp_desc"   # "Най-популярен" badge
+ensure_product OSP "Office Starter Pack" 119 "$osp_short" 2
+ensure_product EVP "Event Pack"          149 "$evp_short" 3
+ensure_product PRP "Premium Pack"        169 "$prp_short" 4
+
+fill_product_if_seeded RBP excerpt "<ul><li>20 червени тефтера</li><li>20 червени химикалки</li></ul>" "$rbp_short"
+fill_product_if_seeded RBP content "" "$rbp_desc"
+fill_product_if_seeded OSP excerpt "<ul><li>20 чаши</li><li>20 химикалки</li></ul>" "$osp_short"
+fill_product_if_seeded EVP excerpt "<ul><li>20 текстилни торби</li><li>20 метални бутилки</li></ul>" "$evp_short"
+# Specifications: seeded once, then the owner's text in Products → Спецификации wins.
+rbp_pid=$(product_id RBP)
+if [ -n "$rbp_pid" ] && [ -z "$(wp post meta get "$rbp_pid" _reklamo_specs 2>/dev/null || true)" ]; then
+  wp post meta update "$rbp_pid" _reklamo_specs '<ul><li>Тефтер: формат A5, твърда корица, 96 листа.</li><li>Химикалка: метална, с гравиране на логото.</li><li>Опаковка: елегантна кутия за всеки комплект.</li></ul>' >/dev/null && echo "  RBP: specifications filled"
+fi
+fill_product_if_seeded PRP excerpt "<ul><li>20 бележника</li><li>20 метални химикалки</li></ul>" "$prp_short"
 
 set_product_image RBP packages/red-business-pack   "Red Business Pack — червен тефтер и химикалка с лого"
 set_product_image OSP packages/office-starter-pack "Office Starter Pack — чаша и химикалка с лого"
 set_product_image EVP packages/event-pack          "Event Pack — текстилна торба и метална бутилка с лого"
 set_product_image PRP packages/premium-pack        "Premium Pack — бележник и метална химикалка с лого"
+
+# Single-product offers from the client's 2026-10 artwork. Draft texts, the owner edits them.
+tcp_short="$pkg_lead"'<ul><li><strong>20 бр. Термо чаши</strong><br>Двустенни, с капак, с Вашето лого</li></ul>'
+tcp_desc='<p>Термо чашите поддържат напитката топла или студена с часове — за офиса, колата и разходката. С Вашето лого те са всеки ден в ръцете на екипа и клиентите Ви.</p><p>Подходящи за подарък към служители, клиенти и партньори, за събития и сезонни кампании.</p>'
+gpp_short="$pkg_lead"'<ul><li><strong>50 бр. Метални химикалки</strong><br>Зелени, с гравирано лого</li></ul>'
+gpp_desc='<p>Метални химикалки в наситено зелено с меко покритие и гравиране на Вашето лого. Изглеждат премиум и се използват ежедневно.</p><p>Идеални за конференции, обучения, рецепции и подаръчни комплекти.</p>'
+wpp_short="$pkg_lead"'<ul><li><strong>50 бр. Метални химикалки</strong><br>Бели, с печат на лого</li></ul>'
+wpp_desc='<p>Изчистени бели химикалки с метални детайли — Вашето лого изпъква ясно на светлия корпус.</p><p>Практичен избор за офиса, събития и ежедневна реклама на бранда.</p>'
+ensure_product TCP "Thermo Cup Pack" 100 "$tcp_short" 5 false "" "$tcp_desc" thermo-cup-pack
+ensure_product GPP "Green Pen Pack"   81 "$gpp_short" 6 false "" "$gpp_desc" green-pen-pack
+ensure_product WPP "White Pen Pack"   75 "$wpp_short" 7 false "" "$wpp_desc" white-pen-pack
+set_product_image TCP packages/thermo-cups-pack "Thermo Cup Pack — 20 термо чаши с лого"
+set_product_image GPP packages/green-pens-pack  "Green Pen Pack — 50 зелени метални химикалки с лого"
+set_product_image WPP packages/white-pens-pack  "White Pen Pack — 50 бели химикалки с лого"
+
+# Packages also sit in the product categories they contain, which feeds the filter chips on the
+# shop page. Done once, so an owner who takes a package out of a category keeps it out.
+if [ -z "$(wp option get reklamo_seeded_pkg_cats 2>/dev/null || true)" ]; then
+  for pair in RBP:tefteri,himikalki OSP:butilki-i-chashi,himikalki EVP:chanti,butilki-i-chashi PRP:tefteri,himikalki TCP:butilki-i-chashi GPP:himikalki WPP:himikalki; do
+    pid=$(product_id "${pair%%:*}"); [ -n "$pid" ] || continue
+    wp post term add "$pid" product_cat $(echo "${pair#*:}" | tr ',' ' ') --by=slug >/dev/null 2>&1 || true
+  done
+  opt reklamo_seeded_pkg_cats "1"
+  echo "  packages added to their product categories"
+fi
+
+# The photo behind the product page's tab section; set only while the product has none.
+set_section_image() { # sku path-under-assets-img alt
+  local pid att path
+  pid=$(product_id "$1"); [ -n "$pid" ] || return 0
+  [ -n "$(wp post meta get "$pid" _reklamo_section_image 2>/dev/null || true)" ] && return 0
+  path=$(wp eval "\$p = get_theme_file_path( 'assets/img/$2.webp' ); echo file_exists( \$p ) ? \$p : '';")
+  [ -n "$path" ] || { echo "  $2: image missing, skipped"; return 0; }
+  att=$(wp media import "$path" --post_id="$pid" --title="$3" --alt="$3" --porcelain 2>/dev/null | tail -n1)
+  [ -n "$att" ] && wp post meta update "$pid" _reklamo_section_image "$att" >/dev/null && echo "  $2: section image set"
+}
+set_section_image RBP packages/red-business-pack-section "Red Business Pack в подаръчна кутия"
+
+# Extra product photos (gallery), imported only while the product has none of its own.
+set_product_gallery() { # sku "path:alt" ...
+  local pid sku=$1 path att ids="" entry; shift
+  pid=$(product_id "$sku"); [ -n "$pid" ] || return 0
+  [ -n "$(wp post meta get "$pid" _product_image_gallery 2>/dev/null || true)" ] && return 0
+  for entry in "$@"; do
+    path=$(wp eval "\$p = get_theme_file_path( 'assets/img/${entry%%:*}.webp' ); echo file_exists( \$p ) ? \$p : '';")
+    [ -n "$path" ] || { echo "  ${entry%%:*}: image missing, skipped"; continue; }
+    att=$(wp media import "$path" --post_id="$pid" --title="${entry#*:}" --alt="${entry#*:}" --porcelain 2>/dev/null | tail -n1)
+    [ -n "$att" ] && ids="${ids:+$ids,}$att"
+  done
+  [ -n "$ids" ] && wp post meta update "$pid" _product_image_gallery "$ids" >/dev/null && echo "  $sku: gallery set"
+}
+set_product_gallery RBP \
+  "packages/red-business-pack-section:Red Business Pack в подаръчна кутия" \
+  "packages/red-business-pack-pen:Метална химикалка с гравирано лого"
 
 # Business calendars, one product per quantity tier (client artwork in design/logo-kit-and-redesign.zip).
 # Prices are the "крайна цена" from the client's mockups, VAT included like every other price here.

@@ -13,6 +13,21 @@ class Reklamo_Settings_Page extends WC_Settings_Page {
 		$this->id    = 'reklamo';
 		$this->label = 'Reklamo';
 		parent::__construct();
+		add_action( 'woocommerce_admin_field_reklamo_image', array( $this, 'image_field' ) );
+	}
+
+	/**
+	 * A Media Library picker; the option stores the attachment ID.
+	 *
+	 * @param array $field Field definition.
+	 */
+	public function image_field( array $field ): void {
+		?>
+		<tr>
+			<th scope="row" class="titledesc"><label for="<?php echo esc_attr( $field['id'] ); ?>"><?php echo esc_html( $field['title'] ); ?></label></th>
+			<td class="forminp"><?php Reklamo_Admin_Image::render( $field['id'], (int) get_option( $field['id'], 0 ), $field['desc'] ?? '' ); ?></td>
+		</tr>
+		<?php
 	}
 
 	protected function get_own_sections() {
@@ -126,6 +141,12 @@ class Reklamo_Settings_Page extends WC_Settings_Page {
 				'id'    => 'reklamo_linkedin',
 				'title' => __( 'LinkedIn URL', 'reklamo-core' ),
 				'type'  => 'url',
+			),
+			array(
+				'id'    => 'reklamo_consultant_photo',
+				'title' => __( 'Consultant photo', 'reklamo-core' ),
+				'type'  => 'reklamo_image',
+				'desc'  => __( 'Shown in the "Need help?" box on product pages. Without a photo the box shows an icon.', 'reklamo-core' ),
 			),
 			array(
 				'type' => 'sectionend',

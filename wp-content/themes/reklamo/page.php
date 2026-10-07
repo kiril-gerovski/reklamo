@@ -19,6 +19,8 @@ while ( have_posts() ) {
 			<?php the_content(); ?>
 		</article>
 		<?php
+		get_template_part( 'template-parts/delivery', null, array( 'variant' => 'section' ) );
+		get_template_part( 'template-parts/faq', null, array( 'variant' => 'section' ) );
 	} elseif ( has_shortcode( get_the_content(), 'reklamo_steps' ) ) {
 		// "How it works": the six-step section is the page's own heading, and the text runs full width.
 		?>

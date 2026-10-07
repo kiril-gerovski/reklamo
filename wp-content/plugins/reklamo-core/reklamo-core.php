@@ -39,6 +39,7 @@ require REKLAMO_PATH . 'includes/class-reklamo-upload.php';
 require REKLAMO_PATH . 'includes/class-reklamo-cleanup.php';
 require REKLAMO_PATH . 'includes/class-reklamo-diagnostics.php';
 require REKLAMO_PATH . 'includes/class-reklamo-cart.php';
+require REKLAMO_PATH . 'includes/class-reklamo-admin-image.php';
 require REKLAMO_PATH . 'includes/class-reklamo-product.php';
 require REKLAMO_PATH . 'includes/class-reklamo-approval.php';
 require REKLAMO_PATH . 'includes/class-reklamo-progress.php';

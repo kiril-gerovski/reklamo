@@ -14,6 +14,7 @@ define( 'REKLAMO_THEME_VERSION', '0.2.0' );
 
 require get_template_directory() . '/inc/icons.php';
 require get_template_directory() . '/inc/class-reklamo-nav-walker.php';
+require get_template_directory() . '/inc/page-sections.php';
 require get_template_directory() . '/inc/seo.php';
 
 /**
@@ -28,8 +29,16 @@ function reklamo_setup(): void {
 	add_theme_support( 'responsive-embeds' );
 	add_theme_support( 'editor-styles' );
 	add_editor_style( array( 'assets/css/fonts.css', 'assets/css/theme.css' ) );
-	add_theme_support( 'woocommerce' );
+	// Twice the displayed width, so photos stay sharp on high-density screens.
+	add_theme_support(
+		'woocommerce',
+		array(
+			'single_image_width'    => 1200,
+			'thumbnail_image_width' => 600,
+		)
+	);
 	add_theme_support( 'wc-product-gallery-lightbox' );
+	add_theme_support( 'wc-product-gallery-slider' );
 
 	register_nav_menus(
 		array(
@@ -96,7 +105,90 @@ remove_action( 'woocommerce_before_shop_loop', 'woocommerce_result_count', 20 );
 remove_action( 'woocommerce_before_shop_loop', 'woocommerce_catalog_ordering', 30 );
 add_filter( 'woocommerce_show_page_title', '__return_false' );
 add_filter( 'loop_shop_columns', static fn() => 4 );
-add_filter( 'loop_shop_per_page', static fn() => 12 );
+add_filter( 'loop_shop_per_page', static fn() => 24 );
+
+const REKLAMO_PACKAGES_CAT   = 'paketi';
+const REKLAMO_PACKAGE_FILTER = 'kategoria';
+
+/** The category Промо пакети is narrowed to through its chips (?kategoria=<slug>), or null. */
+function reklamo_package_filter(): ?WP_Term {
+	$slug = isset( $_GET[ REKLAMO_PACKAGE_FILTER ] ) ? sanitize_title( wp_unslash( $_GET[ REKLAMO_PACKAGE_FILTER ] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- a public filter.
+	$term = '' !== $slug ? get_term_by( 'slug', $slug, 'product_cat' ) : false;
+	return $term instanceof WP_Term ? $term : null;
+}
+
+/** Промо пакети lists the packages only, narrowed by a chip when one is chosen. */
+add_action(
+	'pre_get_posts',
+	static function ( WP_Query $query ): void {
+		if ( is_admin() || ! $query->is_main_query() || ! function_exists( 'is_shop' ) || ! is_shop() ) {
+			return;
+		}
+		$tax  = array(
+			array(
+				'taxonomy' => 'product_cat',
+				'field'    => 'slug',
+				'terms'    => REKLAMO_PACKAGES_CAT,
+			),
+		);
+		$term = reklamo_package_filter();
+		if ( $term ) {
+			$tax[] = array(
+				'taxonomy' => 'product_cat',
+				'field'    => 'term_id',
+				'terms'    => $term->term_id,
+			);
+		}
+		$query->set( 'tax_query', array_merge( array( 'relation' => 'AND' ), $tax ) );
+	}
+);
+
+/**
+ * The chips: product categories in the order of the ПРОДУКТИ menu, never Пакети itself. For
+ * 'packages' only the categories some package is in; for 'products' every category with products.
+ *
+ * @param string $context 'packages' or 'products'.
+ * @return WP_Term[]
+ */
+function reklamo_shop_chips( string $context ): array {
+	if ( 'packages' === $context ) {
+		$ids   = wc_get_products(
+			array(
+				'category' => array( REKLAMO_PACKAGES_CAT ),
+				'status'   => 'publish',
+				'limit'    => -1,
+				'return'   => 'ids',
+			)
+		);
+		$terms = $ids ? wp_get_object_terms( $ids, 'product_cat' ) : array();
+	} else {
+		$terms = get_terms(
+			array(
+				'taxonomy'   => 'product_cat',
+				'hide_empty' => true,
+			)
+		);
+	}
+	if ( ! is_array( $terms ) ) {
+		return array();
+	}
+	$terms = array_filter( $terms, static fn( $t ) => REKLAMO_PACKAGES_CAT !== $t->slug );
+	$order = array();
+	foreach ( (array) wp_get_nav_menu_items( 'Главно меню' ) as $item ) {
+		if ( 'product_cat' === ( $item->object ?? '' ) ) {
+			$order[ (int) $item->object_id ] = count( $order );
+		}
+	}
+	usort( $terms, static fn( $a, $b ) => ( $order[ $a->term_id ] ?? 99 ) <=> ( $order[ $b->term_id ] ?? 99 ) );
+	return $terms;
+}
+
+/** Pieces in a package: the number its first contents item starts with, e.g. "50 бр. …" → 50. */
+function reklamo_package_quantity( WC_Product $product ): int {
+	$short = reklamo_split_short_description( $product->get_short_description() );
+	$items = reklamo_package_items( $short['list'] );
+	return ( $items && preg_match( '~^(\d+)~', $items[0]['title'], $m ) ) ? (int) $m[1] : 0;
+}
 
 // Single product: the template prints title, price, excerpt and the CTA itself, in the design's
 // order, so the summary hooks are cleared rather than reshuffled.
@@ -112,9 +204,9 @@ remove_action( 'woocommerce_after_single_product_summary', 'woocommerce_upsell_d
 remove_action( 'woocommerce_before_single_product_summary', 'woocommerce_show_product_sale_flash', 10 );
 
 /**
- * Product tabs, as the design lists them. Description comes from the product; branding, delivery
- * and the FAQ are the same for every product, so they are pulled from the pages that already say
- * it, and a tab is dropped when its page is still empty.
+ * Product tabs: the description and, when the product has them, its specifications. What is the
+ * same for every product (how ordering works, delivery, the FAQ) lives on the homepage and its
+ * own pages, linked from the help card.
  *
  * @param array $tabs Tabs registered by WooCommerce.
  * @return array
@@ -134,40 +226,75 @@ function reklamo_product_tabs( array $tabs ): array {
 		);
 	}
 
-	$pages = array(
-		'branding' => array( 'kak-raboti', __( 'Branding', 'reklamo' ), 20 ),
-		'delivery' => array( 'dostavka-i-srokove', __( 'Delivery and deadlines', 'reklamo' ), 30 ),
-		'faq'      => array( 'chesto-zadavani-vaprosi', __( 'Frequently asked questions', 'reklamo' ), 40 ),
-	);
-
-	foreach ( $pages as $key => list( $slug, $title, $priority ) ) {
-		$page = get_page_by_path( $slug );
-		if ( ! $page instanceof WP_Post ) {
-			continue;
-		}
-		// A page the seed created but nobody has written yet holds just its own title as one
-		// sentence; a tab showing that is worse than no tab.
-		$text = trim( wp_strip_all_tags( $page->post_content ) );
-		if ( '' === $text || rtrim( $text, '.' ) === rtrim( $page->post_title, '.' ) ) {
-			continue;
-		}
-		$tabs[ $key ] = array(
-			'title'    => $title,
-			'priority' => $priority,
-			'callback' => static function () use ( $page ) {
-				echo '<div class="product-tab-page">' . wp_kses_post( apply_filters( 'the_content', $page->post_content ) ) . '</div>';
-				printf(
-					'<p><a class="product-tab-page__more" href="%s">%s</a></p>',
-					esc_url( (string) get_permalink( $page ) ),
-					esc_html( $page->post_title )
-				);
-			},
-		);
-	}
-
 	return $tabs;
 }
 add_filter( 'woocommerce_product_tabs', 'reklamo_product_tabs' );
+
+/**
+ * A short description is a lead paragraph plus the list of what is in the package; the design
+ * shows them in two different places.
+ *
+ * @param string $short The product's short description.
+ * @return array{lead:string,list:string}
+ */
+function reklamo_split_short_description( string $short ): array {
+	if ( preg_match( '~(<ul\b.*</ul>)~is', $short, $m ) ) {
+		return array(
+			'lead' => trim( str_replace( $m[1], '', $short ) ),
+			'list' => $m[1],
+		);
+	}
+	return array(
+		'lead' => $short,
+		'list' => '',
+	);
+}
+
+/**
+ * The package contents from the short description's list. Each item is a title, optionally
+ * followed by a line break and a detail line; the icon is picked from the title's wording.
+ *
+ * @param string $html The list markup.
+ * @return array<int,array{icon:string,title:string,detail:string,counted:bool}>
+ */
+function reklamo_package_items( string $html ): array {
+	$icons = apply_filters(
+		'reklamo_package_item_icons',
+		array(
+			'notebook' => '~тефтер|бележник~iu',
+			'ballpen'  => '~химикал~iu',
+			'mug'      => '~чаш~iu',
+			'bottle'   => '~бутилк~iu',
+			'bag'      => '~торб|чант~iu',
+			'calendar' => '~календар~iu',
+			'gift'     => '~опаковк|кутия|кутии~iu',
+		)
+	);
+	$items = array();
+	preg_match_all( '~<li\b[^>]*>(.*?)</li>~is', $html, $m );
+	foreach ( $m[1] as $inner ) {
+		// The classic editor stores the line break as a plain newline once the product is saved.
+		$parts = preg_split( '~<br\s*/?>|\R~iu', trim( $inner ), 2 );
+		$title = trim( wp_strip_all_tags( $parts[0] ) );
+		if ( '' === $title ) {
+			continue;
+		}
+		$icon = 'cube';
+		foreach ( $icons as $name => $pattern ) {
+			if ( preg_match( $pattern, $title ) ) {
+				$icon = $name;
+				break;
+			}
+		}
+		$items[] = array(
+			'icon'    => $icon,
+			'title'   => $title,
+			'detail'  => trim( wp_strip_all_tags( $parts[1] ?? '' ) ),
+			'counted' => (bool) preg_match( '~^\d~', $title ),
+		);
+	}
+	return $items;
+}
 
 /** The design gives each tab panel its own heading only in the tab strip. */
 add_filter( 'woocommerce_product_description_heading', '__return_empty_string' );
@@ -217,6 +344,7 @@ add_shortcode(
 				'link'    => (bool) $target,
 				'section' => '' !== $atts['section'],
 				'heading' => $here ? 'h1' : 'h2', // on its own page the section is the page heading
+				'texts'   => is_front_page(),
 			)
 		);
 		return (string) ob_get_clean();

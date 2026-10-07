@@ -871,6 +871,10 @@ msgstr ""
 msgid "Contact email"
 msgstr ""
 
+#: includes/class-reklamo-request.php
+msgid "Contact phone"
+msgstr ""
+
 #: includes/class-reklamo-request.php:174
 msgid "Terms and Conditions"
 msgstr ""
@@ -947,6 +951,10 @@ msgstr ""
 
 #: includes/class-reklamo-request.php:286
 msgid "Please enter a valid email address."
+msgstr ""
+
+#: includes/class-reklamo-request.php
+msgid "Please enter a valid phone number."
 msgstr ""
 
 #. translators: %s: email domain
@@ -2067,4 +2075,28 @@ msgstr ""
 #: templates/tracking.php:272
 #, php-format
 msgid "quote order %s"
+msgstr ""
+
+#: includes/class-reklamo-settings-page.php
+msgid "Consultant photo"
+msgstr ""
+
+#: includes/class-reklamo-settings-page.php
+msgid "Choose image"
+msgstr ""
+
+#: includes/class-reklamo-settings-page.php
+msgid "Remove"
+msgstr ""
+
+#: includes/class-reklamo-settings-page.php
+msgid "Shown in the \"Need help?\" box on product pages. Without a photo the box shows an icon."
+msgstr ""
+
+#: includes/class-reklamo-product.php
+msgid "Section background image"
+msgstr ""
+
+#: includes/class-reklamo-product.php
+msgid "Shown behind the tabs on the product page, fading in from the right. Leave empty for a plain section."
 msgstr ""

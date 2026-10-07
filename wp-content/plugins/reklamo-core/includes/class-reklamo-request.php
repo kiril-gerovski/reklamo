@@ -1,6 +1,6 @@
 <?php
 /**
- * The request form: logo + note + name + email + consent → one button. Creates the
+ * The request form: logo + note + name + email + phone + consent → one button. Creates the
  * WooCommerce order directly (no checkout UI), exactly as the approved design shows.
  *
  * Public, logged-out-writable, and it creates orders — so: nonce, honeypot, per-IP
@@ -164,6 +164,10 @@ final class Reklamo_Request {
 					<label for="<?php echo esc_attr( $uid ); ?>-email"><?php esc_html_e( 'Contact email', 'reklamo-core' ); ?></label>
 					<input type="email" id="<?php echo esc_attr( $uid ); ?>-email" name="rq_email" value="<?php echo esc_attr( $values['email'] ?? '' ); ?>" required autocomplete="email" placeholder="office@company.bg">
 				</div>
+				<div class="rq-field">
+					<label for="<?php echo esc_attr( $uid ); ?>-phone"><?php esc_html_e( 'Contact phone', 'reklamo-core' ); ?></label>
+					<input type="tel" id="<?php echo esc_attr( $uid ); ?>-phone" name="rq_phone" value="<?php echo esc_attr( $values['phone'] ?? '' ); ?>" required autocomplete="tel" placeholder="0888 123 456">
+				</div>
 			</div>
 
 			<div class="rq-field rq-field--consent">
@@ -263,6 +267,7 @@ final class Reklamo_Request {
 			'product_id' => isset( $_POST['product_id'] ) ? absint( $_POST['product_id'] ) : 0, // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			'name'       => isset( $_POST['rq_name'] ) ? sanitize_text_field( wp_unslash( $_POST['rq_name'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			'email'      => isset( $_POST['rq_email'] ) ? sanitize_email( wp_unslash( $_POST['rq_email'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			'phone'      => isset( $_POST['rq_phone'] ) ? sanitize_text_field( wp_unslash( $_POST['rq_phone'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			'note'       => isset( $_POST['reklamo_note'] ) ? sanitize_textarea_field( wp_unslash( $_POST['reklamo_note'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			'consent'    => ! empty( $_POST['rq_consent'] ), // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			'waiver'     => ! empty( $_POST['rq_waiver'] ), // phpcs:ignore WordPress.Security.NonceVerification.Missing
@@ -295,6 +300,9 @@ final class Reklamo_Request {
 			// Every later step (mockup, approval, bank details) travels to this address; a dead domain means a dead order.
 			/* translators: %s: email domain */
 			$errors[] = sprintf( __( 'The email domain "%s" does not seem to exist. Please check the address.', 'reklamo-core' ), Reklamo_Email_Check::domain( $values['email'] ) );
+		}
+		if ( ! WC_Validation::is_phone_format( $values['phone'] ) || strlen( preg_replace( '/\D/', '', $values['phone'] ) ) < 6 ) {
+			$errors[] = __( 'Please enter a valid phone number.', 'reklamo-core' );
 		}
 		$max = (int) Reklamo_Settings::get( 'note_max', '300' );
 		if ( mb_strlen( $values['note'] ) > $max ) {
@@ -361,6 +369,7 @@ final class Reklamo_Request {
 			$order->set_billing_first_name( $parts[0] );
 			$order->set_billing_last_name( $parts[1] ?? '' );
 			$order->set_billing_email( $values['email'] );
+			$order->set_billing_phone( $values['phone'] );
 			$order->set_billing_country( 'BG' );
 			$order->set_customer_ip_address( Reklamo_Storage::client_ip() );
 			$order->set_customer_user_agent( wc_get_user_agent() );

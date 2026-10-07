@@ -21,6 +21,7 @@ final class Reklamo_Settings {
 		'reklamo_instagram'        => '',
 		'reklamo_linkedin'         => '',
 		'reklamo_tagline'          => '',
+		'reklamo_consultant_photo' => '',
 		'reklamo_mockup_deadline'  => '24',
 		'reklamo_deposit_pct'      => '50',
 		'reklamo_note_max'         => '300',

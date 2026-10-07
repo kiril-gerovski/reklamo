@@ -91,6 +91,53 @@
 		} );
 	} );
 
+	// Homepage steps: each step shows its section from "How it works" in place, starting on the
+	// first, instead of sending the visitor to that page.
+	document.querySelectorAll( '[data-step-switcher]' ).forEach( function ( root ) {
+		var steps = [];
+		root.querySelectorAll( '.steps__link[href*="#stapka-"]' ).forEach( function ( link ) {
+			var heading = document.getElementById( link.getAttribute( 'href' ).split( '#' )[ 1 ] );
+			if ( heading && root.contains( heading ) ) { steps.push( { link: link, heading: heading } ); }
+		} );
+		if ( ! steps.length ) { return; }
+
+		steps.forEach( function ( step ) {
+			var panel = document.createElement( 'div' );
+			panel.className = 'step-panel';
+			panel.id = step.heading.id + '-panel';
+			step.heading.parentNode.insertBefore( panel, step.heading );
+			var node = step.heading;
+			while ( node && ( node === step.heading || node.tagName !== 'H2' ) ) {
+				var next = node.nextElementSibling;
+				panel.appendChild( node );
+				node = next;
+			}
+			step.panel = panel;
+		} );
+
+		var show = function ( index ) {
+			steps.forEach( function ( step, i ) {
+				var on = i === index;
+				step.panel.hidden = ! on;
+				step.link.parentNode.classList.toggle( 'is-active', on );
+				if ( on ) { step.link.setAttribute( 'aria-current', 'step' ); } else { step.link.removeAttribute( 'aria-current' ); }
+			} );
+		};
+		steps.forEach( function ( step, i ) {
+			step.link.setAttribute( 'aria-controls', step.panel.id );
+			step.link.addEventListener( 'click', function ( e ) {
+				e.preventDefault();
+				show( i );
+				// On a phone the text sits below all six steps; bring it into view.
+				if ( step.panel.getBoundingClientRect().top > window.innerHeight - 80 ) {
+					step.panel.scrollIntoView( { behavior: 'smooth', block: 'nearest' } );
+				}
+			} );
+		} );
+		root.classList.add( 'is-stepped' );
+		show( 0 );
+	} );
+
 	// Character counter for the designer note.
 	document.querySelectorAll( '[data-rq-counter]' ).forEach( function ( ta ) {
 		var out = ta.parentNode.querySelector( '[data-rq-count]' );

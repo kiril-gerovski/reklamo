@@ -529,6 +529,10 @@ msgstr "Иван Иванов"
 msgid "Contact email"
 msgstr "Имейл за контакт"
 
+#: includes/class-reklamo-request.php
+msgid "Contact phone"
+msgstr "Телефон за контакт"
+
 #: includes/class-reklamo-request.php:174
 msgid "Terms and Conditions"
 msgstr "Общите условия"
@@ -575,6 +579,10 @@ msgstr "Моля, въведете името си."
 #: includes/class-reklamo-request.php:286
 msgid "Please enter a valid email address."
 msgstr "Моля, въведете валиден имейл адрес."
+
+#: includes/class-reklamo-request.php
+msgid "Please enter a valid phone number."
+msgstr "Моля, въведете валиден телефонен номер."
 
 #: includes/class-reklamo-request.php:298
 msgid "Please accept the Terms and Conditions and the Privacy Policy."
@@ -2158,3 +2166,27 @@ msgstr "Спецификации"
 #: includes/class-reklamo-product.php
 msgid "Paper, print and finishing. Shown as its own tab on the product page; leave empty to hide the tab."
 msgstr "Хартия, печат и довършителни работи. Показва се като отделен таб на страницата на продукта; оставете празно, за да скриете таба."
+
+#: includes/class-reklamo-settings-page.php
+msgid "Consultant photo"
+msgstr "Снимка на консултанта"
+
+#: includes/class-reklamo-settings-page.php
+msgid "Choose image"
+msgstr "Избери изображение"
+
+#: includes/class-reklamo-settings-page.php
+msgid "Remove"
+msgstr "Премахни"
+
+#: includes/class-reklamo-settings-page.php
+msgid "Shown in the \"Need help?\" box on product pages. Without a photo the box shows an icon."
+msgstr "Показва се в карето „Нуждаете се от помощ?“ на страниците на продуктите. Без снимка карето показва икона."
+
+#: includes/class-reklamo-product.php
+msgid "Section background image"
+msgstr "Фонова снимка на секцията"
+
+#: includes/class-reklamo-product.php
+msgid "Shown behind the tabs on the product page, fading in from the right. Leave empty for a plain section."
+msgstr "Показва се зад табовете на страницата на продукта, с преливане отдясно. Оставете празно за секция без снимка."

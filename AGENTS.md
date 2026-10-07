@@ -98,7 +98,7 @@ time:
   `Reklamo_Privacy::PERSONAL_META` or a flagged note via `personal_note()`, plus an entry in
   `docs/GDPR.md` § 1. Order notes that quote the customer or an IP go through `personal_note()`.
 - Brand images are **committed, not built on deploy**: `logo.png` / `logo-light.png` / `mark.png` are
-  cut from the client's logo kit (`design/logo-kit-and-redesign.zip` → `REKLAMO_ALL.pdf`, vector, no
+  cut from the client's logo kit (the header's `logo-slogan.png` from `design/v2/REKLAMO_SLOG.ai`) (`design/logo-kit-and-redesign.zip` → `REKLAMO_ALL.pdf`, vector, no
   text layer), and `share.jpg` / `icon.png` come from `node scripts/render-brand-images.js`. Re-run it
   after touching the logo. Rasterising that PDF needs pdf.js through Playwright over a local HTTP
   server — there is no ImageMagick, Ghostscript or pdftotext here, and Chromium downloads a PDF

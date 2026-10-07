@@ -10,6 +10,8 @@
  *   @type bool   $link    Render the steps as links (false when there is no page to link to).
  *   @type bool   $section Wrap in a full-width section with the heading (page use); the pattern brings its own.
  *   @type string $heading Heading tag for that section: 'h1' when it is the page's own heading, else 'h2'.
+ *   @type bool   $texts   Print the steps' sections from "How it works" underneath, so each step
+ *                         shows its text in place (theme.js switches them; step 1 first).
  * }
  *
  * @package Reklamo
@@ -24,8 +26,10 @@ $reklamo_args  = wp_parse_args(
 		'link'    => true,
 		'section' => false,
 		'heading' => 'h2',
+		'texts'   => false,
 	)
 );
+$reklamo_texts = $reklamo_args['texts'] ? reklamo_step_sections() : array();
 $reklamo_h     = 'h1' === $reklamo_args['heading'] ? 'h1' : 'h2';
 $reklamo_steps = array(
 	array( 'cube', __( 'Choose a package', 'reklamo' ), __( 'You see the exact price and quantity.', 'reklamo' ) ),
@@ -40,6 +44,9 @@ $reklamo_steps = array(
 <section class="steps steps--page">
 	<<?php echo esc_html( $reklamo_h ); ?> class="section-title"><?php esc_html_e( 'How does the order work?', 'reklamo' ); ?></<?php echo esc_html( $reklamo_h ); ?>>
 <?php endif; ?>
+<?php if ( $reklamo_texts ) : ?>
+<div class="steps__switcher" data-step-switcher>
+<?php endif; ?>
 <ol class="steps__grid" aria-label="<?php esc_attr_e( 'How the order works', 'reklamo' ); ?>">
 	<?php foreach ( $reklamo_steps as $reklamo_i => $reklamo_s ) : ?>
 		<?php $reklamo_tag = $reklamo_args['link'] ? 'a' : 'div'; ?>
@@ -53,6 +60,12 @@ $reklamo_steps = array(
 		</li>
 	<?php endforeach; ?>
 </ol>
+<?php if ( $reklamo_texts ) : ?>
+	<?php foreach ( $reklamo_texts as $reklamo_text ) : ?>
+		<?php echo wp_kses_post( $reklamo_text ); ?>
+	<?php endforeach; ?>
+</div>
+<?php endif; ?>
 <?php if ( $reklamo_args['section'] ) : ?>
 </section>
 <?php endif; ?>
