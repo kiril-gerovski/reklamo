@@ -67,6 +67,7 @@ $reklamo_sort    = array(
 			esc_attr( $reklamo_sort[1] )
 		)
 	);
+	get_template_part( 'template-parts/bulk-offer' );
 	?>
 </div>
 <?php

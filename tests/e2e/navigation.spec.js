@@ -160,3 +160,12 @@ test( 'the За нас page carries the company copy', async ( { page } ) => {
 	await expect( page.locator( '.entry-content' ) ).toContainText( 'промо пакети' );
 	await expect( page.locator( '.site-footer' ) ).toContainText( 'За нас' );
 } );
+
+test( 'between phone and desktop the header folds into the burger instead of widening the page', async ( { page } ) => {
+	for ( const width of [ 960, 1100, 1199 ] ) {
+		await page.setViewportSize( { width, height: 800 } );
+		await page.goto( '/' );
+		await expect( page.locator( '.nav-toggle' ) ).toBeVisible();
+		expect( await page.evaluate( () => document.documentElement.scrollWidth ) ).toBeLessThanOrEqual( width );
+	}
+} );

@@ -233,3 +233,30 @@ test( 'Промо пакети filters by category through its chips and shows t
 	await expect( seal ).toContainText( '50 бр.' );
 	await expect( seal ).toContainText( /81\s€/ );
 } );
+
+test( 'on a phone the category chips fit the screen and the cards sit two to a row', async ( { page } ) => {
+	await page.setViewportSize( { width: 390, height: 844 } );
+	for ( const url of [ '/promo-paketi/', '/produkti/' ] ) {
+		await page.goto( url );
+		const chips = page.locator( '.shop-chip' );
+		for ( const box of await chips.evaluateAll( ( els ) => els.map( ( e ) => e.getBoundingClientRect().right ) ) ) {
+			expect( box ).toBeLessThanOrEqual( 390 );
+		}
+		await expect( chips.first().locator( 'svg' ) ).toBeVisible();
+		const tops = await page.locator( 'ul.products li.product' ).evaluateAll( ( els ) => els.slice( 0, 2 ).map( ( e ) => Math.round( e.getBoundingClientRect().top ) ) );
+		expect( tops[ 0 ] ).toBe( tops[ 1 ] );
+		expect( await page.evaluate( () => document.documentElement.scrollWidth ) ).toBeLessThanOrEqual( 390 );
+	}
+} );
+
+test( 'the homepage packages, Промо пакети, Продукти and the category pages end with the large-quantity band', async ( { page } ) => {
+	for ( const url of [ '/', '/promo-paketi/', '/produkti/', '/product-category/kalendari/' ] ) {
+		await page.goto( url );
+		const band = page.locator( '.bulk-offer' );
+		await expect( band.locator( 'h2' ) ).toHaveText( /Големи количества\?/i );
+		await expect( band.locator( '.bulk-offer__reasons li' ) ).toHaveText( [ /Конкурентни цени/i, /Индивидуален дизайн/i, /Бърза доставка/i ] );
+		await expect( band.locator( '.bulk-offer__cta' ) ).toHaveAttribute( 'href', /\/kontakti\/$/ );
+	}
+	await page.goto( '/' );
+	await expect( page.locator( '.packages .bulk-offer' ) ).toHaveCount( 1 );
+} );

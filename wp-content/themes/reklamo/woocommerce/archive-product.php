@@ -39,6 +39,7 @@ $reklamo_desc = $reklamo_term instanceof WP_Term ? trim( wp_strip_all_tags( term
 	} else {
 		do_action( 'woocommerce_no_products_found' );
 	}
+	get_template_part( 'template-parts/bulk-offer' );
 	?>
 </div>
 <?php

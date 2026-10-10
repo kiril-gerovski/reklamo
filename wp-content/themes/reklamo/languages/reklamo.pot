@@ -532,3 +532,23 @@ msgstr ""
 #: template-parts/shop-hero.php
 msgid "All products"
 msgstr ""
+
+#: template-parts/bulk-offer.php
+msgid "Large quantities?"
+msgstr ""
+
+#: template-parts/bulk-offer.php
+msgid "Get a tailored offer"
+msgstr ""
+
+#: template-parts/bulk-offer.php
+msgid "Send an inquiry"
+msgstr ""
+
+#: template-parts/bulk-offer.php
+msgid "Competitive prices"
+msgstr ""
+
+#: template-parts/bulk-offer.php
+msgid "Custom design"
+msgstr ""

@@ -251,13 +251,12 @@ function reklamo_split_short_description( string $short ): array {
 }
 
 /**
- * The package contents from the short description's list. Each item is a title, optionally
- * followed by a line break and a detail line; the icon is picked from the title's wording.
+ * The icon for a product or category name, picked from its wording.
  *
- * @param string $html The list markup.
- * @return array<int,array{icon:string,title:string,detail:string,counted:bool}>
+ * @param string $text     Name to match.
+ * @param string $fallback Icon when nothing matches.
  */
-function reklamo_package_items( string $html ): array {
+function reklamo_item_icon( string $text, string $fallback = 'cube' ): string {
 	$icons = apply_filters(
 		'reklamo_package_item_icons',
 		array(
@@ -265,11 +264,29 @@ function reklamo_package_items( string $html ): array {
 			'ballpen'  => '~химикал~iu',
 			'mug'      => '~чаш~iu',
 			'bottle'   => '~бутилк~iu',
-			'bag'      => '~торб|чант~iu',
+			'bag'      => '~торб|чант|текстил~iu',
 			'calendar' => '~календар~iu',
-			'gift'     => '~опаковк|кутия|кутии~iu',
+			'gift'     => '~опаковк|кутия|кутии|пакет~iu',
+			'monitor'  => '~технолог~iu',
+			'pen'      => '~офис~iu',
 		)
 	);
+	foreach ( $icons as $name => $pattern ) {
+		if ( preg_match( $pattern, $text ) ) {
+			return $name;
+		}
+	}
+	return $fallback;
+}
+
+/**
+ * The package contents from the short description's list. Each item is a title, optionally
+ * followed by a line break and a detail line; the icon is picked from the title's wording.
+ *
+ * @param string $html The list markup.
+ * @return array<int,array{icon:string,title:string,detail:string,counted:bool}>
+ */
+function reklamo_package_items( string $html ): array {
 	$items = array();
 	preg_match_all( '~<li\b[^>]*>(.*?)</li>~is', $html, $m );
 	foreach ( $m[1] as $inner ) {
@@ -279,15 +296,8 @@ function reklamo_package_items( string $html ): array {
 		if ( '' === $title ) {
 			continue;
 		}
-		$icon = 'cube';
-		foreach ( $icons as $name => $pattern ) {
-			if ( preg_match( $pattern, $title ) ) {
-				$icon = $name;
-				break;
-			}
-		}
 		$items[] = array(
-			'icon'    => $icon,
+			'icon'    => reklamo_item_icon( $title ),
 			'title'   => $title,
 			'detail'  => trim( wp_strip_all_tags( $parts[1] ?? '' ) ),
 			'counted' => (bool) preg_match( '~^\d~', $title ),
@@ -349,6 +359,25 @@ add_shortcode(
 		);
 		return (string) ob_get_clean();
 	}
+);
+
+/** The homepage's packages section ends with the large-quantity band, as the catalogue pages do. */
+add_filter(
+	'render_block_core/group',
+	static function ( string $html, array $block ): string {
+		if ( ! is_front_page() || ! preg_match( '~(^|\s)packages(\s|$)~', $block['attrs']['className'] ?? '' ) ) {
+			return $html;
+		}
+		$end = strrpos( $html, '</div>' );
+		if ( false === $end ) {
+			return $html;
+		}
+		ob_start();
+		get_template_part( 'template-parts/bulk-offer' );
+		return substr_replace( $html, (string) ob_get_clean(), $end, 0 );
+	},
+	10,
+	2
 );
 
 /** Body classes for page-specific layout. */

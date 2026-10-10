@@ -52,14 +52,15 @@ $reklamo_all_url  = $reklamo_packages ? (string) get_permalink( wc_get_page_id( 
 <div class="shop-tools">
 	<nav class="shop-chips" aria-label="<?php esc_attr_e( 'Filter by category', 'reklamo' ); ?>">
 		<a class="shop-chip<?php echo $reklamo_active ? '' : ' is-active'; ?>" href="<?php echo esc_url( $reklamo_all_url ); ?>"<?php echo $reklamo_active ? '' : ' aria-current="page"'; ?>>
-			<?php $reklamo_packages ? esc_html_e( 'All packages', 'reklamo' ) : esc_html_e( 'All products', 'reklamo' ); ?>
+			<?php echo reklamo_icon( $reklamo_packages ? 'gift' : 'cube', 18 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?>
+			<span><?php $reklamo_packages ? esc_html_e( 'All packages', 'reklamo' ) : esc_html_e( 'All products', 'reklamo' ); ?></span>
 		</a>
 		<?php foreach ( reklamo_shop_chips( $reklamo_args['context'] ) as $reklamo_chip ) : ?>
 			<?php
 			$reklamo_on  = $reklamo_active && $reklamo_active->term_id === $reklamo_chip->term_id;
 			$reklamo_url = $reklamo_packages ? add_query_arg( REKLAMO_PACKAGE_FILTER, $reklamo_chip->slug, $reklamo_all_url ) : (string) get_term_link( $reklamo_chip );
 			?>
-			<a class="shop-chip<?php echo $reklamo_on ? ' is-active' : ''; ?>" href="<?php echo esc_url( $reklamo_url ); ?>"<?php echo $reklamo_on ? ' aria-current="page"' : ''; ?>><?php echo esc_html( $reklamo_chip->name ); ?></a>
+			<a class="shop-chip<?php echo $reklamo_on ? ' is-active' : ''; ?>" href="<?php echo esc_url( $reklamo_url ); ?>"<?php echo $reklamo_on ? ' aria-current="page"' : ''; ?>><?php echo reklamo_icon( reklamo_item_icon( $reklamo_chip->name ), 18 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?><span><?php echo esc_html( $reklamo_chip->name ); ?></span></a>
 		<?php endforeach; ?>
 	</nav>
 	<?php

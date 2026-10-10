@@ -702,3 +702,23 @@ msgstr "Всичко, което можем да брандираме с ваш�
 #: template-parts/shop-hero.php
 msgid "All products"
 msgstr "Всички продукти"
+
+#: template-parts/bulk-offer.php
+msgid "Large quantities?"
+msgstr "Големи количества?"
+
+#: template-parts/bulk-offer.php
+msgid "Get a tailored offer"
+msgstr "Получете индивидуална оферта"
+
+#: template-parts/bulk-offer.php
+msgid "Send an inquiry"
+msgstr "Изпрати запитване"
+
+#: template-parts/bulk-offer.php
+msgid "Competitive prices"
+msgstr "Конкурентни цени"
+
+#: template-parts/bulk-offer.php
+msgid "Custom design"
+msgstr "Индивидуален дизайн"
