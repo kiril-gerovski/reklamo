@@ -7,7 +7,7 @@
  * @var string        $selector
  * @var string        $secret
  * @var string        $url
- * @var string        $flash  changes | message | none | nonce | ''
+ * @var string        $flash  approved | changes | message | none | nonce | ''
  * @var bool          $fresh  just created from the request form
  *
  * @package Reklamo
@@ -26,6 +26,9 @@ $flash    = $vars['flash'] ?? '';
 $fresh    = ! empty( $vars['fresh'] );
 $v        = $vars;
 $file_url = static fn( int $id ): string => add_query_arg( 'view', $id, $url );
+$open     = isset( $_GET['item'] ) ? absint( $_GET['item'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- which change form to reopen.
+$counts   = $v['counts'] ?? array();
+$multi    = ( $counts['total'] ?? 0 ) > 1;
 ?>
 <!doctype html>
 <html <?php language_attributes(); ?>>
@@ -65,7 +68,9 @@ $file_url = static fn( int $id ): string => add_query_arg( 'view', $id, $url );
 		<?php if ( $fresh ) : ?>
 			<p class="notice ok"><strong><?php esc_html_e( 'Your request has been received. No payment is taken at this stage.', 'reklamo-core' ); ?></strong> <?php esc_html_e( 'We have emailed you a confirmation with a link to this page — keep it, it is how you follow the order.', 'reklamo-core' ); ?></p>
 		<?php endif; ?>
-		<?php if ( 'changes' === $flash ) : ?>
+		<?php if ( 'approved' === $flash ) : ?>
+			<p class="notice ok"><?php esc_html_e( 'Thank you — approved. The other products are waiting for their mockups or your decision; we ask for the deposit once everything is approved.', 'reklamo-core' ); ?></p>
+		<?php elseif ( 'changes' === $flash ) : ?>
 			<p class="notice ok"><?php esc_html_e( 'Thank you — we received your comments. Our designer will prepare a revised mockup and you will get an email when it is ready.', 'reklamo-core' ); ?></p>
 		<?php elseif ( 'message' === $flash ) : ?>
 			<p class="notice err"><?php esc_html_e( 'Please describe the changes you would like.', 'reklamo-core' ); ?></p>
@@ -88,39 +93,29 @@ $file_url = static fn( int $id ): string => add_query_arg( 'view', $id, $url );
 				<?php
 				break;
 			case Reklamo_Statuses::MOCKUP_SENT:
-				?>
-				<h2><?php echo esc_html( sprintf( /* translators: %d: mockup revision */ __( 'Mockup #%d is waiting for your decision', 'reklamo-core' ), $v['pending_rev'] ) ); ?></h2>
-				<?php if ( $v['pending'] && ! $v['pending']['gone'] ) : ?>
-					<div class="preview">
-						<?php if ( $v['pending']['is_image'] ) : ?>
-							<a href="<?php echo esc_url( $file_url( (int) $v['pending']['file']->id ) ); ?>" target="_blank" rel="noopener noreferrer"><img src="<?php echo esc_url( $file_url( (int) $v['pending']['file']->id ) ); ?>" alt="<?php esc_attr_e( 'Mockup', 'reklamo-core' ); ?>"></a>
-						<?php else : ?>
-							<a class="btn" href="<?php echo esc_url( $file_url( (int) $v['pending']['file']->id ) ); ?>"><?php esc_html_e( 'Download the mockup (PDF)', 'reklamo-core' ); ?></a>
-						<?php endif; ?>
-					</div>
-				<?php endif; ?>
-				<form method="post" action="<?php echo esc_url( home_url( '/' . Reklamo_Tracking::SLUG . '/' ) ); ?>">
-					<input type="hidden" name="s" value="<?php echo esc_attr( $selector ); ?>"><input type="hidden" name="k" value="<?php echo esc_attr( $vars['secret'] ?? '' ); ?>">
-					<?php wp_nonce_field( 'reklamo_track_' . $selector, '_reklamo_nonce' ); ?>
-					<div class="actions">
-						<button type="submit" name="act" value="approve"><?php esc_html_e( 'Approve the mockup', 'reklamo-core' ); ?></button>
-					</div>
-					<details <?php echo 'message' === $flash ? 'open' : ''; ?>>
-						<summary><?php esc_html_e( 'I would like changes', 'reklamo-core' ); ?></summary>
-						<p><textarea name="message" placeholder="<?php esc_attr_e( 'Describe what should change…', 'reklamo-core' ); ?>"></textarea></p>
-						<button type="submit" name="act" value="changes" class="secondary"><?php esc_html_e( 'Request changes', 'reklamo-core' ); ?></button>
-					</details>
-				</form>
-				<p class="muted"><?php echo esc_html( sprintf( /* translators: %s: deposit percentage */ __( 'No payment is taken at this stage. After approval we will send bank details for a %s%% deposit.', 'reklamo-core' ), Reklamo_Settings::get( 'deposit_pct', '50' ) ) ); ?></p>
-				<?php
-				break;
 			case Reklamo_Statuses::CHANGES:
+				if ( $counts['sent'] > 0 ) {
+					$heading = $multi
+						/* translators: %d: number of mockups */
+						? sprintf( _n( '%d mockup is waiting for your decision', '%d mockups are waiting for your decision', $counts['sent'], 'reklamo-core' ), $counts['sent'] )
+						/* translators: %d: mockup revision */
+						: sprintf( __( 'Mockup #%d is waiting for your decision', 'reklamo-core' ), $v['products'][0]['revision'] );
+				} elseif ( Reklamo_Statuses::CHANGES === $status ) {
+					$heading = __( 'We received your comments — a revised mockup is on the way', 'reklamo-core' );
+				} else {
+					$heading = __( 'Our designer is preparing the remaining mockups', 'reklamo-core' );
+				}
 				?>
-				<h2><?php esc_html_e( 'We received your comments — a revised mockup is on the way', 'reklamo-core' ); ?></h2>
-				<?php if ( $v['last_comment'] ) : ?>
-					<p class="muted">„<?php echo esc_html( $v['last_comment'] ); ?>“</p>
+				<h2><?php echo esc_html( $heading ); ?></h2>
+				<?php if ( $multi ) : ?>
+					<p><?php echo esc_html( sprintf( /* translators: 1: approved products, 2: all products */ __( 'Approved: %1$d of %2$d products.', 'reklamo-core' ), $counts['approved'], $counts['total'] ) ); ?></p>
 				<?php endif; ?>
-				<p><?php esc_html_e( 'You will get a new email when it is ready.', 'reklamo-core' ); ?></p>
+				<?php if ( $counts['sent'] > 0 ) : ?>
+					<p><?php echo esc_html( $multi ? __( 'Open each product below and approve its mockup or tell us what to change.', 'reklamo-core' ) : __( 'Approve the mockup below or tell us what to change.', 'reklamo-core' ) ); ?></p>
+				<?php else : ?>
+					<p><?php esc_html_e( 'You will get a new email when it is ready.', 'reklamo-core' ); ?></p>
+				<?php endif; ?>
+				<p class="muted"><?php echo esc_html( sprintf( /* translators: %s: deposit percentage */ __( 'No payment is taken at this stage. Once every mockup is approved we will send bank details for a %s%% deposit.', 'reklamo-core' ), Reklamo_Settings::get( 'deposit_pct', '50' ) ) ); ?></p>
 				<?php
 				break;
 			case Reklamo_Statuses::APPROVED:
@@ -192,36 +187,96 @@ $file_url = static fn( int $id ): string => add_query_arg( 'view', $id, $url );
 		?>
 		</div>
 
-		<?php if ( $v['mockups'] ) : ?>
-			<h3><?php esc_html_e( 'Mockups', 'reklamo-core' ); ?></h3>
-			<?php foreach ( $v['mockups'] as $m ) : ?>
-				<div class="rev">
-					<?php if ( $m['gone'] ) : ?>
-						<div class="thumb"><?php esc_html_e( 'removed', 'reklamo-core' ); ?></div>
-					<?php elseif ( $m['is_image'] ) : ?>
-						<a href="<?php echo esc_url( $file_url( (int) $m['file']->id ) ); ?>" target="_blank" rel="noopener noreferrer"><img src="<?php echo esc_url( $file_url( (int) $m['file']->id ) ); ?>" alt=""></a>
-					<?php else : ?>
-						<a class="thumb" href="<?php echo esc_url( $file_url( (int) $m['file']->id ) ); ?>"><?php echo esc_html( strtoupper( $m['file']->ext ) ); ?></a>
-					<?php endif; ?>
-					<div>
-						<p><strong><?php echo esc_html( sprintf( /* translators: %d: mockup revision */ __( 'Mockup #%d', 'reklamo-core' ), $m['revision'] ) ); ?></strong> <span class="muted">· <?php echo esc_html( $m['date'] ); ?></span></p>
-						<?php if ( 'approve' === $m['outcome'] ) : ?>
-							<p class="ok"><?php echo esc_html( sprintf( /* translators: %s: date */ __( 'Approved on %s', 'reklamo-core' ), $m['decided'] ) ); ?></p>
-						<?php elseif ( 'changes' === $m['outcome'] ) : ?>
-							<p><?php echo esc_html( sprintf( /* translators: %s: date */ __( 'Changes requested on %s', 'reklamo-core' ), $m['decided'] ) ); ?></p>
-							<?php if ( $m['comment'] ) : ?>
-								<p class="muted">„<?php echo esc_html( $m['comment'] ); ?>“</p>
-							<?php endif; ?>
-						<?php elseif ( $m['revision'] === $v['pending_rev'] && Reklamo_Statuses::MOCKUP_SENT === $status ) : ?>
-							<p><?php esc_html_e( 'Awaiting your decision', 'reklamo-core' ); ?></p>
-						<?php endif; ?>
-						<?php if ( ! $m['gone'] ) : ?>
-							<p class="muted"><a href="<?php echo esc_url( $file_url( (int) $m['file']->id ) ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Open', 'reklamo-core' ); ?></a> · <?php echo esc_html( Reklamo_Storage::describe( $m['file'] ) ); ?></p>
-						<?php endif; ?>
-					</div>
+		<h3><?php echo esc_html( $multi ? __( 'Your products', 'reklamo-core' ) : __( 'Your product', 'reklamo-core' ) ); ?></h3>
+		<?php foreach ( $v['products'] as $p ) : ?>
+			<?php
+			$badge = array(
+				Reklamo_Items::WAITING  => array( '', __( 'Mockup in preparation', 'reklamo-core' ) ),
+				Reklamo_Items::SENT     => array( 'now', __( 'Awaiting your decision', 'reklamo-core' ) ),
+				Reklamo_Items::CHANGES  => array( '', __( 'Revision in progress', 'reklamo-core' ) ),
+				Reklamo_Items::APPROVED => array( 'done', __( 'Approved', 'reklamo-core' ) ),
+			)[ $p['state'] ];
+			?>
+			<section class="product" id="item-<?php echo esc_attr( (string) $p['id'] ); ?>" data-item="<?php echo esc_attr( (string) $p['id'] ); ?>" data-state="<?php echo esc_attr( $p['state'] ); ?>">
+				<div class="product__head">
+					<h4><?php echo esc_html( $p['name'] . ( $p['qty'] > 1 ? ' × ' . $p['qty'] : '' ) ); ?></h4>
+					<span class="pill <?php echo esc_attr( $badge[0] ); ?>"><?php echo esc_html( $badge[1] ); ?></span>
 				</div>
-			<?php endforeach; ?>
-		<?php endif; ?>
+				<p class="muted">
+					<?php if ( $p['logo'] ) : ?>
+						<?php esc_html_e( 'Logo', 'reklamo-core' ); ?>:
+						<?php if ( '' !== (string) $p['logo']->path ) : ?>
+							<a href="<?php echo esc_url( $file_url( (int) $p['logo']->id ) ); ?>"><?php echo esc_html( Reklamo_Storage::describe( $p['logo'] ) ); ?></a>
+						<?php else : ?>
+							<?php echo esc_html( Reklamo_Storage::describe( $p['logo'] ) ); ?>
+						<?php endif; ?>
+					<?php else : ?>
+						<?php esc_html_e( 'No file on record.', 'reklamo-core' ); ?>
+					<?php endif; ?>
+					<?php if ( '' !== $p['note'] ) : ?>
+						<br><?php esc_html_e( 'Note to designer', 'reklamo-core' ); ?>: „<?php echo esc_html( $p['note'] ); ?>“
+					<?php endif; ?>
+				</p>
+
+				<?php if ( $p['pending'] ) : ?>
+					<?php if ( ! $p['pending']['gone'] ) : ?>
+						<div class="preview">
+							<?php if ( $p['pending']['is_image'] ) : ?>
+								<a href="<?php echo esc_url( $file_url( (int) $p['pending']['file']->id ) ); ?>" target="_blank" rel="noopener noreferrer"><img src="<?php echo esc_url( $file_url( (int) $p['pending']['file']->id ) ); ?>" alt="<?php echo esc_attr( sprintf( /* translators: %s: product name */ __( 'Mockup of %s', 'reklamo-core' ), $p['name'] ) ); ?>"></a>
+							<?php else : ?>
+								<a class="btn" href="<?php echo esc_url( $file_url( (int) $p['pending']['file']->id ) ); ?>"><?php esc_html_e( 'Download the mockup (PDF)', 'reklamo-core' ); ?></a>
+							<?php endif; ?>
+						</div>
+					<?php endif; ?>
+					<form method="post" action="<?php echo esc_url( home_url( '/' . Reklamo_Tracking::SLUG . '/' ) ); ?>">
+						<input type="hidden" name="s" value="<?php echo esc_attr( $selector ); ?>"><input type="hidden" name="k" value="<?php echo esc_attr( $vars['secret'] ?? '' ); ?>">
+						<input type="hidden" name="item" value="<?php echo esc_attr( (string) $p['id'] ); ?>"><input type="hidden" name="rev" value="<?php echo esc_attr( (string) $p['revision'] ); ?>">
+						<?php wp_nonce_field( 'reklamo_track_' . $selector, '_reklamo_nonce' ); ?>
+						<div class="actions">
+							<button type="submit" name="act" value="approve"><?php esc_html_e( 'Approve the mockup', 'reklamo-core' ); ?></button>
+						</div>
+						<details <?php echo 'message' === $flash && $open === $p['id'] ? 'open' : ''; ?>>
+							<summary><?php esc_html_e( 'I would like changes', 'reklamo-core' ); ?></summary>
+							<p><textarea name="message" placeholder="<?php esc_attr_e( 'Describe what should change…', 'reklamo-core' ); ?>"></textarea></p>
+							<button type="submit" name="act" value="changes" class="secondary"><?php esc_html_e( 'Request changes', 'reklamo-core' ); ?></button>
+						</details>
+					</form>
+				<?php elseif ( '' !== $p['comment'] ) : ?>
+					<p class="muted"><?php esc_html_e( 'Your comments', 'reklamo-core' ); ?>: „<?php echo esc_html( $p['comment'] ); ?>“</p>
+				<?php endif; ?>
+
+				<?php foreach ( $p['mockups'] as $m ) : ?>
+					<?php
+					if ( $p['pending'] && $m['revision'] === $p['pending']['revision'] ) {
+						continue;
+					}
+					?>
+					<div class="rev">
+						<?php if ( $m['gone'] ) : ?>
+							<div class="thumb"><?php esc_html_e( 'removed', 'reklamo-core' ); ?></div>
+						<?php elseif ( $m['is_image'] ) : ?>
+							<a href="<?php echo esc_url( $file_url( (int) $m['file']->id ) ); ?>" target="_blank" rel="noopener noreferrer"><img src="<?php echo esc_url( $file_url( (int) $m['file']->id ) ); ?>" alt=""></a>
+						<?php else : ?>
+							<a class="thumb" href="<?php echo esc_url( $file_url( (int) $m['file']->id ) ); ?>"><?php echo esc_html( strtoupper( $m['file']->ext ) ); ?></a>
+						<?php endif; ?>
+						<div>
+							<p><strong><?php echo esc_html( sprintf( /* translators: %d: mockup revision */ __( 'Mockup #%d', 'reklamo-core' ), $m['revision'] ) ); ?></strong> <span class="muted">· <?php echo esc_html( $m['date'] ); ?></span></p>
+							<?php if ( 'approve' === $m['outcome'] ) : ?>
+								<p class="ok"><?php echo esc_html( sprintf( /* translators: %s: date */ __( 'Approved on %s', 'reklamo-core' ), $m['decided'] ) ); ?></p>
+							<?php elseif ( 'changes' === $m['outcome'] ) : ?>
+								<p><?php echo esc_html( sprintf( /* translators: %s: date */ __( 'Changes requested on %s', 'reklamo-core' ), $m['decided'] ) ); ?></p>
+								<?php if ( $m['comment'] ) : ?>
+									<p class="muted">„<?php echo esc_html( $m['comment'] ); ?>“</p>
+								<?php endif; ?>
+							<?php endif; ?>
+							<?php if ( ! $m['gone'] ) : ?>
+								<p class="muted"><a href="<?php echo esc_url( $file_url( (int) $m['file']->id ) ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Open', 'reklamo-core' ); ?></a> · <?php echo esc_html( Reklamo_Storage::describe( $m['file'] ) ); ?></p>
+							<?php endif; ?>
+						</div>
+					</div>
+				<?php endforeach; ?>
+			</section>
+		<?php endforeach; ?>
 
 		<h3><?php esc_html_e( 'Payments', 'reklamo-core' ); ?></h3>
 		<dl class="kv">
@@ -245,19 +300,6 @@ $file_url = static fn( int $id ): string => add_query_arg( 'view', $id, $url );
 				<dt><?php esc_html_e( 'Delivery address', 'reklamo-core' ); ?></dt><dd><?php echo esc_html( trim( $v['details']['address_1'] . ', ' . $v['details']['postcode'] . ' ' . $v['details']['city'], ', ' ) ); ?></dd>
 				<dt><?php esc_html_e( 'Phone', 'reklamo-core' ); ?></dt><dd><?php echo esc_html( $v['details']['phone'] ); ?></dd>
 			</dl>
-		<?php endif; ?>
-
-		<h3><?php echo esc_html( count( $v['logos'] ) > 1 ? __( 'Your logos', 'reklamo-core' ) : __( 'Your logo', 'reklamo-core' ) ); ?></h3>
-		<?php if ( $v['logos'] ) : ?>
-			<?php foreach ( $v['logos'] as $logo ) : ?>
-				<?php if ( '' !== (string) $logo->path ) : ?>
-					<p><a href="<?php echo esc_url( $file_url( (int) $logo->id ) ); ?>"><?php echo esc_html( Reklamo_Storage::describe( $logo ) ); ?></a></p>
-				<?php else : ?>
-					<p class="muted"><?php echo esc_html( Reklamo_Storage::describe( $logo ) ); ?></p>
-				<?php endif; ?>
-			<?php endforeach; ?>
-		<?php else : ?>
-			<p class="muted"><?php esc_html_e( 'No file on record.', 'reklamo-core' ); ?></p>
 		<?php endif; ?>
 
 		<?php if ( $v['contact'] ) : ?>

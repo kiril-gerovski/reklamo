@@ -1,6 +1,7 @@
 <?php
 /**
- * Customer email: your mockup is ready — one-time approval link.
+ * Customer email: mockups are ready — one product or several sent together, each with its
+ * own one-time approval link.
  *
  * Triggered directly by the admin "send mockup" action (the approval secret only exists
  * in that request), not by a status hook.
@@ -18,6 +19,9 @@ class Reklamo_Email_Mockup_Sent extends WC_Email {
 	/** @var int */
 	protected $revision = 1;
 
+	/** @var array<int,array{name:string,revision:int,url:string}> */
+	protected $entries = array();
+
 	/** @var bool */
 	protected $reminder = false;
 
@@ -33,6 +37,7 @@ class Reklamo_Email_Mockup_Sent extends WC_Email {
 			'{order_number}'        => '',
 			'{customer_first_name}' => '',
 			'{revision}'            => '',
+			'{products}'            => '',
 			'{approval_url}'        => '',
 			'{deposit_pct}'         => '',
 		);
@@ -54,7 +59,7 @@ class Reklamo_Email_Mockup_Sent extends WC_Email {
 	}
 
 	public function get_default_intro_text(): string {
-		return __( 'Hello {customer_first_name}, our designer has prepared mockup #{revision} of your package. Please take a look and approve it, or tell us what to change. The link is personal and valid for 14 days.', 'reklamo-core' );
+		return __( 'Hello {customer_first_name}, our designer has prepared a mockup of {products}. Please take a look and approve it, or tell us what to change. The links are personal and valid for 14 days.', 'reklamo-core' );
 	}
 
 	public function get_default_button_label(): string {
@@ -71,7 +76,7 @@ class Reklamo_Email_Mockup_Sent extends WC_Email {
 			'title'       => __( 'Main text', 'reklamo-core' ),
 			'type'        => 'textarea',
 			'css'         => 'width:400px; height:120px;',
-			'description' => __( 'Placeholders: {order_number}, {customer_first_name}, {revision}, {site_title}', 'reklamo-core' ),
+			'description' => __( 'Placeholders: {order_number}, {customer_first_name}, {products}, {revision}, {site_title}', 'reklamo-core' ),
 			'default'     => $this->get_default_intro_text(),
 			'desc_tip'    => true,
 		);
@@ -83,14 +88,13 @@ class Reklamo_Email_Mockup_Sent extends WC_Email {
 	}
 
 	/**
-	 * @param int            $order_id     Order ID.
-	 * @param WC_Order|false $order        Order.
-	 * @param string         $approval_url Signed one-time URL.
-	 * @param int            $revision     Mockup revision number.
-	 * @param bool           $reminder     Prefix the subject as a reminder.
+	 * @param int            $order_id Order ID.
+	 * @param WC_Order|false $order    Order.
+	 * @param array          $entries  One per product: name, revision, signed one-time URL.
+	 * @param bool           $reminder Prefix the subject as a reminder.
 	 * @return bool True when the transport accepted the message.
 	 */
-	public function trigger( $order_id, $order = false, string $approval_url = '', int $revision = 1, bool $reminder = false ) {
+	public function trigger( $order_id, $order = false, array $entries = array(), bool $reminder = false ) {
 		$this->setup_locale();
 
 		if ( $order_id && ! $order instanceof WC_Order ) {
@@ -99,14 +103,23 @@ class Reklamo_Email_Mockup_Sent extends WC_Email {
 		if ( $order instanceof WC_Order ) {
 			$this->object                                = $order;
 			$this->recipient                             = $order->get_billing_email();
-			$this->approval_url                          = $approval_url;
-			$this->revision                              = $revision;
+			$this->entries                               = array_values( $entries );
+			$this->approval_url                          = (string) ( $this->entries[0]['url'] ?? '' );
+			$this->revision                              = (int) ( $this->entries[0]['revision'] ?? 1 );
 			$this->reminder                              = $reminder;
 			$this->placeholders['{order_number}']        = $order->get_order_number();
 			$this->placeholders['{customer_first_name}'] = $order->get_billing_first_name();
-			$this->placeholders['{revision}']            = (string) $revision;
-			$this->placeholders['{approval_url}']        = $approval_url;
-			$this->placeholders['{deposit_pct}']         = Reklamo_Settings::get( 'deposit_pct', '50' );
+			$this->placeholders['{revision}']            = (string) $this->revision;
+			$this->placeholders['{products}']            = implode(
+				', ',
+				array_map(
+					/* translators: 1: product name, 2: mockup revision */
+					static fn( array $e ): string => sprintf( __( '%1$s (mockup #%2$d)', 'reklamo-core' ), $e['name'], $e['revision'] ),
+					$this->entries
+				)
+			);
+			$this->placeholders['{approval_url}'] = $this->approval_url;
+			$this->placeholders['{deposit_pct}']  = Reklamo_Settings::get( 'deposit_pct', '50' );
 		}
 
 		$sent = $order instanceof WC_Order && $this->approval_url && Reklamo_Mail::deliver( $this, $order );
@@ -123,6 +136,7 @@ class Reklamo_Email_Mockup_Sent extends WC_Email {
 			'button_label'       => $this->get_option( 'button_label', $this->get_default_button_label() ),
 			'approval_url'       => $this->approval_url,
 			'revision'           => $this->revision,
+			'entries'            => $this->entries,
 			'additional_content' => $this->get_additional_content(),
 			'sent_to_admin'      => false,
 			'plain_text'         => $plain,

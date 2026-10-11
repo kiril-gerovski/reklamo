@@ -3,7 +3,7 @@
  * Plugin Name:       Reklamo Core
  * Plugin URI:        https://reklamo.bg
  * Description:       Business logic for Reklamo.bg — order statuses, logo uploads, mockups and approvals, emails. The theme is presentation only; everything that touches orders lives here.
- * Version:           0.6.0
+ * Version:           0.7.0
  * Requires at least: 7.0
  * Requires PHP:      8.1
  * Requires Plugins:  woocommerce
@@ -19,7 +19,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'REKLAMO_VERSION', '0.6.0' );
+define( 'REKLAMO_VERSION', '0.7.0' );
 define( 'REKLAMO_FILE', __FILE__ );
 define( 'REKLAMO_PATH', plugin_dir_path( __FILE__ ) );
 define( 'REKLAMO_URL', plugin_dir_url( __FILE__ ) );
@@ -39,6 +39,7 @@ require REKLAMO_PATH . 'includes/class-reklamo-upload.php';
 require REKLAMO_PATH . 'includes/class-reklamo-cleanup.php';
 require REKLAMO_PATH . 'includes/class-reklamo-diagnostics.php';
 require REKLAMO_PATH . 'includes/class-reklamo-cart.php';
+require REKLAMO_PATH . 'includes/class-reklamo-items.php';
 require REKLAMO_PATH . 'includes/class-reklamo-admin-image.php';
 require REKLAMO_PATH . 'includes/class-reklamo-product.php';
 require REKLAMO_PATH . 'includes/class-reklamo-approval.php';

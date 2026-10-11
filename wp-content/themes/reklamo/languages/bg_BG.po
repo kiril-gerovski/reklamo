@@ -13,20 +13,20 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Domain: reklamo\n"
 
-#: functions.php:34
+#: functions.php:45
 msgid "Primary Menu"
 msgstr "Главно меню"
 
-#: functions.php:35
+#: functions.php:46
 msgid "Footer — Navigation"
 msgstr "Футър — Навигация"
 
-#: functions.php:36
+#: functions.php:47
 msgid "Footer — Information"
 msgstr "Футър — Информация"
 
 #. translators: %1$s: year, %2$s: site name
-#: footer.php:87
+#: footer.php:98
 #, php-format
 msgid "© %1$s %2$s — All rights reserved."
 msgstr "© %1$s %2$s — Всички права запазени."
@@ -112,7 +112,7 @@ msgstr "Основно заглавие"
 
 #. Theme Name of the theme
 #: style.css
-#: functions.php:40
+#: functions.php:51
 msgid "Reklamo"
 msgstr "Reklamo"
 
@@ -131,30 +131,17 @@ msgstr "Тема по одобрения дизайн на Reklamo.bg — про
 msgid "Nocturn AI"
 msgstr "Nocturn AI"
 
-#: footer.php:39
+#: footer.php:47
 msgid "Navigation"
 msgstr "Навигация"
 
-#: footer.php:54
+#: footer.php:62
 msgid "Information"
 msgstr "Информация"
 
-#: footer.php:69
+#: footer.php:77
 msgid "Contact"
 msgstr "Контакти"
-
-#: functions.php:108
-msgid "Choose this package"
-msgstr "Избери този пакет"
-
-#: functions.php:110
-msgid "No payment is taken at this stage."
-msgstr "Не се извършва плащане на този етап."
-
-#: functions.php:122
-#: woocommerce/content-product.php:28
-msgid "Choose package"
-msgstr "Избери пакет"
 
 #: header.php:19
 msgid "Skip to content"
@@ -164,11 +151,11 @@ msgstr "Към съдържанието"
 msgid "Primary"
 msgstr "Основна"
 
-#: header.php:39
+#: header.php:40
 msgid "Request a mockup"
 msgstr "Заяви визуализация"
 
-#: header.php:41
+#: header.php:52
 msgid "Menu"
 msgstr "Меню"
 
@@ -348,6 +335,7 @@ msgid "Promo packages"
 msgstr "Промо пакети"
 
 #: templates/page-request.php:65
+#: woocommerce/content-single-product.php:134
 msgid "branding included"
 msgstr "с включено брандиране"
 
@@ -356,6 +344,7 @@ msgid "What happens next?"
 msgstr "Какво следва?"
 
 #: templates/page-request.php:103
+#: woocommerce/content-single-product.php:228
 msgid "Need help?"
 msgstr "Нуждаете се от помощ?"
 
@@ -367,7 +356,8 @@ msgstr "Наш консултант е на разположение да ви �
 msgid "Contact us"
 msgstr "Свържи се с нас"
 
-#: woocommerce/content-product.php:21
+#: woocommerce/content-product.php:33
+#: woocommerce/content-single-product.php:81
 msgid "Most popular"
 msgstr "Най-популярен"
 
@@ -401,59 +391,64 @@ msgctxt "Space size name"
 msgid "6"
 msgstr "6"
 
-#: template-parts/steps.php:28
+#: template-parts/steps.php:35
 msgid "Choose a package"
 msgstr "Избираш пакет"
 
-#: template-parts/steps.php:28
+#: template-parts/steps.php:35
 msgid "You see the exact price and quantity."
 msgstr "Виждаш точна цена и количество."
 
-#: template-parts/steps.php:29
+#: template-parts/steps.php:36
+#: woocommerce/content-single-product.php:46
 msgid "Upload your logo"
 msgstr "Качваш логото"
 
-#: template-parts/steps.php:29
+#: template-parts/steps.php:36
+#: woocommerce/content-single-product.php:46
 msgid "AI, EPS, PDF, SVG or a high-quality PNG."
 msgstr "AI, EPS, PDF, SVG или качествен PNG."
 
-#: template-parts/steps.php:30
+#: template-parts/steps.php:37
+#: woocommerce/content-single-product.php:49
 msgid "Get a mockup"
 msgstr "Получаваш визуализация"
 
-#: template-parts/steps.php:30
+#: template-parts/steps.php:37
 msgid "Our designer prepares a mockup of the products."
 msgstr "Наш дизайнер подготвя mockup на продуктите."
 
-#: template-parts/steps.php:31
+#: template-parts/steps.php:38
+#: woocommerce/content-single-product.php:56
 msgid "Approve the design"
 msgstr "Одобряваш визията"
 
-#: template-parts/steps.php:31
+#: template-parts/steps.php:38
 msgid "You can request changes until you are fully happy."
 msgstr "Можеш да поискаш промени до пълно одобрение."
 
-#: template-parts/steps.php:32
+#: template-parts/steps.php:39
 msgid "Pay the deposit"
 msgstr "Плащаш аванс"
 
-#: template-parts/steps.php:32
+#: template-parts/steps.php:39
 msgid "After approval you pay a 50% deposit and we start the order."
 msgstr "След одобрение плащаш 50% аванс и стартираме поръчката."
 
-#: template-parts/steps.php:33
+#: template-parts/steps.php:40
 msgid "Pay the balance and receive"
 msgstr "Доплащаш и получаваш"
 
-#: template-parts/steps.php:33
+#: template-parts/steps.php:40
 msgid "You pay the rest before dispatch and receive your order."
 msgstr "Плащаш остатъка преди изпращане и получаваш поръчката си."
 
-#: template-parts/steps.php:40
+#: template-parts/steps.php:50
+#: woocommerce/content-single-product.php:198
 msgid "How the order works"
 msgstr "Как става поръчката"
 
-#: template-parts/steps.php:38
+#: template-parts/steps.php:45
 msgid "How does the order work?"
 msgstr "Как става поръчката?"
 
@@ -465,11 +460,13 @@ msgstr "Страницата не е открита"
 msgid "The page you are looking for does not exist or has been moved."
 msgstr "Страницата, която търсите, не съществува или е преместена."
 
-#: 404.php:19 search.php:53
+#: 404.php:19
+#: search.php:55
 msgid "Browse the packages"
 msgstr "Разгледай пакетите"
 
-#: 404.php:20 search.php:54
+#: 404.php:20
+#: search.php:56
 msgid "Back to the homepage"
 msgstr "Към началната страница"
 
@@ -479,246 +476,279 @@ msgstr "Към началната страница"
 msgid "Search results for “%s”"
 msgstr "Резултати от търсенето за „%s“"
 
-#: search.php:40
+#: search.php:41
 msgid "Previous"
 msgstr "Назад"
 
-#: search.php:41
+#: search.php:42
 msgid "Next"
 msgstr "Напред"
 
 #. translators: %s: the search query
-#: search.php:48
+#: search.php:50
 #, php-format
 msgid "Nothing found for “%s”."
 msgstr "Нищо не е намерено за „%s“."
 
-#: search.php:51
+#: search.php:53
 msgid "Try a different word, or start from the packages."
 msgstr "Опитайте с друга дума или започнете от пакетите."
 
 #. translators: %s: company registration number
-#: footer.php
+#: footer.php:16
+#, php-format
 msgid "Company ID %s"
 msgstr "ЕИК %s"
 
 #. translators: %s: VAT number
-#: footer.php
+#: footer.php:17
+#, php-format
 msgid "VAT no. %s"
 msgstr "ДДС № %s"
 
 #. translators: %s: menu item title
-#: inc/class-reklamo-nav-walker.php
+#: inc/class-reklamo-nav-walker.php:30
+#, php-format
 msgid "Show submenu of %s"
 msgstr "Покажи подменюто на %s"
 
 #. translators: %s: product category name
-#: woocommerce/content-single-product.php
+#: woocommerce/content-single-product.php:95
+#, php-format
 msgid "The %s collection"
 msgstr "Колекция %s"
 
-#: woocommerce/content-single-product.php
+#: woocommerce/content-single-product.php:30
 msgid "Premium quality"
 msgstr "Премиум качество"
 
-#: woocommerce/content-single-product.php
+#: woocommerce/content-single-product.php:30
 msgid "Selected materials"
 msgstr "Подбрани материали"
 
-#: woocommerce/content-single-product.php
+#: woocommerce/content-single-product.php:31
 msgid "Branding"
 msgstr "Брандиране"
 
-#: woocommerce/content-single-product.php
+#: woocommerce/content-single-product.php:31
 msgid "With your logo"
 msgstr "С вашето лого"
 
-#: woocommerce/content-single-product.php
+#: template-parts/bulk-offer.php:14
+#: woocommerce/content-single-product.php:32
 msgid "Fast delivery"
 msgstr "Бърза доставка"
 
-#: woocommerce/content-single-product.php
+#: woocommerce/content-single-product.php:32
 msgid "Across Bulgaria"
 msgstr "В цяла България"
 
-#: woocommerce/content-single-product.php
+#: woocommerce/content-single-product.php:127
 msgid "Final price"
 msgstr "Крайна цена"
 
-#: woocommerce/content-single-product.php
-msgid "branding included"
-msgstr "с включено брандиране"
-
-#: woocommerce/content-single-product.php
+#: woocommerce/content-single-product.php:152
 msgid "What does the package include?"
 msgstr "Какво включва пакетът?"
 
-#: woocommerce/content-single-product.php
+#: woocommerce/content-single-product.php:39
 msgid "A mockup prepared before production"
 msgstr "Подготовка на визуализация преди производство"
 
-#: woocommerce/content-single-product.php
+#: woocommerce/content-single-product.php:40
 msgid "Free corrections to the design"
 msgstr "Безплатна корекция на дизайна"
 
-#: woocommerce/content-single-product.php
+#: woocommerce/content-single-product.php:41
 msgid "Single-colour branding included"
 msgstr "Включено едноцветно брандиране"
 
-#: woocommerce/content-single-product.php
+#: woocommerce/content-single-product.php:42
 msgid "Further branding available on request"
 msgstr "Възможност за допълнително брандиране при запитване"
 
-#: woocommerce/content-single-product.php
+#: woocommerce/content-single-product.php:186
 msgid "Upload a logo and request a mockup"
 msgstr "Качи лого и заяви визуализация"
 
-#: woocommerce/content-single-product.php
+#: woocommerce/content-single-product.php:191
 msgid "No payment at this stage"
 msgstr "Няма плащане на този етап"
 
-#: woocommerce/content-single-product.php
-msgid "How the order works"
-msgstr "Как става поръчката"
-
 #. translators: %d: hours until the mockup is sent
-#: woocommerce/content-single-product.php
+#: woocommerce/content-single-product.php:52
+#, php-format
 msgid "We send you a mockup within %d working hours."
 msgstr "Ще ви изпратим визуализация до %d работни часа."
 
-#: woocommerce/content-single-product.php
+#: woocommerce/content-single-product.php:56
 msgid "Or ask for a correction if you need one."
 msgstr "Или поискайте корекция при нужда."
 
 #. translators: %d: deposit percentage
-#: woocommerce/content-single-product.php
+#: woocommerce/content-single-product.php:61
+#, php-format
 msgid "Pay a %d%% deposit"
 msgstr "Плащате аванс %d%%"
 
-#: woocommerce/content-single-product.php
+#: woocommerce/content-single-product.php:64
 msgid "Production starts once you approve."
 msgstr "След одобрение стартираме поръчката."
 
-#: woocommerce/content-single-product.php
-msgid "Need help?"
-msgstr "Нуждаете се от помощ?"
-
-#: woocommerce/content-single-product.php
+#: woocommerce/content-single-product.php:231
 msgid "Our consultant will help you choose the right package for your business."
 msgstr "Наш консултант ще ви помогне да изберете най-подходящия пакет за вашия бизнес."
 
-#: woocommerce/content-single-product.php
+#: template-parts/faq.php:49
+#: woocommerce/content-single-product.php:235
 msgid "Get in touch"
 msgstr "Свържи се с нас"
 
-#: functions.php
+#: template-parts/delivery.php:62
+#: woocommerce/content-single-product.php:240
 msgid "Delivery and deadlines"
 msgstr "Доставка и срокове"
 
-#: functions.php
+#: template-parts/faq.php:46
+#: woocommerce/content-single-product.php:241
 msgid "Frequently asked questions"
 msgstr "Често задавани въпроси"
 
-#: woocommerce/content-product.php
+#: functions.php:319
 msgid "View the package"
 msgstr "Виж пакета"
 
-#: functions.php
+#: functions.php:221
 msgid "Specifications"
 msgstr "Спецификации"
 
-
-
-#: template-parts/faq.php
+#: template-parts/faq.php:45
 msgid "Questions and answers"
 msgstr "Въпроси и отговори"
 
-#: template-parts/faq.php
+#: template-parts/faq.php:47
 msgid "Everything about your order, from the logo to delivery. Cannot find your answer? Write to us and we will reply quickly."
 msgstr "Всичко за поръчката — от логото до доставката. Не намирате отговор? Пишете ни и ще отговорим бързо."
 
-#: template-parts/faq.php
+#: template-parts/faq.php:51
 msgid "All questions"
 msgstr "Всички въпроси"
 
-#: template-parts/delivery.php
+#: template-parts/delivery.php:61
 msgid "From approval to your door"
 msgstr "От одобрението до вратата Ви"
 
-#: template-parts/delivery.php
+#: template-parts/delivery.php:63
 msgid "Clear deadlines at every step, and a courier to any address in Bulgaria."
 msgstr "Ясни срокове на всяка стъпка и куриер до всеки адрес в България."
 
-#: template-parts/delivery.php
+#: template-parts/delivery.php:65
 msgid "Delivery details"
 msgstr "Подробно за доставката"
 
-#: template-parts/delivery.php
+#: woocommerce/content-single-product.php:239
 msgid "How ordering works"
 msgstr "Как става поръчката"
 
-#: woocommerce/archive-product.php
+#: template-parts/shop-hero.php:26
+#: woocommerce/archive-product.php:23
 msgid "Ready-made solutions for your business"
 msgstr "Готови решения за вашия бизнес"
 
-#: woocommerce/archive-product.php
+#: template-parts/shop-hero.php:46
 msgid "Stylish and practical combinations"
 msgstr "Стилни и практични комбинации"
 
-#: woocommerce/archive-product.php
+#: template-parts/shop-hero.php:47
 msgid "Personalised with your logo"
 msgstr "Персонализирани с вашето лого"
 
-#: woocommerce/archive-product.php
+#: template-parts/shop-hero.php:48
 msgid "Suitable for any business"
 msgstr "Подходящи за всякакъв бизнес"
 
-#: woocommerce/archive-product.php
+#: template-parts/shop-hero.php:53
 msgid "Filter by category"
 msgstr "Филтър по категория"
 
-#: woocommerce/archive-product.php
+#: template-parts/shop-hero.php:56
 msgid "All packages"
 msgstr "Всички пакети"
 
-#: woocommerce/content-product.php
+#. translators: %d: number of pieces in the package
+#: woocommerce/content-product.php:45
 #, php-format
 msgid "%d pcs."
 msgstr "%d бр."
 
-
-#: woocommerce/archive-product.php
+#: woocommerce/content-product.php:62
 msgid "View more"
 msgstr "Виж повече"
 
-#: woocommerce/content-product.php
+#: woocommerce/content-product.php:51
 msgid "incl. VAT"
 msgstr "с ДДС"
 
-#: page-produkti.php
+#: page-produkti.php:57
 msgid "Everything we can brand with your logo"
 msgstr "Всичко, което можем да брандираме с вашето лого"
 
-#: template-parts/shop-hero.php
+#: template-parts/shop-hero.php:56
 msgid "All products"
 msgstr "Всички продукти"
 
-#: template-parts/bulk-offer.php
+#: template-parts/bulk-offer.php:21
 msgid "Large quantities?"
 msgstr "Големи количества?"
 
-#: template-parts/bulk-offer.php
+#: template-parts/bulk-offer.php:22
 msgid "Get a tailored offer"
 msgstr "Получете индивидуална оферта"
 
-#: template-parts/bulk-offer.php
+#: template-parts/bulk-offer.php:26
 msgid "Send an inquiry"
 msgstr "Изпрати запитване"
 
-#: template-parts/bulk-offer.php
+#: template-parts/bulk-offer.php:12
 msgid "Competitive prices"
 msgstr "Конкурентни цени"
 
-#: template-parts/bulk-offer.php
+#: template-parts/bulk-offer.php:13
 msgid "Custom design"
 msgstr "Индивидуален дизайн"
+
+#: header.php:45
+msgid "Cart"
+msgstr "Количка"
+
+#. translators: %d: number of products in the cart
+#: header.php:47
+#, php-format
+msgid "%d product"
+msgid_plural "%d products"
+msgstr[0] "%d продукт"
+msgstr[1] "%d продукта"
+
+#. translators: %d: minimum quantity
+#: woocommerce/content-product.php:43
+#, php-format
+msgid "from %d pcs."
+msgstr "от %d бр."
+
+#: woocommerce/content-product.php:51
+msgid "per piece"
+msgstr "за брой"
+
+#: woocommerce/content-single-product.php:118
+msgid "From, per piece"
+msgstr "Цена от, за брой"
+
+#: woocommerce/content-single-product.php:118
+msgid "Price per piece"
+msgstr "Цена за брой"
+
+#. translators: %d: minimum quantity
+#: woocommerce/content-single-product.php:123
+#, php-format
+msgid "min. %d pcs."
+msgstr "мин. %d бр."

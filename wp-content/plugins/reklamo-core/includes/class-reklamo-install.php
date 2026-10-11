@@ -12,6 +12,7 @@ final class Reklamo_Install {
 
 	const DB_VERSION_OPTION = 'reklamo_db_version';
 	const FLUSH_OPTION      = 'reklamo_flush_rewrite';
+	const ITEMS_OPTION      = 'reklamo_items_migrated';
 
 	public static function activate(): void {
 		self::install();
@@ -24,6 +25,15 @@ final class Reklamo_Install {
 			update_option( self::FLUSH_OPTION, 1 );
 		}
 		add_action( 'init', array( __CLASS__, 'maybe_flush_rewrite' ), 99 );
+		if ( ! get_option( self::ITEMS_OPTION ) ) {
+			add_action( 'init', array( __CLASS__, 'migrate_items' ), 20 );
+		}
+	}
+
+	/** Orders loaded only once WooCommerce has set up its data stores, hence on init. */
+	public static function migrate_items(): void {
+		Reklamo_Items::migrate();
+		update_option( self::ITEMS_OPTION, 1, false );
 	}
 
 	/** Rewrite rules can only be flushed after every rule is registered (init). */
@@ -80,6 +90,7 @@ final class Reklamo_Install {
   selector char(16) NOT NULL,
   order_id bigint(20) unsigned NOT NULL,
   file_id bigint(20) unsigned NOT NULL,
+  order_item_id bigint(20) unsigned DEFAULT NULL,
   revision smallint(5) unsigned NOT NULL DEFAULT 1,
   hash char(64) NOT NULL,
   expires_at datetime NOT NULL,

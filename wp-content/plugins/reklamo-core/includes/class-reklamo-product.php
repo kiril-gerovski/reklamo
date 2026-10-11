@@ -1,7 +1,9 @@
 <?php
 /**
  * Per-product specifications: paper, print, finishing — the "Спецификации" tab in the design —
- * and the photo behind the product page's tab section.
+ * the photo behind the product page's tab section, and the minimum quantity of a product sold
+ * by the piece. Colours are WooCommerce's own variations on the global "Цвят" attribute; each
+ * colour term carries the hex of its swatch.
  *
  * WooCommerce has no prose field beyond the description, and attributes turn a paragraph into a
  * table, so this adds one textarea and one image to the product editor and nothing else. The
@@ -18,9 +20,141 @@ final class Reklamo_Product {
 
 	const IMAGE_META = '_reklamo_section_image';
 
+	const MIN_META = '_reklamo_min_qty';
+
+	const COLOR_TAX = 'pa_cvyat';
+
+	const HEX_META = 'reklamo_hex';
+
+	const GALLERY_META = '_reklamo_variation_gallery';
+
+	const QTY_TAX = 'pa_kolichestvo';
+
 	public static function init(): void {
 		add_action( 'woocommerce_product_options_general_product_data', array( __CLASS__, 'field' ) );
 		add_action( 'woocommerce_admin_process_product_object', array( __CLASS__, 'save' ) );
+		add_filter( 'woocommerce_quantity_input_args', array( __CLASS__, 'quantity_args' ), 10, 2 );
+		add_filter( 'woocommerce_add_to_cart_validation', array( __CLASS__, 'validate_quantity' ), 20, 3 );
+		add_action( self::COLOR_TAX . '_add_form_fields', array( __CLASS__, 'hex_field_add' ) );
+		add_action( self::COLOR_TAX . '_edit_form_fields', array( __CLASS__, 'hex_field_edit' ) );
+		add_action( 'created_' . self::COLOR_TAX, array( __CLASS__, 'hex_save' ) );
+		add_action( 'edited_' . self::COLOR_TAX, array( __CLASS__, 'hex_save' ) );
+		add_action( 'woocommerce_product_after_variable_attributes', array( __CLASS__, 'variation_gallery_field' ), 10, 3 );
+		add_action( 'woocommerce_save_product_variation', array( __CLASS__, 'variation_gallery_save' ), 10, 2 );
+	}
+
+	/** @return int[] a variation's own extra photos, in order */
+	public static function variation_gallery( WC_Product $variation ): array {
+		return array_values( array_filter( array_map( 'absint', explode( ',', (string) $variation->get_meta( self::GALLERY_META ) ) ), 'wp_attachment_is_image' ) );
+	}
+
+	/**
+	 * WooCommerce gives a variation one image; the colour's other photos go here and replace the
+	 * product gallery on the product page when the colour is chosen.
+	 *
+	 * @param int     $loop      Row index in the variations panel.
+	 * @param array   $data      Unused.
+	 * @param WP_Post $variation The variation post.
+	 */
+	public static function variation_gallery_field( int $loop, array $data, $variation ): void { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+		$product = wc_get_product( $variation->ID );
+		echo '<div class="form-row form-row-full">';
+		echo '<label>' . esc_html__( 'Gallery for this colour', 'reklamo-core' ) . '</label>';
+		Reklamo_Admin_Image::render_gallery( 'reklamo_variation_gallery[' . $loop . ']', $product ? self::variation_gallery( $product ) : array(), __( 'The other photos of this colour, shown after the variation image above. Empty: the product gallery is shown.', 'reklamo-core' ) );
+		echo '</div>';
+	}
+
+	public static function variation_gallery_save( int $variation_id, int $loop ): void {
+		// WooCommerce verifies the variations nonce before this hook.
+		$raw = isset( $_POST['reklamo_variation_gallery'][ $loop ] ) ? sanitize_text_field( wp_unslash( $_POST['reklamo_variation_gallery'][ $loop ] ) ) : null; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		if ( null === $raw ) {
+			return;
+		}
+		$ids = implode( ',', array_filter( array_map( 'absint', explode( ',', $raw ) ) ) );
+		if ( '' === $ids ) {
+			delete_post_meta( $variation_id, self::GALLERY_META );
+		} else {
+			update_post_meta( $variation_id, self::GALLERY_META, $ids );
+		}
+	}
+
+	/** The product a variation belongs to; settings live there. */
+	private static function base( WC_Product $product ): WC_Product {
+		if ( $product->is_type( 'variation' ) ) {
+			$parent = wc_get_product( $product->get_parent_id() );
+			return $parent instanceof WC_Product ? $parent : $product;
+		}
+		return $product;
+	}
+
+	/** Smallest quantity a customer may order; 1 unless set. */
+	public static function min_qty( WC_Product $product ): int {
+		return max( 1, (int) self::base( $product )->get_meta( self::MIN_META ) );
+	}
+
+	/**
+	 * Sold by the piece, with a quantity chosen by the customer from a minimum — as opposed to a
+	 * package or a calendar tier, which is one fixed set (a package may still come in colours).
+	 */
+	public static function by_the_piece( WC_Product $product ): bool {
+		return self::min_qty( $product ) > 1;
+	}
+
+	/** Swatch colour of a colour term, '' when none is set. */
+	public static function hex( int $term_id ): string {
+		$hex = (string) get_term_meta( $term_id, self::HEX_META, true );
+		return preg_match( '/^#[0-9a-f]{6}$/i', $hex ) ? $hex : '';
+	}
+
+	/** WooCommerce's quantity input starts at, and never goes below, the minimum. */
+	public static function quantity_args( array $args, $product ): array {
+		if ( $product instanceof WC_Product ) {
+			$min                 = self::min_qty( $product );
+			$args['min_value']   = max( (int) ( $args['min_value'] ?? 1 ), $min );
+			$args['input_value'] = max( (int) ( $args['input_value'] ?? 1 ), $min );
+		}
+		return $args;
+	}
+
+	public static function validate_quantity( bool $passed, int $product_id, int $quantity ): bool {
+		$product = wc_get_product( $product_id );
+		if ( $passed && $product && $quantity < self::min_qty( $product ) ) {
+			/* translators: 1: product name, 2: minimum quantity */
+			wc_add_notice( sprintf( __( '%1$s: the minimum quantity is %2$d pieces.', 'reklamo-core' ), $product->get_name(), self::min_qty( $product ) ), 'error' );
+			return false;
+		}
+		return $passed;
+	}
+
+	public static function hex_field_add(): void {
+		?>
+		<div class="form-field">
+			<label for="reklamo_hex"><?php esc_html_e( 'Swatch colour', 'reklamo-core' ); ?></label>
+			<input type="color" id="reklamo_hex" name="reklamo_hex" value="#b8892b">
+			<p><?php esc_html_e( 'The circle the customer clicks on the product page.', 'reklamo-core' ); ?></p>
+		</div>
+		<?php
+	}
+
+	public static function hex_field_edit( WP_Term $term ): void {
+		$hex = self::hex( $term->term_id );
+		?>
+		<tr class="form-field">
+			<th scope="row"><label for="reklamo_hex"><?php esc_html_e( 'Swatch colour', 'reklamo-core' ); ?></label></th>
+			<td>
+				<input type="color" id="reklamo_hex" name="reklamo_hex" value="<?php echo esc_attr( $hex ? $hex : '#b8892b' ); ?>">
+				<p class="description"><?php esc_html_e( 'The circle the customer clicks on the product page.', 'reklamo-core' ); ?></p>
+			</td>
+		</tr>
+		<?php
+	}
+
+	public static function hex_save( int $term_id ): void {
+		// The term screens verify their own nonce before these hooks fire.
+		$hex = isset( $_POST['reklamo_hex'] ) ? sanitize_hex_color( wp_unslash( $_POST['reklamo_hex'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		if ( $hex && current_user_can( 'manage_woocommerce' ) ) {
+			update_term_meta( $term_id, self::HEX_META, $hex );
+		}
 	}
 
 	/** The specifications of a product, ready to print. */
@@ -58,6 +192,20 @@ final class Reklamo_Product {
 				'style'       => 'width:100%',
 			)
 		);
+		self::tier_fields();
+		woocommerce_wp_text_input(
+			array(
+				'id'                => self::MIN_META,
+				'label'             => __( 'Minimum quantity', 'reklamo-core' ),
+				'description'       => __( 'For a product sold by the piece: the smallest number a customer can order (e.g. 50). The price above is then the price per piece. Leave 1 for packages and fixed sets.', 'reklamo-core' ),
+				'desc_tip'          => true,
+				'type'              => 'number',
+				'custom_attributes' => array(
+					'min'  => '1',
+					'step' => '1',
+				),
+			)
+		);
 		global $product_object;
 		$image = $product_object instanceof WC_Product ? absint( $product_object->get_meta( self::IMAGE_META ) ) : 0;
 		?>
@@ -69,10 +217,92 @@ final class Reklamo_Product {
 		echo '</div>';
 	}
 
+	/** @return WP_Term[] the package sizes (attribute "Количество") this product is offered in, in order */
+	public static function tiers( WC_Product $product ): array {
+		if ( ! $product->is_type( 'variable' ) || ! taxonomy_exists( self::QTY_TAX ) ) {
+			return array();
+		}
+		$terms = wc_get_product_terms( $product->get_id(), self::QTY_TAX, array( 'fields' => 'all' ) );
+		return is_array( $terms ) ? $terms : array();
+	}
+
+	/** Pieces in a package size: the number in the term ("50 бр." → 50). */
+	public static function tier_count( string $slug ): int {
+		return (int) preg_replace( '/\D/', '', $slug );
+	}
+
+	/**
+	 * One price per package size, for every colour: entered here, written into each matching
+	 * variation on save. Shown only for a variable product sold in sizes.
+	 */
+	private static function tier_fields(): void {
+		global $product_object;
+		if ( ! $product_object instanceof WC_Product ) {
+			return;
+		}
+		$tiers = self::tiers( $product_object );
+		if ( ! $tiers ) {
+			return;
+		}
+		$prices = array();
+		foreach ( $product_object->get_children() as $child ) {
+			$v    = wc_get_product( $child );
+			$slug = $v ? (string) ( $v->get_variation_attributes()[ 'attribute_' . self::QTY_TAX ] ?? '' ) : '';
+			if ( '' !== $slug && ! isset( $prices[ $slug ] ) && '' !== $v->get_regular_price() ) {
+				$prices[ $slug ] = $v->get_regular_price();
+			}
+		}
+		echo '<p class="form-field"><strong>' . esc_html__( 'Prices by quantity', 'reklamo-core' ) . '</strong><br><span class="description">' . esc_html__( 'One price per package size, the same for every colour, VAT included. A size without a price is not offered.', 'reklamo-core' ) . '</span></p>';
+		foreach ( $tiers as $term ) {
+			woocommerce_wp_text_input(
+				array(
+					'id'        => 'reklamo_tier_price_' . $term->slug,
+					'name'      => 'reklamo_tier_price[' . $term->slug . ']',
+					/* translators: %s: package size, e.g. "50 бр." */
+					'label'     => sprintf( __( 'Price for %s', 'reklamo-core' ), $term->name ) . ' (' . get_woocommerce_currency_symbol() . ')',
+					'value'     => isset( $prices[ $term->slug ] ) ? wc_format_localized_price( $prices[ $term->slug ] ) : '',
+					'data_type' => 'price',
+				)
+			);
+		}
+	}
+
+	/** Write the prices by quantity into the variations of each size, every colour alike. */
+	private static function save_tiers( WC_Product $product ): void {
+		if ( ! isset( $_POST['reklamo_tier_price'] ) || ! is_array( $_POST['reklamo_tier_price'] ) || ! $product->is_type( 'variable' ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- WooCommerce verified the product editor's nonce.
+			return;
+		}
+		$prices = array_map( 'wc_format_decimal', array_map( 'sanitize_text_field', wp_unslash( $_POST['reklamo_tier_price'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		foreach ( $product->get_children() as $child ) {
+			$v    = wc_get_product( $child );
+			$slug = $v ? (string) ( $v->get_variation_attributes()[ 'attribute_' . self::QTY_TAX ] ?? '' ) : '';
+			if ( '' === $slug || ! array_key_exists( $slug, $prices ) ) {
+				continue;
+			}
+			$v->set_regular_price( $prices[ $slug ] );
+			$v->save();
+		}
+		// Once, after WooCommerce has saved the product: sync() saves it again, which would land here anew.
+		$sync = static function ( $id ) use ( $product, &$sync ) {
+			if ( (int) $id === $product->get_id() ) {
+				remove_action( 'woocommerce_update_product', $sync );
+				WC_Product_Variable::sync( $id );
+			}
+		};
+		add_action( 'woocommerce_update_product', $sync );
+	}
+
 	public static function save( WC_Product $product ): void {
+		self::save_tiers( $product );
 		// WooCommerce has already verified the product editor's nonce before this hook.
 		$raw = isset( $_POST[ self::META ] ) ? wp_unslash( $_POST[ self::META ] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$product->update_meta_data( self::META, wp_kses_post( trim( $raw ) ) );
+		$min = isset( $_POST[ self::MIN_META ] ) ? absint( $_POST[ self::MIN_META ] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		if ( $min > 1 ) {
+			$product->update_meta_data( self::MIN_META, $min );
+		} else {
+			$product->delete_meta_data( self::MIN_META );
+		}
 		$image = isset( $_POST[ self::IMAGE_META ] ) ? absint( $_POST[ self::IMAGE_META ] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( $image ) {
 			$product->update_meta_data( self::IMAGE_META, $image );

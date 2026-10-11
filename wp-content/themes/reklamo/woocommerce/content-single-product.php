@@ -2,7 +2,7 @@
 /**
  * Single product, laid out as the client's design: gallery, summary with the final price,
  * what the package includes, the order card, the four steps and the product tabs.
- * There is no add-to-cart — every route leads to the request form.
+ * The order card carries the plugin's form: logo, note, "Add to cart".
  *
  * @package Reklamo
  */
@@ -107,12 +107,33 @@ $reklamo_steps = array(
 				<?php endif; ?>
 			</div>
 
-				<div class="product-price-badge">
-					<span class="product-price-badge__label"><?php esc_html_e( 'Final price', 'reklamo' ); ?></span>
+				<?php $reklamo_piece = class_exists( 'Reklamo_Product' ) && Reklamo_Product::by_the_piece( $product ); ?>
+				<div class="product-price-badge<?php echo $reklamo_piece ? ' is-piece' : ''; ?>">
 					<?php add_filter( 'woocommerce_price_trim_zeros', '__return_true' ); ?>
-					<span class="product-price-badge__value"><?php echo wp_kses_post( $product->get_price_html() ); ?></span>
+					<?php if ( $reklamo_piece ) : ?>
+						<?php
+						$reklamo_from = $product->is_type( 'variable' ) && $product->get_variation_price( 'min', true ) !== $product->get_variation_price( 'max', true );
+						$reklamo_min  = $product->is_type( 'variable' ) ? (float) $product->get_variation_price( 'min', true ) : (float) wc_get_price_to_display( $product );
+						?>
+						<span class="product-price-badge__label"><?php echo esc_html( $reklamo_from ? __( 'From, per piece', 'reklamo' ) : __( 'Price per piece', 'reklamo' ) ); ?></span>
+						<span class="product-price-badge__value"><?php echo wp_kses_post( wc_price( $reklamo_min ) ); ?></span>
+						<span class="product-price-badge__note">
+							<?php
+							/* translators: %d: minimum quantity */
+							echo esc_html( sprintf( __( 'min. %d pcs.', 'reklamo' ), Reklamo_Product::min_qty( $product ) ) );
+							?>
+						</span>
+					<?php else : ?>
+						<span class="product-price-badge__label"><?php esc_html_e( 'Final price', 'reklamo' ); ?></span>
+						<?php if ( $product->is_type( 'variable' ) ) : ?>
+							<?php // The price of the colour and size chosen in the order card; product.js keeps it current. ?>
+							<span class="product-price-badge__value"><span class="woocommerce-Price-amount amount" data-rk-badge-price><?php echo wp_kses_post( wp_strip_all_tags( wc_price( (float) $product->get_variation_price( 'min', true ) ) ) ); ?></span><?php echo wp_kses_post( $product->get_price_suffix() ); ?></span>
+						<?php else : ?>
+							<span class="product-price-badge__value"><?php echo wp_kses_post( $product->get_price_html() ); ?></span>
+						<?php endif; ?>
+						<span class="product-price-badge__note"><?php esc_html_e( 'branding included', 'reklamo' ); ?></span>
+					<?php endif; ?>
 					<?php remove_filter( 'woocommerce_price_trim_zeros', '__return_true' ); ?>
-					<span class="product-price-badge__note"><?php esc_html_e( 'branding included', 'reklamo' ); ?></span>
 				</div>
 
 				<ul class="product-usps">
@@ -135,7 +156,13 @@ $reklamo_steps = array(
 										<span class="product-includes__icon"><?php echo reklamo_icon( $reklamo_item['icon'], 30 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?></span>
 										<span class="product-includes__plus" aria-hidden="true"><?php echo $reklamo_item['counted'] ? '+' : ''; ?></span>
 										<span>
-											<strong><?php echo esc_html( $reklamo_item['title'] ); ?></strong>
+											<strong>
+												<?php
+												$reklamo_title = esc_html( $reklamo_item['title'] );
+												// With package sizes the leading count follows the size chosen in the order card.
+												echo class_exists( 'Reklamo_Product' ) && Reklamo_Product::tiers( $product ) ? preg_replace( '~^(\d+)~', '<span data-rk-count>$1</span>', $reklamo_title ) : $reklamo_title; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped above.
+												?>
+											</strong>
 											<?php if ( $reklamo_item['detail'] ) : ?>
 												<small><?php echo esc_html( $reklamo_item['detail'] ); ?></small>
 											<?php endif; ?>
@@ -152,9 +179,13 @@ $reklamo_steps = array(
 								<li><?php echo reklamo_icon( 'check', 18 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?><span><?php echo esc_html( $reklamo_promise ); ?></span></li>
 							<?php endforeach; ?>
 						</ul>
-						<a class="btn btn--primary product-order__cta" href="<?php echo esc_url( reklamo_request_url( $product ) ); ?>">
-							<?php esc_html_e( 'Upload a logo and request a mockup', 'reklamo' ); ?>
-						</a>
+						<?php if ( class_exists( 'Reklamo_Cart' ) ) : ?>
+							<?php echo Reklamo_Cart::product_form( $product ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside. ?>
+						<?php else : ?>
+							<a class="btn btn--primary product-order__cta" href="<?php echo esc_url( reklamo_request_url( $product ) ); ?>">
+								<?php esc_html_e( 'Upload a logo and request a mockup', 'reklamo' ); ?>
+							</a>
+						<?php endif; ?>
 						<p class="product-order__nopay">
 							<?php echo reklamo_icon( 'shield', 16 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?>
 							<?php esc_html_e( 'No payment at this stage', 'reklamo' ); ?>

@@ -162,7 +162,7 @@ test( 'the За нас page carries the company copy', async ( { page } ) => {
 } );
 
 test( 'between phone and desktop the header folds into the burger instead of widening the page', async ( { page } ) => {
-	for ( const width of [ 960, 1100, 1199 ] ) {
+	for ( const width of [ 960, 1100, 1200, 1279 ] ) {
 		await page.setViewportSize( { width, height: 800 } );
 		await page.goto( '/' );
 		await expect( page.locator( '.nav-toggle' ) ).toBeVisible();

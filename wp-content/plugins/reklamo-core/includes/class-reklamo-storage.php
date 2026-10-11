@@ -189,14 +189,21 @@ final class Reklamo_Storage {
 		return $row;
 	}
 
-	/** An upload that finished but was not yet attached to an order (chunked flow hands its token to the form). */
-	public static function unclaimed_by_token( string $token, string $kind = 'logo' ): ?object {
+	/**
+	 * An upload that finished but was not yet attached to an order (chunked flow hands its
+	 * token to the form; the cart keeps it in the session until the request is sent).
+	 *
+	 * @param string $token   File token.
+	 * @param string $kind    'logo' | 'mockup'.
+	 * @param int    $max_age Seconds; the cart allows as long as Reklamo_Cleanup keeps unclaimed files.
+	 */
+	public static function unclaimed_by_token( string $token, string $kind = 'logo', int $max_age = DAY_IN_SECONDS ): ?object {
 		$row = self::by_token( $token );
 		if ( ! $row || $row->kind !== $kind || $row->order_id ) {
 			return null;
 		}
 		// Tokens are unguessable; still, don't let a stale one be attached days later.
-		if ( strtotime( $row->created_at . ' UTC' ) < time() - DAY_IN_SECONDS ) {
+		if ( strtotime( $row->created_at . ' UTC' ) < time() - $max_age ) {
 			return null;
 		}
 		return $row;

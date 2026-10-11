@@ -896,6 +896,175 @@ if [ -n "$cal_id" ]; then
     [ -n "$thumb" ] && wp term meta update "$cal_id" thumbnail_id "$thumb" >/dev/null && echo "  Календари category image set"
   fi
 fi
+
+# Colours: WooCommerce's own global attribute "Цвят" (taxonomy pa_cvyat), used for variations of a
+# product sold by the piece. The attribute and its sample colours are created when missing; each
+# colour's swatch (term meta reklamo_hex, Products → Attributes → Цвят) only while it has none.
+color_attr=$(wc product_attribute list --format=csv --fields=id,slug 2>/dev/null | awk -F, '$2=="pa_cvyat"{print $1}' | head -n1)
+if [ -z "$color_attr" ]; then
+  color_attr=$(wc product_attribute create --name="Цвят" --slug=cvyat --type=select --order_by=menu_order --porcelain)
+  echo "  attribute Цвят created"
+fi
+n=0
+for c in "cherven:Червен:#b3262e" "chern:Черен:#1f1f1f" "zelen:Зелен:#2f5d46" "sin:Син:#1f2f6b" "byal:Бял:#ffffff"; do
+  slug=${c%%:*}; rest=${c#*:}; name=${rest%%:*}; hex=${rest#*:}
+  n=$((n + 1))
+  term=$(wp term get pa_cvyat "$slug" --by=slug --field=term_id 2>/dev/null || true)
+  # The order WooCommerce lists the colours in (term meta "order"), set once with the term.
+  [ -n "$term" ] || { term=$(wc product_attribute_term create "$color_attr" --name="$name" --slug="$slug" --porcelain); wp term meta update "$term" order "$n" >/dev/null; }
+  [ -n "$(wp term meta get "$term" reklamo_hex 2>/dev/null || true)" ] || wp term meta update "$term" reklamo_hex "$hex" >/dev/null
+done
+
+# A sample product sold by the piece, as in the client's product-page mockup: four colours, a price
+# per piece and a minimum of 50. Created once when its SKU is missing; the owner edits it afterwards.
+if [ -z "$(product_id NB-001)" ]; then
+  nb_cat=$(wc product_cat list --slug=tefteri --field=id | head -n1)
+  nb_id=$(wc product create --type=variable --status=publish --sku=NB-001 --name="Класически тефтер" --slug=klasicheski-tefter \
+    --short_description="<p>Практичен и стилен тефтер с място за вашето лого.</p>" \
+    --description="<p>Класически тефтер с изчистен и елегантен дизайн, идеален избор за бизнес подаръци, корпоративни събития и ежедневна употреба. Може да бъде персонализиран с вашето лого чрез различни методи на брандиране.</p>" \
+    --categories="[{\"id\":${nb_cat:-$cat_id}}]" --menu_order=30 --manage_stock=false \
+    --attributes="[{\"id\":$color_attr,\"variation\":true,\"visible\":true,\"options\":[\"Червен\",\"Черен\",\"Зелен\",\"Син\"]}]" \
+    --default_attributes="[{\"id\":$color_attr,\"option\":\"Червен\"}]" --porcelain)
+  for name in Червен Черен Зелен Син; do
+    wc product_variation create "$nb_id" --regular_price=3.20 --manage_stock=false \
+      --attributes="[{\"id\":$color_attr,\"option\":\"$name\"}]" --porcelain >/dev/null
+  done
+  wp post meta update "$nb_id" _reklamo_min_qty 50 >/dev/null
+  wp post meta update "$nb_id" _reklamo_specs "<p>Твърди корици, 96 листа на редове, ластик за затваряне и лента за отбелязване.</p>" >/dev/null
+  echo "  Класически тефтер created (4 colours, 3,20 € per piece, minimum 50)"
+fi
+# Promo packages in the three basic colours, same price each (owner's decision, 2026-10-11): a
+# package still a plain product becomes a variable one with red, black and white variations.
+# Once — after that the colours, their photos and prices are the owner's, in Products.
+if [ -z "$(wp option get reklamo_seeded_pkg_colours 2>/dev/null || true)" ]; then
+  for sku in RBP OSP EVP PRP TCP GPP WPP; do
+    pid=$(product_id "$sku"); [ -n "$pid" ] || continue
+    [ "$(wp eval "echo wc_get_product( $pid )->get_type();")" = "simple" ] || continue
+    price=$(wp eval "echo wc_get_product( $pid )->get_regular_price();")
+    wc product update "$pid" --type=variable \
+      --attributes="[{\"id\":$color_attr,\"variation\":true,\"visible\":true,\"options\":[\"Червен\",\"Черен\",\"Бял\"]}]" \
+      --default_attributes="[{\"id\":$color_attr,\"option\":\"Червен\"}]" >/dev/null
+    for name in Червен Черен Бял; do
+      wc product_variation create "$pid" --regular_price="$price" --manage_stock=false \
+        --attributes="[{\"id\":$color_attr,\"option\":\"$name\"}]" --porcelain >/dev/null
+    done
+    echo "  $sku: red, black and white"
+  done
+  wp option update reklamo_seeded_pkg_colours 1 >/dev/null
+fi
+# Colour photos of a package variation: its image and its gallery, set only while the variation has
+# no image of its own (the owner's photos in Products → Variations always win).
+set_variation_photos() { # sku colour-slug "path:alt" ["path:alt" ...] — first is the variation image
+  local pid vid entry path att ids="" first=1 sku=$1 slug=$2; shift 2
+  pid=$(product_id "$sku"); [ -n "$pid" ] || return 0
+  vid=$(wp eval "foreach ( wc_get_product( $pid )->get_children() as \$c ) { if ( '$slug' === ( wc_get_product( \$c )->get_variation_attributes()['attribute_pa_cvyat'] ?? '' ) ) { echo \$c; break; } }")
+  [ -n "$vid" ] || return 0
+  [ -n "$(wp post meta get "$vid" _thumbnail_id 2>/dev/null || true)" ] && return 0
+  for entry in "$@"; do
+    path=$(wp eval "\$p = get_theme_file_path( 'assets/img/${entry%%:*}.webp' ); echo file_exists( \$p ) ? \$p : '';")
+    [ -n "$path" ] || continue
+    att=$(wp media import "$path" --post_id="$pid" --title="${entry#*:}" --alt="${entry#*:}" --porcelain 2>/dev/null | tail -n1)
+    [ -n "$att" ] || continue
+    if [ $first = 1 ]; then wp post meta update "$vid" _thumbnail_id "$att" >/dev/null; first=0; else ids="${ids:+$ids,}$att"; fi
+  done
+  [ -n "$ids" ] && wp post meta update "$vid" _reklamo_variation_gallery "$ids" >/dev/null
+  echo "  $sku $slug: colour photos set"
+}
+# Recoloured from the red photos (the logo and the scene untouched); the other packages wait for real ones.
+set_variation_photos RBP chern \
+  "packages/colours/red-business-pack-black:Red Business Pack — черен тефтер и химикалка с лого" \
+  "packages/colours/red-business-pack-section-black:Red Business Pack в подаръчна кутия — черен" \
+  "packages/colours/red-business-pack-pen-black:Черна метална химикалка с гравирано лого"
+set_variation_photos RBP byal \
+  "packages/colours/red-business-pack-white:Red Business Pack — бял тефтер и химикалка с лого" \
+  "packages/colours/red-business-pack-section-white:Red Business Pack в подаръчна кутия — бял" \
+  "packages/colours/red-business-pack-pen-white:Бяла метална химикалка с гравирано лого"
+# Package sizes: WooCommerce's global attribute "Количество" (pa_kolichestvo), 20 / 50 / 100 / 200.
+# Each package gets a variation per colour and size; the 20 keeps today's price and photos, the
+# larger sizes get the colour's photos and no price — the owner sets "Prices by quantity" in the
+# product, and a size without a price is not offered. Once (reklamo_seeded_pkg_sizes).
+size_attr=$(wc product_attribute list --format=csv --fields=id,slug 2>/dev/null | awk -F, '$2=="pa_kolichestvo"{print $1}' | head -n1)
+if [ -z "$size_attr" ]; then
+  size_attr=$(wc product_attribute create --name="Количество" --slug=kolichestvo --type=select --order_by=menu_order --porcelain)
+  echo "  attribute Количество created"
+fi
+n=0
+for c in "20-br:20 бр." "50-br:50 бр." "100-br:100 бр." "200-br:200 бр."; do
+  slug=${c%%:*}; name=${c#*:}; n=$((n + 1))
+  term=$(wp term get pa_kolichestvo "$slug" --by=slug --field=term_id 2>/dev/null || true)
+  [ -n "$term" ] || { term=$(wc product_attribute_term create "$size_attr" --name="$name" --slug="$slug" --porcelain); wp term meta update "$term" order "$n" >/dev/null; }
+done
+if [ -z "$(wp option get reklamo_seeded_pkg_sizes 2>/dev/null || true)" ]; then
+  wp eval-file - <<'PHP'
+<?php
+$sizes = array( '20-br', '50-br', '100-br', '200-br' );
+$ids   = array();
+foreach ( $sizes as $slug ) {
+	$t = get_term_by( 'slug', $slug, 'pa_kolichestvo' );
+	if ( $t ) {
+		$ids[] = $t->term_id;
+	}
+}
+foreach ( array( 'RBP', 'OSP', 'EVP', 'PRP', 'TCP', 'GPP', 'WPP' ) as $sku ) {
+	$p = wc_get_product( wc_get_product_id_by_sku( $sku ) );
+	if ( ! $p || ! $p->is_type( 'variable' ) || isset( $p->get_attributes()['pa_kolichestvo'] ) ) {
+		continue;
+	}
+	$attrs = $p->get_attributes();
+	$a     = new WC_Product_Attribute();
+	$a->set_id( wc_attribute_taxonomy_id_by_name( 'pa_kolichestvo' ) );
+	$a->set_name( 'pa_kolichestvo' );
+	$a->set_options( $ids );
+	$a->set_position( count( $attrs ) );
+	$a->set_visible( true );
+	$a->set_variation( true );
+	$attrs['pa_kolichestvo'] = $a;
+	$p->set_attributes( $attrs );
+	$p->set_default_attributes( array_merge( $p->get_default_attributes(), array( 'pa_kolichestvo' => '20-br' ) ) );
+	$p->save();
+	foreach ( $p->get_children() as $child ) {
+		$v  = wc_get_product( $child );
+		$va = $v->get_attributes();
+		if ( ! empty( $va['pa_kolichestvo'] ) ) {
+			continue;
+		}
+		$va['pa_kolichestvo'] = '20-br';
+		$v->set_attributes( $va );
+		$v->save();
+		foreach ( array_slice( $sizes, 1 ) as $slug ) {
+			$n = new WC_Product_Variation();
+			$n->set_parent_id( $p->get_id() );
+			$n->set_attributes( array_merge( $va, array( 'pa_kolichestvo' => $slug ) ) );
+			$n->set_image_id( $v->get_image_id( 'edit' ) );
+			$n->set_manage_stock( false );
+			$gallery = $v->get_meta( '_reklamo_variation_gallery' );
+			if ( $gallery ) {
+				$n->update_meta_data( '_reklamo_variation_gallery', $gallery );
+			}
+			$n->save();
+		}
+	}
+	WC_Product_Variable::sync( $p->get_id() );
+	echo "  $sku: sizes 20 / 50 / 100 / 200\n";
+}
+update_option( 'reklamo_seeded_pkg_sizes', 1 );
+PHP
+fi
+set_product_image NB-001 packages/red-business-pack "Класически тефтер — червен, с лого"
+# Colour photos: the sample has pictures for red and black; green and blue fall back to the main photo.
+nb_id=$(product_id NB-001)
+if [ -n "$nb_id" ]; then
+  for pair in "cherven:Червен:packages/red-business-pack" "chern:Черен:packages/premium-pack"; do
+    slug=${pair%%:*}; rest=${pair#*:}; name=${rest%%:*}; img=${rest#*:}
+    vid=$(wp eval "foreach ( wc_get_product( $nb_id )->get_children() as \$c ) { if ( '$slug' === ( wc_get_product( \$c )->get_variation_attributes()['attribute_pa_cvyat'] ?? '' ) ) { echo \$c; break; } }")
+    [ -n "$vid" ] || continue
+    [ -n "$(wp post meta get "$vid" _thumbnail_id 2>/dev/null || true)" ] && continue
+    path=$(wp eval "\$p = get_theme_file_path( 'assets/img/$img.webp' ); echo file_exists( \$p ) ? \$p : '';")
+    [ -n "$path" ] || continue
+    att=$(wp media import "$path" --post_id="$nb_id" --title="Класически тефтер — $name" --alt="Класически тефтер — $name" --porcelain 2>/dev/null | tail -n1)
+    [ -n "$att" ] && wp post meta update "$vid" _thumbnail_id "$att" >/dev/null && echo "  Класически тефтер: $name photo set"
+  done
+fi
 opt woocommerce_default_catalog_orderby "menu_order"
 
 echo "→ flushing caches"

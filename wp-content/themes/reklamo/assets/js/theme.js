@@ -58,12 +58,14 @@
 
 	// Dropzone: show the chosen file, accept drag & drop.
 	document.querySelectorAll( '[data-rq-drop]' ).forEach( function ( drop ) {
-		var input = drop.querySelector( 'input[type="file"]' );
+		// The chunked uploader swaps the input for an empty clone after each upload: always look it up.
+		var current = function () { return drop.querySelector( 'input[type="file"]' ); };
 		var field = drop.closest( '.rq-field--file' );
 		var box = field ? field.querySelector( '[data-rq-file]' ) : null;
-		if ( ! input ) { return; }
+		if ( ! current() ) { return; }
 
 		function show() {
+			var input = current();
 			var f = input.files && input.files[ 0 ];
 			if ( ! box ) { return; }
 			if ( ! f ) { box.hidden = true; return; }
@@ -73,7 +75,7 @@
 			box.querySelector( '[data-rq-file-name]' ).textContent = f.name;
 			box.querySelector( '[data-rq-file-size]' ).textContent = formatSize( f.size );
 		}
-		input.addEventListener( 'change', show );
+		drop.addEventListener( 'change', function ( e ) { if ( e.target === current() && current().files.length ) { show(); } } );
 
 		[ 'dragenter', 'dragover' ].forEach( function ( ev ) {
 			drop.addEventListener( ev, function ( e ) { e.preventDefault(); drop.classList.add( 'is-dragover' ); } );
@@ -83,8 +85,8 @@
 		} );
 		drop.addEventListener( 'drop', function ( e ) {
 			if ( e.dataTransfer && e.dataTransfer.files.length ) {
+				var input = current();
 				input.files = e.dataTransfer.files;
-				show();
 				// Assigning .files fires no event; the chunked uploader listens for `change`.
 				input.dispatchEvent( new Event( 'change', { bubbles: true } ) );
 			}

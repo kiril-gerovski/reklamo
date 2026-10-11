@@ -15,7 +15,7 @@ class Reklamo_Email_Admin_Approved extends Reklamo_Email {
 		$this->id             = 'reklamo_admin_approved';
 		$this->customer_email = false;
 		$this->title          = __( 'Mockup approved — admin (Reklamo)', 'reklamo-core' );
-		$this->description    = __( 'Sent to the shop when a customer approves a mockup: watch the bank account for the deposit.', 'reklamo-core' );
+		$this->description    = __( 'Sent to the shop once the customer has approved every mockup of an order: watch the bank account for the deposit.', 'reklamo-core' );
 		add_action( 'woocommerce_order_status_' . Reklamo_Statuses::APPROVED . '_notification', array( $this, 'trigger' ), 10, 2 );
 		parent::__construct();
 	}
@@ -37,11 +37,11 @@ class Reklamo_Email_Admin_Approved extends Reklamo_Email {
 	}
 
 	public function get_default_heading() {
-		return __( 'The customer approved the mockup', 'reklamo-core' );
+		return __( 'The customer approved every mockup', 'reklamo-core' );
 	}
 
 	public function get_default_intro_text(): string {
-		return __( 'Order {order_number}: mockup #{revision} was approved. The customer has been asked for a {deposit_pct}% deposit of {deposit_amount} and for their invoice and delivery details. When the transfer arrives, mark it in the order.', 'reklamo-core' );
+		return __( 'Order {order_number}: every mockup was approved. The customer has been asked for a {deposit_pct}% deposit of {deposit_amount} and for their invoice and delivery details. When the transfer arrives, mark it in the order.', 'reklamo-core' );
 	}
 
 	public function get_default_button_label(): string {
@@ -55,9 +55,8 @@ class Reklamo_Email_Admin_Approved extends Reklamo_Email {
 		}
 		if ( $order instanceof WC_Order ) {
 			$this->prepare( $order );
-			$this->recipient                  = $this->get_option( 'recipient', get_option( 'woocommerce_email_from_address', get_option( 'admin_email' ) ) );
-			$this->button_url                 = $order->get_edit_order_url();
-			$this->placeholders['{revision}'] = (string) $order->get_meta( '_reklamo_approved_revision' );
+			$this->recipient  = $this->get_option( 'recipient', get_option( 'woocommerce_email_from_address', get_option( 'admin_email' ) ) );
+			$this->button_url = $order->get_edit_order_url();
 			$this->dispatch();
 		}
 		$this->restore_locale();

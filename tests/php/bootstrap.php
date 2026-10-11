@@ -11,5 +11,6 @@ require $plugin . 'class-reklamo-filetypes.php';
 require $plugin . 'class-reklamo-svg.php';
 require $plugin . 'class-reklamo-statuses.php';
 require $plugin . 'class-reklamo-progress.php';
+require $plugin . 'class-reklamo-items.php'; // order_status_for() is pure; the rest needs WooCommerce.
 require $plugin . 'class-reklamo-email-check.php';
 require $plugin . 'class-reklamo-privacy.php'; // mask_ips() and the constants are pure; init() is never called here. // domain() is pure; has_mail_host() needs WordPress and is not unit-tested. // can_transition() and TRANSITIONS are pure; nothing runs at load.

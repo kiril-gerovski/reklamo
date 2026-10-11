@@ -180,8 +180,8 @@ final class Reklamo_Tracking {
 
 	/**
 	 * The three things a customer can do from here, each a nonce-protected POST:
-	 *  approve / changes — decide on the pending mockup (same code path as the emailed link;
-	 *                      that link is consumed so it cannot decide a second time),
+	 *  approve / changes — decide on one product's pending mockup (same code path as the
+	 *                      emailed link; that link is consumed so it cannot decide a second time),
 	 *  details           — get a fresh link to the invoice/delivery form (a POST, because it
 	 *                      supersedes the emailed one and a GET must never change anything).
 	 */
@@ -199,34 +199,35 @@ final class Reklamo_Tracking {
 				wp_safe_redirect( add_query_arg( 'msg', 'none', $back ) );
 				exit;
 			}
-			wp_safe_redirect( Reklamo_Approval::issue( $order, 0, (int) $order->get_meta( '_reklamo_approved_revision' ), 'details' ) );
+			wp_safe_redirect( Reklamo_Approval::issue( $order, 0, 0, 'details' ) );
 			exit;
 		}
 
-		if ( ! in_array( $action, array( 'approve', 'changes' ), true ) || ! $order->has_status( Reklamo_Statuses::MOCKUP_SENT ) ) {
+		$item_id  = isset( $_POST['item'] ) ? absint( $_POST['item'] ) : 0;
+		$revision = isset( $_POST['rev'] ) ? absint( $_POST['rev'] ) : 0;
+		$item     = Reklamo_Items::item( $order, $item_id );
+		$file     = Reklamo_Items::mockup( $order->get_id(), $item_id, $revision );
+		if ( ! in_array( $action, array( 'approve', 'changes' ), true ) || ! $file || ! Reklamo_Approval::awaits_decision( $order, $item, $revision ) ) {
 			wp_safe_redirect( add_query_arg( 'msg', 'none', $back ) );
 			exit;
 		}
 		if ( 'changes' === $action && '' === trim( $message ) ) {
-			wp_safe_redirect( add_query_arg( 'msg', 'message', $back ) );
-			exit;
-		}
-		$revision = Reklamo_Approval::latest_revision( $order->get_id() );
-		$file     = null;
-		foreach ( Reklamo_Storage::for_order( $order->get_id(), 'mockup' ) as $m ) {
-			if ( (int) $m->revision === $revision ) {
-				$file = $m;
-			}
-		}
-		if ( ! $file ) {
-			wp_safe_redirect( add_query_arg( 'msg', 'none', $back ) );
+			wp_safe_redirect(
+				add_query_arg(
+					array(
+						'msg'  => 'message',
+						'item' => $item_id,
+					),
+					$back
+				) . '#item-' . $item_id
+			);
 			exit;
 		}
 		// Single decision per revision: consuming the emailed token is the atomic gate when one
-		// is live; without one (expired), the status check above is what we have.
-		Reklamo_Approval::consume_approval_tokens( $order->get_id(), $revision, $action );
-		$details_url = Reklamo_Approval::decide( $order, $revision, (int) $file->id, $action, $message );
-		wp_safe_redirect( 'approve' === $action ? $details_url : add_query_arg( 'msg', 'changes', $back ) );
+		// is live; without one (expired), the state check above is what we have.
+		Reklamo_Approval::consume_approval_tokens( $order->get_id(), $item_id, $revision, $action );
+		$details_url = Reklamo_Approval::decide( $order, $item_id, $revision, (int) $file->id, $action, $message );
+		wp_safe_redirect( '' !== $details_url ? $details_url : add_query_arg( 'msg', 'approve' === $action ? 'approved' : 'changes', $back ) );
 		exit;
 	}
 
@@ -246,35 +247,47 @@ final class Reklamo_Tracking {
 			$items[] = $item->get_name() . ( $item->get_quantity() > 1 ? ' × ' . (int) $item->get_quantity() : '' );
 		}
 
-		// Mockup revisions with their outcome (from the approval tokens) and the customer's comments.
+		// Each product's mockup revisions with their outcome (from the approval tokens) and the customer's comments.
 		$outcomes = array();
 		foreach ( Reklamo_Approval::for_order( $order->get_id() ) as $t ) {
-			if ( 'approval' === $t->purpose && $t->used_at && ! isset( $outcomes[ (int) $t->revision ] ) ) {
-				$outcomes[ (int) $t->revision ] = $t;
+			$key = Reklamo_Approval::token_item_id( $t ) . ':' . (int) $t->revision;
+			if ( 'approval' === $t->purpose && $t->used_at && ! isset( $outcomes[ $key ] ) ) {
+				$outcomes[ $key ] = $t;
 			}
 		}
-		$comments = (array) $order->get_meta( '_reklamo_change_requests' );
-		$mockups  = array();
-		foreach ( array_reverse( Reklamo_Storage::for_order( $order->get_id(), 'mockup' ) ) as $m ) {
-			$rev       = (int) $m->revision;
-			$t         = $outcomes[ $rev ] ?? null;
-			$mockups[] = array(
-				'revision' => $rev,
-				'file'     => $m,
-				'date'     => $date( (string) $m->created_at ),
-				'outcome'  => $t ? (string) $t->used_action : '',
-				'decided'  => $t ? $date( (string) $t->used_at ) : '',
-				'comment'  => (string) ( $comments[ $rev ] ?? '' ),
-				'gone'     => '' === (string) $m->path,
-				'is_image' => in_array( $m->ext, array( 'png', 'jpg', 'jpeg' ), true ),
+		$comments = Reklamo_Items::change_requests( $order );
+		$products = array();
+		foreach ( Reklamo_Items::products( $order ) as $item_id => $item ) {
+			$state   = Reklamo_Items::state( $item );
+			$mockups = array();
+			foreach ( array_reverse( Reklamo_Items::mockups( $order->get_id(), $item_id ) ) as $m ) {
+				$rev       = (int) $m->revision;
+				$t         = $outcomes[ $item_id . ':' . $rev ] ?? null;
+				$mockups[] = array(
+					'revision' => $rev,
+					'file'     => $m,
+					'date'     => $date( (string) $m->created_at ),
+					'outcome'  => $t ? (string) $t->used_action : '',
+					'decided'  => $t ? $date( (string) $t->used_at ) : '',
+					'comment'  => (string) ( $comments[ $item_id ][ $rev ] ?? '' ),
+					'gone'     => '' === (string) $m->path,
+					'is_image' => in_array( $m->ext, array( 'png', 'jpg', 'jpeg' ), true ),
+				);
+			}
+			$revision   = Reklamo_Items::revision( $item );
+			$products[] = array(
+				'id'       => $item_id,
+				'name'     => $item->get_name(),
+				'qty'      => (int) $item->get_quantity(),
+				'state'    => $state,
+				'revision' => $revision,
+				'note'     => Reklamo_Items::note( $item ),
+				'logo'     => Reklamo_Items::logo( $item ),
+				'mockups'  => $mockups,
+				// The mockup awaiting a decision, shown with its buttons.
+				'pending'  => Reklamo_Items::SENT === $state && $mockups && $mockups[0]['revision'] === $revision ? $mockups[0] : null,
+				'comment'  => Reklamo_Items::CHANGES === $state ? (string) ( $comments[ $item_id ][ $revision ] ?? '' ) : '',
 			);
-		}
-
-		$logos = Reklamo_Storage::for_order( $order->get_id(), 'logo' ); // one per line item on the cart path
-
-		$pending = null; // the mockup awaiting a decision, shown with its buttons
-		if ( $order->has_status( Reklamo_Statuses::MOCKUP_SENT ) && $mockups ) {
-			$pending = $mockups[0];
 		}
 
 		$step_labels = array(
@@ -297,11 +310,8 @@ final class Reklamo_Tracking {
 			'items'        => $items,
 			'created'      => $order->get_date_created() ? wc_format_datetime( $order->get_date_created(), 'd.m.Y' ) : '',
 			'completed_on' => $order->get_date_completed() ? wc_format_datetime( $order->get_date_completed(), 'd.m.Y' ) : '',
-			'mockups'      => $mockups,
-			'logos'        => $logos,
-			'pending'      => $pending,
-			'pending_rev'  => Reklamo_Approval::latest_revision( $order->get_id() ),
-			'last_comment' => (string) $order->get_meta( '_reklamo_last_change_request' ),
+			'products'     => $products,
+			'counts'       => Reklamo_Items::counts( $order ),
 			'total'        => $price( $total ),
 			'deposit'      => $deposit > 0 ? $price( $deposit ) : '',
 			'deposit_paid' => $date( (string) $order->get_meta( '_reklamo_deposit_paid_at' ) ),

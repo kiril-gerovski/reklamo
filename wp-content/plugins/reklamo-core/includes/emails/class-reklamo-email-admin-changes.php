@@ -1,6 +1,8 @@
 <?php
 /**
- * Admin: the customer asked for changes to the mockup.
+ * Admin: the customer asked for changes to one product's mockup. Sent directly from the
+ * decision rather than on the status change: the order is already "changes requested"
+ * when a second product gets a change request.
  *
  * @package Reklamo
  */
@@ -14,8 +16,10 @@ class Reklamo_Email_Admin_Changes extends Reklamo_Email {
 		$this->customer_email = false;
 		$this->title          = __( 'Changes requested — admin (Reklamo)', 'reklamo-core' );
 		$this->description    = __( 'Sent to the shop when a customer requests changes to a mockup.', 'reklamo-core' );
-		$this->placeholders   = array( '{change_request}' => '' );
-		add_action( 'woocommerce_order_status_' . Reklamo_Statuses::CHANGES . '_notification', array( $this, 'trigger' ), 10, 2 );
+		$this->placeholders   = array(
+			'{change_request}' => '',
+			'{product}'        => '',
+		);
 		parent::__construct();
 	}
 
@@ -40,10 +44,17 @@ class Reklamo_Email_Admin_Changes extends Reklamo_Email {
 	}
 
 	public function get_default_intro_text(): string {
-		return __( 'Order {order_number}: the customer asked for changes to mockup #{revision}. Their message: {change_request}', 'reklamo-core' );
+		return __( 'Order {order_number}: the customer asked for changes to mockup #{revision} of {product}. Their message: {change_request}', 'reklamo-core' );
 	}
 
-	public function trigger( $order_id, $order = false ) {
+	/**
+	 * @param int            $order_id Order ID.
+	 * @param WC_Order|false $order    Order.
+	 * @param string         $product  Product name.
+	 * @param int            $revision Mockup revision.
+	 * @param string         $message  The customer's request.
+	 */
+	public function trigger( $order_id, $order = false, string $product = '', int $revision = 0, string $message = '' ) {
 		$this->setup_locale();
 		if ( $order_id && ! $order instanceof WC_Order ) {
 			$order = wc_get_order( $order_id );
@@ -51,8 +62,9 @@ class Reklamo_Email_Admin_Changes extends Reklamo_Email {
 		if ( $order instanceof WC_Order ) {
 			$this->prepare( $order );
 			$this->recipient                        = $this->get_option( 'recipient', get_option( 'woocommerce_email_from_address', get_option( 'admin_email' ) ) );
-			$this->placeholders['{revision}']       = (string) Reklamo_Approval::latest_revision( $order->get_id() );
-			$this->placeholders['{change_request}'] = (string) $order->get_meta( '_reklamo_last_change_request' );
+			$this->placeholders['{revision}']       = (string) $revision;
+			$this->placeholders['{product}']        = $product;
+			$this->placeholders['{change_request}'] = $message;
 			$this->dispatch();
 		}
 		$this->restore_locale();

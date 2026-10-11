@@ -85,6 +85,15 @@ defined( 'ABSPATH' ) || exit;
 	.rev img { width: 96px; height: 72px; object-fit: cover; border: 1px solid #e8e2d6; border-radius: 4px; transition: transform .25s ease, box-shadow .25s; }
 	.rev .thumb { width: 96px; height: 72px; display: grid; place-items: center; background: #faf8f4; border: 1px solid #e8e2d6; border-radius: 4px; color: #9a7020; font-weight: 600; font-size: .75rem; }
 	.rev p { margin: .15rem 0; }
+	.product { padding: 1rem 0 .25rem; border-top: 1px solid #e8e2d6; }
+	.product:target { animation: fade-up .25s ease-out; }
+	.product__head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: .5rem; }
+	.product h4 { margin: 0; font: 600 1rem/1.3 inherit; }
+	.product .preview { margin: 1rem 0 0; }
+	.product form { margin-bottom: .75rem; }
+	.pill { display: inline-block; padding: .25rem .6rem; border-radius: 999px; background: #f3ead6; color: #9a7020; font-size: .75rem; font-weight: 600; }
+	.pill.now { background: #b8892b; color: #fff; }
+	.pill.done { background: #eef7ef; color: #2f7a3b; }
 	.kv { display: grid; grid-template-columns: max-content 1fr; gap: .35rem 1.25rem; margin: .5rem 0; font-size: .9375rem; }
 	.kv dt { color: #555; }
 	.kv dd { margin: 0; }
