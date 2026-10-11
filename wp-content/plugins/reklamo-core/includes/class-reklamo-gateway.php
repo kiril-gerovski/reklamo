@@ -34,7 +34,7 @@ class Reklamo_Gateway extends WC_Payment_Gateway {
 		$this->has_fields   = false;
 		$this->method_title = __( 'Request without payment (Reklamo)', 'reklamo-core' );
 		/* translators: %s: deposit percentage */
-		$this->method_description = sprintf( __( 'The order is accepted without payment. Bank details and a %s%% deposit request are sent after the customer approves the mockup.', 'reklamo-core' ), Reklamo_Settings::get( 'deposit_pct', '50' ) );
+		$this->method_description = sprintf( __( 'The order is accepted without payment. Bank details and a %s%% deposit request are sent after the customer approves the mockup.', 'reklamo-core' ), Reklamo_Settings::get( 'deposit_pct', '100' ) );
 		$this->supports           = array( 'products' );
 
 		$this->init_form_fields();

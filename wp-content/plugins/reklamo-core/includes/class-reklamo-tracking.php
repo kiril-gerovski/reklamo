@@ -276,17 +276,18 @@ final class Reklamo_Tracking {
 			}
 			$revision   = Reklamo_Items::revision( $item );
 			$products[] = array(
-				'id'       => $item_id,
-				'name'     => $item->get_name(),
-				'qty'      => (int) $item->get_quantity(),
-				'state'    => $state,
-				'revision' => $revision,
-				'note'     => Reklamo_Items::note( $item ),
-				'logo'     => Reklamo_Items::logo( $item ),
-				'mockups'  => $mockups,
+				'id'          => $item_id,
+				'name'        => $item->get_name(),
+				'qty'         => (int) $item->get_quantity(),
+				'state'       => $state,
+				'revision'    => $revision,
+				'note'        => Reklamo_Items::note( $item ),
+				'logo'        => Reklamo_Items::logo( $item ),
+				'mockups'     => $mockups,
 				// The mockup awaiting a decision, shown with its buttons.
-				'pending'  => Reklamo_Items::SENT === $state && $mockups && $mockups[0]['revision'] === $revision ? $mockups[0] : null,
-				'comment'  => Reklamo_Items::CHANGES === $state ? (string) ( $comments[ $item_id ][ $revision ] ?? '' ) : '',
+				'pending'     => Reklamo_Items::SENT === $state && $mockups && $mockups[0]['revision'] === $revision ? $mockups[0] : null,
+				'comment'     => Reklamo_Items::CHANGES === $state ? (string) ( $comments[ $item_id ][ $revision ] ?? '' ) : '',
+				'corrections' => Reklamo_Items::corrections( $item ),
 			);
 		}
 
@@ -315,7 +316,7 @@ final class Reklamo_Tracking {
 			'total'        => $price( $total ),
 			'deposit'      => $deposit > 0 ? $price( $deposit ) : '',
 			'deposit_paid' => $date( (string) $order->get_meta( '_reklamo_deposit_paid_at' ) ),
-			'balance'      => $deposit > 0 ? $price( Reklamo_Money::balance( $total, $deposit ) ) : '',
+			'balance'      => $deposit > 0 && Reklamo_Money::balance( $total, $deposit ) > 0 ? $price( Reklamo_Money::balance( $total, $deposit ) ) : '',
 			'final_paid'   => $date( (string) $order->get_meta( '_reklamo_final_paid_at' ) ),
 			'bank'         => Reklamo_Settings::bank_details_html( sprintf( /* translators: %s: order number */ __( 'Order %s', 'reklamo-core' ), $order->get_order_number() ) ),
 			'details'      => Reklamo_Approval::details( $order ),

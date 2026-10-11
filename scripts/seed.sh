@@ -22,6 +22,19 @@ opt_default() {
   [ -n "$(wp option get "$1" 2>/dev/null || true)" ] && return 0
   wp option update "$1" "$2" "${@:3}" >/dev/null 2>&1 || echo "  ! could not set $1"
 }
+# Owner content whose earlier seed value was a sample: replaced only while it is missing, empty or
+# still exactly one of those samples, so a value the owner typed is never overwritten.
+opt_replace() { # key new-value earlier-sample...
+  local key=$1 new=$2 cur old; shift 2
+  cur=$(wp option get "$key" 2>/dev/null || true)
+  [ "$cur" = "$new" ] && return 0
+  for old in "" "$@"; do
+    if [ "$cur" = "$old" ]; then
+      wp option update "$key" "$new" >/dev/null 2>&1 || echo "  ! could not set $key"
+      return 0
+    fi
+  done
+}
 
 echo "→ general settings"
 opt blogname "$WP_TITLE"
@@ -47,7 +60,7 @@ wp rewrite structure '/%postname%/' >/dev/null
 wp rewrite flush --hard >/dev/null 2>&1 || wp rewrite flush >/dev/null
 
 echo "→ WooCommerce store settings"
-opt_default woocommerce_store_address "ул. Примерна 1"
+opt_replace woocommerce_store_address "ул. Хризантема 15, ет. 2, ап. 8" "ул. Примерна 1"
 opt_default woocommerce_store_city "София"
 opt_default woocommerce_store_postcode "1000"
 opt woocommerce_default_country "BG"
@@ -132,16 +145,22 @@ echo "  HPOS enabled: " . ( Automattic\WooCommerce\Utilities\OrderUtil::custom_o
 echo "→ company & process settings (WooCommerce → Settings → Reklamo)"
 opt_default reklamo_company_name "Reklamo.bg"
 opt_default reklamo_tagline "Промоционални пакети и брандирани продукти за твоя бизнес. Ясни цени, качествено изпълнение и персонално обслужване."
-opt_default reklamo_phone "+359 88 123 4567"
+opt_replace reklamo_phone "+359 894 65 58 58" "+359 88 123 4567"
 opt_default reklamo_email "office@reklamo.bg"
-opt_default reklamo_address "София, България"
-opt_default reklamo_facebook "https://facebook.com/"
+opt_replace reklamo_address "София, ул. Източна тангента 96" "София, България"
+opt_default reklamo_hours "10:00 – 17:00"
+opt_replace reklamo_facebook "" "https://facebook.com/"
 opt_default reklamo_instagram "https://www.instagram.com/reklamo.bg/"
 # Replaces the earlier seed placeholder only, so an owner's own link is never touched.
 [ "$(wp option get reklamo_instagram 2>/dev/null || true)" = "https://instagram.com/" ] && opt reklamo_instagram "https://www.instagram.com/reklamo.bg/"
-opt_default reklamo_linkedin "https://linkedin.com/"
+opt_replace reklamo_linkedin "" "https://linkedin.com/"
 opt_default reklamo_mockup_deadline 24
-opt_default reklamo_deposit_pct 50
+# Payment is 100% before production; 50 was the earlier default.
+opt_replace reklamo_deposit_pct 100 50
+opt_default reklamo_free_corrections 2
+opt_default reklamo_correction_fee 15
+opt_default reklamo_production_days "5–10"
+opt_default reklamo_free_shipping 400
 opt_default reklamo_note_max 300
 
 echo "→ tax rate (BG 20% standard)"
@@ -149,19 +168,26 @@ if [ "$(wc tax list --format=count 2>/dev/null || echo 0)" = "0" ]; then
   wc tax create --country=BG --rate=20 --name="ДДС" --class=standard --shipping=true >/dev/null && echo "  created BG 20%"
 fi
 
-echo "→ bank details (WooCommerce → Settings → Reklamo → Bank details) — placeholders, owner fills the real ones"
-opt_default reklamo_bank_name "УниКредит Булбанк"
-opt_default reklamo_iban "BG00UNCR00000000000000"
+echo "→ bank details (WooCommerce → Settings → Reklamo → Bank details)"
+opt_replace reklamo_bank_name "УниКредит Булбанк АД" "УниКредит Булбанк"
+opt_replace reklamo_iban "BG36UNCR70001523203323" "BG00UNCR00000000000000"
 opt_default reklamo_bic "UNCRBGSF"
-opt_default reklamo_account_holder "Рекламо ЕООД"
+opt_replace reklamo_account_holder "ДИ АР ТИ ЕООД" "Рекламо ЕООД"
 opt_default reklamo_reminder_days "3,7,14"
 opt_default reklamo_stale_days 7
 opt_default reklamo_max_upload_mb 300
 opt_default reklamo_retention_months 12
 
-echo "→ legal & privacy (WooCommerce → Settings → Reklamo → Legal & privacy) — ЕИК, ДДС № and address are the owner's to fill"
+echo "→ legal & privacy (WooCommerce → Settings → Reklamo → Legal & privacy)"
+opt_default reklamo_legal_name "ДИ АР ТИ ЕООД"
+opt_default reklamo_eik "205018634"
+opt_default reklamo_vat "BG205018634"
+opt_default reklamo_legal_address "гр. София 1000, р-н Красно село, ул. Хризантема 15, ет. 2, ап. 8"
+opt_default reklamo_manager "Бойка Николаева Заркова"
+opt_default reklamo_privacy_email "privacy@reklamo.bg"
 opt_default reklamo_anonymize_months 36
-opt_default reklamo_legal_version "2026-09"
+# The terms and privacy texts changed in 2026-10; a version the owner set themselves stays.
+opt_replace reklamo_legal_version "2026-10" "2026-09"
 
 echo "→ payment gateways"
 # Our no-payment gateway is the only one enabled. Title/description are site content (Bulgarian).
@@ -221,8 +247,22 @@ fill_if_placeholder() { # slug placeholder content
   cur=$(wp post get "$id" --field=post_content)
   if [ -z "$cur" ] || [ "$cur" = "$2" ]; then wp post update "$id" --post_content="$3" >/dev/null && echo "  $1 filled from template"; fi
 }
+# Replaces a page's text only while it is empty or still holds one of the earlier seed texts
+# (compared without whitespace, which WordPress may reflow) — an owner's edit is never touched.
+refresh_if_seeded() { # slug new-content earlier-seed-content...
+  local slug=$1 new=$2 id cur old; shift 2
+  id=$(page_id "$slug"); [ -n "$id" ] || return 0
+  cur=$(wp post get "$id" --field=post_content | tr -d '[:space:]')
+  [ "$cur" = "$(printf '%s' "$new" | tr -d '[:space:]')" ] && return 0
+  for old in "" "$@"; do
+    if [ "$cur" = "$(printf '%s' "$old" | tr -d '[:space:]')" ]; then
+      wp post update "$id" --post_content="$new" >/dev/null && echo "  $slug: text updated"
+      return 0
+    fi
+  done
+}
 # "How it works": the six homepage steps, each explained in detail (deposit % and file limits mirror the seeded settings above).
-fill_if_empty kak-raboti "$(cat <<'HTML'
+kak_old=$(cat <<'HTML'
 <!-- wp:shortcode -->
 [reklamo_steps section="1"]
 <!-- /wp:shortcode -->
@@ -286,12 +326,99 @@ fill_if_empty kak-raboti "$(cat <<'HTML'
 <p>Пиши ни или се обади — данните са в <a href="/kontakti/">Контакти</a>. Посочи номера на поръчката и ще ти отговорим бързо. Подробности за сроковете има в <a href="/dostavka-i-srokove/">Доставка и срокове</a>, а за начина на плащане — в <a href="/plashtane/">Плащане</a>.</p>
 <!-- /wp:paragraph -->
 HTML
-)"
-fill_if_empty za-biznesa "<!-- wp:paragraph --><p>Брандирани продукти за екипи, събития и клиенти — с фиксирани количества и ясни цени.</p><!-- /wp:paragraph -->"
-fill_if_empty kontakti "<!-- wp:paragraph --><p>Пишете ни на office@reklamo.bg или се обадете на +359 88 123 4567.</p><!-- /wp:paragraph -->"
+)
+kak_new=$(cat <<'HTML'
+<!-- wp:shortcode -->
+[reklamo_steps section="1"]
+<!-- /wp:shortcode -->
+
+<!-- wp:paragraph {"className":"lead"} -->
+<p class="lead">Добавяш пакетите в количката, качваш логото си и получаваш визуализация до [reklamo_value key="mockup_deadline"] работни часа. След одобрение плащаш поръчката по банков път, произвеждаме и доставяме. Ето какво се случва на всяка стъпка.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"anchor":"stapka-1"} -->
+<h2 class="wp-block-heading" id="stapka-1">1. Избираш пакет</h2>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Всеки промо пакет е с фиксирано съдържание, количество и цена с ДДС — това, което виждаш на страницата, е стойността на пакета. Подготовката на файловете и брандирането с едно лого са включени. Добавяш в количката толкова пакети, колкото искаш. Ако пакетите не отговарят на нуждите ти, пиши ни и ще предложим вариант.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"anchor":"stapka-2"} -->
+<h2 class="wp-block-heading" id="stapka-2">2. Качваш логото</h2>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>В количката качваш логото и пишеш бележка към дизайнера (цвят, разположение, размер) за всеки продукт — едно лого може да е за няколко продукта. Препоръчваме векторни файлове AI, EPS, SVG или PDF; приемаме и PSD, CDR, PNG и JPG до [reklamo_value key="max_upload_mb"] MB, като проверяваме дали качеството им е подходящо за печат. После оставяш име, имейл и телефон.</p>
+<!-- /wp:paragraph -->
+<!-- wp:paragraph -->
+<p>На този етап не се извършва плащане и не се създава акаунт. Веднага след изпращането получаваш имейл с връзка към <strong>страницата на твоята поръчка</strong> — там следиш напредъка, виждаш визуализациите и плащането. Запази този имейл: връзката е твоят достъп до поръчката.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"anchor":"stapka-3"} -->
+<h2 class="wp-block-heading" id="stapka-3">3. Получаваш визуализация</h2>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Наш дизайнер подготвя визуализация на всеки продукт с твоето лого — обикновено до [reklamo_value key="mockup_deadline"] работни часа. Когато е готова, получаваш имейл, а визуализацията се появява и на страницата на поръчката. Визуализацията е ориентировъчна: възможни са минимални разлики в цветовете, размера и позиционирането на логото според материала и технологията за печат.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"anchor":"stapka-4"} -->
+<h2 class="wp-block-heading" id="stapka-4">4. Одобряваш визията</h2>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Разглеждаш визуализацията и решаваш направо от страницата на поръчката: <strong>„Одобрявам“</strong> или <strong>„Искам промени“</strong> с описание какво да се коригира — за всеки продукт поотделно. Включени са първоначалната визуализация и до [reklamo_value key="free_corrections"] безплатни корекции; всяка следваща корекция е [reklamo_value key="correction_fee"] € и се договаря предварително. Грешки, допуснати от нас, поправяме безплатно и те не се броят. Всички версии остават видими на страницата на поръчката, заедно с твоите коментари.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"anchor":"stapka-5"} -->
+<h2 class="wp-block-heading" id="stapka-5">5. Плащаш поръчката</h2>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>След като одобриш визуализациите на всички продукти, получаваш потвърждение на поръчката, сумата за плащане и банковите ни данни. За стартиране на производството е необходимо плащане в пълен размер на стойността на поръчката по банков път; номерът на поръчката е основанието за превода. На същата страница попълваш данните за фактура (фирма с ЕИК и МОЛ или частно лице) и адреса за доставка; можеш да ги коригираш, докато плащането бъде потвърдено.</p>
+<!-- /wp:paragraph -->
+<!-- wp:paragraph -->
+<p>Потвърждаваме превода ръчно в работни дни и те уведомяваме по имейл. От този момент поръчката влиза в производство — стандартният срок е [reklamo_value key="production_days"] работни дни. Ако след одобрението поискаш нова визуализация, сумата за плащане и данните се нулират и стъпката започва отначало.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"anchor":"stapka-6"} -->
+<h2 class="wp-block-heading" id="stapka-6">6. Получаваш поръчката</h2>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Когато продуктите са готови, изпращаме поръчката със Спиди, Еконт или при възможност BoxNow и Pigeon до адреса от данните за доставка и ти изпращаме информация за проследяване. При поръчка над [reklamo_value key="free_shipping"] € доставката е безплатна; под тази сума е за сметка на получателя по тарифите на куриера. Страницата на поръчката остава достъпна и след това — като архив на визуализациите и плащането.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Имаш въпрос по време на поръчката?</h2>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Пиши ни или се обади — данните са в <a href="/kontakti/">Контакти</a>. Посочи номера на поръчката и ще ти отговорим бързо. Подробности за сроковете има в <a href="/dostavka-i-srokove/">Доставка и срокове</a>, а за начина на плащане — в <a href="/plashtane/">Плащане</a>.</p>
+<!-- /wp:paragraph -->
+HTML
+)
+fill_if_empty kak-raboti "$kak_new"
+refresh_if_seeded kak-raboti "$kak_new" "$kak_old"
+biz_new=$(cat <<'HTML'
+<!-- wp:paragraph {"className":"lead"} -->
+<p class="lead">От визитката, която оставяте след среща, до рекламния подарък, който остава при клиента — REKLAMO.BG Ви помага да представите бизнеса си професионално и запомнящо се.</p>
+<!-- /wp:paragraph -->
+HTML
+)
+refresh_if_seeded za-biznesa "$biz_new" '<!-- wp:paragraph --><p>Брандирани продукти за екипи, събития и клиенти — с фиксирани количества и ясни цени.</p><!-- /wp:paragraph -->'
+kont_new=$(cat <<'HTML'
+<!-- wp:list -->
+<ul class="wp-block-list">
+<li><strong>Телефон:</strong> [reklamo_value key="phone"]</li>
+<li><strong>Имейл:</strong> [reklamo_value key="email"]</li>
+<li><strong>Адрес:</strong> [reklamo_value key="address"]</li>
+<li><strong>Работно време:</strong> [reklamo_value key="hours"]</li>
+</ul>
+<!-- /wp:list -->
+<!-- wp:paragraph -->
+<p>Пишете ни или се обадете — при въпрос по поръчка посочете нейния номер. За лични данни и изтриване на качени лога: [reklamo_value key="privacy_email"].</p>
+<!-- /wp:paragraph -->
+HTML
+)
+refresh_if_seeded kontakti "$kont_new" '<!-- wp:paragraph --><p>Пишете ни на office@reklamo.bg или се обадете на +359 88 123 4567.</p><!-- /wp:paragraph -->'
 # Delivery: one <h3> per stage and its text under it — the theme shows them as cards on this page
 # and in the homepage band. Numbers come from the settings.
-fill_if_placeholder dostavka-i-srokove "<!-- wp:paragraph --><p>Производство и доставка в договорени срокове след получаване на аванса.</p><!-- /wp:paragraph -->" "$(cat <<'HTML'
+dost_old=$(cat <<'HTML'
 <!-- wp:heading {"level":3} -->
 <h3 class="wp-block-heading">Визуализация до [reklamo_value key="mockup_deadline"] работни часа</h3>
 <!-- /wp:heading -->
@@ -317,8 +444,55 @@ fill_if_placeholder dostavka-i-srokove "<!-- wp:paragraph --><p>Производ
 <p>Остатъкът се плаща по банков път, когато продуктите са готови. Поръчката тръгва веднага щом преводът постъпи, а фактурата се издава по Вашите данни.</p>
 <!-- /wp:paragraph -->
 HTML
-)"
-fill_if_empty plashtane "<!-- wp:paragraph --><p>Плащане само по банков път: 50% аванс след одобрение на визуализацията, остатък преди доставка.</p><!-- /wp:paragraph -->"
+)
+dost_new=$(cat <<'HTML'
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Производство за [reklamo_value key="production_days"] работни дни</h3>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Всеки персонализиран продукт се изработва специално за Вас, след одобрение на окончателната визуализация и получаване на плащането. Срокът започва от момента на плащането и не включва времето за доставка. При по-големи количества, нестандартни продукти или специфични изисквания срокът се уточнява индивидуално преди потвърждаване на поръчката.</p>
+<!-- /wp:paragraph -->
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Спиди, Еконт, BoxNow и Pigeon</h3>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Доставките на територията на България се извършват чрез Спиди, Еконт и при възможност BoxNow и Pigeon. Можете да изберете предпочитан куриер и доставка до офис или адрес, когато съответната услуга е налична.</p>
+<!-- /wp:paragraph -->
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Безплатна доставка над [reklamo_value key="free_shipping"] €</h3>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>При поръчка над [reklamo_value key="free_shipping"] € доставката е безплатна. Под тази сума цената на доставката е за сметка на получателя по тарифите на избрания куриер.</p>
+<!-- /wp:paragraph -->
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Проследяване и доставка извън България</h3>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>След изпращане на поръчката ще получите информация за проследяване на пратката. За доставки извън България се изготвя индивидуална оферта след предварително запитване.</p>
+<!-- /wp:paragraph -->
+HTML
+)
+refresh_if_seeded dostavka-i-srokove "$dost_new" '<!-- wp:paragraph --><p>Производство и доставка в договорени срокове след получаване на аванса.</p><!-- /wp:paragraph -->' "$dost_old"
+pl_new=$(cat <<'HTML'
+<!-- wp:paragraph -->
+<p>След като одобрите визуализацията на избраните продукти, ще получите потвърждение на поръчката и документ за плащане.</p>
+<!-- /wp:paragraph -->
+<!-- wp:paragraph -->
+<p>За стартиране на производството е необходимо плащане в пълен размер на стойността на поръчката по банков път. Номерът на поръчката е основанието за превода. За получените плащания се издават съответните счетоводни документи.</p>
+<!-- /wp:paragraph -->
+<!-- wp:shortcode -->
+[reklamo_bank_details]
+<!-- /wp:shortcode -->
+HTML
+)
+pl_old=$(cat <<'HTML'
+<!-- wp:paragraph --><p>Плащане само по банков път: 50% аванс след одобрение на визуализацията, остатък преди доставка.</p><!-- /wp:paragraph -->
+<!-- wp:shortcode -->
+[reklamo_bank_details]
+<!-- /wp:shortcode -->
+HTML
+)
+refresh_if_seeded plashtane "$pl_new" '<!-- wp:paragraph --><p>Плащане само по банков път: 50% аванс след одобрение на визуализацията, остатък преди доставка.</p><!-- /wp:paragraph -->' "$pl_old"
 # Payment page always carries the live bank details block (one source of truth).
 pl_id=$(page_id plashtane)
 if [ -n "$pl_id" ] && ! wp post get "$pl_id" --field=post_content | grep -q reklamo_bank_details; then
@@ -329,7 +503,7 @@ if [ -n "$pl_id" ] && ! wp post get "$pl_id" --field=post_content | grep -q rekl
 fi
 # FAQ: every <h3> is a question and the paragraph under it the answer — the theme shows it as an
 # accordion on this page and in the homepage's closing band, and as FAQPage schema. Numbers come from the settings.
-fill_if_placeholder chesto-zadavani-vaprosi "<!-- wp:paragraph --><p>Често задавани въпроси.</p><!-- /wp:paragraph -->" "$(cat <<'HTML'
+faq_old=$(cat <<'HTML'
 <!-- wp:heading {"level":3} -->
 <h3 class="wp-block-heading">Плащам ли нещо, когато изпращам заявката?</h3>
 <!-- /wp:heading -->
@@ -373,7 +547,59 @@ fill_if_placeholder chesto-zadavani-vaprosi "<!-- wp:paragraph --><p>Често 
 <p>Доставяме с куриер до посочения от Вас адрес в България. Регистрация не е нужна: връзката в имейла отваря страницата на Вашата поръчка, където следите всяка стъпка.</p>
 <!-- /wp:paragraph -->
 HTML
-)"
+)
+faq_new=$(cat <<'HTML'
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Мога ли да видя как ще изглежда логото ми преди производството?</h3>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Да. След като изпратите логото си, подготвяме визуализация, която получавате за преглед и одобрение.</p>
+<!-- /wp:paragraph -->
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Колко корекции мога да поискам?</h3>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Предлагаме първоначална визуализация и до [reklamo_value key="free_corrections"] безплатни корекции. Всяка следваща корекция е [reklamo_value key="correction_fee"] € и се договаря предварително. Грешки, допуснати от нас, поправяме безплатно.</p>
+<!-- /wp:paragraph -->
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Какви файлове мога да изпратя?</h3>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Препоръчваме векторни файлове AI, EPS, SVG или PDF. Приемаме и PNG/JPG, като предварително проверяваме дали качеството им е подходящо за печат.</p>
+<!-- /wp:paragraph -->
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Мога ли да поръчам различно количество?</h3>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Да. Ако желаното количество не присъства сред готовите пакети, изпратете ни запитване за индивидуална оферта.</p>
+<!-- /wp:paragraph -->
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Кога започва производството?</h3>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>След окончателно одобрение на визуализацията, потвърждение на наличността и получаване на плащането. Стандартният срок е [reklamo_value key="production_days"] работни дни.</p>
+<!-- /wp:paragraph -->
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Мога ли да поръчам продукти, които не виждам в сайта?</h3>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Да. Изпратете ни описание, снимка или пример и ще проверим възможностите за изпълнение.</p>
+<!-- /wp:paragraph -->
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Мога ли да получа фактура на фирма?</h3>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Да. Въведете фирмените данни (ЕИК, ДДС № и МОЛ) на страницата на поръчката, след като одобрите визуализацията.</p>
+<!-- /wp:paragraph -->
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Какво става, ако получа продукт с дефект?</h3>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Свържете се с нас и изпратете снимки и номера на поръчката. Ще разгледаме рекламацията и ще предложим решение съгласно приложимите законови изисквания.</p>
+<!-- /wp:paragraph -->
+HTML
+)
+refresh_if_seeded chesto-zadavani-vaprosi "$faq_new" '<!-- wp:paragraph --><p>Често задавани въпроси.</p><!-- /wp:paragraph -->' "$faq_old"
 # Legal pages: structure and every number come from the settings through shortcodes, so the texts
 # never contradict the configuration. A lawyer reviews the wording; the owner edits in the block editor.
 # "About us": the company's own copy.
@@ -408,7 +634,7 @@ fill_if_empty za-nas "$(cat <<'HTML'
 HTML
 )"
 
-fill_if_placeholder obshti-usloviya "<!-- wp:paragraph --><p>Общи условия.</p><!-- /wp:paragraph -->" "$(cat <<'HTML'
+terms_old=$(cat <<'HTML'
 <!-- wp:paragraph {"className":"lead"} -->
 <p class="lead">Тези общи условия уреждат поръчките на промоционални пакети, брандирани с логото на клиента, през сайта Reklamo.bg. С изпращането на заявка приемате условията по-долу.</p>
 <!-- /wp:paragraph -->
@@ -473,8 +699,88 @@ fill_if_placeholder obshti-usloviya "<!-- wp:paragraph --><p>Общи услов
 <p class="muted">Версия [reklamo_value key="legal_version"]. Прилага се българското право.</p>
 <!-- /wp:paragraph -->
 HTML
-)"
-fill_if_placeholder politika-za-poveritelnost "<!-- wp:paragraph --><p>Политика за поверителност.</p><!-- /wp:paragraph -->" "$(cat <<'HTML'
+)
+terms_new=$(cat <<'HTML'
+<!-- wp:paragraph {"className":"lead"} -->
+<p class="lead">Тези общи условия уреждат поръчките на промоционални пакети, брандирани с логото на клиента, през сайта Reklamo.bg. С изпращането на заявка приемате условията по-долу.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">1. Търговец</h2>
+<!-- /wp:heading -->
+<!-- wp:shortcode -->
+[reklamo_company]
+<!-- /wp:shortcode -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">2. Продукти и цени</h2>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Всеки пакет е с фиксирано съдържание, количество и цена. Цените са в евро и включват ДДС и брандирането с едно лого. Доставката не е включена в цената: при поръчка над [reklamo_value key="free_shipping"] € е безплатна, а под тази сума е за сметка на получателя по тарифите на избрания куриер.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">3. Поръчка и одобрение</h2>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Заявката се изпраща без плащане. До [reklamo_value key="mockup_deadline"] работни часа получавате визуализация за одобрение. Договорът се сключва с одобрението на визуализацията от Ваша страна. Визуализацията е ориентировъчна: възможни са минимални разлики в цветовете, размера и позиционирането на логото в зависимост от материала, технологията за печат и настройките на екрана.</p>
+<!-- /wp:paragraph -->
+<!-- wp:paragraph -->
+<p>Включени са първоначалната визуализация и до [reklamo_value key="free_corrections"] безплатни корекции на продукт. Всяка следваща корекция е [reklamo_value key="correction_fee"] € и се договаря предварително. Корекции на грешки, допуснати от Reklamo.bg, са безплатни и не се броят за корекции на клиента.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">4. Плащане</h2>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Плащането е само по банков път. След одобрение на визуализациите получавате потвърждение на поръчката и документ за плащане. За стартиране на производството е необходимо плащане в пълен размер на стойността на поръчката. Номерът на поръчката е основанието за превода. За получените плащания се издават съответните счетоводни документи по данните, които попълвате на страницата на поръчката.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">5. Срокове и доставка</h2>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Стандартният срок за производство е [reklamo_value key="production_days"] работни дни. Той започва от момента на плащането и не включва времето за доставка; при по-големи количества, нестандартни продукти или специфични изисквания се уточнява индивидуално. Доставките в България се извършват чрез Спиди, Еконт и при възможност BoxNow и Pigeon. За доставки извън България се изготвя индивидуална оферта. Вижте и <a href="/dostavka-i-srokove/">Доставка и срокове</a>.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">6. Право на отказ</h2>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Продуктите се изработват по индивидуална спецификация с Вашето лого. Съгласно чл. 57, т. 3 от Закона за защита на потребителите 14-дневното право на отказ не се прилага за такива стоки. Потвърждавате това изрично при изпращане на заявката.</p>
+<!-- /wp:paragraph -->
+<!-- wp:list -->
+<ul class="wp-block-list">
+<li><strong>Преди одобрение на визуализацията</strong> можете да се откажете без неустойка, освен ако предварително не е договорена отделна платена дизайнерска услуга.</li>
+<li><strong>След плащането, но преди започване на производството</strong> се възстановяват 50% от платената сума.</li>
+<li><strong>След започване на производството</strong> платената сума не се възстановява.</li>
+</ul>
+<!-- /wp:list -->
+<!-- wp:paragraph -->
+<p>Отказът се заявява писмено на имейла за контакт с номера на поръчката.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">7. Рекламации</h2>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>За несъответствие с одобрената визуализация или дефект ни пишете на посочения имейл с номера на поръчката и снимки. Отговаряме в работни дни. При спор можете да се обърнете към Комисията за защита на потребителите (<a href="https://kzp.bg" target="_blank" rel="noopener">kzp.bg</a>).</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">8. Лични данни</h2>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Как обработваме личните Ви данни е описано в <a href="/politika-za-poveritelnost/">Политиката за поверителност</a>.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph {"className":"muted"} -->
+<p class="muted">Версия [reklamo_value key="legal_version"]. Прилага се българското право.</p>
+<!-- /wp:paragraph -->
+HTML
+)
+refresh_if_seeded obshti-usloviya "$terms_new" '<!-- wp:paragraph --><p>Общи условия.</p><!-- /wp:paragraph -->' "$terms_old"
+priv_old=$(cat <<'HTML'
 <!-- wp:paragraph {"className":"lead"} -->
 <p class="lead">Тази политика обяснява какви лични данни обработваме, когато поръчвате през Reklamo.bg, защо, колко време ги пазим и какви права имате съгласно Регламент (ЕС) 2016/679 (GDPR) и Закона за защита на личните данни.</p>
 <!-- /wp:paragraph -->
@@ -565,7 +871,104 @@ fill_if_placeholder politika-za-poveritelnost "<!-- wp:paragraph --><p>Поли�
 <p class="muted">Версия [reklamo_value key="legal_version"]. При промяна публикуваме новата версия тук; версията, с която сте се съгласили, е записана в поръчката Ви.</p>
 <!-- /wp:paragraph -->
 HTML
-)"
+)
+priv_new=$(cat <<'HTML'
+<!-- wp:paragraph {"className":"lead"} -->
+<p class="lead">Тази политика обяснява какви лични данни обработваме, когато поръчвате през Reklamo.bg, защо, колко време ги пазим и какви права имате съгласно Регламент (ЕС) 2016/679 (GDPR) и Закона за защита на личните данни.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">1. Администратор</h2>
+<!-- /wp:heading -->
+<!-- wp:shortcode -->
+[reklamo_company]
+<!-- /wp:shortcode -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">2. Какви данни обработваме</h2>
+<!-- /wp:heading -->
+<!-- wp:list -->
+<ul class="wp-block-list">
+<li><strong>При заявка:</strong> име, имейл, телефон, файловете с логата и бележките към дизайнера.</li>
+<li><strong>При одобрение и фактура:</strong> фирма, ЕИК, ДДС №, МОЛ или име на частно лице, телефон, адрес за доставка, изпратените визуализации и Вашите коментари към тях.</li>
+<li><strong>Технически:</strong> IP адрес и браузър при изпращане на заявката и при одобрение на визуализация, като доказателство за сключения договор и за защита от злоупотреби; моментът и версията на условията, с които сте се съгласили.</li>
+</ul>
+<!-- /wp:list -->
+<!-- wp:paragraph -->
+<p>Не създаваме потребителски профили и не изискваме пароли. Достъпът до Вашата поръчка е чрез лична връзка, изпратена на имейла Ви; пазете я както парола.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">3. Защо и на какво основание</h2>
+<!-- /wp:heading -->
+<!-- wp:list -->
+<ul class="wp-block-list">
+<li><strong>Изпълнение на договора</strong> (чл. 6, пар. 1, б. „б“ GDPR): изготвяне на визуализация, производство, доставка, комуникация по поръчката и напомняния за нея.</li>
+<li><strong>Законово задължение</strong> (б. „в“): издаване и съхранение на счетоводни документи.</li>
+<li><strong>Легитимен интерес</strong> (б. „е“): защита от злоупотреби и доказване на одобрението (IP адрес, ограничение на броя заявки).</li>
+</ul>
+<!-- /wp:list -->
+<!-- wp:paragraph -->
+<p>Не изпращаме маркетингови съобщения и не продаваме данни.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">4. Кой получава данните</h2>
+<!-- /wp:heading -->
+<!-- wp:list -->
+<ul class="wp-block-list">
+<li><strong>СуперХостинг.БГ</strong> — хостинг и имейл сървър в България (обработващ лични данни).</li>
+<li><strong>Куриер</strong> — име, телефон и адрес за доставката.</li>
+<li><strong>Счетоводител</strong> — данните за фактура.</li>
+</ul>
+<!-- /wp:list -->
+<!-- wp:paragraph -->
+<p>Данните не се предават извън Европейския съюз.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">5. Колко време пазим данните</h2>
+<!-- /wp:heading -->
+<!-- wp:list -->
+<ul class="wp-block-list">
+<li>Логото и визуализациите се изтриват <strong>[reklamo_value key="retention_months"] месеца</strong> след приключване или отказ на поръчката; тогава спира да работи и личната връзка към поръчката.</li>
+<li>Име, адрес, данни за контакт, коментари и IP адреси се анонимизират <strong>[reklamo_value key="anonymize_months"] месеца</strong> след приключване на поръчката; сумите и датите остават като статистика без връзка с лице.</li>
+<li>Счетоводните документи (фактури) се пазят в сроковете по Закона за счетоводството, извън сайта.</li>
+<li>Качени файлове без изпратена заявка се изтриват до 48 часа. Резервните копия на хостинга се пазят до 30 дни.</li>
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">6. Вашите права</h2>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Имате право на достъп, коригиране, изтриване, ограничаване на обработването, преносимост и възражение. Отговаряме до един месец. Данните по активна поръчка не могат да бъдат изтрити преди тя да приключи или бъде отказана. Имате право на жалба до Комисията за защита на личните данни (<a href="https://www.cpdp.bg" target="_blank" rel="noopener">cpdp.bg</a>).</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Ако желаете да получите информация относно обработването на Вашите лични данни, да поискате корекция или изтриване на предоставени данни, както и премахване на качени лога и дизайнерски файлове, можете да се свържете с нас на <strong>[reklamo_value key="privacy_email"]</strong>. Ще разгледаме искането Ви и ще отговорим в сроковете, предвидени от приложимото законодателство.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">7. Бисквитки</h2>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Сайтът не използва аналитични, рекламни или проследяващи бисквитки и не зарежда съдържание от трети страни. Стриктно необходими технически бисквитки се създават единствено при вход в административния панел. Затова няма банер за бисквитки.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">8. Сигурност</h2>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Връзката е криптирана (HTTPS). Файловете се съхраняват извън публичната директория на сайта и се достъпват само чрез личната Ви връзка. Връзките за одобрение са еднократни и с срок. Достъп до данните има само екипът, който изпълнява поръчката.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph {"className":"muted"} -->
+<p class="muted">Версия [reklamo_value key="legal_version"]. При промяна публикуваме новата версия тук; версията, с която сте се съгласили, е записана в поръчката Ви.</p>
+<!-- /wp:paragraph -->
+HTML
+)
+refresh_if_seeded politika-za-poveritelnost "$priv_new" '<!-- wp:paragraph --><p>Политика за поверителност.</p><!-- /wp:paragraph -->' "$priv_old"
 opt show_on_front "page"
 opt page_on_front "$home_id"
 
@@ -864,7 +1267,8 @@ set_product_gallery RBP \
   "packages/red-business-pack-section:Red Business Pack в подаръчна кутия" \
   "packages/red-business-pack-pen:Метална химикалка с гравирано лого"
 
-# Business calendars, one product per quantity tier (client artwork in design/logo-kit-and-redesign.zip).
+# Business calendars (client artwork in design/logo-kit-and-redesign.zip): first one product per
+# quantity tier, merged further down into one product with a size per tier (reklamo_seeded_cal_variations).
 # Prices are the "крайна цена" from the client's mockups, VAT included like every other price here.
 cal_id=$(wc product_cat list --slug=kalendari --field=id | head -n1)
 # The design splits these: dimensions under "Описание", materials under "Спецификации".
@@ -875,7 +1279,7 @@ cal_specs=$(cat <<'HTML'
 <p>Подложката е от 295 г/м2 едностранно хромов картон Зенит, бигована за сгъване.</p>
 HTML
 )
-if [ -n "$cal_id" ]; then
+if [ -n "$cal_id" ] && [ -z "$(wp option get reklamo_seeded_cal_variations 2>/dev/null || true)" ]; then
   i=0
   for tier in "1:20:56.40" "2:50:136.80" "3:100:205.20" "4:200:391.20" "5:300:529.20" "6:500:846.00"; do
     n=${tier%%:*}; rest=${tier#*:}; qty=${rest%%:*}; price=${rest#*:}
@@ -890,6 +1294,8 @@ if [ -n "$cal_id" ]; then
       wp post meta update "$cal_pid" _reklamo_specs "$cal_specs" >/dev/null
     fi
   done
+fi
+if [ -n "$cal_id" ]; then
   # Give the Календари category a real picture instead of the WooCommerce placeholder.
   if [ -z "$(wp term meta get "$cal_id" thumbnail_id 2>/dev/null || true)" ]; then
     thumb=$(wp post meta get "$(product_id CAL-20)" _thumbnail_id 2>/dev/null || true)
@@ -989,7 +1395,7 @@ if [ -z "$size_attr" ]; then
   echo "  attribute Количество created"
 fi
 n=0
-for c in "20-br:20 бр." "50-br:50 бр." "100-br:100 бр." "200-br:200 бр."; do
+for c in "20-br:20 бр." "50-br:50 бр." "100-br:100 бр." "200-br:200 бр." "300-br:300 бр." "500-br:500 бр."; do
   slug=${c%%:*}; name=${c#*:}; n=$((n + 1))
   term=$(wp term get pa_kolichestvo "$slug" --by=slug --field=term_id 2>/dev/null || true)
   [ -n "$term" ] || { term=$(wc product_attribute_term create "$size_attr" --name="$name" --slug="$slug" --porcelain); wp term meta update "$term" order "$n" >/dev/null; }
@@ -1050,6 +1456,66 @@ foreach ( array( 'RBP', 'OSP', 'EVP', 'PRP', 'TCP', 'GPP', 'WPP' ) as $sku ) {
 update_option( 'reklamo_seeded_pkg_sizes', 1 );
 PHP
 fi
+# The six calendar tiers become one product with a size per tier, each size with its own price and
+# its own photo (the artwork prints the count and the price). START 1 is converted in place and
+# renamed; the other five go to draft and their addresses redirect to it. Once.
+if [ -z "$(wp option get reklamo_seeded_cal_variations 2>/dev/null || true)" ]; then
+  wp eval-file - <<'PHP'
+<?php
+$tiers = array( 20 => 'CAL-20', 50 => 'CAL-50', 100 => 'CAL-100', 200 => 'CAL-200', 300 => 'CAL-300', 500 => 'CAL-500' );
+$main  = wc_get_product( wc_get_product_id_by_sku( 'CAL-20' ) );
+if ( $main && $main->is_type( 'simple' ) ) {
+	$old = array();
+	foreach ( $tiers as $qty => $sku ) {
+		$p = wc_get_product( wc_get_product_id_by_sku( $sku ) );
+		if ( $p && get_term_by( 'slug', $qty . '-br', 'pa_kolichestvo' ) ) {
+			$old[ $qty ] = $p;
+		}
+	}
+	$terms = array();
+	foreach ( array_keys( $old ) as $qty ) {
+		$terms[] = get_term_by( 'slug', $qty . '-br', 'pa_kolichestvo' )->term_id;
+	}
+	$id = $main->get_id();
+	wp_set_object_terms( $id, 'variable', 'product_type' );
+	$cal = new WC_Product_Variable( $id );
+	$a   = new WC_Product_Attribute();
+	$a->set_id( wc_attribute_taxonomy_id_by_name( 'pa_kolichestvo' ) );
+	$a->set_name( 'pa_kolichestvo' );
+	$a->set_options( $terms );
+	$a->set_visible( true );
+	$a->set_variation( true );
+	$cal->set_attributes( array( 'pa_kolichestvo' => $a ) );
+	$cal->set_default_attributes( array( 'pa_kolichestvo' => '20-br' ) );
+	$cal->set_name( 'Бизнес календар START' );
+	$cal->set_slug( 'biznes-kalendar-start' );
+	$cal->set_sku( 'CAL' );
+	$cal->set_regular_price( '' );
+	$cal->set_price( '' );
+	$cal->set_short_description( '<p>Готов фирмен пакет за вашия бизнес. Практичен, стилен и запомнящ се.</p><ul><li>20 броя календари с индивидуален дизайн</li></ul>' );
+	$cal->save();
+	foreach ( $old as $qty => $p ) {
+		$v = new WC_Product_Variation();
+		$v->set_parent_id( $id );
+		$v->set_attributes( array( 'pa_kolichestvo' => $qty . '-br' ) );
+		$v->set_regular_price( $p->get_regular_price() );
+		$v->set_image_id( $p->get_image_id() );
+		$v->set_manage_stock( false );
+		$v->save();
+		if ( $p->get_id() !== $id ) {
+			add_post_meta( $id, '_wp_old_slug', $p->get_slug() );
+			wp_update_post( array( 'ID' => $p->get_id(), 'post_status' => 'draft' ) );
+		}
+	}
+	if ( ! in_array( 'biznes-kalendar-start-1', get_post_meta( $id, '_wp_old_slug' ), true ) ) {
+		add_post_meta( $id, '_wp_old_slug', 'biznes-kalendar-start-1' );
+	}
+	WC_Product_Variable::sync( $id );
+	echo '  calendars: one product, sizes ' . implode( ' / ', array_keys( $old ) ) . "\n";
+}
+update_option( 'reklamo_seeded_cal_variations', 1 );
+PHP
+fi
 set_product_image NB-001 packages/red-business-pack "Класически тефтер — червен, с лого"
 # Colour photos: the sample has pictures for red and black; green and blue fall back to the main photo.
 nb_id=$(product_id NB-001)
@@ -1064,6 +1530,11 @@ if [ -n "$nb_id" ]; then
     att=$(wp media import "$path" --post_id="$nb_id" --title="Класически тефтер — $name" --alt="Класически тефтер — $name" --porcelain 2>/dev/null | tail -n1)
     [ -n "$att" ] && wp post meta update "$vid" _thumbnail_id "$att" >/dev/null && echo "  Класически тефтер: $name photo set"
   done
+fi
+# Fixed quantities only for now: the sample sold by the piece is hidden once; the owner may publish it again.
+if [ "$(wp option get reklamo_seeded_nb_draft 2>/dev/null || true)" != "1" ] && [ -n "$nb_id" ]; then
+  wp post update "$nb_id" --post_status=draft >/dev/null && echo "  Класически тефтер: hidden (draft)"
+  wp option update reklamo_seeded_nb_draft 1 >/dev/null
 fi
 opt woocommerce_default_catalog_orderby "menu_order"
 

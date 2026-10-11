@@ -664,6 +664,10 @@ html { scroll-behavior: smooth; }
 .product-order__nopay { display: flex; align-items: center; justify-content: center; gap: .4rem; margin: .75rem 0 0; font-size: .78rem; color: var(--ink); }
 .product-order__nopay svg { color: var(--gold); }
 
+.product-disclaimer { display: flex; gap: .85rem; align-items: flex-start; margin: 1.5rem 0 0; padding: 1rem 1.25rem; border: 1px solid color-mix(in srgb, var(--gold) 40%, var(--line)); border-left: 3px solid var(--gold); border-radius: 12px; background: var(--paper); }
+.product-disclaimer__icon { flex: none; color: var(--gold-dark); margin-top: .1rem; }
+.product-disclaimer p { margin: 0; font-size: .8125rem; line-height: 1.6; color: var(--graphite); }
+.product-disclaimer strong { color: var(--ink); }
 .product-steps { list-style: none; display: grid; grid-template-columns: repeat(4, 1fr); margin: 1.5rem 0 0; padding: 1.5rem 0; background: color-mix(in srgb, var(--white) 50%, var(--paper)); }
 .product-steps__item { display: flex; align-items: center; gap: 1.1rem; padding-inline: 1.75rem; }
 .product-steps__item + .product-steps__item { border-left: 1px solid var(--line); }

@@ -119,7 +119,7 @@ class Reklamo_Email_Mockup_Sent extends WC_Email {
 				)
 			);
 			$this->placeholders['{approval_url}'] = $this->approval_url;
-			$this->placeholders['{deposit_pct}']  = Reklamo_Settings::get( 'deposit_pct', '50' );
+			$this->placeholders['{deposit_pct}']  = Reklamo_Settings::get( 'deposit_pct', '100' );
 		}
 
 		$sent = $order instanceof WC_Order && $this->approval_url && Reklamo_Mail::deliver( $this, $order );

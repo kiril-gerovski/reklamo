@@ -31,7 +31,7 @@ final class Reklamo_Statuses {
 		self::CHANGES      => array( self::MOCKUP_SENT, 'cancelled' ),
 		self::APPROVED     => array( self::DEPOSIT_PAID, self::MOCKUP_SENT, 'cancelled' ),
 		self::DEPOSIT_PAID => array( self::PRODUCTION, 'cancelled' ),
-		self::PRODUCTION   => array( self::FINAL_DUE, 'cancelled' ),
+		self::PRODUCTION   => array( self::FINAL_DUE, 'completed', 'cancelled' ), // completed directly when the whole amount was paid up front
 		self::FINAL_DUE    => array( 'completed', 'cancelled' ),
 	);
 

@@ -115,7 +115,7 @@ $multi    = ( $counts['total'] ?? 0 ) > 1;
 				<?php else : ?>
 					<p><?php esc_html_e( 'You will get a new email when it is ready.', 'reklamo-core' ); ?></p>
 				<?php endif; ?>
-				<p class="muted"><?php echo esc_html( sprintf( /* translators: %s: deposit percentage */ __( 'No payment is taken at this stage. Once every mockup is approved we will send bank details for a %s%% deposit.', 'reklamo-core' ), Reklamo_Settings::get( 'deposit_pct', '50' ) ) ); ?></p>
+				<p class="muted"><?php echo esc_html( sprintf( /* translators: %s: deposit percentage */ __( 'No payment is taken at this stage. Once every mockup is approved we will send bank details for a %s%% deposit.', 'reklamo-core' ), Reklamo_Settings::get( 'deposit_pct', '100' ) ) ); ?></p>
 				<?php
 				break;
 			case Reklamo_Statuses::APPROVED:
@@ -237,6 +237,13 @@ $multi    = ( $counts['total'] ?? 0 ) > 1;
 						</div>
 						<details <?php echo 'message' === $flash && $open === $p['id'] ? 'open' : ''; ?>>
 							<summary><?php esc_html_e( 'I would like changes', 'reklamo-core' ); ?></summary>
+							<p class="muted rk-corrections">
+								<?php echo esc_html( Reklamo_Items::corrections_rule() ); ?>
+								<?php
+								/* translators: %d: corrections asked for so far */
+								echo esc_html( sprintf( _n( 'So far: %d correction.', 'So far: %d corrections.', $p['corrections'], 'reklamo-core' ), $p['corrections'] ) );
+								?>
+							</p>
 							<p><textarea name="message" placeholder="<?php esc_attr_e( 'Describe what should change…', 'reklamo-core' ); ?>"></textarea></p>
 							<button type="submit" name="act" value="changes" class="secondary"><?php esc_html_e( 'Request changes', 'reklamo-core' ); ?></button>
 						</details>
@@ -284,8 +291,10 @@ $multi    = ( $counts['total'] ?? 0 ) > 1;
 			<?php if ( $v['deposit'] ) : ?>
 				<dt><?php esc_html_e( 'Deposit', 'reklamo-core' ); ?></dt>
 				<dd><?php echo esc_html( $v['deposit'] ); ?> — <?php echo $v['deposit_paid'] ? '<span class="ok">' . esc_html( sprintf( /* translators: %s: date */ __( 'received %s', 'reklamo-core' ), $v['deposit_paid'] ) ) . '</span>' : esc_html__( 'awaiting transfer', 'reklamo-core' ); ?></dd>
-				<dt><?php esc_html_e( 'Balance', 'reklamo-core' ); ?></dt>
-				<dd><?php echo esc_html( $v['balance'] ); ?> — <?php echo $v['final_paid'] ? '<span class="ok">' . esc_html( sprintf( /* translators: %s: date */ __( 'received %s', 'reklamo-core' ), $v['final_paid'] ) ) . '</span>' : esc_html__( 'due before dispatch', 'reklamo-core' ); ?></dd>
+				<?php if ( $v['balance'] ) : ?>
+					<dt><?php esc_html_e( 'Balance', 'reklamo-core' ); ?></dt>
+					<dd><?php echo esc_html( $v['balance'] ); ?> — <?php echo $v['final_paid'] ? '<span class="ok">' . esc_html( sprintf( /* translators: %s: date */ __( 'received %s', 'reklamo-core' ), $v['final_paid'] ) ) . '</span>' : esc_html__( 'due before dispatch', 'reklamo-core' ); ?></dd>
+				<?php endif; ?>
 			<?php else : ?>
 				<dt><?php esc_html_e( 'Deposit', 'reklamo-core' ); ?></dt><dd class="muted"><?php esc_html_e( 'set after you approve the mockup', 'reklamo-core' ); ?></dd>
 			<?php endif; ?>

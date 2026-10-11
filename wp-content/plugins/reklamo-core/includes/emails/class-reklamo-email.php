@@ -75,7 +75,7 @@ abstract class Reklamo_Email extends WC_Email {
 	protected function prepare( WC_Order $order ): void {
 		$deposit = (float) $order->get_meta( '_reklamo_deposit_amount' );
 		if ( $deposit <= 0 ) {
-			$deposit = Reklamo_Money::deposit( (float) $order->get_total(), (int) Reklamo_Settings::get( 'deposit_pct', '50' ) );
+			$deposit = Reklamo_Money::deposit( (float) $order->get_total(), (int) Reklamo_Settings::get( 'deposit_pct', '100' ) );
 		}
 		$this->object                                = $order;
 		$this->placeholders['{order_number}']        = $order->get_order_number();
@@ -84,7 +84,7 @@ abstract class Reklamo_Email extends WC_Email {
 		$this->placeholders['{deposit_amount}']      = wp_strip_all_tags( wc_price( $deposit, array( 'currency' => $order->get_currency() ) ) );
 		$this->placeholders['{balance_amount}']      = wp_strip_all_tags( wc_price( Reklamo_Money::balance( (float) $order->get_total(), $deposit ), array( 'currency' => $order->get_currency() ) ) );
 		$this->placeholders['{order_total}']         = wp_strip_all_tags( wc_price( (float) $order->get_total(), array( 'currency' => $order->get_currency() ) ) );
-		$this->placeholders['{deposit_pct}']         = Reklamo_Settings::get( 'deposit_pct', '50' );
+		$this->placeholders['{deposit_pct}']         = Reklamo_Settings::get( 'deposit_pct', '100' );
 	}
 
 	public function get_subject() {

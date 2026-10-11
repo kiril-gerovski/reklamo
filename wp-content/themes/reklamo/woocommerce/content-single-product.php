@@ -32,7 +32,7 @@ $reklamo_usps = array(
 	array( 'truck', __( 'Fast delivery', 'reklamo' ), __( 'Across Bulgaria', 'reklamo' ) ),
 );
 
-$reklamo_deposit  = (int) reklamo_setting( 'deposit_pct', '50' );
+$reklamo_deposit  = (int) reklamo_setting( 'deposit_pct', '100' );
 $reklamo_deadline = (int) reklamo_setting( 'mockup_deadline', '24' );
 
 $reklamo_promises = array(
@@ -194,6 +194,14 @@ $reklamo_steps = array(
 				</div>
 			</div>
 		</div>
+
+		<aside class="product-disclaimer" role="note">
+			<span class="product-disclaimer__icon"><?php echo reklamo_icon( 'info', 22 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?></span>
+			<p>
+				<strong><?php esc_html_e( 'Important:', 'reklamo' ); ?></strong>
+				<?php esc_html_e( 'The mockup shown is a guide and not a 100% exact image of the final product. Slight differences in colour, size and logo position are possible, depending on the material, the printing technique and the screen settings. Before production you will receive a final mockup for approval.', 'reklamo' ); ?>
+			</p>
+		</aside>
 
 		<ol class="product-steps card" aria-label="<?php esc_attr_e( 'How the order works', 'reklamo' ); ?>">
 			<?php foreach ( $reklamo_steps as $reklamo_step ) : ?>

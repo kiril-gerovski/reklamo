@@ -12,7 +12,7 @@ $reklamo_email   = reklamo_setting( 'email' );
 $reklamo_address = reklamo_setting( 'address' );
 $reklamo_legal   = array_filter(
 	array(
-		reklamo_setting( 'company_name' ),
+		reklamo_setting( 'legal_name' ) ? reklamo_setting( 'legal_name' ) : reklamo_setting( 'company_name' ),
 		reklamo_setting( 'eik' ) ? sprintf( /* translators: %s: company registration number */ __( 'Company ID %s', 'reklamo' ), reklamo_setting( 'eik' ) ) : '',
 		reklamo_setting( 'vat' ) ? sprintf( /* translators: %s: VAT number */ __( 'VAT no. %s', 'reklamo' ), reklamo_setting( 'vat' ) ) : '',
 		reklamo_setting( 'legal_address' ) ? reklamo_setting( 'legal_address' ) : $reklamo_address,

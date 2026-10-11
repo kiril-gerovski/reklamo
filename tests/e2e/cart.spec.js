@@ -193,7 +193,7 @@ test( 'each product is decided on its own; no deposit while one is open', async 
 	await expect( page.locator( '.next h2' ) ).toContainText( 'Одобрено' );
 	await expect( page.locator( '.next' ) ).toContainText( 'Одобрени: 1 от 2' );
 	await expect( page.locator( '.badge' ) ).toHaveText( 'Изпратена визуализация' );
-	expect( await subjectCount( `аванс и данни за поръчка ${ orderId }` ) ).toBe( 0 );
+	expect( await subjectCount( `плащане и данни за поръчка ${ orderId }` ) ).toBe( 0 );
 
 	// The second product from the order page: changes.
 	await page.goto( trackUrl );
@@ -238,9 +238,9 @@ test( 'the revised mockup is approved and only then the deposit is asked for', a
 	await expect( page.locator( '.product-name' ) ).toHaveText( 'Office Starter Pack - Червен, 20 бр.' );
 	await page.click( 'button[name="decision"][value="approve"]' );
 	await page.waitForURL( /odobrenie\/\?s=/ );
-	await expect( page.locator( '.next h2' ) ).toHaveText( 'Аванс' );
-	await expect( page.locator( '.badge' ) ).toHaveText( 'Одобрена — чака аванс' );
-	expect( await subjectCount( `аванс и данни за поръчка ${ orderId }` ) ).toBe( 1 );
+	await expect( page.locator( '.next h2' ) ).toHaveText( 'Плащане' );
+	await expect( page.locator( '.badge' ) ).toHaveText( 'Одобрена — чака плащане' );
+	expect( await subjectCount( `плащане и данни за поръчка ${ orderId }` ) ).toBe( 1 );
 } );
 
 test( 'one logo and note for several products: one file, on every line', async ( { browser } ) => {

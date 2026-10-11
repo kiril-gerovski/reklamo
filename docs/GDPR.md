@@ -148,11 +148,12 @@ then A8+A9+A10 (owner-facing texts), then A5+A6+A7 (retention and erasure).
 
 | Decision | Default proposed | Note |
 |---|---|---|
-| Months after an order closes before its **files** are deleted | 12 (current) | already a setting |
-| Months after an order closes before the order is **anonymised** | 36, seeded once as `reklamo_anonymize_months`, editable under Settings → Reklamo → Legal & privacy | invoices are issued outside the site, so the order need not carry the address for the accounting period; confirm with the accountant, since accounting documents are kept 10 years under the Accountancy Act |
-| Company legal name, ЕИК, ДДС №, registered address | to fill | needed for footer, Terms and Policy |
+| Months after an order closes before its **files** are deleted | 12, confirmed by the owner 2026-10-11 | already a setting |
+| Months after an order closes before the order is **anonymised** | 36 (confirmed by the owner 2026-10-11), seeded once as `reklamo_anonymize_months`, editable under Settings → Reklamo → Legal & privacy | invoices are issued outside the site, so the order need not carry the address for the accounting period; confirm with the accountant, since accounting documents are kept 10 years under the Accountancy Act |
+| Company legal name, ЕИК, ДДС №, registered address | ДИ АР ТИ ЕООД, 205018634, BG205018634, гр. София, ул. Хризантема 15 (owner, 2026-10-11) | seeded with `opt_default`; footer, Terms and Policy |
+| Mailbox for personal-data requests | `privacy@reklamo.bg`, setting `reklamo_privacy_email` (owner, 2026-10-11) | quoted in the Privacy Policy; also where customers ask for logos and files to be removed |
 | Mailbox for shop notifications | `office@reklamo.bg` | replaces the abv.bg address |
-| Policy version string | `2026-09`, seeded once as `reklamo_legal_version` | bump under Settings → Reklamo → Legal & privacy when the texts change; recorded on every order |
+| Policy version string | `2026-10` (the seed moved the sample `2026-09` on once), `reklamo_legal_version` | bump under Settings → Reklamo → Legal & privacy when the texts change; recorded on every order |
 | Lawyer review of the two texts | yes | the templates get the structure right, not the legal wording |
 
 ## 5. What this plan does not cover

@@ -23,7 +23,7 @@ final class Reklamo_Settings {
 		'reklamo_tagline'          => '',
 		'reklamo_consultant_photo' => '',
 		'reklamo_mockup_deadline'  => '24',
-		'reklamo_deposit_pct'      => '50',
+		'reklamo_deposit_pct'      => '100',
 		'reklamo_note_max'         => '300',
 		'reklamo_bank_name'        => '',
 		'reklamo_iban'             => '',
@@ -38,10 +38,17 @@ final class Reklamo_Settings {
 		'reklamo_eik'              => '',
 		'reklamo_vat'              => '',
 		'reklamo_legal_address'    => '',
+		'reklamo_legal_name'       => '',
+		'reklamo_manager'          => '',
+		'reklamo_privacy_email'    => '',
+		'reklamo_free_corrections' => '2',
+		'reklamo_correction_fee'   => '15',
+		'reklamo_production_days'  => '5–10',
+		'reklamo_free_shipping'    => '400',
 	);
 
 	/** Settings the [reklamo_value] shortcode may print on public pages. */
-	const PUBLIC_KEYS = array( 'company_name', 'phone', 'email', 'address', 'hours', 'eik', 'vat', 'legal_address', 'retention_months', 'anonymize_months', 'legal_version', 'deposit_pct', 'mockup_deadline', 'max_upload_mb' );
+	const PUBLIC_KEYS = array( 'company_name', 'legal_name', 'manager', 'phone', 'email', 'privacy_email', 'address', 'hours', 'eik', 'vat', 'legal_address', 'retention_months', 'anonymize_months', 'legal_version', 'deposit_pct', 'mockup_deadline', 'max_upload_mb', 'free_corrections', 'correction_fee', 'production_days', 'free_shipping' );
 
 	public static function init(): void {
 		add_filter( 'woocommerce_get_settings_pages', array( __CLASS__, 'add_page' ) );
@@ -53,10 +60,11 @@ final class Reklamo_Settings {
 	/** @return array<string,string> label => value, only the filled ones (trader identification) */
 	public static function company_details(): array {
 		$rows = array(
-			__( 'Company', 'reklamo-core' )            => self::get( 'company_name' ),
+			__( 'Company', 'reklamo-core' )            => self::get( 'legal_name' ) ? self::get( 'legal_name' ) : self::get( 'company_name' ),
 			__( 'Company ID (ЕИК)', 'reklamo-core' )   => self::get( 'eik' ),
 			__( 'VAT no.', 'reklamo-core' )            => self::get( 'vat' ),
 			__( 'Registered address', 'reklamo-core' ) => self::get( 'legal_address' ) ? self::get( 'legal_address' ) : self::get( 'address' ),
+			__( 'Manager (МОЛ)', 'reklamo-core' )      => self::get( 'manager' ),
 			__( 'Email', 'reklamo-core' )              => self::get( 'email' ),
 			__( 'Phone', 'reklamo-core' )              => self::get( 'phone' ),
 		);

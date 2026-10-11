@@ -335,7 +335,7 @@ final class Reklamo_Approval {
 				Reklamo_Items::sync_status( $order );
 				return '';
 			}
-			$deposit = Reklamo_Money::deposit( (float) $order->get_total(), (int) Reklamo_Settings::get( 'deposit_pct', '50' ) );
+			$deposit = Reklamo_Money::deposit( (float) $order->get_total(), (int) Reklamo_Settings::get( 'deposit_pct', '100' ) );
 			$order->update_meta_data( '_reklamo_approved_at', current_time( 'mysql', true ) );
 			$order->update_meta_data( '_reklamo_deposit_amount', wc_format_decimal( $deposit, 2 ) );
 			$order->save();

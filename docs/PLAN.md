@@ -291,6 +291,15 @@ dashboard edit.
 WordPress turns a Bulgarian product name into a percent-encoded slug, so `ensure_product` takes an
 explicit latin one — `biznes-kalendar-start-1`, not `%d0%b1%d0%b8%d0%b7…`.
 
+**Decision (2026-10-11, owner's request): the six tiers are one product with sizes.** "Бизнес календар
+START" (`biznes-kalendar-start`, SKU `CAL`) is variable on the shared **Количество** attribute, which
+gained 300 and 500 бр.; each size carries the old tier's price and its artwork as the variation image,
+so the photo follows the size — the artwork prints the count and the price, unlike the package photos.
+Prices are edited in the product's "Prices by quantity", photos in Products → Variations. The seed
+converted START 1 in place once (`reklamo_seeded_cal_variations`), set START 2–6 to draft and recorded
+all six old slugs as `_wp_old_slug`, so WordPress's own old-slug redirect sends the old addresses
+(and any links to them) to the new product with a 301. The drafts stay for orders that name them.
+
 ### The product page
 
 `product.png` also settles the **route**, which was wrong before: a card used to jump straight to
@@ -553,6 +562,13 @@ Dev-only exception: **Query Monitor** locally for debugging — gitignored, neve
 **Theme / SEO / performance:** meta description + Open Graph + favicon; dequeue WooCommerce styles/scripts outside shop pages and `woocommerce_enable_ajax_add_to_cart no`; drop the gallery lightbox; preload the two Cyrillic woff2, hero `width/height/fetchpriority`; contrast (`--gold-dark → #8a6318`, `--muted → #6b6b6b`); header CTA hidden and the menu folded into the burger below 1280px (the full menu with the cart icon needs ~1260px; 2026-10-10, it used to fold at 900px and widened the page in between); nav Escape/outside-click close, `.rq-drop:focus-within`; textarea label in the full form; footer `h4 → h2`; `BreadcrumbList`; `woocommerce_before/after_main_content` in `archive-product.php`.
 
 **Ops / CI:** HTTPS redirect + HSTS in `.htaccess`, `WP_DEBUG_LOG` path, backup cadence + restore drill, wp-login protection / `DISALLOW_FILE_MODS`, never *delete* the plugin, xmlrpc off. Done by the deployment scripts: `WP_AUTO_UPDATE_CORE minor`, `chmod 600 wp-config.php`, pins in `versions.env`, `update.sh` dumps the DB before version changes. GitHub Actions: lint + PHPUnit + E2E; mobile Playwright project; axe; rate-limit spec with limits on.
+
+**Decision (2026-10-11): the owner's company data and texts.** From the owner's document „Данни, необходими за завършване на Reklamo.bg“:
+- Trader: ДИ АР ТИ ЕООД, ЕИК 205018634, ДДС № BG205018634, seat гр. София 1000, р-н Красно село, ул. Хризантема 15, ет. 2, ап. 8, МОЛ Бойка Николаева Заркова (new settings `reklamo_legal_name`, `reklamo_manager`). Bank: УниКредит Булбанк АД, BG36UNCR70001523203323, UNCRBGSF, holder ДИ АР ТИ ЕООД. Contacts: +359 894 65 58 58, office@reklamo.bg, София, ул. Източна тангента 96 (the city was not in the document and is assumed), 10:00 – 17:00. Facebook and Instagram links are to follow; LinkedIn is dropped. Personal-data requests go to privacy@reklamo.bg (`reklamo_privacy_email`, quoted in the Privacy Policy).
+- **Payment is 100% before production** (owner's answer). `reklamo_deposit_pct` defaults to 100 and the seed moves the earlier sample 50 to it; the English source strings keep "deposit", the Bulgarian ones say „плащане“. With no balance, `rq-production` may go straight to `completed` (transition table), and the admin box offers "Dispatched — complete the order" instead of asking for a final payment. A lower percentage brings the old flow back unchanged.
+- Corrections: the first mockup and 2 free corrections per product (`reklamo_free_corrections`), each further one 15 € (`reklamo_correction_fee`), the shop's own mistakes not counted. Shown, never charged automatically. Production 5–10 working days from payment, delivery not included (`reklamo_production_days`); couriers Спиди, Еконт, BoxNow, Pigeon; free delivery over 400 € (`reklamo_free_shipping`), otherwise the recipient pays the courier — WooCommerce's shipping stays a zero-cost method because the courier collects.
+- Cancellation (Terms): before approval free unless a paid design service was agreed; after payment and before production 50% of the paid sum refunded; after production starts nothing. Retention confirmed: files 12 months, anonymisation 36 months. Fixed quantities only, so the by-the-piece sample NB-001 is a draft.
+- Page texts rewritten from the document: Как работи, За бизнеса, Контакти, Доставка и срокове, Плащане, Често задавани въпроси (the owner's 8), plus the payment, corrections, delivery and cancellation clauses of the Terms and the privacy-email paragraph of the Policy (`reklamo_legal_version` 2026-10). The seed replaces a page only while it still holds an earlier seed text (`refresh_if_seeded`) and a setting only while it still holds the earlier sample (`opt_replace`). Numbers in the texts come from settings, so changing a setting changes every page that quotes it.
 
 ## Deployment scripts
 

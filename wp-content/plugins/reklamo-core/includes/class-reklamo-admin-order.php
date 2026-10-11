@@ -95,15 +95,16 @@ final class Reklamo_Admin_Order {
 			Reklamo_Statuses::DEPOSIT_PAID => array(
 				'production' => array( __( 'Start production', 'reklamo-core' ), Reklamo_Statuses::PRODUCTION ),
 			),
-			Reklamo_Statuses::PRODUCTION   => array(
-				'final_due' => array( __( 'Ready — request final payment', 'reklamo-core' ), Reklamo_Statuses::FINAL_DUE ),
-			),
+			Reklamo_Statuses::PRODUCTION   => Reklamo_Money::balance( (float) $order->get_total(), (float) $order->get_meta( '_reklamo_deposit_amount' ) ) > 0
+				? array( 'final_due' => array( __( 'Ready — request final payment', 'reklamo-core' ), Reklamo_Statuses::FINAL_DUE ) )
+				// Paid in full before production: nothing left to ask for, the order ends with the dispatch.
+				: array( 'dispatched' => array( __( 'Dispatched — complete the order', 'reklamo-core' ), 'completed' ) ),
 			Reklamo_Statuses::FINAL_DUE    => array(
 				/* translators: %s: balance amount */
 				'complete' => array( sprintf( __( 'Final payment received (%s) — complete', 'reklamo-core' ), $balance ), 'completed' ),
 			),
 		);
-		$offer   = $all[ $order->get_status() ] ?? array();
+		$offer = $all[ $order->get_status() ] ?? array();
 		if ( isset( $offer['resend_mockup'] ) && ! Reklamo_Items::counts( $order )['sent'] ) {
 			unset( $offer['resend_mockup'] ); // nothing awaits the customer
 		}
@@ -162,7 +163,17 @@ final class Reklamo_Admin_Order {
 				$current = Reklamo_Items::revision( $item );
 				?>
 				<div class="reklamo-item" data-item="<?php echo esc_attr( (string) $item_id ); ?>" style="border-top:1px solid #dcdcde;padding:.4em 0 .8em">
-					<h4 style="margin:.8em 0 .3em"><?php echo esc_html( $item->get_name() ); ?> <span class="description" style="font-weight:400">— <?php echo esc_html( $labels[ $state ] ); ?></span></h4>
+					<h4 style="margin:.8em 0 .3em"><?php echo esc_html( $item->get_name() ); ?> <span class="description" style="font-weight:400">— <?php echo esc_html( $labels[ $state ] ); ?>
+						<?php
+						$used = Reklamo_Items::corrections( $item );
+						$free = (int) Reklamo_Settings::get( 'free_corrections', '2' );
+						/* translators: 1: corrections asked for, 2: free corrections included */
+						echo esc_html( ' · ' . sprintf( __( 'corrections: %1$d (free: %2$d)', 'reklamo-core' ), $used, $free ) );
+						?>
+					</span></h4>
+					<?php if ( $used > $free ) : ?>
+						<p class="description" style="margin:0 0 .4em;color:#9a5b00"><?php echo esc_html( sprintf( /* translators: 1: corrections over the free ones, 2: fee */ __( '%1$d over the free corrections — %2$s € each, unless they fixed our own mistakes.', 'reklamo-core' ), $used - $free, Reklamo_Settings::get( 'correction_fee', '15' ) ) ); ?></p>
+					<?php endif; ?>
 					<p style="margin:.2em 0">
 						<strong><?php esc_html_e( 'Customer logo', 'reklamo-core' ); ?>:</strong>
 						<?php if ( $logo ) : ?>
@@ -234,14 +245,14 @@ final class Reklamo_Admin_Order {
 			<?php if ( $order->get_meta( '_reklamo_approved_at' ) ) : ?>
 				<h4><?php esc_html_e( 'Approval & payments', 'reklamo-core' ); ?></h4>
 				<?php
-				$expected = Reklamo_Money::deposit( (float) $order->get_total(), (int) Reklamo_Settings::get( 'deposit_pct', '50' ) );
+				$expected = Reklamo_Money::deposit( (float) $order->get_total(), (int) Reklamo_Settings::get( 'deposit_pct', '100' ) );
 				if ( ! $order->get_meta( '_reklamo_deposit_paid_at' ) && abs( $expected - $deposit ) >= 0.01 ) :
 					?>
 					<p class="notice notice-warning inline" style="margin:0 0 .6em;padding:.4em .8em"><?php echo esc_html( sprintf( /* translators: 1: stored deposit, 2: expected deposit */ __( 'The deposit (%1$s) no longer matches the order total (expected %2$s). Use "Recalculate deposit" if the total was changed on purpose.', 'reklamo-core' ), wp_strip_all_tags( wc_price( $deposit, array( 'currency' => $order->get_currency() ) ) ), wp_strip_all_tags( wc_price( $expected, array( 'currency' => $order->get_currency() ) ) ) ) ); ?></p>
 				<?php endif; ?>
 				<ul>
 					<li><?php echo esc_html( sprintf( /* translators: %s: date */ __( 'Every mockup approved %s', 'reklamo-core' ), $fmt_date( $order->get_meta( '_reklamo_approved_at' ) ) ) ); ?></li>
-					<li><?php echo esc_html( sprintf( /* translators: 1: deposit amount, 2: percentage */ __( 'Deposit: %1$s (%2$s%%)', 'reklamo-core' ), wp_strip_all_tags( wc_price( $deposit, array( 'currency' => $order->get_currency() ) ) ), Reklamo_Settings::get( 'deposit_pct', '50' ) ) ); ?>
+					<li><?php echo esc_html( sprintf( /* translators: 1: deposit amount, 2: percentage */ __( 'Deposit: %1$s (%2$s%%)', 'reklamo-core' ), wp_strip_all_tags( wc_price( $deposit, array( 'currency' => $order->get_currency() ) ) ), Reklamo_Settings::get( 'deposit_pct', '100' ) ) ); ?>
 						<?php
 						if ( $order->get_meta( '_reklamo_deposit_paid_at' ) ) :
 							?>
@@ -439,7 +450,7 @@ final class Reklamo_Admin_Order {
 				self::redirect( $back, 'success', __( 'Mockup email re-sent.', 'reklamo-core' ) );
 				break;
 			case 'recalc_deposit':
-				$new = Reklamo_Money::deposit( (float) $order->get_total(), (int) Reklamo_Settings::get( 'deposit_pct', '50' ) );
+				$new = Reklamo_Money::deposit( (float) $order->get_total(), (int) Reklamo_Settings::get( 'deposit_pct', '100' ) );
 				$order->update_meta_data( '_reklamo_deposit_amount', wc_format_decimal( $new, 2 ) );
 				$order->save();
 				/* translators: %s: amount */
@@ -462,6 +473,9 @@ final class Reklamo_Admin_Order {
 				break;
 			case 'production':
 				$order->update_status( Reklamo_Statuses::PRODUCTION, __( 'Production started.', 'reklamo-core' ) );
+				break;
+			case 'dispatched':
+				$order->update_status( 'completed', __( 'Order dispatched; it was paid in full before production.', 'reklamo-core' ) );
 				break;
 			case 'final_due':
 				$order->update_status( Reklamo_Statuses::FINAL_DUE, __( 'Order ready; final payment requested.', 'reklamo-core' ) );

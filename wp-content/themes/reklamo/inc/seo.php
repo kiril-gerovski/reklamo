@@ -12,7 +12,7 @@
 
 /** Readable one-line text from stored HTML; list items keep a separator. */
 function reklamo_seo_text( string $html, int $limit = 0 ): string {
-	$html = preg_replace( '#</li>#i', ', ', $html );
+	$html = preg_replace( '#</li>#i', ', ', do_shortcode( $html ) );
 	$text = trim( preg_replace( '#\s+#u', ' ', wp_strip_all_tags( (string) $html ) ) );
 	$text = trim( $text, ' ,;·' );
 	return $limit > 0 ? rtrim( wp_html_excerpt( $text, $limit, '' ) ) : $text;

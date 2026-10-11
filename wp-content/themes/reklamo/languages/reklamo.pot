@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-11T11:49:42+00:00\n"
+"POT-Creation-Date: 2026-10-11T15:30:54+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: reklamo\n"
@@ -249,7 +249,7 @@ msgid "From approval to your door"
 msgstr ""
 
 #: template-parts/delivery.php:62
-#: woocommerce/content-single-product.php:240
+#: woocommerce/content-single-product.php:248
 msgid "Delivery and deadlines"
 msgstr ""
 
@@ -266,7 +266,7 @@ msgid "Questions and answers"
 msgstr ""
 
 #: template-parts/faq.php:46
-#: woocommerce/content-single-product.php:241
+#: woocommerce/content-single-product.php:249
 msgid "Frequently asked questions"
 msgstr ""
 
@@ -275,7 +275,7 @@ msgid "Everything about your order, from the logo to delivery. Cannot find your 
 msgstr ""
 
 #: template-parts/faq.php:49
-#: woocommerce/content-single-product.php:235
+#: woocommerce/content-single-product.php:243
 msgid "Get in touch"
 msgstr ""
 
@@ -369,7 +369,7 @@ msgid "How does the order work?"
 msgstr ""
 
 #: template-parts/steps.php:50
-#: woocommerce/content-single-product.php:198
+#: woocommerce/content-single-product.php:206
 msgid "How the order works"
 msgstr ""
 
@@ -508,7 +508,7 @@ msgid "What happens next?"
 msgstr ""
 
 #: templates/page-request.php:103
-#: woocommerce/content-single-product.php:228
+#: woocommerce/content-single-product.php:236
 msgid "Need help?"
 msgstr ""
 
@@ -641,11 +641,19 @@ msgstr ""
 msgid "No payment at this stage"
 msgstr ""
 
-#: woocommerce/content-single-product.php:231
-msgid "Our consultant will help you choose the right package for your business."
+#: woocommerce/content-single-product.php:201
+msgid "Important:"
+msgstr ""
+
+#: woocommerce/content-single-product.php:202
+msgid "The mockup shown is a guide and not a 100% exact image of the final product. Slight differences in colour, size and logo position are possible, depending on the material, the printing technique and the screen settings. Before production you will receive a final mockup for approval."
 msgstr ""
 
 #: woocommerce/content-single-product.php:239
+msgid "Our consultant will help you choose the right package for your business."
+msgstr ""
+
+#: woocommerce/content-single-product.php:247
 msgid "How ordering works"
 msgstr ""
 

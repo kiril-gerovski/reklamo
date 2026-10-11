@@ -5,7 +5,13 @@ cd "$(dirname "$0")/.."
 [ -f .env ] && { set -a; . ./.env; set +a; }
 export WP_URL="${WP_URL:-http://localhost:8080}" MAILPIT_URL="http://localhost:${MAIL_PORT:-8025}" WP_ADMIN_USER WP_ADMIN_PASS
 [ -f tests/fixtures/logo.ai ] && [ -f tests/fixtures/big.psd ] || scripts/make-fixtures.sh 1 150 >/dev/null
-cd tests/e2e
+# The by-the-piece sample is hidden on the shop (fixed quantities only) but still tested: shown for the run.
+nb=$(scripts/wp post list --post_type=product --post_status=draft --meta_key=_sku --meta_value=NB-001 --field=ID 2>/dev/null | tr -dc '0-9' || true)
+if [ -n "$nb" ]; then
+  scripts/wp post update "$nb" --post_status=publish >/dev/null 2>&1
+  trap '"$root"/scripts/wp post update "$nb" --post_status=draft >/dev/null 2>&1' EXIT
+fi
+root=$PWD; cd tests/e2e
 [ -d node_modules ] || npm install --no-audit --no-fund --silent
 npx playwright install chromium >/dev/null 2>&1 || npx playwright install chromium
 npx playwright test "$@"

@@ -74,7 +74,7 @@ class Reklamo_Email_Request_Received extends WC_Email {
 			$this->placeholders['{order_number}']        = $order->get_order_number();
 			$this->placeholders['{order_date}']          = wc_format_datetime( $order->get_date_created() );
 			$this->placeholders['{customer_first_name}'] = $order->get_billing_first_name();
-			$this->placeholders['{deposit_pct}']         = Reklamo_Settings::get( 'deposit_pct', '50' );
+			$this->placeholders['{deposit_pct}']         = Reklamo_Settings::get( 'deposit_pct', '100' );
 		}
 
 		// The order returns to rq-received after every "request changes"; this email is for the

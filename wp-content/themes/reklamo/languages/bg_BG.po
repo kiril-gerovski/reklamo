@@ -315,7 +315,7 @@ msgstr "Или заявявате корекции."
 #: templates/page-request.php:32
 #, php-format
 msgid "You pay a %s%% deposit"
-msgstr "Плащате аванс %s%%"
+msgstr "Плащате поръчката"
 
 #. translators: %s: deposit percentage
 #: templates/page-request.php:32
@@ -344,7 +344,7 @@ msgid "What happens next?"
 msgstr "Какво следва?"
 
 #: templates/page-request.php:103
-#: woocommerce/content-single-product.php:228
+#: woocommerce/content-single-product.php:236
 msgid "Need help?"
 msgstr "Нуждаете се от помощ?"
 
@@ -429,22 +429,22 @@ msgstr "Можеш да поискаш промени до пълно одобр
 
 #: template-parts/steps.php:39
 msgid "Pay the deposit"
-msgstr "Плащаш аванс"
+msgstr "Плащаш"
 
 #: template-parts/steps.php:39
 msgid "After approval you pay a 50% deposit and we start the order."
-msgstr "След одобрение плащаш 50% аванс и стартираме поръчката."
+msgstr "След одобрение плащаш поръчката и стартираме производството."
 
 #: template-parts/steps.php:40
 msgid "Pay the balance and receive"
-msgstr "Доплащаш и получаваш"
+msgstr "Получаваш"
 
 #: template-parts/steps.php:40
 msgid "You pay the rest before dispatch and receive your order."
-msgstr "Плащаш остатъка преди изпращане и получаваш поръчката си."
+msgstr "Изпращаме с избрания от теб куриер и получаваш поръчката си."
 
 #: template-parts/steps.php:50
-#: woocommerce/content-single-product.php:198
+#: woocommerce/content-single-product.php:206
 msgid "How the order works"
 msgstr "Как става поръчката"
 
@@ -589,28 +589,28 @@ msgstr "Или поискайте корекция при нужда."
 #: woocommerce/content-single-product.php:61
 #, php-format
 msgid "Pay a %d%% deposit"
-msgstr "Плащате аванс %d%%"
+msgstr "Плащате поръчката"
 
 #: woocommerce/content-single-product.php:64
 msgid "Production starts once you approve."
 msgstr "След одобрение стартираме поръчката."
 
-#: woocommerce/content-single-product.php:231
+#: woocommerce/content-single-product.php:239
 msgid "Our consultant will help you choose the right package for your business."
 msgstr "Наш консултант ще ви помогне да изберете най-подходящия пакет за вашия бизнес."
 
 #: template-parts/faq.php:49
-#: woocommerce/content-single-product.php:235
+#: woocommerce/content-single-product.php:243
 msgid "Get in touch"
 msgstr "Свържи се с нас"
 
 #: template-parts/delivery.php:62
-#: woocommerce/content-single-product.php:240
+#: woocommerce/content-single-product.php:248
 msgid "Delivery and deadlines"
 msgstr "Доставка и срокове"
 
 #: template-parts/faq.php:46
-#: woocommerce/content-single-product.php:241
+#: woocommerce/content-single-product.php:249
 msgid "Frequently asked questions"
 msgstr "Често задавани въпроси"
 
@@ -646,7 +646,7 @@ msgstr "Ясни срокове на всяка стъпка и куриер д�
 msgid "Delivery details"
 msgstr "Подробно за доставката"
 
-#: woocommerce/content-single-product.php:239
+#: woocommerce/content-single-product.php:247
 msgid "How ordering works"
 msgstr "Как става поръчката"
 
@@ -752,3 +752,11 @@ msgstr "Цена за брой"
 #, php-format
 msgid "min. %d pcs."
 msgstr "мин. %d бр."
+
+#: woocommerce/content-single-product.php:201
+msgid "Important:"
+msgstr "Важно:"
+
+#: woocommerce/content-single-product.php:202
+msgid "The mockup shown is a guide and not a 100% exact image of the final product. Slight differences in colour, size and logo position are possible, depending on the material, the printing technique and the screen settings. Before production you will receive a final mockup for approval."
+msgstr "Показаната визуализация е ориентировъчна и не представлява 100% точно изображение на крайния продукт. Възможни са минимални разлики в цветовете, размера и позиционирането на логото в зависимост от материала, използваната технология за печат и настройките на екрана. Преди производство ще получите финална визуализация за одобрение."

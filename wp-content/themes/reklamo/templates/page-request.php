@@ -14,7 +14,7 @@ get_header();
 
 $reklamo_product  = class_exists( 'Reklamo_Request' ) ? Reklamo_Request::current_product() : null;
 $reklamo_deadline = reklamo_setting( 'mockup_deadline', '24' );
-$reklamo_deposit  = reklamo_setting( 'deposit_pct', '50' );
+$reklamo_deposit  = reklamo_setting( 'deposit_pct', '100' );
 $reklamo_shop     = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : home_url( '/' );
 $reklamo_steps    = array(
 	array( 'upload', __( 'Upload logo', 'reklamo' ), __( 'Send the file with your logo', 'reklamo' ) ),

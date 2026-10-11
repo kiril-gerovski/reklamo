@@ -313,11 +313,11 @@ test( 'approval link: GET is idempotent, POST approves once, replay is refused',
 	await page.click( 'button[name="decision"][value="approve"]' );
 	// Approval lands on the deposit step (its own signed link): approval done, deposit in progress, bank details.
 	await page.waitForURL( /odobrenie\/\?s=/ );
-	await expect( page.locator( '.next h2' ) ).toHaveText( 'Аванс' );
-	await expect( page.locator( '.badge' ) ).toHaveText( 'Одобрена — чака аванс' );
-	await expect( page.locator( '.steps li.now' ) ).toHaveText( 'Аванс' );
+	await expect( page.locator( '.next h2' ) ).toHaveText( 'Плащане' );
+	await expect( page.locator( '.badge' ) ).toHaveText( 'Одобрена — чака плащане' );
+	await expect( page.locator( '.steps li.now' ) ).toHaveText( 'Плащане' );
 	await expect( page.locator( '.steps li.done' ) ).toHaveCount( 3 );
-	await expect( page.locator( '.amount' ) ).toContainText( 'Дължим аванс' );
+	await expect( page.locator( '.amount' ) ).toContainText( 'Дължима сума' );
 	await expect( page.locator( '.bank-details' ) ).toContainText( 'IBAN' );
 	detailsUrl = page.url();
 
@@ -329,7 +329,7 @@ test( 'approval link: GET is idempotent, POST approves once, replay is refused',
 
 test( 'approval tells the shop; a mockup re-sent after approval voids the deposit and the details link', async ( { page } ) => {
 	const admin = await mailpitFind( `одобрена за поръчка ${ orderId }` );
-	expect( admin.text ).toContain( 'аванс' );
+	expect( admin.text ).toContain( 'плащане' );
 
 	await adminLogin( page );
 	const url = `/wp-admin/admin.php?page=wc-orders&action=edit&id=${ orderId }`;
@@ -350,8 +350,8 @@ test( 'approval tells the shop; a mockup re-sent after approval voids the deposi
 	await expect( page.locator( '.next h2' ) ).toContainText( '№3' );
 	await page.click( 'button[name="act"][value="approve"]' );
 	await page.waitForURL( /odobrenie\/\?s=/ );
-	await expect( page.locator( '.next h2' ) ).toHaveText( 'Аванс' );
-	await expect( page.locator( '.steps li.now' ) ).toHaveText( 'Аванс' );
+	await expect( page.locator( '.next h2' ) ).toHaveText( 'Плащане' );
+	await expect( page.locator( '.steps li.now' ) ).toHaveText( 'Плащане' );
 	detailsUrl = page.url();
 	await page.goto( third );
 	await expect( page.locator( '.next h2' ) ).toHaveText( 'Тази визуализация вече е обработена' );
@@ -385,7 +385,7 @@ test( 'a cancelled order tells the customer and its links stop acting', async ( 
 } );
 
 test( 'deposit email arrived; customer fills invoice and delivery details', async ( { page } ) => {
-	const mail = await mailpitFind( `Одобрено — аванс и данни за поръчка ${ orderId }` );
+	const mail = await mailpitFind( `Одобрено — плащане и данни за поръчка ${ orderId }` );
 	expect( mail.to ).toBe( 'e2e@example.com' );
 	expect( mail.text ).toContain( 'IBAN' );
 	expect( mail.text ).toContain( `Поръчка ${ orderId }` );
@@ -411,7 +411,7 @@ test( 'deposit email arrived; customer fills invoice and delivery details', asyn
 	await page.fill( 'input[name="d_postcode"]', '1000' );
 	await page.click( 'form button[type="submit"]' );
 	await expect( page.locator( '.notice.ok' ) ).toContainText( 'Получихме данните Ви' );
-	await expect( page.locator( '.next h2' ) ).toHaveText( 'Аванс' );
+	await expect( page.locator( '.next h2' ) ).toHaveText( 'Плащане' );
 
 	// Bad ЕИК is refused, good values are kept.
 	await page.fill( 'input[name="d_eik"]', '12' );
@@ -423,7 +423,7 @@ test( 'deposit email arrived; customer fills invoice and delivery details', asyn
 	expect( admin.text ).toContain( '123456789' );
 } );
 
-test( 'shop moves the order: deposit → production → final payment → completed', async ( { page } ) => {
+test( 'shop moves the order: payment → production → dispatched and completed', async ( { page } ) => {
 	await adminLogin( page );
 	const url = `/wp-admin/admin.php?page=wc-orders&action=edit&id=${ orderId }`;
 	await page.goto( url );
@@ -436,9 +436,9 @@ test( 'shop moves the order: deposit → production → final payment → comple
 	await expect( page.locator( '.reklamo-notice' ) ).toContainText( 'не е валидна следваща стъпка' );
 	await expect( page.locator( '#order_status' ) ).toHaveValue( 'wc-rq-approved' );
 
-	await page.getByRole( 'button', { name: /Аванс получен/ } ).click();
+	await page.getByRole( 'button', { name: /Плащането е получено/ } ).click();
 	await expect( page.locator( '#order_status' ) ).toHaveValue( 'wc-rq-deposit-paid' );
-	const dep = await mailpitFind( `Получен аванс по поръчка ${ orderId }` );
+	const dep = await mailpitFind( `Получено плащане по поръчка ${ orderId }` );
 	expect( dep.to ).toBe( 'e2e@example.com' );
 
 	await page.getByRole( 'button', { name: 'Стартирай производство' } ).click();
@@ -446,12 +446,9 @@ test( 'shop moves the order: deposit → production → final payment → comple
 	const prod = await mailpitFind( `Поръчка ${ orderId } е в производство` );
 	expect( prod.to ).toBe( 'e2e@example.com' );
 
-	await page.getByRole( 'button', { name: /поискай доплащане/ } ).click();
-	await expect( page.locator( '#order_status' ) ).toHaveValue( 'wc-rq-final-due' );
-	const fin = await mailpitFind( `Поръчка ${ orderId } е готова — доплащане` );
-	expect( fin.text ).toContain( 'IBAN' );
-
-	await page.getByRole( 'button', { name: /Доплащане получено/ } ).click();
+	// Paid in full before production: nothing is left to collect, so there is no final-payment step.
+	await expect( page.getByRole( 'button', { name: /поискай доплащане/ } ) ).toHaveCount( 0 );
+	await page.getByRole( 'button', { name: 'Изпратена — приключи поръчката' } ).click();
 	await expect( page.locator( '#order_status' ) ).toHaveValue( 'wc-completed' );
 } );
 

@@ -71,6 +71,23 @@ final class Reklamo_Items {
 		return (int) $item->get_meta( self::META_REVISION );
 	}
 
+	/** Corrections asked for so far: every mockup after the first. Our own fixes are counted too; the shop decides what to charge. */
+	public static function corrections( WC_Order_Item_Product $item ): int {
+		return max( 0, self::revision( $item ) - 1 );
+	}
+
+	/** The rule for the customer: first mockup plus N free corrections, each further one at a fee. */
+	public static function corrections_rule(): string {
+		$free = (int) Reklamo_Settings::get( 'free_corrections', '2' );
+		$fee  = (string) Reklamo_Settings::get( 'correction_fee', '15' );
+		return sprintf(
+			/* translators: 1: number of free corrections, 2: fee for each further correction */
+			_n( 'Included: the first mockup and %1$d free correction. Each further correction costs %2$s €; fixing our own mistakes is always free.', 'Included: the first mockup and %1$d free corrections. Each further correction costs %2$s €; fixing our own mistakes is always free.', $free, 'reklamo-core' ),
+			$free,
+			$fee
+		);
+	}
+
 	/** @return array<int,string> item ID => state */
 	public static function states( WC_Order $order ): array {
 		return array_map( array( __CLASS__, 'state' ), self::products( $order ) );

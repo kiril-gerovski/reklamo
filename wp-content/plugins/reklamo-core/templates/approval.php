@@ -116,7 +116,7 @@ $view_url = add_query_arg(
 			<?php if ( $counts && $counts['approved'] < $counts['total'] ) : ?>
 				<p><?php echo esc_html( sprintf( /* translators: 1: approved products, 2: all products */ __( 'Approved: %1$d of %2$d products. We ask for the deposit once every mockup is approved — your order page below shows the others.', 'reklamo-core' ), $counts['approved'], $counts['total'] ) ); ?></p>
 			<?php else : ?>
-				<p><?php echo esc_html( sprintf( /* translators: %s: deposit percentage */ __( 'We will now send you our bank details and a request for the %s%% deposit. Production starts once it arrives.', 'reklamo-core' ), Reklamo_Settings::get( 'deposit_pct', '50' ) ) ); ?></p>
+				<p><?php echo esc_html( sprintf( /* translators: %s: deposit percentage */ __( 'We will now send you our bank details and a request for the %s%% deposit. Production starts once it arrives.', 'reklamo-core' ), Reklamo_Settings::get( 'deposit_pct', '100' ) ) ); ?></p>
 			<?php endif; ?>
 
 		<?php elseif ( 'changes' === $view ) : ?>
@@ -164,11 +164,20 @@ $view_url = add_query_arg(
 
 				<details <?php echo $error ? 'open' : ''; ?>>
 					<summary><?php esc_html_e( 'I would like changes', 'reklamo-core' ); ?></summary>
+					<p class="muted rk-corrections">
+						<?php echo esc_html( Reklamo_Items::corrections_rule() ); ?>
+						<?php
+						if ( $item ) {
+							/* translators: %d: corrections asked for so far */
+							echo esc_html( sprintf( _n( 'So far: %d correction.', 'So far: %d corrections.', Reklamo_Items::corrections( $item ), 'reklamo-core' ), Reklamo_Items::corrections( $item ) ) );
+						}
+						?>
+					</p>
 					<p><textarea name="message" placeholder="<?php esc_attr_e( 'Describe what should change…', 'reklamo-core' ); ?>"></textarea></p>
 					<button type="submit" name="decision" value="changes" class="secondary"><?php esc_html_e( 'Request changes', 'reklamo-core' ); ?></button>
 				</details>
 			</form>
-			<p class="muted"><?php echo esc_html( sprintf( /* translators: %s: deposit percentage */ __( 'No payment is taken at this stage. Once every mockup is approved we will send bank details for a %s%% deposit.', 'reklamo-core' ), Reklamo_Settings::get( 'deposit_pct', '50' ) ) ); ?></p>
+			<p class="muted"><?php echo esc_html( sprintf( /* translators: %s: deposit percentage */ __( 'No payment is taken at this stage. Once every mockup is approved we will send bank details for a %s%% deposit.', 'reklamo-core' ), Reklamo_Settings::get( 'deposit_pct', '100' ) ) ); ?></p>
 		<?php endif; ?>
 		</div>
 
