@@ -3,8 +3,10 @@
  *
  * Without JS the form posts the file the old way. With JS: on file choice the file is
  * sliced into chunks and posted to the REST API with a progress bar; on success a hidden
- * reklamo_file_token input is added and the file input is emptied so the final form post
- * stays tiny. Any failure falls back to the plain upload (file input re-enabled).
+ * token input is filled and the file input is emptied so the final form post stays tiny.
+ * Any failure falls back to the plain upload (file input re-enabled). A form may carry
+ * several logo inputs (the cart): each names its own hidden fields in data-token-name /
+ * data-name-name, and every submit button waits until all uploads are done.
  */
 ( function () {
 	'use strict';
@@ -48,12 +50,22 @@
 		return bytes + ' B';
 	}
 
-	document.querySelectorAll( 'input[type="file"][name="reklamo_logo"]' ).forEach( function ( input ) {
+	function hidden( form, field, name ) {
+		var el = form.querySelector( 'input[type="hidden"][name="' + name.replace( /"/g, '\\"' ) + '"]' );
+		if ( ! el ) {
+			el = document.createElement( 'input' );
+			el.type = 'hidden'; el.name = name; el.value = '';
+			field.appendChild( el );
+		}
+		return el;
+	}
+
+	document.querySelectorAll( 'input[type="file"][name="reklamo_logo"], input[type="file"][data-token-name]' ).forEach( function ( input ) {
 		var form = input.form;
 		if ( ! form ) { return; }
 		var field = input.closest( '.rq-field--file' ) || input.parentNode;
 		var box = field.querySelector( '[data-rq-file]' );
-		var submit = form.querySelector( 'button[type="submit"], input[type="submit"]' );
+		var submits = form.querySelectorAll( 'button[type="submit"], input[type="submit"]' );
 
 		// Progress + status UI (inside the file box when present, else after the input).
 		var ui = document.createElement( 'div' );
@@ -63,18 +75,8 @@
 		var bar = ui.querySelector( 'span' ), text = ui.querySelector( '.rq-progress__text' );
 
 		// The server re-emits these after a failed validation so a finished upload is not lost.
-		var tokenInput = form.querySelector( 'input[name="reklamo_file_token"]' );
-		if ( ! tokenInput ) {
-			tokenInput = document.createElement( 'input' );
-			tokenInput.type = 'hidden'; tokenInput.name = 'reklamo_file_token'; tokenInput.value = '';
-			form.appendChild( tokenInput );
-		}
-		var nameInput = form.querySelector( 'input[name="reklamo_file_name"]' );
-		if ( ! nameInput ) {
-			nameInput = document.createElement( 'input' );
-			nameInput.type = 'hidden'; nameInput.name = 'reklamo_file_name'; nameInput.value = '';
-			form.appendChild( nameInput );
-		}
+		var tokenInput = hidden( form, field, input.dataset.tokenName || 'reklamo_file_token' );
+		var nameInput = hidden( form, field, input.dataset.nameName || 'reklamo_file_name' );
 
 		var uploading = false, currentTicket = null;
 
@@ -84,12 +86,15 @@
 			clone.required = false;
 			input.parentNode.replaceChild( clone, input );
 			input = clone;
-			input.addEventListener( 'change', function () { window.location.reload(); } ); // choosing another file: start over cleanly
+			input.addEventListener( 'change', onChange ); // another file: upload it in place of this one
 		}
 
 		function setBusy( on ) {
 			uploading = on;
-			if ( submit ) { submit.disabled = on; }
+			form.rqBusy = Math.max( 0, ( form.rqBusy || 0 ) + ( on ? 1 : -1 ) );
+			submits.forEach( function ( b ) { b.disabled = form.rqBusy > 0; } );
+			if ( ! form.rqBusy ) { form.dispatchEvent( new Event( 'change' ) ); } // let page scripts re-apply their own rules
+
 		}
 		function show( pct, msg, err ) {
 			ui.hidden = false;
@@ -99,7 +104,7 @@
 			ui.classList.toggle( 'is-done', pct >= 100 && ! err );
 		}
 
-		input.addEventListener( 'change', async function () {
+		async function onChange() {
 			var file = input.files && input.files[ 0 ];
 			tokenInput.value = ''; nameInput.value = '';
 			if ( ! file ) { ui.hidden = true; return; }
@@ -132,6 +137,7 @@
 				} );
 				currentTicket = null;
 				tokenInput.value = done.token; nameInput.value = done.name;
+				tokenInput.dispatchEvent( new Event( 'change', { bubbles: true } ) );
 				detach();
 				show( 100, cfg.i18n.done.replace( '%s', done.name + ' (' + fmt( done.size ) + ')' ) );
 			} catch ( e ) {
@@ -150,7 +156,8 @@
 			} finally {
 				setBusy( false );
 			}
-		} );
+		}
+		input.addEventListener( 'change', onChange );
 
 		form.addEventListener( 'submit', function ( e ) {
 			if ( uploading ) { e.preventDefault(); }

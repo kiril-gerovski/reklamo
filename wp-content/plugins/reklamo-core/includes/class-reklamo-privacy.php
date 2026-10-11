@@ -179,20 +179,28 @@ final class Reklamo_Privacy {
 			}
 			if ( $order->get_meta( '_reklamo_approved_at' ) ) {
 				$data[] = array(
-					'name'  => __( 'Mockup approved', 'reklamo-core' ),
-					'value' => sprintf( '%s UTC, #%d', $order->get_meta( '_reklamo_approved_at' ), (int) $order->get_meta( '_reklamo_approved_revision' ) ),
+					'name'  => __( 'Every mockup approved', 'reklamo-core' ),
+					'value' => $order->get_meta( '_reklamo_approved_at' ) . ' UTC',
 				);
 			}
-			foreach ( (array) $order->get_meta( '_reklamo_change_requests' ) as $rev => $message ) {
-				$data[] = array(
-					/* translators: %d: mockup revision */
-					'name'  => sprintf( __( 'Change request to mockup #%d', 'reklamo-core' ), (int) $rev ),
-					'value' => (string) $message,
-				);
+			$names = array();
+			foreach ( $order->get_items() as $item_id => $item ) {
+				$names[ (int) $item_id ] = $item->get_name();
+			}
+			foreach ( Reklamo_Items::change_requests( $order ) as $item_id => $by_rev ) {
+				foreach ( $by_rev as $rev => $message ) {
+					$data[] = array(
+						/* translators: 1: mockup revision, 2: product name */
+						'name'  => sprintf( __( 'Change request to mockup #%1$d of %2$s', 'reklamo-core' ), (int) $rev, $names[ $item_id ] ?? '-' ),
+						'value' => (string) $message,
+					);
+				}
 			}
 			foreach ( Reklamo_Storage::for_order( $order_id ) as $f ) {
-				$data[] = array(
-					'name'  => 'logo' === $f->kind ? __( 'Logo file', 'reklamo-core' ) : sprintf( /* translators: %d: revision */ __( 'Mockup #%d', 'reklamo-core' ), (int) $f->revision ),
+				$product = $names[ (int) $f->order_item_id ] ?? '';
+				$label   = 'logo' === $f->kind ? __( 'Logo file', 'reklamo-core' ) : sprintf( /* translators: %d: revision */ __( 'Mockup #%d', 'reklamo-core' ), (int) $f->revision );
+				$data[]  = array(
+					'name'  => '' !== $product ? $label . ' — ' . $product : $label,
 					'value' => sprintf( '%s — %s, %s (%s)', $f->orig_name, strtoupper( $f->ext ), size_format( (int) $f->bytes ), '' === (string) $f->path ? __( 'deleted', 'reklamo-core' ) : $f->created_at ),
 				);
 				if ( $f->created_ip ) {

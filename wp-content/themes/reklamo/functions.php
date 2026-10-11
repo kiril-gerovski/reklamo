@@ -90,8 +90,8 @@ function reklamo_contact_url(): string {
 }
 
 /* ---------------------------------------------------------------------------
- * WooCommerce: the design has no sidebar, no cart, no "add to cart". A card opens the
- * product page, and the product page's one call to action opens the request form.
+ * WooCommerce: the design has no sidebar and no shop-loop "add to cart". A card opens the
+ * product page, whose order card adds the product with its logo to the cart (Reklamo_Cart).
  * ------------------------------------------------------------------------- */
 
 // Wrappers and sidebar.

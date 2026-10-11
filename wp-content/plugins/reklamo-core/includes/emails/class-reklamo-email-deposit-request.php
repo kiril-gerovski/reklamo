@@ -17,7 +17,7 @@ class Reklamo_Email_Deposit_Request extends Reklamo_Email {
 		$this->id             = 'reklamo_deposit_request';
 		$this->customer_email = true;
 		$this->title          = __( 'Deposit request (Reklamo)', 'reklamo-core' );
-		$this->description    = __( 'Sent when the customer approves a mockup: bank details, the deposit amount and a link to fill in invoice and delivery details.', 'reklamo-core' );
+		$this->description    = __( 'Sent once the customer has approved every mockup of an order: bank details, the deposit amount and a link to fill in invoice and delivery details.', 'reklamo-core' );
 		parent::__construct();
 	}
 
@@ -26,11 +26,11 @@ class Reklamo_Email_Deposit_Request extends Reklamo_Email {
 	}
 
 	public function get_default_heading() {
-		return __( 'Thank you for approving the mockup!', 'reklamo-core' );
+		return __( 'Thank you for your approval!', 'reklamo-core' );
 	}
 
 	public function get_default_intro_text(): string {
-		return __( 'Hello {customer_first_name}, your mockup is approved. Two short steps remain: fill in your invoice and delivery details using the button below, and transfer the {deposit_pct}% deposit of {deposit_amount} to the account below, quoting the order number. Production starts as soon as it arrives; the balance of {balance_amount} is due before delivery.', 'reklamo-core' );
+		return __( 'Hello {customer_first_name}, every mockup of your order is approved. Two short steps remain: fill in your invoice and delivery details using the button below, and transfer the {deposit_pct}% deposit of {deposit_amount} to the account below, quoting the order number. Production starts as soon as it arrives; the balance of {balance_amount} is due before delivery.', 'reklamo-core' );
 	}
 
 	public function get_default_button_label(): string {

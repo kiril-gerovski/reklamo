@@ -1,6 +1,7 @@
 // @ts-check
-// The walking skeleton, end to end: product → logo upload → no-payment checkout →
-// admin sends mockup → customer approves via one-time link → replay is refused.
+// The walking skeleton, end to end, for one product: request page → logo upload → cart →
+// no-payment request → admin sends mockup → customer approves via one-time link → replay
+// is refused. Several products with their own mockups: cart.spec.js.
 const { test, expect, request } = require( '@playwright/test' );
 const { FIXTURES, mailpitFind, adminLogin } = require( './helpers' );
 
@@ -13,35 +14,69 @@ let detailsUrl = '';
 let bigOrderId = '';
 let svgOrderId = '';
 
-test( 'customer places a request with a logo and no payment', async ( { page } ) => {
-	// Product page leads to the request page — no add-to-cart, no checkout.
-	await page.goto( '/product/red-business-pack/' );
-	await page.getByRole( 'link', { name: /Качи лого и заяви визуализация/i } ).click();
-	await page.waitForURL( /\/kachi-logo\/\?paket=red-business-pack/ );
-
-	await expect( page.locator( 'h1' ) ).toHaveText( 'Качи лого и визуализирай' );
-	await expect( page.locator( '.package-summary__name' ) ).toHaveText( 'Red Business Pack' );
-	await expect( page.locator( '.rq-nopay' ) ).toContainText( 'Не се извършва плащане' );
-
-	await page.setInputFiles( 'input[name="reklamo_logo"]', `${ FIXTURES }/logo.ai` );
-	await expect( page.locator( '[data-rq-file]' ) ).toBeVisible();
-	await expect( page.locator( '[data-rq-file-name]' ) ).toHaveText( 'logo.ai' );
-	// Chunked uploader finished: token present, file input emptied so the form post stays small.
-	await expect( page.locator( '.rq-progress.is-done' ) ).toContainText( 'Качено:' );
-	await expect( page.locator( 'input[name="reklamo_file_token"]' ) ).toHaveValue( /^[a-f0-9]{32}$/ );
-	await page.fill( 'textarea[name="reklamo_note"]', 'E2E: златно лого, центрирано.' );
-	await page.fill( 'input[name="rq_name"]', 'Е2Е Тест' );
-	await page.fill( 'input[name="rq_email"]', 'e2e@example.com' );
-	await page.fill( 'input[name="rq_phone"]', '0888 123 456' );
+/** Cart step 2: contact details and consents, then send. Lands on the new order's page. */
+async function sendCart( page, name, email, phone = '0888 123 456' ) {
+	if ( await page.locator( '[data-rk-continue]' ).count() ) {
+		await page.locator( '[data-rk-continue]' ).click();
+		await expect( page.locator( '.rk-cart' ) ).toHaveAttribute( 'data-step', 'details' );
+	}
+	await page.fill( 'input[name="rq_name"]', name );
+	await page.fill( 'input[name="rq_email"]', email );
+	await page.fill( 'input[name="rq_phone"]', phone );
 	await page.check( 'input[name="rq_consent"]' );
 	await page.check( 'input[name="rq_waiver"]' );
-	await page.getByRole( 'button', { name: /Изпрати и заяви визуализация/ } ).click();
+	await page.getByRole( 'button', { name: /Изпрати и заяви визуализации/ } ).click();
+	await page.waitForURL( /porachka\/\?s=/ );
+	return page.locator( 'h1[data-order]' ).getAttribute( 'data-order' );
+}
+
+/** Cart step 1: the first logo (marked for every product by default) gets its file and its note. */
+async function logoInCart( page, fixture, note = 'E2E: лого в центъра.' ) {
+	const logo = page.locator( '.rk-logo' ).first();
+	await logo.locator( 'input[type="file"]' ).setInputFiles( `${ FIXTURES }/${ fixture }` );
+	await expect( logo.locator( '.rq-progress.is-done' ) ).toContainText( fixture, { timeout: 150_000 } );
+	await logo.locator( 'textarea' ).fill( note );
+}
+
+/** The request page for one product puts it in the cart; the logo is uploaded there. */
+async function addFromRequestPage( page, paket, fixture = '', note = undefined ) {
+	await page.goto( `/kachi-logo/?paket=${ paket }` );
+	await page.getByRole( 'button', { name: /Добави в количката/ } ).click();
+	await page.locator( '[data-rk-added]' ).getByRole( 'link', { name: 'Към количката' } ).click();
+	await page.waitForURL( /\/koshnitsa\/$/ );
+	if ( fixture ) {
+		await logoInCart( page, fixture, note );
+	}
+}
+
+test( 'customer places a request with a logo and no payment', async ( { page } ) => {
+	// The request page for one product (the header button leads here) adds it to the cart.
+	await page.goto( '/kachi-logo/?paket=red-business-pack' );
+	await expect( page.locator( 'h1' ) ).toHaveText( 'Качи лого и визуализирай' );
+	await expect( page.locator( '.package-summary__name' ) ).toHaveText( 'Red Business Pack' );
+	await expect( page.locator( '.rq-nopay' ) ).toContainText( 'не се извършва плащане' );
+	await page.getByRole( 'button', { name: /Добави в количката/ } ).click();
+	await page.locator( '[data-rk-added]' ).getByRole( 'link', { name: 'Към количката' } ).click();
+	await page.waitForURL( /\/koshnitsa\/$/ );
+
+	await expect( page.locator( '.rk-cart__item' ) ).toHaveCount( 1 );
+	await expect( page.locator( '[data-rk-continue]' ) ).toBeDisabled();
+	const logo = page.locator( '.rk-logo' ).first();
+	await logo.locator( 'input[type="file"]' ).setInputFiles( `${ FIXTURES }/logo.ai` );
+	await expect( logo.locator( '[data-rq-file-name]' ) ).toHaveText( 'logo.ai' );
+	// Chunked uploader finished: token present, file input emptied so the form post stays small.
+	await expect( logo.locator( '.rq-progress.is-done' ) ).toContainText( 'Качено:' );
+	await expect( logo.locator( 'input[type="hidden"][name$="[file_token]"]' ) ).toHaveValue( /^[a-f0-9]{32}$/ );
+	// A logo without a note is not enough.
+	await expect( page.locator( '[data-rk-continue]' ) ).toBeDisabled();
+	await logo.locator( 'textarea' ).fill( 'E2E: златно лого, центрирано.' );
+	await expect( page.locator( '[data-rk-continue]' ) ).toBeEnabled();
 
 	// The confirmation page is the customer's own order page (passwordless, keyed by the link).
-	await page.waitForURL( /porachka\/\?s=/ );
-	orderId = await page.locator( 'h1[data-order]' ).getAttribute( 'data-order' );
+	orderId = await sendCart( page, 'Е2Е Тест', 'e2e@example.com' );
 	trackUrl = page.url().replace( /&new=1$/, '' );
 	await expect( page.locator( 'body' ) ).toContainText( 'Заявката Ви е получена' );
+	await expect( page.locator( 'section.product' ) ).toContainText( 'logo.ai' );
 	// The request is in (done); the mockup is the step in progress.
 	await expect( page.locator( '.steps li.done' ) ).toHaveText( [ 'Заявка приета' ] );
 	await expect( page.locator( '.steps li.now' ) ).toHaveText( 'Визуализация' );
@@ -53,95 +88,96 @@ test( 'customer places a request with a logo and no payment', async ( { page } )
 	expect( mail.text, 'tracking link in the confirmation email' ).toContain( trackUrl );
 } );
 
-test( 'request form validation: missing consent and file are refused, values are kept', async ( { page } ) => {
-	await page.goto( '/kachi-logo/?paket=red-business-pack' );
-	await page.fill( 'input[name="rq_name"]', 'Без файл' );
-	await page.fill( 'input[name="rq_email"]', 'nofile@example.com' );
+test( 'validation: no step 2 without a logo and a note; then consents and phone are checked, values kept', async ( { page } ) => {
+	await addFromRequestPage( page, 'red-business-pack' );
+	// The disabled button is a convenience; the server refuses the same on its own.
+	await page.locator( '[data-rk-continue]' ).evaluate( ( b ) => { b.disabled = false; } );
+	await page.locator( '[data-rk-continue]' ).click();
+	await expect( page.locator( '.rq-errors' ) ).toContainText( 'Red Business Pack - Червен, 20 бр.: логото му още не е качено' );
+	await expect( page.locator( '.rk-cart' ) ).toHaveAttribute( 'data-step', 'logos' );
+
+	await logoInCart( page, 'logo.png', '' );
+	await page.locator( '[data-rk-continue]' ).evaluate( ( b ) => { b.disabled = false; } );
+	await page.locator( '[data-rk-continue]' ).click();
+	await expect( page.locator( '.rq-errors' ) ).toContainText( 'бележката към дизайнера е празна' );
+	await page.locator( '.rk-logo' ).first().locator( 'textarea' ).fill( 'Бележка' );
+	await page.locator( '[data-rk-continue]' ).click();
+	await expect( page.locator( '.rk-cart' ) ).toHaveAttribute( 'data-step', 'details' );
+
+	await page.fill( 'input[name="rq_name"]', 'Без съгласие' );
+	await page.fill( 'input[name="rq_email"]', 'noconsent@example.com' );
 	await page.fill( 'input[name="rq_phone"]', '12' );
-	// Bypass browser-side "required" to exercise the server-side validation.
-	await page.evaluate( () => document.querySelector( 'form.rq-form' ).setAttribute( 'novalidate', '' ) );
-	await page.evaluate( () => document.querySelectorAll( 'form.rq-form [required]' ).forEach( ( el ) => el.removeAttribute( 'required' ) ) );
-	await page.getByRole( 'button', { name: /Изпрати и заяви визуализация/ } ).click();
+	// Without the consents the button stays off; the server refuses the same on its own.
+	await expect( page.locator( '[data-rk-send]' ) ).toBeDisabled();
+	// Leaving the field fires its own `change` (which re-runs the check); do that before forcing the button.
+	await page.locator( 'input[name="rq_phone"]' ).blur();
+	await page.locator( '[data-rk-send]' ).evaluate( ( b ) => { b.disabled = false; } );
+	await page.getByRole( 'button', { name: /Изпрати и заяви визуализации/ } ).click();
 	await page.waitForURL( /rq=/ );
 	await expect( page.locator( '.rq-errors' ) ).toContainText( 'Общите условия' );
 	await expect( page.locator( '.rq-errors' ) ).toContainText( 'правото на отказ' );
-	await expect( page.locator( '.rq-errors' ) ).toContainText( 'файл с Вашето лого' );
 	await expect( page.locator( '.rq-errors' ) ).toContainText( 'телефонен номер' );
 	await expect( page.locator( 'input[name="rq_phone"]' ) ).toHaveValue( '12' );
-	await expect( page.locator( 'input[name="rq_name"]' ) ).toHaveValue( 'Без файл' );
+	await expect( page.locator( 'input[name="rq_name"]' ) ).toHaveValue( 'Без съгласие' );
+	await expect( page.locator( '.rk-cart__item' ) ).toHaveCount( 1 );
 } );
 
-test( 'a mistyped email domain is refused, values are kept', async ( { page } ) => {
-	await page.goto( '/kachi-logo/?paket=red-business-pack' );
-	await page.setInputFiles( 'input[name="reklamo_logo"]', `${ FIXTURES }/logo.png` );
-	await expect( page.locator( '.rq-progress.is-done' ) ).toContainText( 'logo.png' );
+test( 'a mistyped email domain is refused, values and the logo are kept', async ( { page } ) => {
+	await addFromRequestPage( page, 'red-business-pack', 'logo.png' );
+	await page.locator( '[data-rk-continue]' ).click();
 	await page.fill( 'input[name="rq_name"]', 'Грешен Домейн' );
 	await page.fill( 'input[name="rq_email"]', 'nobody@abv.bh' );
 	await page.fill( 'input[name="rq_phone"]', '+359 2 987 65 43' );
 	await page.check( 'input[name="rq_consent"]' );
 	await page.check( 'input[name="rq_waiver"]' );
-	await page.getByRole( 'button', { name: /Изпрати и заяви визуализация/ } ).click();
+	await page.getByRole( 'button', { name: /Изпрати и заяви визуализации/ } ).click();
 	await expect( page.locator( '.rq-errors' ) ).toContainText( 'abv.bh' );
 	await expect( page.locator( 'input[name="rq_name"]' ) ).toHaveValue( 'Грешен Домейн' );
-	// The finished upload survived the round-trip: no second upload needed.
-	await expect( page.locator( 'input[name="reklamo_file_token"]' ) ).toHaveValue( /^[a-f0-9]{32}$/ );
-	await expect( page.locator( '.rq-progress.is-done' ) ).toContainText( 'logo.png' );
-	await page.fill( 'input[name="rq_email"]', 'fixed@example.com' );
-	await page.getByRole( 'button', { name: /Изпрати и заяви визуализация/ } ).click();
-	await page.waitForURL( /porachka\/\?s=/ );
+	await expect( page.locator( '.rk-cart__item [data-cart-logo]' ) ).toContainText( 'logo.png' );
+	await sendCart( page, 'Грешен Домейн', 'fixed@example.com', '+359 2 987 65 43' );
 } );
 
-test( 'homepage quick-start form creates a request too', async ( { page } ) => {
+test( 'homepage quick-start form adds the chosen package to the cart', async ( { page } ) => {
 	await page.goto( '/' );
 	const form = page.locator( '.rq-form--compact' );
-	await form.locator( 'select[name="product_id"]' ).selectOption( { index: 2 } );
-	await form.locator( 'input[name="reklamo_logo"]' ).setInputFiles( `${ FIXTURES }/logo.png` );
-	await form.locator( 'input[name="rq_name"]' ).fill( 'Бърз Старт' );
-	await form.locator( 'input[name="rq_email"]' ).fill( 'quick@example.com' );
-	await form.locator( 'input[name="rq_phone"]' ).fill( '0888123456' );
-	await form.locator( 'input[name="rq_consent"]' ).check();
-	await form.locator( 'input[name="rq_waiver"]' ).check();
-	await form.getByRole( 'button', { name: /Изпрати за визуализация/ } ).click();
-	await page.waitForURL( /porachka\/\?s=/ );
+	// No package chosen: the browser holds the form back.
+	await form.getByRole( 'button', { name: /Добави в количката/ } ).click();
+	await expect( page ).toHaveURL( /\/$/ );
+	expect( await form.locator( 'select[name="add-to-cart"]' ).evaluate( ( el ) => el.checkValidity() ) ).toBe( false );
+
+	await page.locator( '.rq-form--compact select[name="add-to-cart"]' ).selectOption( { index: 2 } );
+	await page.locator( '.rq-form--compact' ).getByRole( 'button', { name: /Добави в количката/ } ).click();
+	await page.locator( '[data-rk-added]' ).getByRole( 'link', { name: 'Към количката' } ).click();
+	await page.waitForURL( /\/koshnitsa\/$/ );
+	await expect( page.locator( '.rk-cart__item' ) ).toHaveCount( 1 );
+	await logoInCart( page, 'logo.png' );
+	await sendCart( page, 'Бърз Старт', 'quick@example.com', '0888123456' );
 	await expect( page.locator( 'body' ) ).toContainText( 'Заявката Ви е получена' );
 } );
 
 test( 'chunked upload: a 150 MB PSD gets through a 64 MB PHP limit', async ( { page } ) => {
 	test.setTimeout( 180_000 );
-	await page.goto( '/kachi-logo/?paket=office-starter-pack' );
-	await page.setInputFiles( 'input[name="reklamo_logo"]', `${ FIXTURES }/big.psd` );
-	await expect( page.locator( '.rq-progress' ) ).toBeVisible();
-	await expect( page.locator( '.rq-progress.is-done' ) ).toContainText( 'big.psd', { timeout: 150_000 } );
-	await expect( page.locator( '.rq-progress.is-done' ) ).toContainText( '150.0 MB' );
-	await page.fill( 'input[name="rq_name"]', 'Голям Файл' );
-	await page.fill( 'input[name="rq_email"]', 'big@example.com' );
-	await page.fill( 'input[name="rq_phone"]', '0888 123 456' );
-	await page.check( 'input[name="rq_consent"]' );
-	await page.check( 'input[name="rq_waiver"]' );
-	await page.getByRole( 'button', { name: /Изпрати и заяви визуализация/ } ).click();
-	await page.waitForURL( /porachka\/\?s=/ );
-	bigOrderId = await page.locator( 'h1[data-order]' ).getAttribute( 'data-order' );
+	await addFromRequestPage( page, 'office-starter-pack' );
+	const logo = page.locator( '.rk-logo' ).first();
+	await logo.locator( 'input[type="file"]' ).setInputFiles( `${ FIXTURES }/big.psd` );
+	await expect( logo.locator( '.rq-progress' ) ).toBeVisible();
+	await expect( logo.locator( '.rq-progress.is-done' ) ).toContainText( 'big.psd', { timeout: 150_000 } );
+	await expect( logo.locator( '.rq-progress.is-done' ) ).toContainText( '150.0 MB' );
+	await logo.locator( 'textarea' ).fill( 'Голям файл' );
+	bigOrderId = await sendCart( page, 'Голям Файл', 'big@example.com' );
 } );
 
 test( 'wrong content is refused: an .exe renamed to .ai', async ( { page } ) => {
-	await page.goto( '/kachi-logo/?paket=red-business-pack' );
-	await page.setInputFiles( 'input[name="reklamo_logo"]', `${ FIXTURES }/fake.ai` );
-	await expect( page.locator( '.rq-progress.is-error' ) ).toContainText( 'не изглежда като валиден AI файл', { timeout: 60_000 } );
-	await expect( page.locator( 'input[name="reklamo_file_token"]' ) ).toHaveValue( '' );
+	await addFromRequestPage( page, 'red-business-pack' );
+	const logo = page.locator( '.rk-logo' ).first();
+	await logo.locator( 'input[type="file"]' ).setInputFiles( `${ FIXTURES }/fake.ai` );
+	await expect( logo.locator( '.rq-progress.is-error' ) ).toContainText( 'не изглежда като валиден AI файл', { timeout: 60_000 } );
+	await expect( logo.locator( 'input[type="hidden"][name$="[file_token]"]' ) ).toHaveValue( '' );
 } );
 
 test( 'SVG with a script is stored sanitised', async ( { page } ) => {
-	await page.goto( '/kachi-logo/?paket=red-business-pack' );
-	await page.setInputFiles( 'input[name="reklamo_logo"]', `${ FIXTURES }/xss.svg` );
-	await expect( page.locator( '.rq-progress.is-done' ) ).toContainText( 'xss.svg' );
-	await page.fill( 'input[name="rq_name"]', 'СВГ Тест' );
-	await page.fill( 'input[name="rq_email"]', 'svg@example.com' );
-	await page.fill( 'input[name="rq_phone"]', '0888 123 456' );
-	await page.check( 'input[name="rq_consent"]' );
-	await page.check( 'input[name="rq_waiver"]' );
-	await page.getByRole( 'button', { name: /Изпрати и заяви визуализация/ } ).click();
-	await page.waitForURL( /porachka\/\?s=/ );
-	const id = await page.locator( 'h1[data-order]' ).getAttribute( 'data-order' );
+	await addFromRequestPage( page, 'red-business-pack', 'xss.svg' );
+	const id = await sendCart( page, 'СВГ Тест', 'svg@example.com' );
 	svgOrderId = id;
 
 	// The admin download must be a forced attachment whose bytes carry no script.
@@ -174,9 +210,9 @@ test( 'admin sees the logo and sends a mockup', async ( { page } ) => {
 	// The note is line-item meta, shown with the order items — not in the mockup box.
 	await expect( page.locator( '#woocommerce-order-items' ) ).toContainText( 'E2E: златно лого' );
 
-	await page.setInputFiles( 'input[name="reklamo_mockup"]', `${ FIXTURES }/mockup.png` );
+	await page.setInputFiles( 'input[name^="reklamo_mockup["]', `${ FIXTURES }/mockup.png` );
 	await page.getByRole( 'button', { name: 'Изпрати на клиента' } ).click();
-	await expect( page.locator( '.notice-success' ) ).toContainText( 'Визуализация №1 е изпратена' );
+	await expect( page.locator( '.notice-success' ) ).toContainText( 'Red Business Pack - Червен, 20 бр. (визуализация №1)' );
 	await expect( page.locator( '#order_status' ) ).toHaveValue( 'wc-rq-mockup-sent' );
 
 	const mail = await mailpitFind( `Визуализацията за поръчка ${ orderId }` );
@@ -203,10 +239,10 @@ test( 'order page: shows the pending mockup with its decision buttons, guards it
 	await expect( page.locator( '.badge' ) ).toHaveText( 'Изпратена визуализация' );
 	await expect( page.locator( '.steps li.now' ) ).toHaveText( 'Одобрение' );
 	await expect( page.locator( '.next h2' ) ).toContainText( 'Визуализация №1 очаква Вашето решение' );
-	await expect( page.locator( '.next .preview img' ) ).toBeVisible();
+	await expect( page.locator( '.product .preview img' ) ).toBeVisible();
 	await expect( page.locator( 'button[name="act"][value="approve"]' ) ).toHaveCount( 1 );
 	// GET changed nothing: the order is still awaiting the decision.
-	const img = await page.locator( '.next .preview img' ).getAttribute( 'src' );
+	const img = await page.locator( '.product .preview img' ).getAttribute( 'src' );
 	const r = await anon.get( img );
 	expect( r.status() ).toBe( 200 );
 	expect( r.headers()[ 'content-type' ] ).toContain( 'image/png' );
@@ -219,7 +255,7 @@ test( 'order page: shows the pending mockup with its decision buttons, guards it
 	await page.reload();
 	await expect( page.locator( 'button[name="act"][value="approve"]' ) ).toHaveCount( 1 );
 	// "Changes" without a message is refused with a hint.
-	await page.click( '.next details summary' );
+	await page.click( '.product details summary' );
 	await page.click( 'button[name="act"][value="changes"]' );
 	await expect( page.locator( '.notice.err' ) ).toContainText( 'опишете' );
 } );
@@ -261,9 +297,9 @@ test( 'approval link: GET is idempotent, POST approves once, replay is refused',
 	await adminLogin( page );
 	await page.goto( `/wp-admin/admin.php?page=wc-orders&action=edit&id=${ orderId }` );
 	await expect( page.locator( '#order_status' ) ).toHaveValue( 'wc-rq-changes' );
-	await page.setInputFiles( 'input[name="reklamo_mockup"]', `${ FIXTURES }/mockup.png` );
+	await page.setInputFiles( 'input[name^="reklamo_mockup["]', `${ FIXTURES }/mockup.png` );
 	await page.getByRole( 'button', { name: 'Изпрати на клиента' } ).click();
-	await expect( page.locator( '.notice-success' ) ).toContainText( 'Визуализация №2 е изпратена' );
+	await expect( page.locator( '.notice-success' ) ).toContainText( 'Red Business Pack - Червен, 20 бр. (визуализация №2)' );
 	const second = ( await mailpitFind( `Визуализацията за поръчка ${ orderId }` ) ).text.match( /https?:\/\/\S+odobrenie\/\?s=[A-Za-z0-9]+&k=[A-Za-z0-9_-]+/ );
 	// The link for #1 is used up and reports so; it cannot approve #2.
 	await page.context().clearCookies();
@@ -299,7 +335,7 @@ test( 'approval tells the shop; a mockup re-sent after approval voids the deposi
 	const url = `/wp-admin/admin.php?page=wc-orders&action=edit&id=${ orderId }`;
 	await page.goto( url );
 	await expect( page.locator( 'button[name="reklamo_action"][value="recalc_deposit"]' ) ).toHaveCount( 1 );
-	await page.setInputFiles( 'input[name="reklamo_mockup"]', `${ FIXTURES }/mockup.png` );
+	await page.setInputFiles( 'input[name^="reklamo_mockup["]', `${ FIXTURES }/mockup.png` );
 	await page.getByRole( 'button', { name: 'Изпрати на клиента' } ).click();
 	await expect( page.locator( '#order_status' ) ).toHaveValue( 'wc-rq-mockup-sent' );
 	await expect( page.locator( 'button[name="reklamo_action"][value="recalc_deposit"]' ) ).toHaveCount( 0 );
@@ -329,7 +365,7 @@ test( 'a cancelled order tells the customer and its links stop acting', async ( 
 	await adminLogin( page );
 	const url = `/wp-admin/admin.php?page=wc-orders&action=edit&id=${ svgOrderId }`;
 	await page.goto( url );
-	await page.setInputFiles( 'input[name="reklamo_mockup"]', `${ FIXTURES }/mockup.png` );
+	await page.setInputFiles( 'input[name^="reklamo_mockup["]', `${ FIXTURES }/mockup.png` );
 	await page.getByRole( 'button', { name: 'Изпрати на клиента' } ).click();
 	const link = ( await mailpitFind( `Визуализацията за поръчка ${ svgOrderId }` ) ).text.match( /https?:\/\/\S+odobrenie\/\?s=[A-Za-z0-9]+&k=[A-Za-z0-9_-]+/ )[ 0 ];
 	await page.selectOption( '#order_status', 'wc-cancelled' );

@@ -11,7 +11,9 @@
  * GET is strictly idempotent — email scanners prefetch every link, so a GET must never
  * change anything. Approval is a POST made single-use by one atomic UPDATE, so a
  * double-click or a racing prefetch cannot approve twice. Each mockup revision mints a
- * fresh token; an old email can never approve a newer mockup.
+ * fresh token; an old email can never approve a newer mockup. Approval links belong to one
+ * product of the order (Reklamo_Items): each product is approved on its own, and the deposit
+ * step opens once all of them are.
  *
  * @package Reklamo
  */
@@ -83,20 +85,22 @@ final class Reklamo_Approval {
 
 	/**
 	 * Mint a token and return the URL to email. The secret exists only in the returned
-	 * URL; the table stores its hash. Older live tokens with the same purpose are expired,
-	 * so a reminder link supersedes the original.
+	 * URL; the table stores its hash. Older live tokens with the same purpose (and, for an
+	 * approval, the same product) are expired, so a reminder link supersedes the original.
 	 */
-	public static function issue( WC_Order $order, int $file_id, int $revision, string $purpose = 'approval' ): string {
+	public static function issue( WC_Order $order, int $file_id, int $revision, string $purpose = 'approval', int $item_id = 0 ): string {
 		global $wpdb;
 		$ttl = 'details' === $purpose ? self::DETAILS_TTL : self::TTL_DAYS;
 
 		$wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			$wpdb->prepare(
-				"UPDATE {$wpdb->prefix}reklamo_tokens SET expires_at = %s WHERE order_id = %d AND purpose = %s AND used_at IS NULL AND expires_at > %s",
+				"UPDATE {$wpdb->prefix}reklamo_tokens SET expires_at = %s WHERE order_id = %d AND purpose = %s AND used_at IS NULL AND expires_at > %s AND ( %d = 0 OR order_item_id = %d )",
 				current_time( 'mysql', true ),
 				$order->get_id(),
 				$purpose,
-				current_time( 'mysql', true )
+				current_time( 'mysql', true ),
+				$item_id,
+				$item_id
 			)
 		);
 
@@ -104,14 +108,15 @@ final class Reklamo_Approval {
 		$wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			$wpdb->prefix . 'reklamo_tokens',
 			array(
-				'selector'   => $t['selector'],
-				'order_id'   => $order->get_id(),
-				'file_id'    => $file_id,
-				'revision'   => $revision,
-				'hash'       => $t['hash'],
-				'purpose'    => $purpose,
-				'expires_at' => gmdate( 'Y-m-d H:i:s', time() + $ttl * DAY_IN_SECONDS ),
-				'created_at' => current_time( 'mysql', true ),
+				'selector'      => $t['selector'],
+				'order_id'      => $order->get_id(),
+				'file_id'       => $file_id,
+				'order_item_id' => $item_id > 0 ? $item_id : null,
+				'revision'      => $revision,
+				'hash'          => $t['hash'],
+				'purpose'       => $purpose,
+				'expires_at'    => gmdate( 'Y-m-d H:i:s', time() + $ttl * DAY_IN_SECONDS ),
+				'created_at'    => current_time( 'mysql', true ),
 			)
 		);
 		$order->update_meta_data( '_reklamo_' . $purpose . '_selector', $t['selector'] );
@@ -133,13 +138,13 @@ final class Reklamo_Approval {
 		return is_array( $rows ) ? $rows : array();
 	}
 
-	/** Latest mockup revision number for an order (0 = none). */
-	public static function latest_revision( int $order_id ): int {
-		$rev = 0;
-		foreach ( Reklamo_Storage::for_order( $order_id, 'mockup' ) as $m ) {
-			$rev = max( $rev, (int) $m->revision );
+	/** The product an approval token belongs to; tokens from before the item loop name only the file. */
+	public static function token_item_id( object $row, ?object $file = null ): int {
+		if ( ! empty( $row->order_item_id ) ) {
+			return (int) $row->order_item_id;
 		}
-		return $rev;
+		$file = $file ?? Reklamo_Storage::by_id( (int) $row->file_id );
+		return $file ? (int) $file->order_item_id : 0;
 	}
 
 	public static function handle(): void {
@@ -225,12 +230,15 @@ final class Reklamo_Approval {
 		if ( ! $file ) {
 			self::not_found();
 		}
+		$item_id      = self::token_item_id( $row, $file );
+		$item         = Reklamo_Items::item( $order, $item_id );
 		$vars['file'] = $file;
+		$vars['item'] = $item;
 
-		// The token alone is not enough: the order must still be waiting for this decision.
+		// The token alone is not enough: this product must still be waiting for this decision.
 		// Otherwise an old email could approve a cancelled order or drag one back from production.
 		// Checked before expiry so a cancelled order explains itself instead of "link expired".
-		if ( ! $row->used_at && ! $order->has_status( Reklamo_Statuses::MOCKUP_SENT ) ) {
+		if ( ! $row->used_at && ! self::awaits_decision( $order, $item, (int) $row->revision ) ) {
 			self::render( 'closed', $vars );
 		}
 		if ( Reklamo_Token::is_expired( $row->expires_at, time() ) && ! $row->used_at ) {
@@ -276,40 +284,62 @@ final class Reklamo_Approval {
 			self::render( 'used', $vars );
 		}
 
-		$details_url = self::decide( $order, (int) $row->revision, (int) $row->file_id, $action, $message );
-		if ( 'approve' === $action ) {
+		$details_url = self::decide( $order, $item_id, (int) $row->revision, (int) $row->file_id, $action, $message );
+		if ( '' !== $details_url ) {
 			wp_safe_redirect( $details_url );
 			exit;
 		}
-		$vars['token']->used_action = 'changes';
-		self::render( 'changes', $vars );
+		$vars['order']              = wc_get_order( $order->get_id() );
+		$vars['token']->used_action = $action;
+		$vars['counts']             = Reklamo_Items::counts( $vars['order'] );
+		self::render( 'approve' === $action ? 'approved' : 'changes', $vars );
+	}
+
+	/** Is this product's mockup revision still waiting for the customer? */
+	public static function awaits_decision( WC_Order $order, ?WC_Order_Item_Product $item, int $revision ): bool {
+		return $item
+			&& $order->has_status( array( Reklamo_Statuses::MOCKUP_SENT, Reklamo_Statuses::CHANGES ) )
+			&& Reklamo_Items::SENT === Reklamo_Items::state( $item )
+			&& Reklamo_Items::revision( $item ) === $revision;
 	}
 
 	/**
-	 * Record the customer's decision on a mockup. Shared by the emailed one-time link and
-	 * the order page. The caller has already established that the order is awaiting this
-	 * decision and has consumed whatever token authorised it.
+	 * Record the customer's decision on one product's mockup. Shared by the emailed one-time
+	 * link and the order page. The caller has already established that the product awaits
+	 * this decision and has consumed whatever token authorised it. Once every product is
+	 * approved, the order is approved: the deposit is set and its request goes out.
 	 *
-	 * @return string The details URL after an approval (the deposit email carries it too), '' after a change request.
+	 * @return string The details URL when this decision approved the whole order (the deposit email carries it too), '' otherwise.
 	 */
-	public static function decide( WC_Order $order, int $revision, int $file_id, string $action, string $message ): string {
-		$ip = Reklamo_Storage::client_ip();
+	public static function decide( WC_Order $order, int $item_id, int $revision, int $file_id, string $action, string $message ): string {
+		$ip   = Reklamo_Storage::client_ip();
+		$item = Reklamo_Items::item( $order, $item_id );
+		if ( ! $item ) {
+			return '';
+		}
+		Reklamo_Items::mark_decided( $item, $action );
+
 		if ( 'approve' === $action ) {
-			$deposit = Reklamo_Money::deposit( (float) $order->get_total(), (int) Reklamo_Settings::get( 'deposit_pct', '50' ) );
-			$order->update_meta_data( '_reklamo_approved_at', current_time( 'mysql', true ) );
-			$order->update_meta_data( '_reklamo_approved_revision', $revision );
-			$order->update_meta_data( '_reklamo_deposit_amount', wc_format_decimal( $deposit, 2 ) );
-			$order->save();
-			$order->update_status( Reklamo_Statuses::APPROVED );
 			Reklamo_Privacy::personal_note(
 				$order,
 				sprintf(
-					/* translators: 1: mockup revision number, 2: IP address */
-					__( 'Customer approved mockup #%1$d (IP %2$s).', 'reklamo-core' ),
+					/* translators: 1: mockup revision number, 2: product name, 3: IP address */
+					__( 'Customer approved mockup #%1$d of %2$s (IP %3$s).', 'reklamo-core' ),
 					$revision,
+					$item->get_name(),
 					$ip ? $ip : '-'
 				)
 			);
+			$order = wc_get_order( $order->get_id() );
+			if ( ! Reklamo_Items::all_approved( $order ) ) {
+				Reklamo_Items::sync_status( $order );
+				return '';
+			}
+			$deposit = Reklamo_Money::deposit( (float) $order->get_total(), (int) Reklamo_Settings::get( 'deposit_pct', '50' ) );
+			$order->update_meta_data( '_reklamo_approved_at', current_time( 'mysql', true ) );
+			$order->update_meta_data( '_reklamo_deposit_amount', wc_format_decimal( $deposit, 2 ) );
+			$order->save();
+			$order->update_status( Reklamo_Statuses::APPROVED, __( 'Every mockup is approved.', 'reklamo-core' ) );
 			// Straight on to the details step; the deposit email (with this same link) goes out too.
 			$details_url = self::issue( $order, $file_id, $revision, 'details' );
 			Reklamo_Emails::send_deposit_request( $order, $details_url );
@@ -319,34 +349,35 @@ final class Reklamo_Approval {
 		Reklamo_Privacy::personal_note(
 			$order,
 			sprintf(
-				/* translators: 1: mockup revision number, 2: customer message */
-				__( 'Customer requested changes to mockup #%1$d: %2$s', 'reklamo-core' ),
+				/* translators: 1: mockup revision number, 2: product name, 3: customer message */
+				__( 'Customer requested changes to mockup #%1$d of %2$s: %3$s', 'reklamo-core' ),
 				$revision,
+				$item->get_name(),
 				$message
 			)
 		);
-		$order->update_meta_data( '_reklamo_last_change_request', $message );
-		$history              = (array) $order->get_meta( '_reklamo_change_requests' );
-		$history[ $revision ] = $message;
-		$order->update_meta_data( '_reklamo_change_requests', $history );
+		$order = wc_get_order( $order->get_id() );
+		Reklamo_Items::add_change_request( $order, $item_id, $revision, $message );
 		$order->save();
-		$order->update_status( Reklamo_Statuses::CHANGES, __( 'Changes requested — back to the designer.', 'reklamo-core' ) );
+		Reklamo_Emails::send_admin_changes( $order, $item, $revision, $message );
+		Reklamo_Items::sync_status( $order, __( 'Changes requested — back to the designer.', 'reklamo-core' ) );
 		return '';
 	}
 
 	/**
-	 * Consume the live approval token(s) of a revision when the decision was made on the
-	 * order page instead of through the emailed link, so that link then reports "already
-	 * processed" rather than offering a second decision. Returns how many were consumed.
+	 * Consume the live approval token(s) of a product's revision when the decision was made
+	 * on the order page instead of through the emailed link, so that link then reports
+	 * "already processed" rather than offering a second decision. Returns how many were consumed.
 	 */
-	public static function consume_approval_tokens( int $order_id, int $revision, string $action ): int {
+	public static function consume_approval_tokens( int $order_id, int $item_id, int $revision, string $action ): int {
 		global $wpdb;
 		$wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			$wpdb->prepare(
-				"UPDATE {$wpdb->prefix}reklamo_tokens SET used_at = %s, used_action = %s WHERE order_id = %d AND purpose = 'approval' AND revision = %d AND used_at IS NULL",
+				"UPDATE {$wpdb->prefix}reklamo_tokens SET used_at = %s, used_action = %s WHERE order_id = %d AND order_item_id = %d AND purpose = 'approval' AND revision = %d AND used_at IS NULL",
 				current_time( 'mysql', true ),
 				$action,
 				$order_id,
+				$item_id,
 				$revision
 			)
 		);

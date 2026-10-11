@@ -1,7 +1,8 @@
 <?php
 /**
- * Order-screen box "Mockup & approval": the customer's logo, mockup revisions and their
- * approval state, the invoice/delivery details, and the buttons that move the order
+ * Order-screen box "Mockup & approval": per product, the customer's logo and note, its
+ * mockup revisions and their approval state, and a mockup upload; mockups chosen for
+ * several products go out together in one email. Below that, the invoice/delivery details, and the buttons that move the order
  * through the flow (send mockup → deposit received → production → final payment →
  * completed). These buttons are the legitimate way forward; the status dropdown refuses
  * illegal jumps (Reklamo_Statuses::guard_admin_status_change).
@@ -88,6 +89,9 @@ final class Reklamo_Admin_Order {
 			Reklamo_Statuses::MOCKUP_SENT  => array(
 				'resend_mockup' => array( __( 'Re-send mockup email', 'reklamo-core' ), '' ),
 			),
+			Reklamo_Statuses::CHANGES      => array(
+				'resend_mockup' => array( __( 'Re-send mockup email', 'reklamo-core' ), '' ),
+			),
 			Reklamo_Statuses::DEPOSIT_PAID => array(
 				'production' => array( __( 'Start production', 'reklamo-core' ), Reklamo_Statuses::PRODUCTION ),
 			),
@@ -99,7 +103,11 @@ final class Reklamo_Admin_Order {
 				'complete' => array( sprintf( __( 'Final payment received (%s) — complete', 'reklamo-core' ), $balance ), 'completed' ),
 			),
 		);
-		return $all[ $order->get_status() ] ?? array();
+		$offer   = $all[ $order->get_status() ] ?? array();
+		if ( isset( $offer['resend_mockup'] ) && ! Reklamo_Items::counts( $order )['sent'] ) {
+			unset( $offer['resend_mockup'] ); // nothing awaits the customer
+		}
+		return $offer;
 	}
 
 	/** @param WC_Order|WP_Post $post_or_order */
@@ -108,17 +116,13 @@ final class Reklamo_Admin_Order {
 		if ( ! $order ) {
 			return;
 		}
-		$logos   = Reklamo_Storage::for_order( $order->get_id(), 'logo' );
-		$mockups = Reklamo_Storage::for_order( $order->get_id(), 'mockup' );
-		$tokens  = array();
+		$tokens = array();
 		foreach ( Reklamo_Approval::for_order( $order->get_id() ) as $t ) {
 			if ( 'approval' === $t->purpose ) {
 				$tokens[ (int) $t->file_id ] = $tokens[ (int) $t->file_id ] ?? $t; // newest first → first wins
 			}
 		}
-		$next_rev = count( $mockups ) + 1;
-		$comments = (array) $order->get_meta( '_reklamo_change_requests' ); // keyed by revision
-		$last_rev = $mockups ? max( array_map( static fn( $x ): int => (int) $x->revision, $mockups ) ) : 0;
+		$comments = Reklamo_Items::change_requests( $order );
 		$details  = Reklamo_Approval::details( $order );
 		$can_send = $order->has_status( array( Reklamo_Statuses::RECEIVED, Reklamo_Statuses::CHANGES, Reklamo_Statuses::MOCKUP_SENT, Reklamo_Statuses::APPROVED ) );
 		$deposit  = (float) $order->get_meta( '_reklamo_deposit_amount' );
@@ -141,56 +145,90 @@ final class Reklamo_Admin_Order {
 				<p class="description"><?php esc_html_e( "Customer's order page (in every email they get):", 'reklamo-core' ); ?> <a href="<?php echo esc_url( $track_url ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'open', 'reklamo-core' ); ?></a></p>
 			<?php endif; ?>
 
-			<h4><?php esc_html_e( 'Customer logo', 'reklamo-core' ); ?></h4>
-			<?php if ( $logos ) : ?>
-				<ul>
-				<?php foreach ( $logos as $f ) : ?>
-					<li><a href="<?php echo esc_url( Reklamo_Storage::download_url( (int) $f->id ) ); ?>"><?php echo esc_html( Reklamo_Storage::describe( $f ) ); ?></a></li>
-				<?php endforeach; ?>
-				</ul>
-			<?php else : ?>
-				<p class="description"><?php esc_html_e( 'No logo attached to this order.', 'reklamo-core' ); ?></p>
-			<?php endif; ?>
-
-			<h4><?php esc_html_e( 'Mockups sent', 'reklamo-core' ); ?></h4>
-			<?php if ( $mockups ) : ?>
-				<ol>
+			<?php
+			$labels = array(
+				Reklamo_Items::WAITING  => __( 'Waiting for the first mockup', 'reklamo-core' ),
+				Reklamo_Items::SENT     => __( 'Mockup sent — awaiting the customer', 'reklamo-core' ),
+				Reklamo_Items::CHANGES  => __( 'Changes requested — your turn', 'reklamo-core' ),
+				Reklamo_Items::APPROVED => __( 'Approved', 'reklamo-core' ),
+			);
+			?>
+			<?php foreach ( Reklamo_Items::products( $order ) as $item_id => $item ) : ?>
 				<?php
-				foreach ( $mockups as $m ) :
-					$t       = $tokens[ (int) $m->id ] ?? null;
-					$comment = (string) ( $comments[ (int) $m->revision ] ?? '' );
-					?>
-					<li>
-						<a href="<?php echo esc_url( Reklamo_Storage::download_url( (int) $m->id ) ); ?>"><?php echo esc_html( Reklamo_Storage::describe( $m ) ); ?></a>
-						<span class="description">
-						<?php
-						if ( $t && $t->used_at ) {
-							echo esc_html( 'approve' === $t->used_action ? __( '— approved', 'reklamo-core' ) : __( '— changes requested', 'reklamo-core' ) );
-							echo ' ' . esc_html( $fmt_date( $t->used_at ) );
-						} elseif ( $t && ! Reklamo_Token::is_expired( $t->expires_at, time() ) ) {
-							echo esc_html__( '— awaiting the customer', 'reklamo-core' );
-							/* translators: %s: expiry date */
-							echo ' ' . esc_html( sprintf( __( '(link valid until %s)', 'reklamo-core' ), wc_format_datetime( new WC_DateTime( $t->expires_at . ' UTC' ), 'd.m.Y' ) ) );
-						} elseif ( $t ) {
-							echo esc_html__( '— link expired', 'reklamo-core' );
-						}
-						?>
-						</span>
-						<?php
-						if ( '' !== $comment ) :
-							// The open request keeps full contrast; the ones already answered recede.
-							$open = (int) $m->revision === $last_rev && $order->has_status( Reklamo_Statuses::CHANGES );
-							?>
-							<p class="<?php echo $open ? '' : 'description'; ?>" style="margin:.2em 0 .8em">
-								<strong><?php esc_html_e( 'Requested changes', 'reklamo-core' ); ?>:</strong>
-								<?php echo esc_html( $comment ); ?>
-							</p>
+				$state   = Reklamo_Items::state( $item );
+				$logo    = Reklamo_Items::logo( $item );
+				$note    = Reklamo_Items::note( $item );
+				$mockups = Reklamo_Items::mockups( $order->get_id(), $item_id );
+				$current = Reklamo_Items::revision( $item );
+				?>
+				<div class="reklamo-item" data-item="<?php echo esc_attr( (string) $item_id ); ?>" style="border-top:1px solid #dcdcde;padding:.4em 0 .8em">
+					<h4 style="margin:.8em 0 .3em"><?php echo esc_html( $item->get_name() ); ?> <span class="description" style="font-weight:400">— <?php echo esc_html( $labels[ $state ] ); ?></span></h4>
+					<p style="margin:.2em 0">
+						<strong><?php esc_html_e( 'Customer logo', 'reklamo-core' ); ?>:</strong>
+						<?php if ( $logo ) : ?>
+							<a href="<?php echo esc_url( Reklamo_Storage::download_url( (int) $logo->id ) ); ?>"><?php echo esc_html( Reklamo_Storage::describe( $logo ) ); ?></a>
+						<?php else : ?>
+							<span class="description"><?php esc_html_e( 'No logo attached to this product.', 'reklamo-core' ); ?></span>
 						<?php endif; ?>
-					</li>
-				<?php endforeach; ?>
-				</ol>
-			<?php else : ?>
-				<p class="description"><?php esc_html_e( 'No mockup sent yet.', 'reklamo-core' ); ?></p>
+					</p>
+					<?php if ( '' !== $note ) : ?>
+						<p style="margin:.2em 0"><strong><?php esc_html_e( 'Note to designer', 'reklamo-core' ); ?>:</strong> <?php echo esc_html( $note ); ?></p>
+					<?php endif; ?>
+					<?php if ( $mockups ) : ?>
+						<ol style="margin-top:.4em">
+						<?php
+						foreach ( $mockups as $m ) :
+							$t       = $tokens[ (int) $m->id ] ?? null;
+							$comment = (string) ( $comments[ $item_id ][ (int) $m->revision ] ?? '' );
+							?>
+							<li value="<?php echo esc_attr( (string) $m->revision ); ?>">
+								<a href="<?php echo esc_url( Reklamo_Storage::download_url( (int) $m->id ) ); ?>"><?php echo esc_html( Reklamo_Storage::describe( $m ) ); ?></a>
+								<span class="description">
+								<?php
+								if ( $t && $t->used_at ) {
+									echo esc_html( 'approve' === $t->used_action ? __( '— approved', 'reklamo-core' ) : __( '— changes requested', 'reklamo-core' ) );
+									echo ' ' . esc_html( $fmt_date( $t->used_at ) );
+								} elseif ( (int) $m->revision === $current && Reklamo_Items::APPROVED === $state ) {
+									echo esc_html__( '— approved', 'reklamo-core' );
+								} elseif ( $t && ! Reklamo_Token::is_expired( $t->expires_at, time() ) ) {
+									echo esc_html__( '— awaiting the customer', 'reklamo-core' );
+									/* translators: %s: expiry date */
+									echo ' ' . esc_html( sprintf( __( '(link valid until %s)', 'reklamo-core' ), wc_format_datetime( new WC_DateTime( $t->expires_at . ' UTC' ), 'd.m.Y' ) ) );
+								} elseif ( $t ) {
+									echo esc_html__( '— link expired', 'reklamo-core' );
+								}
+								?>
+								</span>
+								<?php
+								if ( '' !== $comment ) :
+									// The open request keeps full contrast; the ones already answered recede.
+									$open = (int) $m->revision === $current && Reklamo_Items::CHANGES === $state;
+									?>
+									<p class="<?php echo $open ? '' : 'description'; ?>" style="margin:.2em 0 .8em">
+										<strong><?php esc_html_e( 'Requested changes', 'reklamo-core' ); ?>:</strong>
+										<?php echo esc_html( $comment ); ?>
+									</p>
+								<?php endif; ?>
+							</li>
+						<?php endforeach; ?>
+						</ol>
+					<?php else : ?>
+						<p class="description"><?php esc_html_e( 'No mockup sent yet.', 'reklamo-core' ); ?></p>
+					<?php endif; ?>
+					<?php if ( $can_send ) : ?>
+						<p style="margin:.4em 0 0">
+							<label>
+								<?php echo esc_html( sprintf( /* translators: %d: next mockup revision number */ __( 'Mockup #%d', 'reklamo-core' ), max( $current, count( $mockups ) ) + 1 ) ); ?>:
+								<input type="file" name="reklamo_mockup[<?php echo esc_attr( (string) $item_id ); ?>]" form="<?php echo esc_attr( self::FORM_MOCKUP ); ?>" accept=".pdf,.png,.jpg,.jpeg">
+							</label>
+						</p>
+					<?php endif; ?>
+				</div>
+			<?php endforeach; ?>
+
+			<?php if ( $can_send ) : ?>
+				<p class="description"><?php echo esc_html( sprintf( /* translators: 1: size limit, 2: days */ __( 'PDF, PNG or JPG, up to %1$s each. Choose a file for one product or several: they go out together in one email, each with its own one-time approval link (valid %2$d days).', 'reklamo-core' ), size_format( Reklamo_Storage::MOCKUP_MAX_BYTES ), Reklamo_Approval::TTL_DAYS ) ); ?></p>
+				<p><button type="submit" class="button" form="<?php echo esc_attr( self::FORM_MOCKUP ); ?>"><?php esc_html_e( 'Send to customer', 'reklamo-core' ); ?></button></p>
 			<?php endif; ?>
 
 			<?php if ( $order->get_meta( '_reklamo_approved_at' ) ) : ?>
@@ -202,7 +240,7 @@ final class Reklamo_Admin_Order {
 					<p class="notice notice-warning inline" style="margin:0 0 .6em;padding:.4em .8em"><?php echo esc_html( sprintf( /* translators: 1: stored deposit, 2: expected deposit */ __( 'The deposit (%1$s) no longer matches the order total (expected %2$s). Use "Recalculate deposit" if the total was changed on purpose.', 'reklamo-core' ), wp_strip_all_tags( wc_price( $deposit, array( 'currency' => $order->get_currency() ) ) ), wp_strip_all_tags( wc_price( $expected, array( 'currency' => $order->get_currency() ) ) ) ) ); ?></p>
 				<?php endif; ?>
 				<ul>
-					<li><?php echo esc_html( sprintf( /* translators: 1: date, 2: mockup revision */ __( 'Approved %1$s (mockup #%2$d)', 'reklamo-core' ), $fmt_date( $order->get_meta( '_reklamo_approved_at' ) ), (int) $order->get_meta( '_reklamo_approved_revision' ) ) ); ?></li>
+					<li><?php echo esc_html( sprintf( /* translators: %s: date */ __( 'Every mockup approved %s', 'reklamo-core' ), $fmt_date( $order->get_meta( '_reklamo_approved_at' ) ) ) ); ?></li>
 					<li><?php echo esc_html( sprintf( /* translators: 1: deposit amount, 2: percentage */ __( 'Deposit: %1$s (%2$s%%)', 'reklamo-core' ), wp_strip_all_tags( wc_price( $deposit, array( 'currency' => $order->get_currency() ) ) ), Reklamo_Settings::get( 'deposit_pct', '50' ) ) ); ?>
 						<?php
 						if ( $order->get_meta( '_reklamo_deposit_paid_at' ) ) :
@@ -250,13 +288,6 @@ final class Reklamo_Admin_Order {
 				<p class="description"><?php esc_html_e( 'Not submitted yet — the customer gets the form after approving the mockup.', 'reklamo-core' ); ?></p>
 			<?php endif; ?>
 
-			<?php if ( $can_send ) : ?>
-				<h4><?php echo esc_html( sprintf( /* translators: %d: next mockup revision number */ __( 'Send mockup #%d', 'reklamo-core' ), $next_rev ) ); ?></h4>
-				<p class="description"><?php echo esc_html( sprintf( /* translators: 1: size limit, 2: days */ __( 'PDF, PNG or JPG, up to %1$s. The customer receives an email with a one-time approval link (valid %2$d days).', 'reklamo-core' ), size_format( Reklamo_Storage::MOCKUP_MAX_BYTES ), Reklamo_Approval::TTL_DAYS ) ); ?></p>
-				<p><input type="file" name="reklamo_mockup" form="<?php echo esc_attr( self::FORM_MOCKUP ); ?>" accept=".pdf,.png,.jpg,.jpeg" required></p>
-				<p><button type="submit" class="button" form="<?php echo esc_attr( self::FORM_MOCKUP ); ?>"><?php esc_html_e( 'Send to customer', 'reklamo-core' ); ?></button></p>
-			<?php endif; ?>
-
 			<?php
 			// Hidden inputs for both footer forms (wp_nonce_field() would land inside the outer form).
 			printf(
@@ -300,44 +331,76 @@ final class Reklamo_Admin_Order {
 	public static function handle_send_mockup(): void {
 		$order = self::order_from_request( 'reklamo_send_mockup' );
 		$back  = $order->get_edit_order_url();
-
-		$stored = isset( $_FILES['reklamo_mockup'] ) // phpcs:ignore WordPress.Security.NonceVerification.Missing -- checked in order_from_request().
-			? Reklamo_Storage::store_upload( $_FILES['reklamo_mockup'], 'mockup', Reklamo_Storage::MOCKUP_EXTENSIONS, Reklamo_Storage::MOCKUP_MAX_BYTES ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput, WordPress.Security.NonceVerification.Missing -- validated inside store_upload(); nonce checked in order_from_request().
-			: new WP_Error( 'reklamo_no_file', __( 'Please choose a file.', 'reklamo-core' ) );
-		if ( is_wp_error( $stored ) ) {
-			self::redirect( $back, 'error', $stored->get_error_message() );
+		if ( ! $order->has_status( Reklamo_Items::LOOP_STATUSES ) ) {
+			self::redirect( $back, 'error', __( 'Mockups can no longer be sent: the deposit step has passed.', 'reklamo-core' ) );
 		}
 
-		$revision = Reklamo_Approval::latest_revision( $order->get_id() ) + 1;
-		Reklamo_Storage::claim( $stored['token'], $order->get_id(), 0, $revision );
+		// PHP spreads reklamo_mockup[<item>] across name[], tmp_name[], …; put each file back together.
+		$posted = isset( $_FILES['reklamo_mockup'] ) && is_array( $_FILES['reklamo_mockup']['name'] ?? null ) ? $_FILES['reklamo_mockup'] : array(); // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput -- nonce checked in order_from_request(); each file is validated in store_upload().
+		$files  = array();
+		foreach ( array_keys( (array) ( $posted['name'] ?? array() ) ) as $item_id ) {
+			$file = array();
+			foreach ( array( 'name', 'type', 'tmp_name', 'error', 'size' ) as $key ) {
+				$file[ $key ] = $posted[ $key ][ $item_id ] ?? '';
+			}
+			if ( UPLOAD_ERR_NO_FILE !== (int) $file['error'] && Reklamo_Items::item( $order, (int) $item_id ) ) {
+				$files[ (int) $item_id ] = $file;
+			}
+		}
+		if ( ! $files ) {
+			self::redirect( $back, 'error', __( 'Choose a mockup file for at least one product.', 'reklamo-core' ) );
+		}
+		$stored = array();
+		foreach ( $files as $item_id => $file ) {
+			$row = Reklamo_Storage::store_upload( $file, 'mockup', Reklamo_Storage::MOCKUP_EXTENSIONS, Reklamo_Storage::MOCKUP_MAX_BYTES );
+			if ( is_wp_error( $row ) ) {
+				foreach ( $stored as $done ) {
+					Reklamo_Storage::delete( (object) $done['row'] );
+				}
+				/* translators: 1: product name, 2: error message */
+				self::redirect( $back, 'error', sprintf( __( '%1$s: %2$s', 'reklamo-core' ), Reklamo_Items::item( $order, $item_id )->get_name(), $row->get_error_message() ) );
+			}
+			$stored[ $item_id ] = array( 'row' => $row );
+		}
 
-		$url  = Reklamo_Approval::issue( $order, (int) $stored['id'], $revision, 'approval' );
-		$sent = Reklamo_Emails::send_mockup( $order, $url, $revision );
+		$entries = array();
+		foreach ( $stored as $item_id => $s ) {
+			$item     = Reklamo_Items::item( $order, $item_id );
+			$revision = max( Reklamo_Items::revision( $item ), count( Reklamo_Items::mockups( $order->get_id(), $item_id ) ) ) + 1;
+			Reklamo_Storage::claim( $s['row']['token'], $order->get_id(), $item_id, $revision );
+			Reklamo_Items::mark_sent( $item, $revision );
+			$entries[] = array(
+				'name'     => $item->get_name(),
+				'revision' => $revision,
+				'url'      => Reklamo_Approval::issue( $order, (int) $s['row']['id'], $revision, 'approval', $item_id ),
+			);
+		}
 
+		$list = implode( ', ', array_map( static fn( array $e ): string => sprintf( /* translators: 1: product name, 2: mockup revision */ __( '%1$s (mockup #%2$d)', 'reklamo-core' ), $e['name'], $e['revision'] ), $entries ) );
+		$sent = Reklamo_Emails::send_mockup( $order, $entries );
 		$note = $sent
-			/* translators: %d: mockup revision */
-			? sprintf( __( 'Mockup #%d sent to the customer for approval.', 'reklamo-core' ), $revision )
-			/* translators: %d: mockup revision */
-			: sprintf( __( 'Mockup #%d stored; the approval email could not be sent (see the note above).', 'reklamo-core' ), $revision );
-		if ( $order->has_status( Reklamo_Statuses::MOCKUP_SENT ) ) {
-			$order->add_order_note( $note );
-			Reklamo_Reminders::schedule_for( $order ); // no status change → reschedule by hand for the new revision
-		} else {
-			$order->update_status( Reklamo_Statuses::MOCKUP_SENT, $note );
+			/* translators: %s: products with their mockup revisions */
+			? sprintf( __( 'Sent to the customer for approval: %s.', 'reklamo-core' ), $list )
+			/* translators: %s: products with their mockup revisions */
+			: sprintf( __( 'Mockups stored but the approval email could not be sent (see the note above): %s.', 'reklamo-core' ), $list );
+		$before = $order->get_status();
+		Reklamo_Items::sync_status( $order, $note );
+		if ( wc_get_order( $order->get_id() )->get_status() === $before ) {
+			Reklamo_Reminders::schedule_for( $order ); // no status change → reschedule by hand for the new revisions
 		}
 		if ( ! $sent ) {
-			self::redirect( $back, 'error', self::mail_failure_message( $revision ) );
+			self::redirect( $back, 'error', self::mail_failure_message( $list ) );
 		}
-		/* translators: %d: mockup revision */
-		self::redirect( $back, 'success', sprintf( __( 'Mockup #%d sent. The customer has the approval link by email.', 'reklamo-core' ), $revision ) );
+		/* translators: %s: products with their mockup revisions */
+		self::redirect( $back, 'success', sprintf( __( 'Sent: %s. The customer has the approval links by email.', 'reklamo-core' ), $list ) );
 	}
 
-	/** Shown when the mockup was saved but the customer email did not go out. */
-	private static function mail_failure_message( int $revision ): string {
+	/** Shown when the mockups were saved but the customer email did not go out. */
+	private static function mail_failure_message( string $what ): string {
 		return sprintf(
-			/* translators: 1: mockup revision, 2: error message */
-			__( 'Mockup #%1$d is saved, but the email to the customer was NOT sent: %2$s. Check WooCommerce → Reklamo diagnostics → Email, then use "Re-send mockup email".', 'reklamo-core' ),
-			$revision,
+			/* translators: 1: products with their mockup revisions, 2: error message */
+			__( 'Saved: %1$s. But the email to the customer was NOT sent: %2$s. Check WooCommerce → Reklamo diagnostics → Email, then use "Re-send mockup email".', 'reklamo-core' ),
+			$what,
 			Reklamo_Mail::last_error()
 		);
 	}
@@ -353,14 +416,23 @@ final class Reklamo_Admin_Order {
 		$now = current_time( 'mysql', true );
 		switch ( $action ) {
 			case 'resend_mockup':
-				$mockups = Reklamo_Storage::for_order( $order->get_id(), 'mockup' );
-				$last    = end( $mockups );
-				if ( ! $last ) {
-					self::redirect( $back, 'error', __( 'There is no mockup on this order yet.', 'reklamo-core' ) );
+				$entries = array();
+				foreach ( Reklamo_Items::products( $order ) as $item_id => $item ) {
+					$revision = Reklamo_Items::revision( $item );
+					$file     = Reklamo_Items::mockup( $order->get_id(), $item_id, $revision );
+					if ( Reklamo_Items::SENT === Reklamo_Items::state( $item ) && $file ) {
+						$entries[] = array(
+							'name'     => $item->get_name(),
+							'revision' => $revision,
+							'url'      => Reklamo_Approval::issue( $order, (int) $file->id, $revision, 'approval', $item_id ),
+						);
+					}
 				}
-				$url = Reklamo_Approval::issue( $order, (int) $last->id, (int) $last->revision, 'approval' );
-				if ( ! Reklamo_Emails::send_mockup( $order, $url, (int) $last->revision ) ) {
-					self::redirect( $back, 'error', self::mail_failure_message( (int) $last->revision ) );
+				if ( ! $entries ) {
+					self::redirect( $back, 'error', __( 'No mockup on this order awaits the customer.', 'reklamo-core' ) );
+				}
+				if ( ! Reklamo_Emails::send_mockup( $order, $entries ) ) {
+					self::redirect( $back, 'error', self::mail_failure_message( implode( ', ', wp_list_pluck( $entries, 'name' ) ) ) );
 				}
 				Reklamo_Reminders::schedule_for( $order );
 				$order->add_order_note( __( 'Mockup email re-sent by the shop with a fresh approval link.', 'reklamo-core' ) );
@@ -375,7 +447,7 @@ final class Reklamo_Admin_Order {
 				self::redirect( $back, 'success', __( 'Deposit recalculated. Re-send the deposit request if the customer already has the old amount.', 'reklamo-core' ) );
 				break;
 			case 'resend_deposit':
-				$url = Reklamo_Approval::issue( $order, 0, (int) $order->get_meta( '_reklamo_approved_revision' ), 'details' );
+				$url = Reklamo_Approval::issue( $order, 0, 0, 'details' );
 				if ( ! Reklamo_Emails::send_deposit_request( $order, $url, true ) ) {
 					/* translators: %s: error message */
 					self::redirect( $back, 'error', sprintf( __( 'The deposit request was NOT sent: %s. Check WooCommerce → Reklamo diagnostics → Email.', 'reklamo-core' ), Reklamo_Mail::last_error() ) );

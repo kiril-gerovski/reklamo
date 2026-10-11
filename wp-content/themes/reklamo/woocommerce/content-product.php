@@ -17,12 +17,13 @@ if ( ! $product instanceof WC_Product || ! $product->is_visible() ) {
 
 $reklamo_short = reklamo_split_short_description( $product->get_short_description() );
 $reklamo_items = reklamo_package_items( $reklamo_short['list'] );
-$reklamo_qty   = reklamo_package_quantity( $product );
+$reklamo_piece = class_exists( 'Reklamo_Product' ) && Reklamo_Product::by_the_piece( $product );
+$reklamo_qty   = $reklamo_piece ? Reklamo_Product::min_qty( $product ) : reklamo_package_quantity( $product );
 $reklamo_line  = $reklamo_items ? implode( ' · ', wp_list_pluck( $reklamo_items, 'title' ) ) : wp_strip_all_tags( $reklamo_short['lead'] );
 $reklamo_url   = $product->get_permalink();
 
 add_filter( 'woocommerce_price_trim_zeros', '__return_true' );
-$reklamo_price = wc_price( (float) $product->get_price() );
+$reklamo_price = wc_price( $product->is_type( 'variable' ) ? (float) $product->get_variation_price( 'min', true ) : (float) $product->get_price() );
 remove_filter( 'woocommerce_price_trim_zeros', '__return_true' );
 ?>
 <li <?php wc_product_class( 'card package-card', $product ); ?>>
@@ -36,13 +37,18 @@ remove_filter( 'woocommerce_price_trim_zeros', '__return_true' );
 				<?php if ( $reklamo_qty ) : ?>
 					<span class="package-card__qty">
 						<?php
-						/* translators: %d: number of pieces in the package */
-						echo esc_html( sprintf( __( '%d pcs.', 'reklamo' ), $reklamo_qty ) );
+						echo esc_html(
+							$reklamo_piece
+								/* translators: %d: minimum quantity */
+								? sprintf( __( 'from %d pcs.', 'reklamo' ), $reklamo_qty )
+								/* translators: %d: number of pieces in the package */
+								: sprintf( __( '%d pcs.', 'reklamo' ), $reklamo_qty )
+						);
 						?>
 					</span>
 				<?php endif; ?>
 				<span class="package-card__amount"><?php echo wp_kses_post( $reklamo_price ); ?></span>
-				<span class="package-card__vat"><?php esc_html_e( 'incl. VAT', 'reklamo' ); ?></span>
+				<span class="package-card__vat"><?php $reklamo_piece ? esc_html_e( 'per piece', 'reklamo' ) : esc_html_e( 'incl. VAT', 'reklamo' ); ?></span>
 			</span>
 		<?php endif; ?>
 	</a>

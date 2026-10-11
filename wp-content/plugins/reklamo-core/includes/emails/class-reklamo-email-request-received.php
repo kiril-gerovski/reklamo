@@ -38,7 +38,7 @@ class Reklamo_Email_Request_Received extends WC_Email {
 	}
 
 	public function get_default_intro_text(): string {
-		return __( 'We received your request and your logo. Our designer is now preparing a mockup of the selected package — you will get it by email for approval within 24 business hours.', 'reklamo-core' );
+		return __( 'We received your request and your logo. Our designer is now preparing a mockup of each product — you will get them by email for approval within 24 business hours.', 'reklamo-core' );
 	}
 
 	public function get_default_additional_content() {

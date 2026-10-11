@@ -60,9 +60,16 @@ final class Reklamo_Emails {
 	 * Returns whether the mail transport accepted the message so the admin screen can
 	 * tell the shop the truth; failures are also written as order notes.
 	 */
-	public static function send_mockup( WC_Order $order, string $approval_url, int $revision, bool $reminder = false ): bool {
+	public static function send_mockup( WC_Order $order, array $entries, bool $reminder = false ): bool {
 		$e = self::email( 'Reklamo_Email_Mockup_Sent' );
-		return $e && $e->trigger( $order->get_id(), $order, $approval_url, $revision, $reminder );
+		return $e && $entries && $e->trigger( $order->get_id(), $order, $entries, $reminder );
+	}
+
+	public static function send_admin_changes( WC_Order $order, WC_Order_Item_Product $item, int $revision, string $message ): void {
+		$e = self::email( 'Reklamo_Email_Admin_Changes' );
+		if ( $e ) {
+			$e->trigger( $order->get_id(), $order, $item->get_name(), $revision, $message );
+		}
 	}
 
 	public static function send_deposit_request( WC_Order $order, string $details_url, bool $reminder = false ): bool {

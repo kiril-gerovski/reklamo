@@ -21,7 +21,7 @@ final class Reklamo_Reminders {
 
 	public static function init(): void {
 		add_action( 'woocommerce_order_status_changed', array( __CLASS__, 'on_status_change' ), 20, 3 );
-		add_action( self::HOOK_APPROVAL, array( __CLASS__, 'remind_approval' ), 10, 2 );
+		add_action( self::HOOK_APPROVAL, array( __CLASS__, 'remind_approval' ), 10, 3 );
 		add_action( self::HOOK_DEPOSIT, array( __CLASS__, 'remind_deposit' ), 10, 1 );
 		add_action( self::HOOK_FINAL, array( __CLASS__, 'remind_final' ), 10, 1 );
 		add_action( self::HOOK_STALE, array( __CLASS__, 'alert_stale' ), 10, 2 );
@@ -42,6 +42,8 @@ final class Reklamo_Reminders {
 	 * (Re)build the reminder schedule from the order's current status. Called on every
 	 * status change AND after every mockup (re)send — a re-sent mockup does not change the
 	 * status, yet the pending reminders carry the old revision and would fall silent.
+	 * Approval nudges run per product, counted from the day its mockup went out, so
+	 * rebuilding the schedule never restarts a product's clock.
 	 */
 	public static function schedule_for( WC_Order $order ): void {
 		if ( ! self::available() ) {
@@ -52,21 +54,33 @@ final class Reklamo_Reminders {
 		self::unschedule_for_order( $order_id );
 
 		$days = Reklamo_Settings::reminder_days();
+		if ( $order->has_status( array( Reklamo_Statuses::MOCKUP_SENT, Reklamo_Statuses::CHANGES ) ) ) {
+			foreach ( Reklamo_Items::products( $order ) as $item_id => $item ) {
+				if ( Reklamo_Items::SENT !== Reklamo_Items::state( $item ) ) {
+					continue;
+				}
+				$sent = strtotime( (string) $item->get_meta( Reklamo_Items::META_SENT_AT ) . ' UTC' );
+				$sent = $sent ? $sent : time();
+				foreach ( $days as $day ) {
+					if ( $sent + $day * DAY_IN_SECONDS > time() ) {
+						as_schedule_single_action( $sent + $day * DAY_IN_SECONDS, self::HOOK_APPROVAL, array( $order_id, $item_id, Reklamo_Items::revision( $item ) ), self::GROUP );
+					}
+				}
+			}
+		}
+
 		$hook = '';
-		$args = array( $order_id );
-		if ( $order->has_status( Reklamo_Statuses::MOCKUP_SENT ) ) {
-			$hook = self::HOOK_APPROVAL;
-			$args = array( $order_id, Reklamo_Approval::latest_revision( $order_id ) );
-		} elseif ( $order->has_status( Reklamo_Statuses::APPROVED ) ) {
+		if ( $order->has_status( Reklamo_Statuses::APPROVED ) ) {
 			$hook = self::HOOK_DEPOSIT;
 		} elseif ( $order->has_status( Reklamo_Statuses::FINAL_DUE ) ) {
 			$hook = self::HOOK_FINAL;
-		}
-		if ( '' === $hook ) {
+		} elseif ( ! $order->has_status( Reklamo_Statuses::MOCKUP_SENT ) ) {
 			return;
 		}
-		foreach ( $days as $day ) {
-			as_schedule_single_action( time() + $day * DAY_IN_SECONDS, $hook, $args, self::GROUP );
+		if ( '' !== $hook ) {
+			foreach ( $days as $day ) {
+				as_schedule_single_action( time() + $day * DAY_IN_SECONDS, $hook, array( $order_id ), self::GROUP );
+			}
 		}
 		// After the last nudge: tell the shop, not the customer again.
 		$stale = (int) Reklamo_Settings::get( 'stale_days', '7' );
@@ -96,25 +110,39 @@ final class Reklamo_Reminders {
 		}
 	}
 
-	/** Resend the mockup email with a fresh link, if the same revision is still awaiting a decision. */
-	public static function remind_approval( int $order_id, int $revision ): void {
+	/**
+	 * Resend one product's mockup email with a fresh link, if that revision still awaits a
+	 * decision. Actions queued before the item loop carry [order, revision] only; they
+	 * belong to the order's single product.
+	 */
+	public static function remind_approval( int $order_id, int $item_id, ?int $revision = null ): void {
 		$order = wc_get_order( $order_id );
-		if ( ! $order || ! $order->has_status( Reklamo_Statuses::MOCKUP_SENT ) || Reklamo_Approval::latest_revision( $order_id ) !== $revision ) {
+		if ( ! $order ) {
 			return;
 		}
-		$file = null;
-		foreach ( Reklamo_Storage::for_order( $order_id, 'mockup' ) as $m ) {
-			if ( (int) $m->revision === $revision ) {
-				$file = $m;
-			}
+		if ( null === $revision ) {
+			$revision = $item_id;
+			$item_id  = (int) array_key_first( Reklamo_Items::products( $order ) );
 		}
-		if ( ! $file ) {
+		$item = Reklamo_Items::item( $order, $item_id );
+		$file = Reklamo_Items::mockup( $order_id, $item_id, $revision );
+		if ( ! $file || ! Reklamo_Approval::awaits_decision( $order, $item, $revision ) ) {
 			return;
 		}
-		$url = Reklamo_Approval::issue( $order, (int) $file->id, $revision, 'approval' );
-		if ( Reklamo_Emails::send_mockup( $order, $url, $revision, true ) ) {
-			/* translators: %d: mockup revision */
-			$order->add_order_note( sprintf( __( 'Reminder sent: mockup #%d still awaits approval.', 'reklamo-core' ), $revision ) );
+		$url = Reklamo_Approval::issue( $order, (int) $file->id, $revision, 'approval', $item_id );
+		if ( Reklamo_Emails::send_mockup(
+			$order,
+			array(
+				array(
+					'name'     => $item->get_name(),
+					'revision' => $revision,
+					'url'      => $url,
+				),
+			),
+			true
+		) ) {
+			/* translators: 1: mockup revision, 2: product name */
+			$order->add_order_note( sprintf( __( 'Reminder sent: mockup #%1$d of %2$s still awaits approval.', 'reklamo-core' ), $revision, $item->get_name() ) );
 		}
 	}
 
@@ -124,7 +152,7 @@ final class Reklamo_Reminders {
 		if ( ! $order || ! $order->has_status( Reklamo_Statuses::APPROVED ) ) {
 			return;
 		}
-		$url = Reklamo_Approval::issue( $order, 0, (int) $order->get_meta( '_reklamo_approved_revision' ), 'details' );
+		$url = Reklamo_Approval::issue( $order, 0, 0, 'details' );
 		if ( Reklamo_Emails::send_deposit_request( $order, $url, true ) ) {
 			$order->add_order_note( __( 'Reminder sent: deposit still unpaid.', 'reklamo-core' ) );
 		}

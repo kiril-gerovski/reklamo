@@ -27,7 +27,7 @@ test( 'the Календари category lists every tier at its own price', async
 	}
 } );
 
-test( 'a calendar has a latin URL, the client copy and a route into the request form', async ( { page } ) => {
+test( 'a calendar has a latin URL, the client copy and its own cart form', async ( { page } ) => {
 	await page.goto( '/product/biznes-kalendar-start-1/' );
 
 	await expect( page.locator( 'h1' ) ).toHaveText( 'Бизнес календар START 1' );
@@ -39,12 +39,12 @@ test( 'a calendar has a latin URL, the client copy and a route into the request 
 	await expect( description ).toContainText( 'Размер на подложката 320 x 240 мм' );
 	await expect( description ).toContainText( 'Размер на главата 320 x 240 мм' );
 
-	await page.getByRole( 'link', { name: /Качи лого и заяви визуализация/i } ).click();
-	await page.waitForURL( /\/kachi-logo\/\?paket=biznes-kalendar-start-1/ );
-	await expect( page.locator( '.package-summary__name' ) ).toHaveText( 'Бизнес календар START 1' );
+	const form = page.locator( '.product-order form.rq-form--product' );
+	await expect( form.locator( 'input[name="add-to-cart"]' ) ).toHaveValue( /^\d+$/ );
+	await expect( form.getByRole( 'button', { name: 'Добави в количката' } ) ).toBeVisible();
 } );
 
-test( 'a card opens the product page, and the product page opens the request form', async ( { page } ) => {
+test( 'a card opens the product page, whose order card adds it to the cart', async ( { page } ) => {
 	await page.goto( '/promo-paketi/' );
 
 	// The card no longer jumps straight to the form — it shows the product first.
@@ -59,9 +59,10 @@ test( 'a card opens the product page, and the product page opens the request for
 	await expect( page.locator( '.product-steps__item' ) ).toHaveCount( 4 );
 	await expect( page.locator( '.product-help' ) ).toContainText( 'Нуждаете се от помощ' );
 
-	await page.locator( '.product-order__cta' ).click();
-	await page.waitForURL( new RegExp( `/kachi-logo/\\?paket=${ slug }` ) );
-	await expect( page.locator( 'h1' ) ).toHaveText( 'Качи лого и визуализирай' );
+	const form = page.locator( '.product-order form.rq-form--product' );
+	await expect( form ).toHaveAttribute( 'action', new RegExp( `/product/${ slug }/$` ) );
+	await expect( form.getByRole( 'button', { name: 'Добави в количката' } ) ).toBeVisible();
+	await expect( form ).toContainText( 'Логото качвате в количката' );
 } );
 
 test( 'the tabs are the design\'s, with specifications separate from the description', async ( { page } ) => {

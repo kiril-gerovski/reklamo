@@ -13,7 +13,7 @@ beside the GDPR: ЗЗЛД (personal data), ЗЗП (consumer protection), ЗЕТ 
 | Name, email, phone | WooCommerce order (billing); phone asked on the request form, confirmed on the details step | contact for the order, tracking link | forever |
 | Company, ЕИК, ДДС №, МОЛ, address, city, postcode | order billing/shipping | invoice and delivery | forever |
 | Logo file, mockup files | `~/reklamo-private`, rows in `wp_reklamo_files` | the product | deleted 12 months after the order closes (`reklamo_retention_months`) |
-| Notes to the designer, change-request messages | order item meta, order meta, order notes | the design work | forever |
+| Notes to the designer, change-request messages | order item meta (`_reklamo_note` and the visible "Note to designer"), order meta, order notes; before sending, the note and the logo's file token sit in the WooCommerce cart session (`wp_woocommerce_sessions`, expires after 2 days) | the design work | forever (the cart session: 2 days) |
 | IP address, user agent | order (`customer_ip_address`, `customer_user_agent`), `created_ip` on file rows, the approval order note | fraud prevention, proof of approval | forever |
 | Tracking URL, approval/details tokens | order meta, `wp_reklamo_tokens` | passwordless access to the order | link expires with the files; tokens never deleted |
 | Rate-limit counters | transients keyed by `md5(ip)` | abuse protection | one hour |

@@ -1,37 +1,63 @@
-/* Media Library picker for Reklamo_Admin_Image fields: the hidden input holds the attachment ID. */
+/*
+ * Media Library picker for Reklamo_Admin_Image fields: the hidden input holds the attachment ID,
+ * or, for a gallery field (data-multiple), a comma-separated list of IDs. Clicks are handled on
+ * the document, so fields WooCommerce loads later (the variations panel) work too.
+ */
 ( function () {
-	function setup( field ) {
-		if ( field.dataset.ready ) {
-			return;
-		}
-		field.dataset.ready = '1';
-		const input = field.querySelector( 'input[type="hidden"]' );
-		const preview = field.querySelector( '[data-reklamo-image-preview]' );
-		const clear = field.querySelector( '[data-reklamo-image-clear]' );
-		let frame;
+	const frames = new WeakMap();
 
-		field.querySelector( '[data-reklamo-image-pick]' ).addEventListener( 'click', () => {
-			frame = frame || wp.media( { library: { type: 'image' }, multiple: false } );
-			frame.off( 'select' ).on( 'select', () => {
-				const a = frame.state().get( 'selection' ).first().toJSON();
-				const img = document.createElement( 'img' );
-				img.src = a.sizes && a.sizes.thumbnail ? a.sizes.thumbnail.url : a.url;
-				img.width = 96;
-				img.height = 96;
-				img.alt = '';
-				input.value = a.id;
-				preview.replaceChildren( img );
-				clear.hidden = false;
-			} );
-			frame.open();
-		} );
-
-		clear.addEventListener( 'click', () => {
-			input.value = '';
-			preview.replaceChildren();
-			clear.hidden = true;
-		} );
+	function thumb( a ) {
+		const img = document.createElement( 'img' );
+		img.src = a.sizes && a.sizes.thumbnail ? a.sizes.thumbnail.url : a.url;
+		img.width = 64;
+		img.height = 64;
+		img.alt = '';
+		img.style.marginRight = '6px';
+		return img;
 	}
 
-	document.querySelectorAll( '[data-reklamo-image]' ).forEach( setup );
+	function changed( input ) {
+		// The variations panel saves only rows it has seen change.
+		input.dispatchEvent( new Event( 'change', { bubbles: true } ) );
+		if ( window.jQuery ) {
+			window.jQuery( input ).closest( '.woocommerce_variation' ).addClass( 'variation-needs-update' );
+			window.jQuery( 'button.cancel-variation-changes, button.save-variation-changes' ).prop( 'disabled', false );
+		}
+	}
+
+	document.addEventListener( 'click', ( e ) => {
+		const pick = e.target.closest( '[data-reklamo-image-pick]' );
+		const clear = e.target.closest( '[data-reklamo-image-clear]' );
+		if ( ! pick && ! clear ) {
+			return;
+		}
+		e.preventDefault();
+		const field = ( pick || clear ).closest( '[data-reklamo-image]' );
+		const input = field.querySelector( 'input[type="hidden"]' );
+		const preview = field.querySelector( '[data-reklamo-image-preview]' );
+		const clearButton = field.querySelector( '[data-reklamo-image-clear]' );
+		const multiple = field.hasAttribute( 'data-multiple' );
+
+		if ( clear ) {
+			input.value = '';
+			preview.replaceChildren();
+			clearButton.hidden = true;
+			changed( input );
+			return;
+		}
+
+		let frame = frames.get( field );
+		if ( ! frame ) {
+			frame = wp.media( { library: { type: 'image' }, multiple: multiple ? 'add' : false } );
+			frames.set( field, frame );
+		}
+		frame.off( 'select' ).on( 'select', () => {
+			const chosen = frame.state().get( 'selection' ).toJSON();
+			input.value = chosen.map( ( a ) => a.id ).join( ',' );
+			preview.replaceChildren( ...chosen.map( thumb ) );
+			clearButton.hidden = ! chosen.length;
+			changed( input );
+		} );
+		frame.open();
+	} );
 }() );
