@@ -4,14 +4,12 @@
  * Slug: reklamo/hero
  * Categories: reklamo
  * Block Types: core/post-content
- * Description: Homepage hero with headline, lead, two buttons, four features and the product image with a price badge.
+ * Description: Homepage hero with headline, lead, two buttons, four features and a product's photo with its price badge.
  *
  * @package Reklamo
  */
 
 defined( 'ABSPATH' ) || exit;
-
-$reklamo_hero_img = get_template_directory_uri() . '/assets/img/hero-placeholder.svg';
 ?>
 <!-- wp:group {"templateLock":"contentOnly","lock":{"move":true,"remove":true},"className":"hero","layout":{"type":"constrained","contentSize":"1320px"}} -->
 <div class="wp-block-group hero">
@@ -53,22 +51,9 @@ $reklamo_hero_img = get_template_directory_uri() . '/assets/img/hero-placeholder
 <!-- /wp:column -->
 <!-- wp:column {"verticalAlignment":"center","width":"50%","className":"hero__media"} -->
 <div class="wp-block-column is-vertically-aligned-center hero__media" style="flex-basis:50%">
-<!-- wp:image {"sizeSlug":"large"} -->
-<figure class="wp-block-image size-large"><img src="<?php echo esc_url( $reklamo_hero_img ); ?>" alt="Тефтер и химикалка с лого"/></figure>
-<!-- /wp:image -->
-<!-- wp:group {"className":"hero__badge","layout":{"type":"constrained"}} -->
-<div class="wp-block-group hero__badge">
-<!-- wp:paragraph {"className":"eyebrow"} -->
-<p class="eyebrow">Red Business Pack</p>
-<!-- /wp:paragraph -->
-<!-- wp:paragraph -->
-<p><small>20 тефтера<br>20 химикалки</small></p>
-<!-- /wp:paragraph -->
-<!-- wp:paragraph -->
-<p><strong>100 €</strong></p>
-<!-- /wp:paragraph -->
-</div>
-<!-- /wp:group -->
+<!-- wp:shortcode -->
+[reklamo_hero_product sku="PKG-MAGNET" title="Metal Business Pack" items="20 тефтера|20 химикалки"]
+<!-- /wp:shortcode -->
 </div>
 <!-- /wp:column -->
 </div>

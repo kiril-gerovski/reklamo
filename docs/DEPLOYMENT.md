@@ -149,6 +149,11 @@ because a minor security release applied itself or someone updated from the dash
 alone and reported, and the right response is to bump `versions.env` after testing locally. Code is symlinked, so PHP and CSS are live the moment the checkout
 moves. Compiled `.mo` files are committed, nothing to build.
 
+**The catalogue release (2026-10-12)** needs `--seed`: the first seeded update after it creates the
+fifteen products from the client's photos with **sample prices**, sets the earlier sample packages and
+calendar tiers to draft and redirects their addresses (`scripts/seed-catalogue.php`, once). Real
+prices go into each product's "Prices by quantity" before the store is made visible.
+
 **Rollback** is `scripts/deploy.sh update <previous tag>`. WooCommerce database migrations are
 forward-only, so a rollback across a `WC_VERSION` bump also needs the dump from
 `~/reklamo-backups/` (`scripts/deploy.sh wp db import …`).

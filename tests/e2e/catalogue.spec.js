@@ -1,49 +1,50 @@
 // @ts-check
-// The business calendars: one product with a size per quantity tier, seeded from the client's artwork.
+// The catalogue from the client's photos: three calendars, the single products and the packages, each
+// sold in sizes with a price per size.
 const { test, expect } = require( '@playwright/test' );
 
 const TIERS = [
-	{ n: 1, qty: 20, price: '56,40' },
-	{ n: 2, qty: 50, price: '136,80' },
-	{ n: 3, qty: 100, price: '205,20' },
-	{ n: 4, qty: 200, price: '391,20' },
-	{ n: 5, qty: 300, price: '529,20' },
-	{ n: 6, qty: 500, price: '846' }, // whole euros drop the ",00"
+	{ qty: 20, price: '56,40' },
+	{ qty: 50, price: '136,80' },
+	{ qty: 100, price: '205,20' },
+	{ qty: 200, price: '391,20' },
+	{ qty: 300, price: '529,20' },
+	{ qty: 500, price: '846' }, // whole euros drop the ",00"
 ];
 
-test( 'the Календари category lists the calendar once, from its smallest size', async ( { page } ) => {
+test( 'the Календари category lists the three calendars, each from its smallest size', async ( { page } ) => {
 	await page.goto( '/product-category/kalendari/' );
 	await expect( page.locator( 'h1' ) ).toHaveText( 'Календари' );
 
 	const cards = page.locator( 'ul.products li.product' );
-	await expect( cards ).toHaveCount( 1 );
-	await expect( cards ).toContainText( 'Бизнес календар START' );
-	await expect( cards ).toContainText( TIERS[ 0 ].price );
-	// The client's artwork, not the WooCommerce placeholder.
-	await expect( cards.locator( 'img' ) ).toHaveAttribute( 'src', /calendar-start-1/ );
+	await expect( cards.locator( 'h3' ) ).toHaveText( [ /Календар Mono/i, /Трисекционен календар Trio/i, /настолен календар Photo/i ] );
+	await expect( cards.first() ).toContainText( TIERS[ 0 ].price );
+	// The client's photos, not the WooCommerce placeholder.
+	await expect( cards.first().locator( 'img' ) ).toHaveAttribute( 'src', /kalendar-mono-main/ );
 } );
 
-test( 'each calendar size has its own price, count and artwork; the old tier addresses redirect', async ( { page } ) => {
-	await page.goto( '/product/biznes-kalendar-start/' );
+test( 'each calendar size has its own price and count under one photo', async ( { page } ) => {
+	await page.goto( '/product/kalendar-mono/' );
 	const form = page.locator( 'form.rq-form--product' );
 	await expect( form.locator( '[data-attribute="attribute_pa_kolichestvo"] input' ) ).toHaveCount( TIERS.length );
 	for ( const tier of TIERS ) {
 		await form.locator( '.rk-option', { has: page.locator( `input[value="${ tier.qty }-br"]` ) } ).click();
 		await expect( page.locator( '.product-price-badge' ) ).toContainText( tier.price );
 		await expect( page.locator( '.summary' ) ).toContainText( `${ tier.qty } броя календари` );
-		await expect( page.locator( '.woocommerce-product-gallery img' ).first() ).toHaveAttribute( 'src', new RegExp( `calendar-start-${ tier.n }` ) );
-	}
-
-	for ( const n of [ 1, 4 ] ) {
-		await page.goto( `/product/biznes-kalendar-start-${ n }/` );
-		await expect( page ).toHaveURL( /\/product\/biznes-kalendar-start\/$/ );
+		await expect( page.locator( '.woocommerce-product-gallery img' ).first() ).toHaveAttribute( 'src', /kalendar-mono-main/ );
 	}
 } );
 
-test( 'a calendar has a latin URL, the client copy and its own cart form', async ( { page } ) => {
-	await page.goto( '/product/biznes-kalendar-start/' );
+// The redirects from the earlier samples exist only on a site that had them, so they are not tested here.
+test( 'Промо пакети holds the three packages from the client\'s photos', async ( { page } ) => {
+	await page.goto( '/promo-paketi/' );
+	await expect( page.locator( 'li.product h3' ) ).toHaveText( [ /Бизнес комплект Magnet/i, /Комплект Stripe/i, /Комплект Cork/i ] );
+} );
 
-	await expect( page.locator( 'h1' ) ).toHaveText( 'Бизнес календар START' );
+test( 'a calendar has a latin URL, the client copy and its own cart form', async ( { page } ) => {
+	await page.goto( '/product/kalendar-mono/' );
+
+	await expect( page.locator( 'h1' ) ).toHaveText( 'Календар Mono' );
 	await expect( page.locator( '.summary' ) ).toContainText( '56,40' );
 	await expect( page.locator( '.summary' ) ).toContainText( '20 броя календари с индивидуален дизайн' );
 
@@ -82,7 +83,7 @@ test( 'a card opens the product page, whose order card adds it to the cart', asy
 } );
 
 test( 'the tabs are the design\'s, with specifications separate from the description', async ( { page } ) => {
-	await page.goto( '/product/biznes-kalendar-start/' );
+	await page.goto( '/product/kalendar-mono/' );
 
 	const tabs = page.locator( '.woocommerce-tabs ul.tabs li' );
 	await expect( tabs ).toHaveText( [ 'Описание', 'Спецификации' ] );
@@ -98,42 +99,45 @@ test( 'the tabs are the design\'s, with specifications separate from the descrip
 	await expect( specs ).toContainText( '295 г/м2 едностранно хромов картон Зенит' );
 } );
 
-test( 'a package with no specifications has no Specifications tab', async ( { page } ) => {
-	await page.goto( '/product/office-starter-pack/' );
-	const tabs = page.locator( '.woocommerce-tabs ul.tabs li' );
-	await expect( tabs.filter( { hasText: 'Спецификации' } ) ).toHaveCount( 0 );
+test( 'packages and products have both tabs, Описание and Спецификации', async ( { page } ) => {
+	for ( const slug of [ 'komplekt-cork', 'tefter-vintage-black', 'zapalka-satin-black' ] ) {
+		await page.goto( `/product/${ slug }/` );
+		await expect( page.locator( '.woocommerce-tabs ul.tabs li' ) ).toHaveText( [ 'Описание', 'Спецификации' ] );
+		await page.locator( '.woocommerce-tabs ul.tabs li', { hasText: 'Спецификации' } ).click();
+		await expect( page.locator( '#tab-specifications' ) ).toContainText( 'Брандиране' );
+	}
 } );
 
 test( 'Продукти sorts through its dropdown', async ( { page } ) => {
 	await page.goto( '/produkti/?orderby=price-desc' );
 	await expect( page.locator( 'select.orderby' ) ).toHaveValue( 'price-desc' );
-	await expect( page.locator( 'li.product h3' ).first() ).toHaveText( /Бизнес календар START/i );
+	await expect( page.locator( 'li.product h3' ).first() ).toHaveText( /Бутилка Bamboo Black/i );
 } );
 
 test( 'the package page follows the redesign: badge, lead, contents with details, whole-euro price', async ( { page } ) => {
-	await page.goto( '/product/red-business-pack/' );
+	await page.goto( '/product/biznes-komplekt-magnet/' );
 	await expect( page.locator( '.product-main__badge' ) ).toHaveText( 'Най-популярен' );
-	await expect( page.locator( '.product-lead' ) ).toContainText( 'Готов фирмен пакет за вашия бизнес' );
+	await expect( page.locator( '.product-lead' ) ).toContainText( 'Тефтер и метална химикалка в един цвят' );
 
 	const items = page.locator( '.product-includes__list li' );
-	await expect( items.locator( 'strong' ) ).toHaveText( [ '20 бр. Премиум тефтера', '20 бр. Метални химикалки', 'Опаковка' ] );
-	await expect( items.first().locator( 'small' ) ).toHaveText( 'A5, твърда корица, 96 листа' );
+	await expect( items.locator( 'strong' ) ).toHaveText( [ '20 бр. Тефтери', '20 бр. Метални химикалки' ] );
+	await expect( items.first().locator( 'small' ) ).toHaveText( 'Твърда корица, с Вашето лого' );
 	await expect( items.first().locator( 'svg' ) ).toHaveClass( /icon-notebook/ );
-	await expect( items.last().locator( 'svg' ) ).toHaveClass( /icon-gift/ );
+	await expect( items.last().locator( 'svg' ) ).toHaveClass( /icon-ballpen/ );
 
-	await expect( page.locator( '.product-price-badge__value .woocommerce-Price-amount' ) ).toHaveText( /^100\s€$/ );
+	await expect( page.locator( '.product-price-badge__value .woocommerce-Price-amount' ) ).toHaveText( /^189\s€$/ );
 	await expect( page.locator( '.woocommerce-tabs ul.tabs li' ).first() ).toHaveText( 'Описание' );
-	await expect( page.locator( '.woocommerce-Tabs-panel--description' ) ).toContainText( 'силно и професионално впечатление' );
+	await expect( page.locator( '.woocommerce-Tabs-panel--description' ) ).toContainText( 'Изчистен и практичен подарък' );
 } );
 
-test( 'the package page has the design\'s tabs and the section photo behind them', async ( { page } ) => {
-	await page.goto( '/product/red-business-pack/' );
+test( 'a product page has the design\'s tabs and the section photo behind them', async ( { page } ) => {
+	await page.goto( '/product/kalendar-mono/' );
 	const tabs = page.locator( '.woocommerce-tabs ul.tabs li' );
 	await expect( tabs ).toHaveText( [ 'Описание', 'Спецификации' ] );
 	await expect( page.locator( '.product-detail__tabs' ) ).toHaveClass( /has-image/ );
 
 	await tabs.filter( { hasText: 'Спецификации' } ).click();
-	await expect( page.locator( '#tab-specifications' ) ).toContainText( '96 листа' );
+	await expect( page.locator( '#tab-specifications' ) ).toContainText( '70 г/м2 офсетова хартия' );
 
 	// What is the same for every product lives on the homepage and its own pages; the help card points there.
 	const links = page.locator( '.product-help__links a' );
@@ -165,7 +169,8 @@ test( 'the FAQ page shows its questions as the same accordion', async ( { page }
 } );
 
 test( 'a product without a section photo keeps a plain tab section', async ( { page } ) => {
-	await page.goto( '/product/biznes-kalendar-start/' );
+	// The by-the-piece sample has none; scripts/e2e.sh publishes it for the run.
+	await page.goto( '/product/klasicheski-tefter/' );
 	await expect( page.locator( '.product-detail__tabs' ) ).not.toHaveClass( /has-image/ );
 } );
 
@@ -208,7 +213,7 @@ test( 'delivery and deadlines: a band on the homepage and cards on its own page'
 } );
 
 test( 'every product page ends with the same "how ordering works" step switcher', async ( { page } ) => {
-	for ( const url of [ '/product/red-business-pack/', '/product/biznes-kalendar-start/' ] ) {
+	for ( const url of [ '/product/biznes-komplekt-magnet/', '/product/kalendar-mono/' ] ) {
 		await page.goto( url );
 		const root = page.locator( '.product-single [data-step-switcher]' );
 		await expect( root.locator( '.steps__item' ) ).toHaveCount( 6 );
@@ -233,22 +238,24 @@ test( 'Промо пакети filters by category through its chips and shows t
 	await expect( chips.first() ).toHaveText( /Всички пакети/i );
 	await expect( chips.first() ).toHaveClass( /is-active/ );
 	// Packages only: the calendars live under Продукти, and so does their chip.
-	await expect( page.locator( 'li.product' ).filter( { hasText: 'Бизнес календар START' } ) ).toHaveCount( 0 );
+	await expect( page.locator( 'li.product' ).filter( { hasText: 'Календар Mono' } ) ).toHaveCount( 0 );
 	await expect( chips.filter( { hasText: 'Календари' } ) ).toHaveCount( 0 );
 
 	const all = await page.locator( 'li.product' ).count();
-	await chips.filter( { hasText: 'Химикалки' } ).click();
-	await expect( page ).toHaveURL( /kategoria=himikalki/ );
+	await chips.filter( { hasText: 'Бутилки и чаши' } ).click();
+	await expect( page ).toHaveURL( /kategoria=butilki-i-chashi/ );
 	await expect( page.locator( '.shop-hero h1' ) ).toHaveText( /Промо пакети/i );
-	await expect( chips.filter( { hasText: 'Химикалки' } ) ).toHaveClass( /is-active/ );
-	const pens = page.locator( 'li.product' );
-	expect( await pens.count() ).toBeLessThan( all );
-	await expect( pens.filter( { hasText: 'Green Pen Pack' } ) ).toHaveCount( 1 );
-	await expect( pens.filter( { hasText: 'Event Pack' } ) ).toHaveCount( 0 );
+	await expect( chips.filter( { hasText: 'Бутилки и чаши' } ) ).toHaveClass( /is-active/ );
+	const mugs = page.locator( 'li.product' );
+	expect( await mugs.count() ).toBeLessThan( all );
+	await expect( mugs.filter( { hasText: 'Комплект Stripe' } ) ).toHaveCount( 1 );
+	await expect( mugs.filter( { hasText: 'Бизнес комплект Magnet' } ) ).toHaveCount( 0 );
+	// Packages only: a single cup is a product, not a package.
+	await expect( mugs.filter( { hasText: 'Чаша с капак Travel Black' } ) ).toHaveCount( 0 );
 
-	const seal = pens.filter( { hasText: 'Green Pen Pack' } ).locator( '.package-card__seal' );
-	await expect( seal ).toContainText( '50 бр.' );
-	await expect( seal ).toContainText( /81\s€/ );
+	const seal = mugs.filter( { hasText: 'Комплект Stripe' } ).locator( '.package-card__seal' );
+	await expect( seal ).toContainText( '20 бр.' );
+	await expect( seal ).toContainText( /229\s€/ );
 } );
 
 test( 'on a phone the category chips fit the screen and the cards sit two to a row', async ( { page } ) => {
@@ -276,4 +283,17 @@ test( 'the homepage packages, Промо пакети, Продукти and the 
 	}
 	await page.goto( '/' );
 	await expect( page.locator( '.packages .bulk-offer' ) ).toHaveCount( 1 );
+} );
+
+test( 'the homepage hero shows the Magnet package: its photo, the badge and its price from the shop, linking to it', async ( { page } ) => {
+	await page.goto( '/' );
+	const badge = page.locator( '.hero__badge' );
+	await expect( badge.locator( '.eyebrow' ) ).toHaveText( 'Metal Business Pack' );
+	await expect( badge ).toContainText( '20 тефтера' );
+	await expect( badge.locator( 'strong' ) ).toHaveText( /^\d+\s€$/ );
+	await expect( page.locator( '.hero__photo img' ) ).toHaveAttribute( 'src', /biznes-komplekt-magnet-red/ );
+	await expect( page.locator( '.hero__photo' ) ).toHaveAttribute( 'href', /\/product\/biznes-komplekt-magnet\/$/ );
+	// The same price the package card shows.
+	const card = page.locator( '.packages li.product', { hasText: 'Бизнес комплект Magnet' } ).locator( '.package-card__amount' );
+	expect( ( await badge.locator( 'strong' ).innerText() ).replace( /\s/g, '' ) ).toBe( ( await card.innerText() ).replace( /\s/g, '' ) );
 } );

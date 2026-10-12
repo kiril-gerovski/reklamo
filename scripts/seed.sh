@@ -994,6 +994,36 @@ if ( $p && ( "" === trim( $p->post_content ) || str_contains( $p->post_content, 
 }
 '
 
+# "Популярни промо пакети" on an already-built homepage listed any four products; with three packages
+# a calendar took the fourth place. The seeded shortcode alone is swapped for the packages-only one.
+wp eval '
+$id  = (int) get_option( "page_on_front" );
+$p   = get_post( $id );
+$old = "[products limit=\"4\" columns=\"4\" orderby=\"menu_order\" order=\"ASC\"]";
+if ( $p && str_contains( $p->post_content, $old ) ) {
+	wp_update_post( array( "ID" => $id, "post_content" => str_replace( $old, "[products limit=\"4\" columns=\"4\" category=\"paketi\" orderby=\"menu_order\" order=\"ASC\"]", $p->post_content ) ) );
+	echo "  homepage packages: packages only\n";
+}
+'
+
+# The hero showed a drawn notebook and a fixed "Red Business Pack · 100 €" badge; that package is
+# retired. While the hero still holds exactly that seeded block, it becomes the product shortcode.
+wp eval '
+$id = (int) get_option( "page_on_front" );
+$p  = get_post( $id );
+if ( $p && str_contains( $p->post_content, "hero-placeholder.svg" ) ) {
+	$new = preg_replace(
+		"~<!-- wp:image \{\"sizeSlug\":\"large\"\} -->\s*<figure class=\"wp-block-image size-large\"><img src=\"[^\"]*hero-placeholder\.svg\"[^>]*/></figure>\s*<!-- /wp:image -->\s*<!-- wp:group \{\"className\":\"hero__badge\"[^}]*\}\} -->.*?Red Business Pack.*?<!-- /wp:group -->~s",
+		"<!-- wp:shortcode -->\n[reklamo_hero_product sku=\"PKG-MAGNET\" title=\"Metal Business Pack\" items=\"20 тефтера|20 химикалки\"]\n<!-- /wp:shortcode -->",
+		$p->post_content
+	);
+	if ( $new && $new !== $p->post_content ) {
+		wp_update_post( array( "ID" => $id, "post_content" => $new ) );
+		echo "  homepage hero: Бизнес комплект Magnet\n";
+	}
+}
+'
+
 # An already-built homepage still carries the brand mark the pattern drew inline before the client
 # supplied a logo. Swap that one block for the shortcode, which always renders the current asset.
 wp eval '
@@ -1146,21 +1176,11 @@ ensure_menu "Футър — Информация"
 for s in dostavka-i-srokove plashtane chesto-zadavani-vaprosi obshti-usloviya politika-za-poveritelnost; do menu_add_page "Футър — Информация" "$s"; done
 wp menu location assign "Футър — Информация" footer-info >/dev/null 2>&1 || true
 
-echo "→ products (from design/preview.webp)"
+echo "→ products"
 cat_id=$(ensure_cat paketi "Пакети")
 
 product_id() { wc product list --sku="$1" --field=id | head -n1; }
-# Sample packages exist only until the owner has products: created when the SKU is
-# missing, never updated — names, prices and texts belong to the dashboard afterwards.
-# A Bulgarian name would otherwise become a percent-encoded slug, so latin ones are passed in.
-ensure_product() { # sku name price short_description menu_order [featured] [category_id] [description] [slug]
-  [ -n "$(product_id "$1")" ] && return 0
-  wc product create --type=simple --status=publish --sku="$1" --name="$2" --regular_price="$3" \
-    --short_description="$4" --menu_order="$5" --manage_stock=false --sold_individually=false \
-    --featured="${6:-false}" --categories="[{\"id\":${7:-$cat_id}}]" --description="${8:-}" \
-    ${9:+--slug="$9"} --porcelain >/dev/null
-}
-# Package photos cut from design/preview.webp by scripts/crop-previews.php, one per package.
+# A product photo from the theme's assets/img, imported as the product image.
 # Set only when the product has no image: the owner's own photos are never replaced.
 set_product_image() { # sku path-under-assets-img alt
   local pid att path
@@ -1172,136 +1192,6 @@ set_product_image() { # sku path-under-assets-img alt
   att=$(wp media import "$path" --post_id="$pid" --featured_image --title="$3" --alt="$3" --porcelain 2>/dev/null | tail -n1)
   [ -n "$att" ] && echo "  $2: image set"
 }
-
-# Texts of an existing product are replaced only while they still hold an earlier seed value
-# (or nothing), so an owner's edit in Products always wins.
-fill_product_if_seeded() { # sku field(excerpt|content) earlier-seed-value new-value
-  local pid cur; pid=$(product_id "$1"); [ -n "$pid" ] || return 0
-  cur=$(wp post get "$pid" --field="post_$2")
-  if [ -z "$cur" ] || [ "$cur" = "$3" ]; then
-    [ "$cur" = "$4" ] || { wp post update "$pid" --post_"$2"="$4" >/dev/null && echo "  $1: $2 filled"; }
-  fi
-}
-
-# Product page layout from the client's design: a lead paragraph, then the contents as a list.
-# Each item is a bold title, optionally followed by a line break and a detail line.
-pkg_lead='<p>Готов фирмен пакет за вашия бизнес. Практичен, стилен и запомнящ се.</p>'
-rbp_short="$pkg_lead"'<ul><li><strong>20 бр. Премиум тефтера</strong><br>A5, твърда корица, 96 листа</li><li><strong>20 бр. Метални химикалки</strong><br>Метална, с гравиране на лого</li><li><strong>Опаковка</strong><br>Елегантна кутия за всеки комплект</li></ul>'
-rbp_desc='<p>Red Business Pack е създаден за компании, които искат да направят силно и професионално впечатление. Комбинацията от тефтер и химикалка е класически избор, който се използва ежедневно и поддържа вашия бранд видим всеки ден.</p><p>Подходящ за събития, обучения, подаръци за клиенти и служители, промоционални кампании и още много.</p>'
-osp_short="$pkg_lead<ul><li>20 чаши</li><li>20 химикалки</li></ul>"
-evp_short="$pkg_lead<ul><li>20 текстилни торби</li><li>20 метални бутилки</li></ul>"
-prp_short="$pkg_lead<ul><li>20 бележника</li><li>20 метални химикалки</li></ul>"
-
-ensure_product RBP "Red Business Pack"   100 "$rbp_short" 1 true "" "$rbp_desc"   # "Най-популярен" badge
-ensure_product OSP "Office Starter Pack" 119 "$osp_short" 2
-ensure_product EVP "Event Pack"          149 "$evp_short" 3
-ensure_product PRP "Premium Pack"        169 "$prp_short" 4
-
-fill_product_if_seeded RBP excerpt "<ul><li>20 червени тефтера</li><li>20 червени химикалки</li></ul>" "$rbp_short"
-fill_product_if_seeded RBP content "" "$rbp_desc"
-fill_product_if_seeded OSP excerpt "<ul><li>20 чаши</li><li>20 химикалки</li></ul>" "$osp_short"
-fill_product_if_seeded EVP excerpt "<ul><li>20 текстилни торби</li><li>20 метални бутилки</li></ul>" "$evp_short"
-# Specifications: seeded once, then the owner's text in Products → Спецификации wins.
-rbp_pid=$(product_id RBP)
-if [ -n "$rbp_pid" ] && [ -z "$(wp post meta get "$rbp_pid" _reklamo_specs 2>/dev/null || true)" ]; then
-  wp post meta update "$rbp_pid" _reklamo_specs '<ul><li>Тефтер: формат A5, твърда корица, 96 листа.</li><li>Химикалка: метална, с гравиране на логото.</li><li>Опаковка: елегантна кутия за всеки комплект.</li></ul>' >/dev/null && echo "  RBP: specifications filled"
-fi
-fill_product_if_seeded PRP excerpt "<ul><li>20 бележника</li><li>20 метални химикалки</li></ul>" "$prp_short"
-
-set_product_image RBP packages/red-business-pack   "Red Business Pack — червен тефтер и химикалка с лого"
-set_product_image OSP packages/office-starter-pack "Office Starter Pack — чаша и химикалка с лого"
-set_product_image EVP packages/event-pack          "Event Pack — текстилна торба и метална бутилка с лого"
-set_product_image PRP packages/premium-pack        "Premium Pack — бележник и метална химикалка с лого"
-
-# Single-product offers from the client's 2026-10 artwork. Draft texts, the owner edits them.
-tcp_short="$pkg_lead"'<ul><li><strong>20 бр. Термо чаши</strong><br>Двустенни, с капак, с Вашето лого</li></ul>'
-tcp_desc='<p>Термо чашите поддържат напитката топла или студена с часове — за офиса, колата и разходката. С Вашето лого те са всеки ден в ръцете на екипа и клиентите Ви.</p><p>Подходящи за подарък към служители, клиенти и партньори, за събития и сезонни кампании.</p>'
-gpp_short="$pkg_lead"'<ul><li><strong>50 бр. Метални химикалки</strong><br>Зелени, с гравирано лого</li></ul>'
-gpp_desc='<p>Метални химикалки в наситено зелено с меко покритие и гравиране на Вашето лого. Изглеждат премиум и се използват ежедневно.</p><p>Идеални за конференции, обучения, рецепции и подаръчни комплекти.</p>'
-wpp_short="$pkg_lead"'<ul><li><strong>50 бр. Метални химикалки</strong><br>Бели, с печат на лого</li></ul>'
-wpp_desc='<p>Изчистени бели химикалки с метални детайли — Вашето лого изпъква ясно на светлия корпус.</p><p>Практичен избор за офиса, събития и ежедневна реклама на бранда.</p>'
-ensure_product TCP "Thermo Cup Pack" 100 "$tcp_short" 5 false "" "$tcp_desc" thermo-cup-pack
-ensure_product GPP "Green Pen Pack"   81 "$gpp_short" 6 false "" "$gpp_desc" green-pen-pack
-ensure_product WPP "White Pen Pack"   75 "$wpp_short" 7 false "" "$wpp_desc" white-pen-pack
-set_product_image TCP packages/thermo-cups-pack "Thermo Cup Pack — 20 термо чаши с лого"
-set_product_image GPP packages/green-pens-pack  "Green Pen Pack — 50 зелени метални химикалки с лого"
-set_product_image WPP packages/white-pens-pack  "White Pen Pack — 50 бели химикалки с лого"
-
-# Packages also sit in the product categories they contain, which feeds the filter chips on the
-# shop page. Done once, so an owner who takes a package out of a category keeps it out.
-if [ -z "$(wp option get reklamo_seeded_pkg_cats 2>/dev/null || true)" ]; then
-  for pair in RBP:tefteri,himikalki OSP:butilki-i-chashi,himikalki EVP:chanti,butilki-i-chashi PRP:tefteri,himikalki TCP:butilki-i-chashi GPP:himikalki WPP:himikalki; do
-    pid=$(product_id "${pair%%:*}"); [ -n "$pid" ] || continue
-    wp post term add "$pid" product_cat $(echo "${pair#*:}" | tr ',' ' ') --by=slug >/dev/null 2>&1 || true
-  done
-  opt reklamo_seeded_pkg_cats "1"
-  echo "  packages added to their product categories"
-fi
-
-# The photo behind the product page's tab section; set only while the product has none.
-set_section_image() { # sku path-under-assets-img alt
-  local pid att path
-  pid=$(product_id "$1"); [ -n "$pid" ] || return 0
-  [ -n "$(wp post meta get "$pid" _reklamo_section_image 2>/dev/null || true)" ] && return 0
-  path=$(wp eval "\$p = get_theme_file_path( 'assets/img/$2.webp' ); echo file_exists( \$p ) ? \$p : '';")
-  [ -n "$path" ] || { echo "  $2: image missing, skipped"; return 0; }
-  att=$(wp media import "$path" --post_id="$pid" --title="$3" --alt="$3" --porcelain 2>/dev/null | tail -n1)
-  [ -n "$att" ] && wp post meta update "$pid" _reklamo_section_image "$att" >/dev/null && echo "  $2: section image set"
-}
-set_section_image RBP packages/red-business-pack-section "Red Business Pack в подаръчна кутия"
-
-# Extra product photos (gallery), imported only while the product has none of its own.
-set_product_gallery() { # sku "path:alt" ...
-  local pid sku=$1 path att ids="" entry; shift
-  pid=$(product_id "$sku"); [ -n "$pid" ] || return 0
-  [ -n "$(wp post meta get "$pid" _product_image_gallery 2>/dev/null || true)" ] && return 0
-  for entry in "$@"; do
-    path=$(wp eval "\$p = get_theme_file_path( 'assets/img/${entry%%:*}.webp' ); echo file_exists( \$p ) ? \$p : '';")
-    [ -n "$path" ] || { echo "  ${entry%%:*}: image missing, skipped"; continue; }
-    att=$(wp media import "$path" --post_id="$pid" --title="${entry#*:}" --alt="${entry#*:}" --porcelain 2>/dev/null | tail -n1)
-    [ -n "$att" ] && ids="${ids:+$ids,}$att"
-  done
-  [ -n "$ids" ] && wp post meta update "$pid" _product_image_gallery "$ids" >/dev/null && echo "  $sku: gallery set"
-}
-set_product_gallery RBP \
-  "packages/red-business-pack-section:Red Business Pack в подаръчна кутия" \
-  "packages/red-business-pack-pen:Метална химикалка с гравирано лого"
-
-# Business calendars (client artwork in design/logo-kit-and-redesign.zip): first one product per
-# quantity tier, merged further down into one product with a size per tier (reklamo_seeded_cal_variations).
-# Prices are the "крайна цена" from the client's mockups, VAT included like every other price here.
-cal_id=$(wc product_cat list --slug=kalendari --field=id | head -n1)
-# The design splits these: dimensions under "Описание", materials under "Спецификации".
-cal_desc='<p>Размер на подложката 320 x 240 мм. Размер на главата 320 x 240 мм.</p>'
-cal_specs=$(cat <<'HTML'
-<p>Всички тела за календари се изработват от 70 г/м2 офсетова хартия. С перфорация и шапка и прозорче за отбелязване на дата. Съдържат информация за:</p>
-<ul><li>номер на седмица,</li><li>фази на луната,</li><li>начало на астрологичната зодия,</li><li>официални и православни празници в България.</li></ul>
-<p>Подложката е от 295 г/м2 едностранно хромов картон Зенит, бигована за сгъване.</p>
-HTML
-)
-if [ -n "$cal_id" ] && [ -z "$(wp option get reklamo_seeded_cal_variations 2>/dev/null || true)" ]; then
-  i=0
-  for tier in "1:20:56.40" "2:50:136.80" "3:100:205.20" "4:200:391.20" "5:300:529.20" "6:500:846.00"; do
-    n=${tier%%:*}; rest=${tier#*:}; qty=${rest%%:*}; price=${rest#*:}
-    i=$((i + 1))
-    ensure_product "CAL-$qty" "Бизнес календар START $n" "$price" \
-      "<p>Готов фирмен пакет за вашия бизнес. Практичен, стилен и запомнящ се.</p><ul><li>$qty броя календари с индивидуален дизайн</li></ul>" \
-      "$((10 + i))" false "$cal_id" "$cal_desc" "biznes-kalendar-start-$n"
-    set_product_image "CAL-$qty" "products/calendar-start-$n" "Бизнес календар START $n — $qty броя с вашето лого"
-    # Specifications: seeded once, then the owner's text in Products → Спецификации wins.
-    cal_pid=$(product_id "CAL-$qty")
-    if [ -n "$cal_pid" ] && [ -z "$(wp post meta get "$cal_pid" _reklamo_specs 2>/dev/null || true)" ]; then
-      wp post meta update "$cal_pid" _reklamo_specs "$cal_specs" >/dev/null
-    fi
-  done
-fi
-if [ -n "$cal_id" ]; then
-  # Give the Календари category a real picture instead of the WooCommerce placeholder.
-  if [ -z "$(wp term meta get "$cal_id" thumbnail_id 2>/dev/null || true)" ]; then
-    thumb=$(wp post meta get "$(product_id CAL-20)" _thumbnail_id 2>/dev/null || true)
-    [ -n "$thumb" ] && wp term meta update "$cal_id" thumbnail_id "$thumb" >/dev/null && echo "  Календари category image set"
-  fi
-fi
 
 # Colours: WooCommerce's own global attribute "Цвят" (taxonomy pa_cvyat), used for variations of a
 # product sold by the piece. The attribute and its sample colours are created when missing; each
@@ -1339,56 +1229,8 @@ if [ -z "$(product_id NB-001)" ]; then
   wp post meta update "$nb_id" _reklamo_specs "<p>Твърди корици, 96 листа на редове, ластик за затваряне и лента за отбелязване.</p>" >/dev/null
   echo "  Класически тефтер created (4 colours, 3,20 € per piece, minimum 50)"
 fi
-# Promo packages in the three basic colours, same price each (owner's decision, 2026-10-11): a
-# package still a plain product becomes a variable one with red, black and white variations.
-# Once — after that the colours, their photos and prices are the owner's, in Products.
-if [ -z "$(wp option get reklamo_seeded_pkg_colours 2>/dev/null || true)" ]; then
-  for sku in RBP OSP EVP PRP TCP GPP WPP; do
-    pid=$(product_id "$sku"); [ -n "$pid" ] || continue
-    [ "$(wp eval "echo wc_get_product( $pid )->get_type();")" = "simple" ] || continue
-    price=$(wp eval "echo wc_get_product( $pid )->get_regular_price();")
-    wc product update "$pid" --type=variable \
-      --attributes="[{\"id\":$color_attr,\"variation\":true,\"visible\":true,\"options\":[\"Червен\",\"Черен\",\"Бял\"]}]" \
-      --default_attributes="[{\"id\":$color_attr,\"option\":\"Червен\"}]" >/dev/null
-    for name in Червен Черен Бял; do
-      wc product_variation create "$pid" --regular_price="$price" --manage_stock=false \
-        --attributes="[{\"id\":$color_attr,\"option\":\"$name\"}]" --porcelain >/dev/null
-    done
-    echo "  $sku: red, black and white"
-  done
-  wp option update reklamo_seeded_pkg_colours 1 >/dev/null
-fi
-# Colour photos of a package variation: its image and its gallery, set only while the variation has
-# no image of its own (the owner's photos in Products → Variations always win).
-set_variation_photos() { # sku colour-slug "path:alt" ["path:alt" ...] — first is the variation image
-  local pid vid entry path att ids="" first=1 sku=$1 slug=$2; shift 2
-  pid=$(product_id "$sku"); [ -n "$pid" ] || return 0
-  vid=$(wp eval "foreach ( wc_get_product( $pid )->get_children() as \$c ) { if ( '$slug' === ( wc_get_product( \$c )->get_variation_attributes()['attribute_pa_cvyat'] ?? '' ) ) { echo \$c; break; } }")
-  [ -n "$vid" ] || return 0
-  [ -n "$(wp post meta get "$vid" _thumbnail_id 2>/dev/null || true)" ] && return 0
-  for entry in "$@"; do
-    path=$(wp eval "\$p = get_theme_file_path( 'assets/img/${entry%%:*}.webp' ); echo file_exists( \$p ) ? \$p : '';")
-    [ -n "$path" ] || continue
-    att=$(wp media import "$path" --post_id="$pid" --title="${entry#*:}" --alt="${entry#*:}" --porcelain 2>/dev/null | tail -n1)
-    [ -n "$att" ] || continue
-    if [ $first = 1 ]; then wp post meta update "$vid" _thumbnail_id "$att" >/dev/null; first=0; else ids="${ids:+$ids,}$att"; fi
-  done
-  [ -n "$ids" ] && wp post meta update "$vid" _reklamo_variation_gallery "$ids" >/dev/null
-  echo "  $sku $slug: colour photos set"
-}
-# Recoloured from the red photos (the logo and the scene untouched); the other packages wait for real ones.
-set_variation_photos RBP chern \
-  "packages/colours/red-business-pack-black:Red Business Pack — черен тефтер и химикалка с лого" \
-  "packages/colours/red-business-pack-section-black:Red Business Pack в подаръчна кутия — черен" \
-  "packages/colours/red-business-pack-pen-black:Черна метална химикалка с гравирано лого"
-set_variation_photos RBP byal \
-  "packages/colours/red-business-pack-white:Red Business Pack — бял тефтер и химикалка с лого" \
-  "packages/colours/red-business-pack-section-white:Red Business Pack в подаръчна кутия — бял" \
-  "packages/colours/red-business-pack-pen-white:Бяла метална химикалка с гравирано лого"
-# Package sizes: WooCommerce's global attribute "Количество" (pa_kolichestvo), 20 / 50 / 100 / 200.
-# Each package gets a variation per colour and size; the 20 keeps today's price and photos, the
-# larger sizes get the colour's photos and no price — the owner sets "Prices by quantity" in the
-# product, and a size without a price is not offered. Once (reklamo_seeded_pkg_sizes).
+# Sizes: WooCommerce's global attribute "Количество" (pa_kolichestvo), 20 to 500 бр. Each product
+# and package is variable on it, one price per size ("Prices by quantity" in the product).
 size_attr=$(wc product_attribute list --format=csv --fields=id,slug 2>/dev/null | awk -F, '$2=="pa_kolichestvo"{print $1}' | head -n1)
 if [ -z "$size_attr" ]; then
   size_attr=$(wc product_attribute create --name="Количество" --slug=kolichestvo --type=select --order_by=menu_order --porcelain)
@@ -1400,127 +1242,15 @@ for c in "20-br:20 бр." "50-br:50 бр." "100-br:100 бр." "200-br:200 бр."
   term=$(wp term get pa_kolichestvo "$slug" --by=slug --field=term_id 2>/dev/null || true)
   [ -n "$term" ] || { term=$(wc product_attribute_term create "$size_attr" --name="$name" --slug="$slug" --porcelain); wp term meta update "$term" order "$n" >/dev/null; }
 done
-if [ -z "$(wp option get reklamo_seeded_pkg_sizes 2>/dev/null || true)" ]; then
-  wp eval-file - <<'PHP'
-<?php
-$sizes = array( '20-br', '50-br', '100-br', '200-br' );
-$ids   = array();
-foreach ( $sizes as $slug ) {
-	$t = get_term_by( 'slug', $slug, 'pa_kolichestvo' );
-	if ( $t ) {
-		$ids[] = $t->term_id;
-	}
-}
-foreach ( array( 'RBP', 'OSP', 'EVP', 'PRP', 'TCP', 'GPP', 'WPP' ) as $sku ) {
-	$p = wc_get_product( wc_get_product_id_by_sku( $sku ) );
-	if ( ! $p || ! $p->is_type( 'variable' ) || isset( $p->get_attributes()['pa_kolichestvo'] ) ) {
-		continue;
-	}
-	$attrs = $p->get_attributes();
-	$a     = new WC_Product_Attribute();
-	$a->set_id( wc_attribute_taxonomy_id_by_name( 'pa_kolichestvo' ) );
-	$a->set_name( 'pa_kolichestvo' );
-	$a->set_options( $ids );
-	$a->set_position( count( $attrs ) );
-	$a->set_visible( true );
-	$a->set_variation( true );
-	$attrs['pa_kolichestvo'] = $a;
-	$p->set_attributes( $attrs );
-	$p->set_default_attributes( array_merge( $p->get_default_attributes(), array( 'pa_kolichestvo' => '20-br' ) ) );
-	$p->save();
-	foreach ( $p->get_children() as $child ) {
-		$v  = wc_get_product( $child );
-		$va = $v->get_attributes();
-		if ( ! empty( $va['pa_kolichestvo'] ) ) {
-			continue;
-		}
-		$va['pa_kolichestvo'] = '20-br';
-		$v->set_attributes( $va );
-		$v->save();
-		foreach ( array_slice( $sizes, 1 ) as $slug ) {
-			$n = new WC_Product_Variation();
-			$n->set_parent_id( $p->get_id() );
-			$n->set_attributes( array_merge( $va, array( 'pa_kolichestvo' => $slug ) ) );
-			$n->set_image_id( $v->get_image_id( 'edit' ) );
-			$n->set_manage_stock( false );
-			$gallery = $v->get_meta( '_reklamo_variation_gallery' );
-			if ( $gallery ) {
-				$n->update_meta_data( '_reklamo_variation_gallery', $gallery );
-			}
-			$n->save();
-		}
-	}
-	WC_Product_Variable::sync( $p->get_id() );
-	echo "  $sku: sizes 20 / 50 / 100 / 200\n";
-}
-update_option( 'reklamo_seeded_pkg_sizes', 1 );
-PHP
-fi
-# The six calendar tiers become one product with a size per tier, each size with its own price and
-# its own photo (the artwork prints the count and the price). START 1 is converted in place and
-# renamed; the other five go to draft and their addresses redirect to it. Once.
-if [ -z "$(wp option get reklamo_seeded_cal_variations 2>/dev/null || true)" ]; then
-  wp eval-file - <<'PHP'
-<?php
-$tiers = array( 20 => 'CAL-20', 50 => 'CAL-50', 100 => 'CAL-100', 200 => 'CAL-200', 300 => 'CAL-300', 500 => 'CAL-500' );
-$main  = wc_get_product( wc_get_product_id_by_sku( 'CAL-20' ) );
-if ( $main && $main->is_type( 'simple' ) ) {
-	$old = array();
-	foreach ( $tiers as $qty => $sku ) {
-		$p = wc_get_product( wc_get_product_id_by_sku( $sku ) );
-		if ( $p && get_term_by( 'slug', $qty . '-br', 'pa_kolichestvo' ) ) {
-			$old[ $qty ] = $p;
-		}
-	}
-	$terms = array();
-	foreach ( array_keys( $old ) as $qty ) {
-		$terms[] = get_term_by( 'slug', $qty . '-br', 'pa_kolichestvo' )->term_id;
-	}
-	$id = $main->get_id();
-	wp_set_object_terms( $id, 'variable', 'product_type' );
-	$cal = new WC_Product_Variable( $id );
-	$a   = new WC_Product_Attribute();
-	$a->set_id( wc_attribute_taxonomy_id_by_name( 'pa_kolichestvo' ) );
-	$a->set_name( 'pa_kolichestvo' );
-	$a->set_options( $terms );
-	$a->set_visible( true );
-	$a->set_variation( true );
-	$cal->set_attributes( array( 'pa_kolichestvo' => $a ) );
-	$cal->set_default_attributes( array( 'pa_kolichestvo' => '20-br' ) );
-	$cal->set_name( 'Бизнес календар START' );
-	$cal->set_slug( 'biznes-kalendar-start' );
-	$cal->set_sku( 'CAL' );
-	$cal->set_regular_price( '' );
-	$cal->set_price( '' );
-	$cal->set_short_description( '<p>Готов фирмен пакет за вашия бизнес. Практичен, стилен и запомнящ се.</p><ul><li>20 броя календари с индивидуален дизайн</li></ul>' );
-	$cal->save();
-	foreach ( $old as $qty => $p ) {
-		$v = new WC_Product_Variation();
-		$v->set_parent_id( $id );
-		$v->set_attributes( array( 'pa_kolichestvo' => $qty . '-br' ) );
-		$v->set_regular_price( $p->get_regular_price() );
-		$v->set_image_id( $p->get_image_id() );
-		$v->set_manage_stock( false );
-		$v->save();
-		if ( $p->get_id() !== $id ) {
-			add_post_meta( $id, '_wp_old_slug', $p->get_slug() );
-			wp_update_post( array( 'ID' => $p->get_id(), 'post_status' => 'draft' ) );
-		}
-	}
-	if ( ! in_array( 'biznes-kalendar-start-1', get_post_meta( $id, '_wp_old_slug' ), true ) ) {
-		add_post_meta( $id, '_wp_old_slug', 'biznes-kalendar-start-1' );
-	}
-	WC_Product_Variable::sync( $id );
-	echo '  calendars: one product, sizes ' . implode( ' / ', array_keys( $old ) ) . "\n";
-}
-update_option( 'reklamo_seeded_cal_variations', 1 );
-PHP
-fi
-set_product_image NB-001 packages/red-business-pack "Класически тефтер — червен, с лого"
+# The catalogue from the client's photos (design/v3/web product): packages and products, created
+# once with sample prices; the earlier sample packages and calendar tiers go to draft and their
+# addresses redirect to the closest new product. Data and steps: scripts/seed-catalogue.php.
+wp eval-file - < scripts/seed-catalogue.php
+set_product_image NB-001 catalogue/tefter-contrast-red/main "Класически тефтер — червен, с лого"
 # Colour photos: the sample has pictures for red and black; green and blue fall back to the main photo.
 nb_id=$(product_id NB-001)
 if [ -n "$nb_id" ]; then
-  for pair in "cherven:Червен:packages/red-business-pack" "chern:Черен:packages/premium-pack"; do
+  for pair in "cherven:Червен:catalogue/tefter-contrast-red/main" "chern:Черен:catalogue/tefter-vintage-black/main"; do
     slug=${pair%%:*}; rest=${pair#*:}; name=${rest%%:*}; img=${rest#*:}
     vid=$(wp eval "foreach ( wc_get_product( $nb_id )->get_children() as \$c ) { if ( '$slug' === ( wc_get_product( \$c )->get_variation_attributes()['attribute_pa_cvyat'] ?? '' ) ) { echo \$c; break; } }")
     [ -n "$vid" ] || continue

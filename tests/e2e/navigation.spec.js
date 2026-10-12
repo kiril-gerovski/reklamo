@@ -135,8 +135,8 @@ test( 'the Продукти page lists every product with "all products" and the
 
 	// Packages and single products together.
 	const cards = page.locator( 'li.product' );
-	await expect( cards.filter( { hasText: 'Red Business Pack' } ) ).toHaveCount( 1 );
-	await expect( cards.filter( { hasText: 'Бизнес календар START' } ) ).toHaveCount( 1 );
+	await expect( cards.filter( { hasText: 'Бизнес комплект Magnet' } ) ).toHaveCount( 1 );
+	await expect( cards.filter( { hasText: 'Календар Mono' } ) ).toHaveCount( 1 );
 
 	await chips.filter( { hasText: 'Календари' } ).click();
 	await expect( page ).toHaveURL( /\/product-category\/kalendari\/$/ );

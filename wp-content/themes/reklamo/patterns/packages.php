@@ -23,7 +23,7 @@ defined( 'ABSPATH' ) || exit;
 </div>
 <!-- /wp:group -->
 <!-- wp:shortcode -->
-[products limit="4" columns="4" orderby="menu_order" order="ASC"]
+[products limit="4" columns="4" category="paketi" orderby="menu_order" order="ASC"]
 <!-- /wp:shortcode -->
 </div>
 <!-- /wp:group -->

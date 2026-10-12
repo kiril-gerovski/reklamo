@@ -51,9 +51,9 @@ async function addFromRequestPage( page, paket, fixture = '', note = undefined )
 
 test( 'customer places a request with a logo and no payment', async ( { page } ) => {
 	// The request page for one product (the header button leads here) adds it to the cart.
-	await page.goto( '/kachi-logo/?paket=red-business-pack' );
+	await page.goto( '/kachi-logo/?paket=biznes-komplekt-magnet' );
 	await expect( page.locator( 'h1' ) ).toHaveText( 'Качи лого и визуализирай' );
-	await expect( page.locator( '.package-summary__name' ) ).toHaveText( 'Red Business Pack' );
+	await expect( page.locator( '.package-summary__name' ) ).toHaveText( 'Бизнес комплект Magnet' );
 	await expect( page.locator( '.rq-nopay' ) ).toContainText( 'не се извършва плащане' );
 	await page.getByRole( 'button', { name: /Добави в количката/ } ).click();
 	await page.locator( '[data-rk-added]' ).getByRole( 'link', { name: 'Към количката' } ).click();
@@ -89,11 +89,11 @@ test( 'customer places a request with a logo and no payment', async ( { page } )
 } );
 
 test( 'validation: no step 2 without a logo and a note; then consents and phone are checked, values kept', async ( { page } ) => {
-	await addFromRequestPage( page, 'red-business-pack' );
+	await addFromRequestPage( page, 'biznes-komplekt-magnet' );
 	// The disabled button is a convenience; the server refuses the same on its own.
 	await page.locator( '[data-rk-continue]' ).evaluate( ( b ) => { b.disabled = false; } );
 	await page.locator( '[data-rk-continue]' ).click();
-	await expect( page.locator( '.rq-errors' ) ).toContainText( 'Red Business Pack - Червен, 20 бр.: логото му още не е качено' );
+	await expect( page.locator( '.rq-errors' ) ).toContainText( 'Бизнес комплект Magnet - Червен, 20 бр.: логото му още не е качено' );
 	await expect( page.locator( '.rk-cart' ) ).toHaveAttribute( 'data-step', 'logos' );
 
 	await logoInCart( page, 'logo.png', '' );
@@ -123,7 +123,7 @@ test( 'validation: no step 2 without a logo and a note; then consents and phone 
 } );
 
 test( 'a mistyped email domain is refused, values and the logo are kept', async ( { page } ) => {
-	await addFromRequestPage( page, 'red-business-pack', 'logo.png' );
+	await addFromRequestPage( page, 'biznes-komplekt-magnet', 'logo.png' );
 	await page.locator( '[data-rk-continue]' ).click();
 	await page.fill( 'input[name="rq_name"]', 'Грешен Домейн' );
 	await page.fill( 'input[name="rq_email"]', 'nobody@abv.bh' );
@@ -157,7 +157,7 @@ test( 'homepage quick-start form adds the chosen package to the cart', async ( {
 
 test( 'chunked upload: a 150 MB PSD gets through a 64 MB PHP limit', async ( { page } ) => {
 	test.setTimeout( 180_000 );
-	await addFromRequestPage( page, 'office-starter-pack' );
+	await addFromRequestPage( page, 'komplekt-cork' );
 	const logo = page.locator( '.rk-logo' ).first();
 	await logo.locator( 'input[type="file"]' ).setInputFiles( `${ FIXTURES }/big.psd` );
 	await expect( logo.locator( '.rq-progress' ) ).toBeVisible();
@@ -168,7 +168,7 @@ test( 'chunked upload: a 150 MB PSD gets through a 64 MB PHP limit', async ( { p
 } );
 
 test( 'wrong content is refused: an .exe renamed to .ai', async ( { page } ) => {
-	await addFromRequestPage( page, 'red-business-pack' );
+	await addFromRequestPage( page, 'biznes-komplekt-magnet' );
 	const logo = page.locator( '.rk-logo' ).first();
 	await logo.locator( 'input[type="file"]' ).setInputFiles( `${ FIXTURES }/fake.ai` );
 	await expect( logo.locator( '.rq-progress.is-error' ) ).toContainText( 'не изглежда като валиден AI файл', { timeout: 60_000 } );
@@ -176,7 +176,7 @@ test( 'wrong content is refused: an .exe renamed to .ai', async ( { page } ) => 
 } );
 
 test( 'SVG with a script is stored sanitised', async ( { page } ) => {
-	await addFromRequestPage( page, 'red-business-pack', 'xss.svg' );
+	await addFromRequestPage( page, 'biznes-komplekt-magnet', 'xss.svg' );
 	const id = await sendCart( page, 'СВГ Тест', 'svg@example.com' );
 	svgOrderId = id;
 
@@ -212,7 +212,7 @@ test( 'admin sees the logo and sends a mockup', async ( { page } ) => {
 
 	await page.setInputFiles( 'input[name^="reklamo_mockup["]', `${ FIXTURES }/mockup.png` );
 	await page.getByRole( 'button', { name: 'Изпрати на клиента' } ).click();
-	await expect( page.locator( '.notice-success' ) ).toContainText( 'Red Business Pack - Червен, 20 бр. (визуализация №1)' );
+	await expect( page.locator( '.notice-success' ) ).toContainText( 'Бизнес комплект Magnet - Червен, 20 бр. (визуализация №1)' );
 	await expect( page.locator( '#order_status' ) ).toHaveValue( 'wc-rq-mockup-sent' );
 
 	const mail = await mailpitFind( `Визуализацията за поръчка ${ orderId }` );
@@ -299,7 +299,7 @@ test( 'approval link: GET is idempotent, POST approves once, replay is refused',
 	await expect( page.locator( '#order_status' ) ).toHaveValue( 'wc-rq-changes' );
 	await page.setInputFiles( 'input[name^="reklamo_mockup["]', `${ FIXTURES }/mockup.png` );
 	await page.getByRole( 'button', { name: 'Изпрати на клиента' } ).click();
-	await expect( page.locator( '.notice-success' ) ).toContainText( 'Red Business Pack - Червен, 20 бр. (визуализация №2)' );
+	await expect( page.locator( '.notice-success' ) ).toContainText( 'Бизнес комплект Magnet - Червен, 20 бр. (визуализация №2)' );
 	const second = ( await mailpitFind( `Визуализацията за поръчка ${ orderId }` ) ).text.match( /https?:\/\/\S+odobrenie\/\?s=[A-Za-z0-9]+&k=[A-Za-z0-9_-]+/ );
 	// The link for #1 is used up and reports so; it cannot approve #2.
 	await page.context().clearCookies();
@@ -487,7 +487,7 @@ test( 'diagnostics: storage protected, probe finds the real single-request ceili
 test( 'storefront sets no cookies: home, product, request and order pages', async ( { browser } ) => {
 	const ctx = await browser.newContext();
 	const p = await ctx.newPage();
-	for ( const url of [ '/', '/product/red-business-pack/', '/kachi-logo/?paket=red-business-pack', trackUrl, '/promo-paketi/' ] ) {
+	for ( const url of [ '/', '/product/biznes-komplekt-magnet/', '/kachi-logo/?paket=biznes-komplekt-magnet', trackUrl, '/promo-paketi/' ] ) {
 		await p.goto( url );
 		await p.waitForLoadState( 'networkidle' );
 	}

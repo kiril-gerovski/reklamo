@@ -53,10 +53,10 @@ test( 'products go into the cart with a plain button; the checkout is not used',
 	await page.goto( '/koshnitsa/' );
 	await expect( page.locator( '.rk-cart__empty' ) ).toBeVisible();
 
-	await addToCart( page, 'red-business-pack' );
+	await addToCart( page, 'biznes-komplekt-magnet' );
 	await expect( page.locator( '.site-header__cart-count' ) ).toHaveText( '1' );
-	await addToCart( page, 'office-starter-pack' );
-	await addToCart( page, 'white-pen-pack' );
+	await addToCart( page, 'komplekt-cork' );
+	await addToCart( page, 'metalna-himikalka-stone-white' );
 	await expect( page.locator( '.site-header__cart-count' ) ).toHaveText( '3' );
 	await expect( page.locator( '.rk-cart__item' ) ).toHaveCount( 3 );
 	// Nothing to continue with yet: no logo, no note.
@@ -76,17 +76,17 @@ test( 'logos with notes are marked for products; a marked product leaves the nex
 	await expect( items ).toHaveCount( 2 );
 
 	// Logo 1 starts marked for everything; give it to the first product only.
-	await fillLogo( page.locator( '.rk-logo' ).first(), 'logo.pdf', 'A: златно лого на корицата.', [ 'Red Business Pack' ] );
+	await fillLogo( page.locator( '.rk-logo' ).first(), 'logo.pdf', 'A: златно лого на корицата.', [ 'Бизнес комплект Magnet' ] );
 	await expect( items.nth( 0 ) ).toHaveClass( /is-ready/ );
 	await expect( page.locator( '[data-rk-continue]' ) ).toBeDisabled();
 	// The page says exactly what is missing, product by product.
-	await expect( page.locator( '[data-rk-blocked] li' ) ).toHaveText( [ 'Office Starter Pack - Червен, 20 бр.: не е маркиран при нито едно лого.' ] );
+	await expect( page.locator( '[data-rk-blocked] li' ) ).toHaveText( [ 'Комплект Cork – чаша, тефтер и химикалка - 20 бр.: не е маркиран при нито едно лого.' ] );
 	await page.getByRole( 'button', { name: /Добави още едно лого/ } ).click();
 	const pending = page.locator( '.rk-logo' ).nth( 1 );
 	await pending.locator( 'textarea' ).fill( 'Без файл засега' );
-	await pending.locator( '.rk-logo__item', { hasText: 'Office Starter Pack' } ).locator( 'input' ).check();
+	await pending.locator( '.rk-logo__item', { hasText: 'Комплект Cork' } ).locator( 'input' ).check();
 	await expect( pending.locator( '[data-rk-nofile]' ) ).toBeVisible();
-	await expect( page.locator( '[data-rk-blocked] li' ) ).toHaveText( [ 'Office Starter Pack - Червен, 20 бр.: файлът на „Лого 2“ още не е качен.' ] );
+	await expect( page.locator( '[data-rk-blocked] li' ) ).toHaveText( [ 'Комплект Cork – чаша, тефтер и химикалка - 20 бр.: файлът на „Лого 2“ още не е качен.' ] );
 	await pending.getByRole( 'button', { name: 'Премахни това лого' } ).click();
 	await page.getByRole( 'button', { name: /Добави още едно лого/ } ).click();
 	await expect( page.locator( '.rk-logo' ) ).toHaveCount( 2 );
@@ -94,20 +94,20 @@ test( 'logos with notes are marked for products; a marked product leaves the nex
 
 	// Logo 2 lists only what is still without a logo: the first product has left its list.
 	const second = page.locator( '.rk-logo' ).nth( 1 );
-	await expect( second.locator( '.rk-logo__item:visible' ) ).toHaveText( [ /Office Starter Pack/ ] );
-	await fillLogo( second, 'logo.png', 'B: златно лого на чашата и химикалката.', [ 'Office Starter Pack' ] );
+	await expect( second.locator( '.rk-logo__item:visible' ) ).toHaveText( [ /Комплект Cork/ ] );
+	await fillLogo( second, 'logo.png', 'B: златно лого на чашата и химикалката.', [ 'Комплект Cork' ] );
 	// Unticking a product under logo 1 brings it back to logo 2's list.
-	await page.locator( '.rk-logo' ).first().locator( '.rk-logo__item', { hasText: 'Red Business Pack' } ).locator( 'input' ).uncheck();
+	await page.locator( '.rk-logo' ).first().locator( '.rk-logo__item', { hasText: 'Бизнес комплект Magnet' } ).locator( 'input' ).uncheck();
 	await expect( second.locator( '.rk-logo__item:visible' ) ).toHaveCount( 2 );
 	await expect( page.locator( '[data-rk-continue]' ) ).toBeDisabled();
-	await page.locator( '.rk-logo' ).first().locator( '.rk-logo__item', { hasText: 'Red Business Pack' } ).locator( 'input' ).check();
+	await page.locator( '.rk-logo' ).first().locator( '.rk-logo__item', { hasText: 'Бизнес комплект Magnet' } ).locator( 'input' ).check();
 	await expect( second.locator( '.rk-logo__item:visible' ) ).toHaveCount( 1 );
 	// The server refuses a product under two logos on its own, whatever the page shows.
-	await second.locator( '.rk-logo__item', { hasText: 'Red Business Pack' } ).locator( 'input' ).evaluate( ( el ) => { el.checked = true; } );
+	await second.locator( '.rk-logo__item', { hasText: 'Бизнес комплект Magnet' } ).locator( 'input' ).evaluate( ( el ) => { el.checked = true; } );
 	await page.locator( '[data-rk-continue]' ).evaluate( ( b ) => { b.disabled = false; } );
 	await page.locator( '[data-rk-continue]' ).click();
-	await expect( page.locator( '.rq-errors' ) ).toContainText( 'Red Business Pack - Червен, 20 бр.: маркиран е при повече от едно лого' );
-	await page.locator( '.rk-logo' ).nth( 1 ).locator( '.rk-logo__item', { hasText: 'Red Business Pack' } ).locator( 'input' ).evaluate( ( el ) => { el.checked = false; el.dispatchEvent( new Event( 'change', { bubbles: true } ) ); } );
+	await expect( page.locator( '.rq-errors' ) ).toContainText( 'Бизнес комплект Magnet - Червен, 20 бр.: маркиран е при повече от едно лого' );
+	await page.locator( '.rk-logo' ).nth( 1 ).locator( '.rk-logo__item', { hasText: 'Бизнес комплект Magnet' } ).locator( 'input' ).evaluate( ( el ) => { el.checked = false; el.dispatchEvent( new Event( 'change', { bubbles: true } ) ); } );
 
 	await expect( page.locator( '[data-rk-continue]' ) ).toBeEnabled();
 	await page.locator( '[data-rk-continue]' ).click();
@@ -152,9 +152,9 @@ test( 'sending the cart creates one order with a line, a logo and a note per pro
 	await expect( page.locator( '.badge' ) ).toHaveText( 'Заявка приета' );
 	const products = page.locator( 'section.product' );
 	await expect( products ).toHaveCount( 2 );
-	await expect( products.nth( 0 ) ).toContainText( 'Red Business Pack' );
+	await expect( products.nth( 0 ) ).toContainText( 'Бизнес комплект Magnet' );
 	await expect( products.nth( 0 ) ).toContainText( 'logo.pdf' );
-	await expect( products.nth( 1 ) ).toContainText( 'Office Starter Pack' );
+	await expect( products.nth( 1 ) ).toContainText( 'Комплект Cork' );
 	await expect( products.nth( 1 ) ).toContainText( 'химикалката' );
 
 	// The cart is empty again.
@@ -175,20 +175,20 @@ test( 'the designer sends both mockups at once: one email, a link per product', 
 	await blocks.nth( 0 ).locator( 'input[type="file"]' ).setInputFiles( `${ FIXTURES }/mockup.png` );
 	await blocks.nth( 1 ).locator( 'input[type="file"]' ).setInputFiles( `${ FIXTURES }/mockup.png` );
 	await page.getByRole( 'button', { name: 'Изпрати на клиента' } ).click();
-	await expect( page.locator( '.notice-success' ) ).toContainText( 'Red Business Pack - Червен, 20 бр. (визуализация №1), Office Starter Pack - Червен, 20 бр. (визуализация №1)' );
+	await expect( page.locator( '.notice-success' ) ).toContainText( 'Бизнес комплект Magnet - Червен, 20 бр. (визуализация №1), Комплект Cork – чаша, тефтер и химикалка - 20 бр. (визуализация №1)' );
 	await expect( page.locator( '#order_status' ) ).toHaveValue( 'wc-rq-mockup-sent' );
 
 	const mail = await mailpitFind( `Визуализацията за поръчка ${ orderId }` );
 	links = [ ...new Set( mail.text.match( LINK ) ) ];
 	expect( links ).toHaveLength( 2 );
-	expect( mail.text ).toContain( 'Red Business Pack - Червен, 20 бр. (визуализация №1)' );
-	expect( mail.text ).toContain( 'Office Starter Pack - Червен, 20 бр. (визуализация №1)' );
+	expect( mail.text ).toContain( 'Бизнес комплект Magnet - Червен, 20 бр. (визуализация №1)' );
+	expect( mail.text ).toContain( 'Комплект Cork – чаша, тефтер и химикалка - 20 бр. (визуализация №1)' );
 } );
 
 test( 'each product is decided on its own; no deposit while one is open', async ( { page } ) => {
 	await page.context().clearCookies();
 	await page.goto( links[ 0 ] );
-	await expect( page.locator( '.product-name' ) ).toHaveText( 'Red Business Pack - Червен, 20 бр.' );
+	await expect( page.locator( '.product-name' ) ).toHaveText( 'Бизнес комплект Magnet - Червен, 20 бр.' );
 	await page.click( 'button[name="decision"][value="approve"]' );
 	await expect( page.locator( '.next h2' ) ).toContainText( 'Одобрено' );
 	await expect( page.locator( '.next' ) ).toContainText( 'Одобрени: 1 от 2' );
@@ -210,7 +210,7 @@ test( 'each product is decided on its own; no deposit while one is open', async 
 	await expect( page.locator( 'section.product' ).nth( 1 ) ).toContainText( 'по-малко' );
 
 	const changes = await mailpitFind( `Заявени корекции по поръчка ${ orderId }` );
-	expect( changes.text ).toContain( 'Office Starter Pack' );
+	expect( changes.text ).toContain( 'Комплект Cork' );
 	expect( changes.text ).toContain( 'по-малко' );
 	// The second emailed link was consumed by the decision on the order page.
 	await page.goto( links[ 1 ] );
@@ -225,7 +225,7 @@ test( 'the revised mockup is approved and only then the deposit is asked for', a
 	await expect( office ).toContainText( 'по-малко' );
 	await office.locator( 'input[type="file"]' ).setInputFiles( `${ FIXTURES }/mockup.png` );
 	await page.getByRole( 'button', { name: 'Изпрати на клиента' } ).click();
-	await expect( page.locator( '.notice-success' ) ).toContainText( 'Office Starter Pack - Червен, 20 бр. (визуализация №2)' );
+	await expect( page.locator( '.notice-success' ) ).toContainText( 'Комплект Cork – чаша, тефтер и химикалка - 20 бр. (визуализация №2)' );
 	await expect( page.locator( '#order_status' ) ).toHaveValue( 'wc-rq-mockup-sent' );
 
 	const mail = await mailpitFind( `Визуализацията за поръчка ${ orderId }` );
@@ -235,7 +235,7 @@ test( 'the revised mockup is approved and only then the deposit is asked for', a
 	await page.context().clearCookies();
 	await page.goto( second[ 0 ] );
 	await expect( page.locator( '.next h2' ) ).toContainText( '№2' );
-	await expect( page.locator( '.product-name' ) ).toHaveText( 'Office Starter Pack - Червен, 20 бр.' );
+	await expect( page.locator( '.product-name' ) ).toHaveText( 'Комплект Cork – чаша, тефтер и химикалка - 20 бр.' );
 	await page.click( 'button[name="decision"][value="approve"]' );
 	await page.waitForURL( /odobrenie\/\?s=/ );
 	await expect( page.locator( '.next h2' ) ).toHaveText( 'Плащане' );
@@ -245,11 +245,11 @@ test( 'the revised mockup is approved and only then the deposit is asked for', a
 
 test( 'one logo and note for several products: one file, on every line', async ( { browser } ) => {
 	const page = await ( await browser.newContext( { locale: 'bg-BG' } ) ).newPage();
-	await addToCart( page, 'green-pen-pack' );
-	await addToCart( page, 'thermo-cup-pack' );
-	await addToCart( page, 'premium-pack' );
+	await addToCart( page, 'metalna-himikalka-classic' );
+	await addToCart( page, 'chasha-s-kapak-travel-black' );
+	await addToCart( page, 'komplekt-stripe' );
 	// The first logo starts marked for every product: one upload and one note cover all three.
-	await fillLogo( page.locator( '.rk-logo' ).first(), 'logo.eps', 'Едно лого за всичко.', [ 'Green Pen Pack', 'Thermo Cup Pack', 'Premium Pack' ] );
+	await fillLogo( page.locator( '.rk-logo' ).first(), 'logo.eps', 'Едно лого за всичко.', [ 'Метална химикалка Classic', 'Чаша с капак Travel Black', 'Комплект Stripe' ] );
 	await expect( page.locator( '.rk-cart__item.is-ready' ) ).toHaveCount( 3 );
 	await page.locator( '[data-rk-continue]' ).click();
 	await page.fill( 'input[name="rq_name"]', 'Общо Лого' );
@@ -270,9 +270,9 @@ test( 'one logo and note for several products: one file, on every line', async (
 
 test( 'the cart can be emptied after a confirmation, and shopping continues from it', async ( { browser } ) => {
 	const page = await ( await browser.newContext( { locale: 'bg-BG' } ) ).newPage();
-	await addToCart( page, 'event-pack' );
-	await addToCart( page, 'premium-pack' );
-	await fillLogo( page.locator( '.rk-logo' ).first(), 'logo.png', 'Ще бъде изтрито.', [ 'Event Pack', 'Premium Pack' ] );
+	await addToCart( page, 'zapalka-satin-black' );
+	await addToCart( page, 'komplekt-stripe' );
+	await fillLogo( page.locator( '.rk-logo' ).first(), 'logo.png', 'Ще бъде изтрито.', [ 'Запалка Satin Black', 'Комплект Stripe' ] );
 
 	await expect( page.getByRole( 'link', { name: 'Продължи с пазаруването' } ) ).toHaveAttribute( 'href', /\/promo-paketi\/$/ );
 
@@ -288,7 +288,7 @@ test( 'the cart can be emptied after a confirmation, and shopping continues from
 	await expect( page.locator( '.site-header__cart-count' ) ).toHaveCount( 0 );
 
 	// A new product starts clean: no logo or note left over from before.
-	await addToCart( page, 'event-pack' );
+	await addToCart( page, 'zapalka-satin-black' );
 	await expect( page.locator( '.rk-logo' ) ).toHaveCount( 1 );
 	await expect( page.locator( '.rk-logo textarea' ) ).toHaveValue( '' );
 	await page.context().close();
@@ -296,12 +296,12 @@ test( 'the cart can be emptied after a confirmation, and shopping continues from
 
 test( 'adding to the cart keeps the customer on the page, with a dialog: the cart or more shopping', async ( { browser } ) => {
 	const page = await ( await browser.newContext( { locale: 'bg-BG' } ) ).newPage();
-	await page.goto( '/product/event-pack/' );
+	await page.goto( '/product/zapalka-satin-black/' );
 	await page.locator( 'form.rq-form--product' ).getByRole( 'button', { name: 'Добави в количката' } ).click();
-	await expect( page ).toHaveURL( /\/product\/event-pack\/$/ );
+	await expect( page ).toHaveURL( /\/product\/zapalka-satin-black\/$/ );
 	const dialog = page.locator( '[data-rk-added]' );
 	await expect( dialog ).toBeVisible();
-	await expect( dialog ).toContainText( '„Event Pack“ е добавен в количката' );
+	await expect( dialog ).toContainText( '„Запалка Satin Black“ е добавен в количката' );
 	await expect( page.locator( '.site-header__cart-count' ) ).toHaveText( '1' );
 
 	// "Continue shopping" closes it and stays; it does not come back on the next page.
@@ -311,9 +311,9 @@ test( 'adding to the cart keeps the customer on the page, with a dialog: the car
 	await expect( page.locator( '[data-rk-added]' ) ).toHaveCount( 0 );
 
 	// From another page the second product; this time to the cart, which shows no stale notice.
-	await page.goto( '/kachi-logo/?paket=premium-pack' );
+	await page.goto( '/kachi-logo/?paket=komplekt-stripe' );
 	await page.getByRole( 'button', { name: /Добави в количката/ } ).click();
-	await expect( page.locator( '[data-rk-added]' ) ).toContainText( 'Premium Pack' );
+	await expect( page.locator( '[data-rk-added]' ) ).toContainText( 'Комплект Stripe' );
 	await page.locator( '[data-rk-added]' ).getByRole( 'link', { name: 'Към количката' } ).click();
 	await page.waitForURL( /\/koshnitsa\/$/ );
 	await expect( page.locator( '.rk-cart__item' ) ).toHaveCount( 2 );
@@ -389,13 +389,13 @@ test( 'a product sold by the piece: colour, quantity from the minimum, editable 
 
 test( 'choosing a colour swaps the whole gallery for that colour\'s photos, and back', async ( { browser } ) => {
 	const page = await ( await browser.newContext( { locale: 'bg-BG' } ) ).newPage();
-	await page.goto( '/product/red-business-pack/' );
+	await page.goto( '/product/biznes-komplekt-magnet/' );
 	const slides = () => page.locator( '.woocommerce-product-gallery__image img' ).evaluateAll( ( imgs ) => imgs.map( ( i ) => i.getAttribute( 'src' ) ) );
 	const red = await slides();
 	expect( red.length ).toBeGreaterThan( 1 );
 
-	await page.locator( '.rk-option', { has: page.locator( 'input[value="chern"]' ) } ).click();
-	await expect.poll( async () => ( await slides() ).every( ( s ) => s.includes( '-black' ) ) ).toBe( true );
+	await page.locator( '.rk-option', { has: page.locator( 'input[value="sin"]' ) } ).click();
+	await expect.poll( async () => ( await slides() ).every( ( s ) => s.includes( '-blue' ) ) ).toBe( true );
 	await expect( page.locator( '.flex-control-thumbs li' ) ).toHaveCount( red.length );
 
 	await page.locator( '.rk-option', { has: page.locator( 'input[value="byal"]' ) } ).click();
@@ -408,9 +408,9 @@ test( 'choosing a colour swaps the whole gallery for that colour\'s photos, and 
 
 test( 'package sizes: the owner sets a price per size; choosing a size changes only the price and the counts', async ( { page, browser } ) => {
 	await adminLogin( page );
-	const id = ( await ( await page.request.get( '/wp-json/wc/store/v1/products?sku=RBP' ) ).json() )[ 0 ].id;
+	const id = ( await ( await page.request.get( '/wp-json/wc/store/v1/products?sku=PKG-MAGNET' ) ).json() )[ 0 ].id;
 	await page.goto( `/wp-admin/post.php?post=${ id }&action=edit` );
-	await expect( page.locator( 'input[name="reklamo_tier_price[20-br]"]' ) ).toHaveValue( '100' );
+	await expect( page.locator( 'input[name="reklamo_tier_price[20-br]"]' ) ).toHaveValue( '189' );
 	await page.fill( 'input[name="reklamo_tier_price[50-br]"]', '230' );
 	await page.fill( 'input[name="reklamo_tier_price[100-br]"]', '440' );
 	await page.fill( 'input[name="reklamo_tier_price[200-br]"]', '820' );
@@ -419,12 +419,12 @@ test( 'package sizes: the owner sets a price per size; choosing a size changes o
 	await expect( page.locator( 'input[name="reklamo_tier_price[100-br]"]' ) ).toHaveValue( '440' );
 
 	const shop = await ( await browser.newContext( { locale: 'bg-BG' } ) ).newPage();
-	await shop.goto( '/product/red-business-pack/' );
+	await shop.goto( '/product/biznes-komplekt-magnet/' );
 	const sizes = shop.locator( '[data-attribute="attribute_pa_kolichestvo"] .rk-option' );
 	await expect( sizes ).toHaveText( [ '20 бр.', '50 бр.', '100 бр.', '200 бр.' ] );
 	const slides = () => shop.locator( '.woocommerce-product-gallery__image img' ).evaluateAll( ( imgs ) => imgs.map( ( i ) => i.getAttribute( 'src' ) ) );
 	const before = await slides();
-	await expect( shop.locator( '[data-rk-badge-price]' ) ).toHaveText( /100\s€/ );
+	await expect( shop.locator( '[data-rk-badge-price]' ) ).toHaveText( /189\s€/ );
 
 	await sizes.filter( { hasText: '100 бр.' } ).click();
 	await expect( shop.locator( '[data-rk-badge-price]' ) ).toHaveText( /440\s€/ );
@@ -432,14 +432,14 @@ test( 'package sizes: the owner sets a price per size; choosing a size changes o
 	expect( await slides() ).toEqual( before );
 
 	// The colour still changes the photos, and keeps the size's price.
-	await shop.locator( '.rk-option', { has: shop.locator( 'input[value="chern"]' ) } ).click();
-	await expect.poll( async () => ( await slides() ).every( ( s ) => s.includes( '-black' ) ) ).toBe( true );
+	await shop.locator( '.rk-option', { has: shop.locator( 'input[value="sin"]' ) } ).click();
+	await expect.poll( async () => ( await slides() ).every( ( s ) => s.includes( '-blue' ) ) ).toBe( true );
 	await expect( shop.locator( '[data-rk-badge-price]' ) ).toHaveText( /440\s€/ );
 
 	await shop.locator( 'form.rq-form--product' ).getByRole( 'button', { name: 'Добави в количката' } ).click();
 	await shop.locator( '[data-rk-added]' ).getByRole( 'link', { name: 'Към количката' } ).click();
 	await shop.waitForURL( /\/koshnitsa\/$/ );
-	await expect( shop.locator( '.rk-cart__name' ) ).toContainText( 'Черен' );
+	await expect( shop.locator( '.rk-cart__name' ) ).toContainText( 'Син' );
 	await expect( shop.locator( '.rk-cart__name' ) ).toContainText( '100 бр.' );
 	await expect( shop.locator( '.rk-cart__price' ) ).toContainText( '440,00' );
 	await shop.context().close();

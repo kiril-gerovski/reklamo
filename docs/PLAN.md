@@ -570,6 +570,57 @@ Dev-only exception: **Query Monitor** locally for debugging — gitignored, neve
 - Cancellation (Terms): before approval free unless a paid design service was agreed; after payment and before production 50% of the paid sum refunded; after production starts nothing. Retention confirmed: files 12 months, anonymisation 36 months. Fixed quantities only, so the by-the-piece sample NB-001 is a draft.
 - Page texts rewritten from the document: Как работи, За бизнеса, Контакти, Доставка и срокове, Плащане, Често задавани въпроси (the owner's 8), plus the payment, corrections, delivery and cancellation clauses of the Terms and the privacy-email paragraph of the Policy (`reklamo_legal_version` 2026-10). The seed replaces a page only while it still holds an earlier seed text (`refresh_if_seeded`) and a setting only while it still holds the earlier sample (`opt_replace`). Numbers in the texts come from settings, so changing a setting changes every page that quotes it.
 
+**Decision (2026-10-12): the catalogue is the client's photos.** The owner supplied product photography
+(`design/v3/web product`, 66 PNG/JPG, 134 MB) for 3 packages and 12 products, without prices or texts.
+Owner's answers: show them now with sample prices; hide the earlier sample packages; sell single
+products in 20 / 50 / 100 / 200 like the packages; "Бизнес календар START" becomes "Календар Mono".
+- `scripts/seed-catalogue.php` (piped into `wp eval-file` by the seed, once — `reklamo_seeded_catalogue_v3`)
+  holds the data and creates every product as variable on Количество, Magnet also on Цвят (red, white,
+  blue, each colour with its own photo set as variation image and `_reklamo_variation_gallery`). Sample
+  prices: packages set by hand, products from a price per piece with 5 / 10 / 15% off for 50 / 100 / 200.
+- Photos re-encoded through Chromium's canvas to WebP (squares 1200 px, wide shots 1600 px, quality 0.82):
+  63 files, 1.8 MB, in `assets/img/catalogue/<product>/`. Duplicates dropped (a "- Copy", repeated
+  supplier shots). Each is imported once and found again by attachment meta `_reklamo_source`.
+- The earlier samples (Red Business Pack … White Pen Pack, START 1–6) go to draft rather than being
+  deleted, since orders may name them; each slug becomes a `_wp_old_slug` of its closest new product
+  (RBP → Magnet, Premium → Stripe, Office Starter → Cork, Event → black bag, Thermo Cup → travel cup,
+  Green/White Pen → the two pens, every START → Mono), so WordPress's own redirect answers old links
+  with a 301. On a fresh install those samples are never created: the old package, colour, size and
+  calendar-merge seed code is gone, and with it `scripts/crop-previews.php` and `assets/img/packages`,
+  `assets/img/products`. The tefter sample (draft) now uses the new notebook photos.
+- Mono keeps its six sizes and prices; its new photo carries no printed price, so one photo serves
+  every size (the variation images of the 2026-10-11 merge are cleared). This supersedes the
+  per-size artwork of that decision.
+- The homepage's "Популярни промо пакети" used `[products limit="4"]` without a category, which only
+  worked while there were four or more packages; it now reads `category="paketi"` (pattern, and the
+  seed swaps the exact seeded shortcode on a built homepage). With three packages it shows three.
+- The hero's drawn notebook and fixed "Red Business Pack · 100 €" badge became
+  `[reklamo_hero_product sku="PKG-MAGNET" title="Metal Business Pack" items="20 тефтера|20 химикалки"]`
+  (theme): Magnet's photo, linking to it, and a badge whose name and lines are the owner's wording
+  (as the old badge had) while the price is the product's lowest, so it never goes stale. The seed
+  swaps the exact seeded block on a built homepage; `hero-placeholder.svg` is gone.
+- Every catalogue product has a Спецификации tab (owner's request): `seed-catalogue.php` fills
+  `_reklamo_specs` on every run while a product has none. The specs list only what the photos and
+  names show (colour, parts, finish), the branding note and the sizes; dimensions and materials wait
+  for the supplier's data.
+- The photo behind the tabs is fitted to the panel's height and anchored right
+  (`right center / auto 100%`), not `cover`: the client's wide shots are 4:3 with the product near the
+  right edge, and `cover` cut it top and bottom. A wider scene still fills the panel. On phones the
+  photo band is 4:3 instead of a fixed 200 px. The photo box is a fixed 480×360 (4:3, `cover`, at
+  most 60% wide), centred vertically in a card at least 360 px tall: sized by the card it grew with
+  the text beside it, so products with longer specifications showed bigger photos. The mask fades the
+  photo's own left edge, so no seam shows.
+- Switching Описание / Спецификации must not resize the card (the photo follows its height): the
+  panels share one grid cell and the inactive one is `visibility: hidden` instead of WooCommerce's
+  `display: none`, so the card always has the tallest panel's height.
+- The client's wide shots leave the product against the right edge, filling 70–90 % of the height,
+  so on the page it sat in the panel's corner. Each was recomposed once (`section-centred.webp`,
+  a Playwright canvas script, not kept): the product found against the backdrop column by column,
+  centred in a 4:3 frame at 86 % of its height, the backdrop continued by stretching the edge pixels.
+  The seed sets a section photo while a product has none, or replaces it while it is still the
+  earlier seeded shot (`_reklamo_source`). The Photo calendar had no wide shot: its section photo is
+  a fixed 4:3 crop of its only photo, below the printed heading.
+
 ## Deployment scripts
 
 `scripts/deploy.sh` (workstation) → `scripts/host/{bootstrap,install,update,check}.sh` (server). `install.sh` is idempotent and converges an existing account with its `.env`; `update.sh` fetches, switches the checkout under maintenance mode, converges WordPress/WooCommerce to `versions.env` (database dump first, `wp core update --force`, `wp plugin install --force`, `update-db`, `wp wc update`), flushes and runs `check.sh`, and re-runs `seed.sh` only with `--seed`. `check.sh` drops a one-off PHP probe into `public_html`, fetches it over HTTP and compares web PHP with `PHP_BIN`, prints the applied `upload_max_filesize` and friends, fetches the theme's `style.css` through the symlink and confirms the private directory is not addressable.

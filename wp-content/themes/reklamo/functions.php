@@ -333,6 +333,56 @@ add_shortcode(
 );
 
 /**
+ * The homepage hero's product: its photo and a badge with a short name, the contents and the
+ * lowest price. Name and lines may be given (title="…" items="…|…"); otherwise they come from
+ * the product. The price always does, so it follows the owner's edits in Products.
+ */
+add_shortcode(
+	'reklamo_hero_product',
+	static function ( $atts ): string {
+		$atts    = shortcode_atts(
+			array(
+				'sku'   => '',
+				'title' => '',
+				'items' => '',
+			),
+			$atts,
+			'reklamo_hero_product'
+		);
+		$product = function_exists( 'wc_get_product' ) ? wc_get_product( wc_get_product_id_by_sku( $atts['sku'] ) ) : null;
+		if ( ! $product || 'publish' !== $product->get_status() ) {
+			return '';
+		}
+		add_filter( 'woocommerce_price_trim_zeros', '__return_true' );
+		$price = wc_price( $product->is_type( 'variable' ) ? (float) $product->get_variation_price( 'min', true ) : (float) $product->get_price() );
+		remove_filter( 'woocommerce_price_trim_zeros', '__return_true' );
+		$title = '' !== $atts['title'] ? $atts['title'] : $product->get_name();
+		$items = '' !== $atts['items'] ? array_map( 'trim', explode( '|', $atts['items'] ) ) : array_column( reklamo_package_items( $product->get_short_description() ), 'title' );
+		$image = $product->get_image(
+			'large',
+			array(
+				'loading'       => 'eager',
+				'fetchpriority' => 'high',
+			)
+		);
+		ob_start();
+		?>
+		<a class="hero__photo" href="<?php echo esc_url( $product->get_permalink() ); ?>">
+			<?php echo $image; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- WooCommerce escapes it. ?>
+		</a>
+		<div class="hero__badge">
+			<p class="eyebrow"><?php echo esc_html( $title ); ?></p>
+			<?php if ( $items ) : ?>
+				<p><small><?php echo implode( '<br>', array_map( 'esc_html', $items ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped per item. ?></small></p>
+			<?php endif; ?>
+			<p><strong><?php echo wp_kses_post( $price ); ?></strong></p>
+		</div>
+		<?php
+		return (string) ob_get_clean();
+	}
+);
+
+/**
  * The six-step graphic, for the homepage pattern and the "How it works" page alike. Each
  * step links to its section on the "How it works" page (seeded slug below); on that page
  * itself the links are in-page anchors, elsewhere they carry the page URL. With
