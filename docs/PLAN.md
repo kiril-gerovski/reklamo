@@ -621,6 +621,10 @@ products in 20 / 50 / 100 / 200 like the packages; "Бизнес календа�
   earlier seeded shot (`_reklamo_source`). The Photo calendar had no wide shot: its section photo is
   a fixed 4:3 crop of its only photo, below the printed heading.
 
+**2026-10-12: За бизнеса** carries the owner's text („Рекламни решения за Вашия бизнес“, four paragraphs
+and the closing line „Вашата идея. Вашият бранд. Нашето изпълнение.“), „индивидуална оферта“ linking
+to Контакти. The seed replaces the page only while it holds one of the two earlier seeded texts.
+
 ## Deployment scripts
 
 `scripts/deploy.sh` (workstation) → `scripts/host/{bootstrap,install,update,check}.sh` (server). `install.sh` is idempotent and converges an existing account with its `.env`; `update.sh` fetches, switches the checkout under maintenance mode, converges WordPress/WooCommerce to `versions.env` (database dump first, `wp core update --force`, `wp plugin install --force`, `update-db`, `wp wc update`), flushes and runs `check.sh`, and re-runs `seed.sh` only with `--seed`. `check.sh` drops a one-off PHP probe into `public_html`, fetches it over HTTP and compares web PHP with `PHP_BIN`, prints the applied `upload_max_filesize` and friends, fetches the theme's `style.css` through the symlink and confirms the private directory is not addressable.
