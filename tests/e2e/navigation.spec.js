@@ -169,3 +169,14 @@ test( 'between phone and desktop the header folds into the burger instead of wid
 		expect( await page.evaluate( () => document.documentElement.scrollWidth ) ).toBeLessThanOrEqual( width );
 	}
 } );
+
+test( 'on a phone the company details stack, each value on its own full-width line', async ( { page } ) => {
+	await page.setViewportSize( { width: 390, height: 844 } );
+	await page.goto( '/obshti-usloviya/' );
+	const table = page.locator( '.company-details' ).first();
+	const box = await table.boundingBox();
+	for ( const dd of await table.locator( 'dd' ).all() ) {
+		// Wider than half the card: the values no longer share a row with their labels.
+		expect( ( await dd.boundingBox() ).width ).toBeGreaterThan( box.width / 2 );
+	}
+} );

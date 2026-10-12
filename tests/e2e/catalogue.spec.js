@@ -267,6 +267,9 @@ test( 'on a phone the category chips fit the screen and the cards sit two to a r
 			expect( box ).toBeLessThanOrEqual( 390 );
 		}
 		await expect( chips.first().locator( 'svg' ) ).toBeVisible();
+		// The chips span the page like the sort box under them, however few there are.
+		const widths = await page.evaluate( () => [ '.shop-chips', '.shop-tools .woocommerce-ordering select' ].map( ( q ) => Math.round( document.querySelector( q ).getBoundingClientRect().width ) ) );
+		expect( widths[ 0 ] ).toBe( widths[ 1 ] );
 		const tops = await page.locator( 'ul.products li.product' ).evaluateAll( ( els ) => els.slice( 0, 2 ).map( ( e ) => Math.round( e.getBoundingClientRect().top ) ) );
 		expect( tops[ 0 ] ).toBe( tops[ 1 ] );
 		expect( await page.evaluate( () => document.documentElement.scrollWidth ) ).toBeLessThanOrEqual( 390 );
