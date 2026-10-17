@@ -16,8 +16,12 @@
 	var total = form.querySelector( '[data-rk-total]' );
 	var hidden = form.querySelector( '[data-rk-variation]' );
 
+	// As WooCommerce writes prices: its thousands and decimal separators (1 019,99 €).
+	var thousands = form.getAttribute( 'data-thousand-sep' ) || '';
+	var decimals = form.getAttribute( 'data-decimal-sep' ) || ',';
 	function money( value ) {
-		return value.toFixed( 2 ).replace( '.', ',' ) + ' ' + currency;
+		var parts = value.toFixed( 2 ).split( '.' );
+		return parts[ 0 ].replace( /\B(?=(\d{3})+(?!\d))/g, thousands ) + decimals + parts[ 1 ] + ' ' + currency;
 	}
 
 	function chosen() {
@@ -73,7 +77,13 @@
 				price = v.price;
 				showGallery( v.gallery );
 				var badge = document.querySelector( '[data-rk-badge-price]' );
-				if ( badge ) { badge.textContent = money( price ).replace( ',00', '' ); }
+				if ( badge ) { badge.textContent = money( price ).replace( decimals + '00', '' ); }
+				// On promotion the old price stands struck through above the new one.
+				var was = document.querySelector( '[data-rk-badge-regular]' );
+				if ( was ) {
+					was.hidden = ! ( v.regular > v.price );
+					was.textContent = v.regular > v.price ? money( v.regular ).replace( decimals + '00', '' ) : '';
+				}
 			}
 			// A package size changes the counts in "What does the package include?".
 			var size = form.querySelector( '[data-attribute="attribute_pa_kolichestvo"] input:checked' );

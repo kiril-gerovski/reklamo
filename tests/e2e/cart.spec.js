@@ -414,30 +414,89 @@ test( 'package sizes: the owner sets one price per size; choosing a size changes
 	const save = () => Promise.all( [ page.waitForURL( /message=/, { waitUntil: 'commit' } ), page.locator( '#publish' ).evaluate( ( b ) => b.click() ) ] );
 	await page.goto( edit );
 	const field = page.locator( 'input[name="reklamo_tier_price[150-br]"]' );
-	const real = await field.inputValue();
+	// The client's price for 150 pcs; restored even if a check below fails.
+	const real = '1199,99';
+	await expect( field ).toHaveValue( real );
 	await expect( page.locator( 'input[name="reklamo_tier_price[50-br]"]' ) ).toHaveValue( '409,99' );
 	await field.fill( '1250' );
 	await save();
 	await expect( field ).toHaveValue( '1250' );
-
-	const shop = await ( await browser.newContext( { locale: 'bg-BG' } ) ).newPage();
-	await shop.goto( '/product/komplekt-stripe/' );
-	const sizes = shop.locator( '[data-attribute="attribute_pa_kolichestvo"] .rk-option' );
-	await expect( sizes ).toHaveText( [ '50 бр.', '100 бр.', '150 бр.', '200 бр.' ] );
-	const slides = () => shop.locator( '.woocommerce-product-gallery__image img' ).evaluateAll( ( imgs ) => imgs.map( ( i ) => i.getAttribute( 'src' ) ) );
-	const before = await slides();
-	await expect( shop.locator( '[data-rk-badge-price]' ) ).toHaveText( /409,99\s€/ );
-	await sizes.filter( { hasText: '150 бр.' } ).click();
-	await expect( shop.locator( '[data-rk-badge-price]' ) ).toHaveText( /1250\s€/ );
-	await expect( shop.locator( '[data-rk-count]' ).first() ).toHaveText( '150' );
-	expect( await slides() ).toEqual( before );
-	await shop.context().close();
-
-	// The client's price goes back.
-	await page.goto( edit );
-	await field.fill( real );
-	await save();
+	try {
+		await checkShop();
+	} finally {
+		await page.goto( edit );
+		await field.fill( real );
+		await save();
+	}
 	await expect( field ).toHaveValue( real );
+
+	async function checkShop() {
+
+		const shop = await ( await browser.newContext( { locale: 'bg-BG' } ) ).newPage();
+		await shop.goto( '/product/komplekt-stripe/' );
+		const sizes = shop.locator( '[data-attribute="attribute_pa_kolichestvo"] .rk-option' );
+		await expect( sizes ).toHaveText( [ '50 бр.', '100 бр.', '150 бр.', '200 бр.' ] );
+		const slides = () => shop.locator( '.woocommerce-product-gallery__image img' ).evaluateAll( ( imgs ) => imgs.map( ( i ) => i.getAttribute( 'src' ) ) );
+		const before = await slides();
+		await expect( shop.locator( '[data-rk-badge-price]' ) ).toHaveText( /409,99\s€/ );
+		await sizes.filter( { hasText: '150 бр.' } ).click();
+		await expect( shop.locator( '[data-rk-badge-price]' ) ).toHaveText( /1\s250\s€/ );
+		await expect( shop.locator( '[data-rk-count]' ).first() ).toHaveText( '150' );
+		expect( await slides() ).toEqual( before );
+		await shop.context().close();
+	}
+} );
+
+test( 'a promotion and a gift set in the product: labels, struck price, sale price and gift in the cart', async ( { page, browser } ) => {
+	await adminLogin( page );
+	const id = ( await ( await page.request.get( '/wp-json/wc/store/v1/products?sku=PKG-STRIPE' ) ).json() )[ 0 ].id;
+	const edit = `/wp-admin/post.php?post=${ id }&action=edit`;
+	const save = () => Promise.all( [ page.waitForURL( /message=/, { waitUntil: 'commit' } ), page.locator( '#publish' ).evaluate( ( b ) => b.click() ) ] );
+	const clear = async () => {
+		await page.goto( edit );
+		await page.fill( '#_reklamo_promo_pct', '' );
+		await page.fill( '#_reklamo_gift', '' );
+		await save();
+	};
+	await page.goto( edit );
+	await page.fill( '#_reklamo_promo_pct', '15' );
+	await page.fill( '#_reklamo_gift', 'Черна чаша с Вашето лого' );
+	await save();
+	await expect( page.locator( '#_reklamo_promo_pct' ) ).toHaveValue( '15' );
+	// Whatever happens below, the product must not stay on promotion for the other tests.
+	try {
+		await checkPromotion();
+	} finally {
+		await clear();
+	}
+	await page.goto( '/promo-paketi/' );
+	const after = page.locator( 'li.product', { hasText: 'Комплект Stripe' } );
+	await expect( after.locator( '.badge' ) ).toHaveCount( 0 );
+	await expect( after.locator( '.package-card__amount' ) ).toContainText( '409,99' );
+
+	async function checkPromotion() {
+		const shop = await ( await browser.newContext( { locale: 'bg-BG' } ) ).newPage();
+		await shop.goto( '/promo-paketi/' );
+		const card = shop.locator( 'li.product', { hasText: 'Комплект Stripe' } );
+		await expect( card.locator( '.badge' ) ).toHaveText( [ 'Промоция', '+ Подарък' ] );
+		await expect( card.locator( '.package-card__was' ) ).toContainText( '409,99' );
+		await expect( card.locator( '.package-card__amount' ) ).toContainText( '347,99' ); // 409,99 − 15 % → ,99
+		await expect( card.locator( '.package-card__gift' ) ).toContainText( 'Подарък: Черна чаша с Вашето лого' );
+
+		await shop.goto( '/product/komplekt-stripe/' );
+		await expect( shop.locator( '[data-rk-badge-regular]' ) ).toHaveText( /409,99/ );
+		await expect( shop.locator( '[data-rk-badge-price]' ) ).toHaveText( /347,99/ );
+		await shop.locator( '.rk-option', { has: shop.locator( 'input[value="150-br"]' ) } ).click();
+		await expect( shop.locator( '[data-rk-badge-regular]' ) ).toHaveText( /1\s199,99/ );
+		await expect( shop.locator( '[data-rk-badge-price]' ) ).toHaveText( /1\s019,99/ );
+		await expect( shop.locator( '.product-gift' ) ).toContainText( 'Черна чаша с Вашето лого' );
+		await shop.locator( 'form.rq-form--product' ).getByRole( 'button', { name: 'Добави в количката' } ).click();
+		await shop.locator( '[data-rk-added]' ).getByRole( 'link', { name: 'Към количката' } ).click();
+		await shop.waitForURL( /\/koshnitsa\/$/ );
+		await expect( shop.locator( '.rk-cart__price' ) ).toHaveText( /1\s019,99/ );
+		await expect( shop.locator( '.rk-cart__gift' ) ).toContainText( 'Черна чаша с Вашето лого' );
+		await shop.context().close();
+	}
 } );
 
 test( 'a package priced per colour: no shared price fields, and the size and the colour each set the price', async ( { page, browser } ) => {
@@ -457,7 +516,7 @@ test( 'a package priced per colour: no shared price fields, and the size and the
 	await expect( shop.locator( '[data-rk-badge-price]' ) ).toHaveText( /539,99\s€/ );
 
 	await sizes.filter( { hasText: '150 бр.' } ).click();
-	await expect( shop.locator( '[data-rk-badge-price]' ) ).toHaveText( /1589,99\s€/ );
+	await expect( shop.locator( '[data-rk-badge-price]' ) ).toHaveText( /1\s589,99\s€/ );
 	await expect( shop.locator( '[data-rk-count]' ).first() ).toHaveText( '150' );
 	expect( await slides() ).toEqual( red );
 

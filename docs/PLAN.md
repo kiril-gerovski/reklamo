@@ -680,6 +680,28 @@ its configured recipients, read when it is sent, each address once. A new admin 
 from then on, a deleted one no longer. Verified in e2e with a second administrator and WooCommerce's
 "Resend new order notification" (the Bulgarian subject is „Имате нова поръчка #…“).
 
+**2026-10-17: promotion and gift per product** (owner's mockups; owner's choices: a percent for the whole
+product, a gift as text, these labels replacing "Най-популярен").
+- Product editor (General tab): "Промоция (% отстъпка)" 1–90, "Промоция до" (optional last day),
+  "Подарък" (text). On save, after the variations, every variation's WooCommerce sale price becomes
+  the regular price less the percent, rounded down to ,99 (`Reklamo_Product::promo_price()`,
+  unit-tested; 349,99 at 15 % → 296,99) and ends on the given day (WooCommerce's own scheduled sale end);
+  clearing the percent clears the sale prices it wrote (`_reklamo_promo_applied`). It works for Magnet's
+  per-colour prices too. Cart, order and totals take the sale price natively.
+- `reklamo_product_ribbons()`: "Промоция" while on sale, "+ Подарък" with a gift, "Най-популярен" only
+  when neither; red labels as in the mockup, stacked on cards, side by side on the product page.
+  On sale the card's seal grows and shows the old price struck in red; the product badge does too and
+  follows the chosen colour and size (variation data carries `regular`).
+- The gift: a line on the card, a box under the contents on the product page, a line in the cart, and
+  the order line's "Подарък" meta, so the shop knows what to pack.
+- The old price's strike is a drawn line (`::after`) through the digits' middle, not the font's
+  `line-through`, whose height depends on the font metrics: in Inter it ran .12em below the figures
+  (measured with the canvas against the baseline); Playfair's line-through was already centred.
+- Prices in the product page badge now use WooCommerce's thousands and decimal separators
+  (1 019,99 €), like the cart.
+- The e2e tests that change a product's prices restore them in `finally`: an interrupted run had left
+  Stripe on promotion and its 150 pcs at a test price.
+
 ## Deployment scripts
 
 `scripts/deploy.sh` (workstation) → `scripts/host/{bootstrap,install,update,check}.sh` (server). `install.sh` is idempotent and converges an existing account with its `.env`; `update.sh` fetches, switches the checkout under maintenance mode, converges WordPress/WooCommerce to `versions.env` (database dump first, `wp core update --force`, `wp plugin install --force`, `update-db`, `wp wc update`), flushes and runs `check.sh`, and re-runs `seed.sh` only with `--seed`. `check.sh` drops a one-off PHP probe into `public_html`, fetches it over HTTP and compares web PHP with `PHP_BIN`, prints the applied `upload_max_filesize` and friends, fetches the theme's `style.css` through the symlink and confirms the private directory is not addressable.

@@ -74,12 +74,10 @@ $reklamo_steps = array(
 			<?php
 			$reklamo_main  = wp_get_attachment_image_src( $product->get_image_id(), 'full' );
 			$reklamo_photo = $reklamo_main && $reklamo_main[1] > $reklamo_main[2]; // a landscape photograph, not a cut-out or artwork
-			$reklamo_class = ( $product->is_featured() ? ' has-badge' : '' ) . ( $reklamo_photo ? ' is-photo' : '' );
+			$reklamo_class = ( reklamo_product_ribbons( $product ) ? ' has-badge' : '' ) . ( $reklamo_photo ? ' is-photo' : '' );
 			?>
 			<div class="product-main__gallery<?php echo esc_attr( $reklamo_class ); ?>">
-				<?php if ( $product->is_featured() ) : ?>
-					<span class="badge product-main__badge"><?php esc_html_e( 'Most popular', 'reklamo' ); ?></span>
-				<?php endif; ?>
+				<?php echo reklamo_ribbons_html( $product, 'product-main__badge' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside. ?>
 				<?php do_action( 'woocommerce_before_single_product_summary' ); ?>
 			</div>
 
@@ -127,6 +125,8 @@ $reklamo_steps = array(
 						<span class="product-price-badge__label"><?php esc_html_e( 'Final price', 'reklamo' ); ?></span>
 						<?php if ( $product->is_type( 'variable' ) ) : ?>
 							<?php // The price of the colour and size chosen in the order card; product.js keeps it current. ?>
+							<?php $reklamo_was = $product->is_on_sale() ? wp_strip_all_tags( wc_price( (float) $product->get_variation_regular_price( 'min', true ) ) ) : ''; ?>
+							<del class="product-price-badge__was" data-rk-badge-regular<?php echo '' === $reklamo_was ? ' hidden' : ''; ?>><?php echo esc_html( $reklamo_was ); ?></del>
 							<span class="product-price-badge__value"><span class="woocommerce-Price-amount amount" data-rk-badge-price><?php echo wp_kses_post( wp_strip_all_tags( wc_price( (float) $product->get_variation_price( 'min', true ) ) ) ); ?></span><?php echo wp_kses_post( $product->get_price_suffix() ); ?></span>
 						<?php else : ?>
 							<span class="product-price-badge__value"><?php echo wp_kses_post( $product->get_price_html() ); ?></span>
@@ -170,6 +170,10 @@ $reklamo_steps = array(
 									</li>
 								<?php endforeach; ?>
 							</ul>
+						<?php endif; ?>
+						<?php $reklamo_gift = class_exists( 'Reklamo_Product' ) ? Reklamo_Product::gift( $product ) : ''; ?>
+						<?php if ( '' !== $reklamo_gift ) : ?>
+							<p class="product-gift"><?php echo reklamo_icon( 'gift', 22 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?><span><strong><?php esc_html_e( 'Gift with this order', 'reklamo' ); ?></strong><?php echo esc_html( $reklamo_gift ); ?></span></p>
 						<?php endif; ?>
 					</div>
 

@@ -183,6 +183,13 @@ li.product-category img { border-radius: var(--radius); border: 1px solid var(--
 .package-card__media img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .package-card__name a:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; border-radius: 2px; }
 .badge { position: absolute; left: .75rem; top: .75rem; background: var(--gold-soft); color: var(--gold-dark); font: 600 .5625rem/1 var(--sans); letter-spacing: .14em; text-transform: uppercase; padding: .45rem .6rem; border-radius: 3px; }
+/* Labels on the photo: one or more, stacked; "Promotion" and "+ Gift" in red, as in the client's mockup. */
+.badges { position: absolute; left: .75rem; top: .75rem; z-index: 2; display: flex; flex-direction: column; align-items: flex-start; gap: .35rem; }
+.badges .badge { position: static; }
+.badge--promo, .badge--gift { display: inline-flex; align-items: center; gap: .35rem; color: var(--white); background: linear-gradient(135deg, #d0452f 0%, #a8281c 100%); box-shadow: 0 6px 14px -6px rgba(168, 40, 28, .7); font-size: .625rem; padding: .5rem .7rem; border-radius: 6px; }
+.badge--gift .icon { width: 14px; height: 14px; color: var(--white); }
+.package-card__gift { display: flex; align-items: center; gap: .45rem; margin: 0; font: 600 .78rem/1.35 var(--sans); color: #b8321f; }
+.package-card__gift .icon { flex: none; color: var(--gold-dark); }
 .package-card__body { padding: 1.1rem 1.25rem 1.25rem; display: flex; flex-direction: column; gap: .4rem; flex: 1; }
 .package-card__name { font: 600 .9375rem/1.3 var(--sans); letter-spacing: .06em; text-transform: uppercase; margin: 0; }
 .package-card__name a { color: var(--ink); }
@@ -193,6 +200,15 @@ li.product-category img { border-radius: var(--radius); border: 1px solid var(--
 .package-card__qty { font: 600 .66rem/1 var(--sans); letter-spacing: .04em; opacity: .9; }
 .package-card__amount { font: 600 .88rem/1.05 var(--sans); white-space: nowrap; letter-spacing: -.01em; }
 .package-card__amount .woocommerce-Price-amount { color: inherit; }
+/* On promotion the seal grows a little to hold the old price, struck through in red. */
+.package-card__seal.is-sale { width: 92px; height: 92px; }
+/* The strike is drawn through the exact middle of the old price, not left to the font's own line-through. */
+.package-card__was, .product-price-badge__was { position: relative; text-decoration: none; }
+.package-card__was::after, .product-price-badge__was::after { content: ""; position: absolute; left: -.15em; right: -.15em; top: 50%; height: 2px; margin-top: -1px; border-radius: 1px; background: #ff6b57; }
+.package-card__was { font: 500 .66rem/1 var(--sans); opacity: .9; }
+/* Inter's figures sit .12em above the middle of its line box (measured), so the strike follows them. */
+.package-card__was::after { margin-top: calc(-1px - .12em); }
+.package-card__was .woocommerce-Price-amount { color: inherit; }
 .package-card__foot { display: flex; justify-content: flex-end; margin-top: .6rem; }
 .package-card__vat { font: 500 .56rem/1 var(--sans); letter-spacing: .04em; opacity: .85; }
 .package-card .package-card__more { display: inline-flex; align-items: center; gap: .3rem; padding: .6rem .9rem .6rem 1.05rem; font-size: .66rem; white-space: nowrap; background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%); border-color: transparent; color: var(--white); }
@@ -213,6 +229,11 @@ li.product-category img { border-radius: var(--radius); border: 1px solid var(--
 	.package-card__seal { right: .45rem; bottom: .45rem; width: 54px; height: 54px; gap: 0; }
 	.package-card__qty { font-size: .5rem; }
 	.package-card__amount { font-size: .66rem; }
+	.package-card__seal.is-sale { width: 64px; height: 64px; }
+	.package-card__was { font-size: .5rem; }
+	.badges { left: .45rem; top: .45rem; gap: .25rem; }
+	.badge--promo, .badge--gift { font-size: .5rem; padding: .35rem .5rem; letter-spacing: .08em; }
+	.package-card__gift { font-size: .7rem; }
 	.package-card__vat { font-size: .44rem; }
 	.package-card .badge { left: .45rem; top: .45rem; font-size: .5rem; padding: .35rem .45rem; letter-spacing: .1em; }
 }
@@ -323,6 +344,7 @@ a.steps__link:focus-visible .steps__icon { box-shadow: var(--focus), 0 0 0 1px v
 .rk-total { margin: 0; font-size: .8125rem; color: var(--graphite); }
 .rk-total strong { font-size: 1.15rem; color: var(--ink); }
 .rk-cart__variant { margin: 0; font-size: .8125rem; color: var(--graphite); }
+.rk-cart__gift { margin: 0; font: 600 .8125rem/1.4 var(--sans); color: #b8321f; }
 .rk-cart__qty { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem 1rem; margin: 0; font-size: .8125rem; color: var(--graphite); }
 .rk-cart__qty label { display: inline-flex; align-items: center; gap: .5rem; }
 .rk-cart__qty input { width: 5.5rem; padding: .45rem .6rem; border: 1px solid var(--line); border-radius: 6px; font: 600 .875rem/1 var(--sans); }
@@ -605,6 +627,15 @@ html { scroll-behavior: smooth; }
 .product-main__gallery .woocommerce-product-gallery { width: 100% !important; float: none !important; margin: 0 !important; position: relative; }
 .product-main__gallery .woocommerce-product-gallery__image { background: var(--paper); border-radius: 16px; overflow: hidden; }
 .product-main__gallery .woocommerce-product-gallery__image img { border-radius: 16px; }
+.product-main__gallery .badges { left: 1rem; top: 1rem; z-index: 5; flex-direction: row; flex-wrap: wrap; }
+.product-main__badge.badge--promo, .product-main__badge.badge--gift { border-radius: 999px; background: linear-gradient(135deg, #d0452f 0%, #a8281c 100%); }
+.product-price-badge__was { font: 400 1rem/1 var(--serif); color: var(--muted); }
+.product-price-badge__was::after { height: 1.5px; margin-top: -.75px; background: #c0392b; }
+.product-price-badge__was[hidden] { display: none; }
+.product-gift { display: flex; align-items: flex-start; gap: .75rem; margin: 1.1rem 0 0; padding: .85rem 1rem; border: 1px solid color-mix(in srgb, #c0392b 25%, var(--line)); border-radius: 12px; background: #fdf3f1; }
+.product-gift .icon { flex: none; color: var(--gold-dark); }
+.product-gift strong { display: block; font: 600 .7rem/1.3 var(--sans); letter-spacing: .1em; text-transform: uppercase; color: #b8321f; margin-bottom: .15rem; }
+.product-gift span { font-size: .875rem; color: var(--ink); }
 .product-main__badge { left: 1rem; top: 1rem; z-index: 5; color: var(--white); border-radius: 999px; padding: .55rem .9rem; background: color-mix(in srgb, var(--gold) 82%, transparent); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); box-shadow: 0 6px 18px rgba(26, 26, 26, .18); }
 /* A landscape photograph fills the column to the summary's height; cut-outs and artwork keep their shape. */
 .product-main:has(.is-photo) { align-items: stretch; }

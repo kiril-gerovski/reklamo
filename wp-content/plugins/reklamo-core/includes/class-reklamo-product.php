@@ -30,6 +30,18 @@ final class Reklamo_Product {
 
 	const QTY_TAX = 'pa_kolichestvo';
 
+	/** A promotion: percent off every variation, written as WooCommerce's own sale price. */
+	const PROMO_META = '_reklamo_promo_pct';
+
+	/** The promotion's last day (Y-m-d), optional; WooCommerce ends the sale itself. */
+	const PROMO_UNTIL_META = '_reklamo_promo_until';
+
+	/** Set while this product's sale prices are ours, so clearing the promotion clears them. */
+	const PROMO_APPLIED_META = '_reklamo_promo_applied';
+
+	/** What comes free with the product, as the owner words it. */
+	const GIFT_META = '_reklamo_gift';
+
 	public static function init(): void {
 		add_action( 'woocommerce_product_options_general_product_data', array( __CLASS__, 'field' ) );
 		add_action( 'woocommerce_admin_process_product_object', array( __CLASS__, 'save' ) );
@@ -41,6 +53,69 @@ final class Reklamo_Product {
 		add_action( 'edited_' . self::COLOR_TAX, array( __CLASS__, 'hex_save' ) );
 		add_action( 'woocommerce_product_after_variable_attributes', array( __CLASS__, 'variation_gallery_field' ), 10, 3 );
 		add_action( 'woocommerce_save_product_variation', array( __CLASS__, 'variation_gallery_save' ), 10, 2 );
+	}
+
+	/**
+	 * Pure: a promotion price — the percent off, then down to the nearest ,99 below
+	 * (349,99 at 15 % → 297,49 → 296,99), never under 0,99.
+	 */
+	public static function promo_price( float $regular, int $pct ): float {
+		$off = $regular * ( 100 - $pct ) / 100;
+		return max( 0.99, floor( round( $off, 2 ) + 0.01 ) - 0.01 );
+	}
+
+	/** The promotion in force: percent and last day, or 0 when there is none or it is over. */
+	public static function promo( WC_Product $product ): array {
+		$base  = self::base( $product );
+		$pct   = (int) $base->get_meta( self::PROMO_META );
+		$until = (string) $base->get_meta( self::PROMO_UNTIL_META );
+		if ( $pct < 1 || $pct > 90 || ( '' !== $until && $until < wp_date( 'Y-m-d' ) ) ) {
+			$pct = 0;
+		}
+		return array(
+			'pct'   => $pct,
+			'until' => $until,
+		);
+	}
+
+	public static function gift( WC_Product $product ): string {
+		return trim( (string) self::base( $product )->get_meta( self::GIFT_META ) );
+	}
+
+	/** Write the promotion into every variation's sale price, or take ours away again. */
+	public static function apply_promo( int $product_id ): void {
+		$product = wc_get_product( $product_id );
+		if ( ! $product || ! $product->is_type( 'variable' ) ) {
+			return;
+		}
+		$promo   = self::promo( $product );
+		$applied = (bool) $product->get_meta( self::PROMO_APPLIED_META );
+		if ( ! $promo['pct'] && ! $applied ) {
+			return;
+		}
+		foreach ( $product->get_children() as $child ) {
+			$v = wc_get_product( $child );
+			if ( ! $v ) {
+				continue;
+			}
+			$regular = (float) $v->get_regular_price();
+			if ( $promo['pct'] && $regular > 0 ) {
+				$v->set_sale_price( (string) self::promo_price( $regular, $promo['pct'] ) );
+				$v->set_date_on_sale_from( null );
+				$v->set_date_on_sale_to( '' !== $promo['until'] ? $promo['until'] . ' 23:59:59' : null );
+			} else {
+				$v->set_sale_price( '' );
+				$v->set_date_on_sale_from( null );
+				$v->set_date_on_sale_to( null );
+			}
+			$v->save();
+		}
+		if ( $promo['pct'] ) {
+			update_post_meta( $product_id, self::PROMO_APPLIED_META, 1 );
+		} else {
+			delete_post_meta( $product_id, self::PROMO_APPLIED_META );
+		}
+		WC_Product_Variable::sync( $product_id );
 	}
 
 	/** @return int[] a variation's own extra photos, in order */
@@ -214,6 +289,38 @@ final class Reklamo_Product {
 			<?php Reklamo_Admin_Image::render( self::IMAGE_META, $image, __( 'Shown behind the tabs on the product page, fading in from the right. Leave empty for a plain section.', 'reklamo-core' ) ); ?>
 		</fieldset>
 		<?php
+		echo '</div><div class="options_group">';
+		woocommerce_wp_text_input(
+			array(
+				'id'                => self::PROMO_META,
+				'label'             => __( 'Promotion (% off)', 'reklamo-core' ),
+				'description'       => __( 'Every colour and size at this percent less, rounded down to ,99; the card and the page show "Promotion" and the old price struck through. Empty = no promotion.', 'reklamo-core' ),
+				'desc_tip'          => true,
+				'type'              => 'number',
+				'custom_attributes' => array(
+					'min'  => '1',
+					'max'  => '90',
+					'step' => '1',
+				),
+			)
+		);
+		woocommerce_wp_text_input(
+			array(
+				'id'          => self::PROMO_UNTIL_META,
+				'label'       => __( 'Promotion until', 'reklamo-core' ),
+				'description' => __( 'The last day of the promotion, included. Empty = until you remove it.', 'reklamo-core' ),
+				'desc_tip'    => true,
+				'type'        => 'date',
+			)
+		);
+		woocommerce_wp_text_input(
+			array(
+				'id'          => self::GIFT_META,
+				'label'       => __( 'Gift', 'reklamo-core' ),
+				'description' => __( 'What comes free with it, e.g. "Red mug with your logo". Shown as "+ Gift" on the card and the page, and written on the order line. Empty = no gift.', 'reklamo-core' ),
+				'desc_tip'    => true,
+			)
+		);
 		echo '</div>';
 	}
 
@@ -302,6 +409,29 @@ final class Reklamo_Product {
 
 	public static function save( WC_Product $product ): void {
 		self::save_tiers( $product );
+		$pct   = isset( $_POST[ self::PROMO_META ] ) ? absint( $_POST[ self::PROMO_META ] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$until = isset( $_POST[ self::PROMO_UNTIL_META ] ) ? sanitize_text_field( wp_unslash( $_POST[ self::PROMO_UNTIL_META ] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$gift  = isset( $_POST[ self::GIFT_META ] ) ? sanitize_text_field( wp_unslash( $_POST[ self::GIFT_META ] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$keep  = array(
+			self::PROMO_META       => $pct >= 1 && $pct <= 90 ? $pct : '',
+			self::PROMO_UNTIL_META => preg_match( '/^\d{4}-\d{2}-\d{2}$/', $until ) ? $until : '',
+			self::GIFT_META        => $gift,
+		);
+		foreach ( $keep as $key => $value ) {
+			if ( '' === $value ) {
+				$product->delete_meta_data( $key );
+			} else {
+				$product->update_meta_data( $key, $value );
+			}
+		}
+		// After the product and its variations are saved: the prices by quantity are in by then.
+		$apply = static function ( $id ) use ( $product, &$apply ) {
+			if ( (int) $id === $product->get_id() ) {
+				remove_action( 'woocommerce_update_product', $apply );
+				self::apply_promo( (int) $id );
+			}
+		};
+		add_action( 'woocommerce_update_product', $apply );
 		// WooCommerce has already verified the product editor's nonce before this hook.
 		$raw = isset( $_POST[ self::META ] ) ? wp_unslash( $_POST[ self::META ] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$product->update_meta_data( self::META, wp_kses_post( trim( $raw ) ) );

@@ -306,6 +306,52 @@ function reklamo_package_items( string $html ): array {
 	return $items;
 }
 
+/**
+ * The labels on a product's photo: "Promotion" while it is on sale, "+ Gift" when something comes
+ * with it; "Most popular" only when neither applies.
+ *
+ * @return array<int,array{class:string,label:string,icon:string}>
+ */
+function reklamo_product_ribbons( WC_Product $product ): array {
+	$out = array();
+	if ( $product->is_on_sale() ) {
+		$out[] = array(
+			'class' => 'badge--promo',
+			'label' => __( 'Promotion', 'reklamo' ),
+			'icon'  => '',
+		);
+	}
+	if ( class_exists( 'Reklamo_Product' ) && '' !== Reklamo_Product::gift( $product ) ) {
+		$out[] = array(
+			'class' => 'badge--gift',
+			'label' => __( '+ Gift', 'reklamo' ),
+			'icon'  => 'gift',
+		);
+	}
+	if ( ! $out && $product->is_featured() ) {
+		$out[] = array(
+			'class' => '',
+			'label' => __( 'Most popular', 'reklamo' ),
+			'icon'  => '',
+		);
+	}
+	return $out;
+}
+
+/** The ribbons as markup, for the card and the product page. */
+function reklamo_ribbons_html( WC_Product $product, string $extra_class = '' ): string {
+	$html = '';
+	foreach ( reklamo_product_ribbons( $product ) as $r ) {
+		$html .= sprintf(
+			'<span class="badge %1$s">%2$s%3$s</span>',
+			esc_attr( trim( $r['class'] . ' ' . $extra_class ) ),
+			$r['icon'] ? reklamo_icon( $r['icon'], 14 ) : '',
+			esc_html( $r['label'] )
+		);
+	}
+	return $html ? '<span class="badges">' . $html . '</span>' : '';
+}
+
 /** The design gives each tab panel its own heading only in the tab strip. */
 add_filter( 'woocommerce_product_description_heading', '__return_empty_string' );
 

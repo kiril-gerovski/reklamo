@@ -319,7 +319,7 @@ test( 'Бутилка Matt is one product in two colours, each with its own phot
 	await expect.poll( async () => ( await slides() ).every( ( s ) => s.includes( '-white' ) ) ).toBe( true );
 	await expect( page.locator( '[data-rk-badge-price]' ) ).toHaveText( /519,99\s€/ );
 	await form.locator( '.rk-option', { has: page.locator( 'input[value="150-br"]' ) } ).click();
-	await expect( page.locator( '[data-rk-badge-price]' ) ).toHaveText( /1549,99\s€/ );
+	await expect( page.locator( '[data-rk-badge-price]' ) ).toHaveText( /1\s549,99\s€/ );
 } );
 
 test( 'the second batch is in its categories: lighters, pens and Trio under Технологии', async ( { page } ) => {

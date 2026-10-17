@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-11T15:30:54+00:00\n"
+"POT-Creation-Date: 2026-10-17T19:46:10+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: reklamo\n"
@@ -99,7 +99,19 @@ msgstr ""
 msgid "Specifications"
 msgstr ""
 
-#: functions.php:319
+#: functions.php:320
+msgid "Promotion"
+msgstr ""
+
+#: functions.php:327
+msgid "+ Gift"
+msgstr ""
+
+#: functions.php:334
+msgid "Most popular"
+msgstr ""
+
+#: functions.php:365
 msgid "View the package"
 msgstr ""
 
@@ -152,7 +164,7 @@ msgstr ""
 
 #: patterns/hero.php
 msgctxt "Pattern description"
-msgid "Homepage hero with headline, lead, two buttons, four features and the product image with a price badge."
+msgid "Homepage hero with headline, lead, two buttons, four features and a product's photo with its price badge."
 msgstr ""
 
 #: patterns/packages.php
@@ -249,7 +261,7 @@ msgid "From approval to your door"
 msgstr ""
 
 #: template-parts/delivery.php:62
-#: woocommerce/content-single-product.php:248
+#: woocommerce/content-single-product.php:252
 msgid "Delivery and deadlines"
 msgstr ""
 
@@ -266,7 +278,7 @@ msgid "Questions and answers"
 msgstr ""
 
 #: template-parts/faq.php:46
-#: woocommerce/content-single-product.php:249
+#: woocommerce/content-single-product.php:253
 msgid "Frequently asked questions"
 msgstr ""
 
@@ -275,7 +287,7 @@ msgid "Everything about your order, from the logo to delivery. Cannot find your 
 msgstr ""
 
 #: template-parts/faq.php:49
-#: woocommerce/content-single-product.php:243
+#: woocommerce/content-single-product.php:247
 msgid "Get in touch"
 msgstr ""
 
@@ -369,7 +381,7 @@ msgid "How does the order work?"
 msgstr ""
 
 #: template-parts/steps.php:50
-#: woocommerce/content-single-product.php:206
+#: woocommerce/content-single-product.php:210
 msgid "How the order works"
 msgstr ""
 
@@ -508,7 +520,7 @@ msgid "What happens next?"
 msgstr ""
 
 #: templates/page-request.php:103
-#: woocommerce/content-single-product.php:236
+#: woocommerce/content-single-product.php:240
 msgid "Need help?"
 msgstr ""
 
@@ -520,32 +532,33 @@ msgstr ""
 msgid "Contact us"
 msgstr ""
 
-#: woocommerce/content-product.php:33
-#: woocommerce/content-single-product.php:81
-msgid "Most popular"
-msgstr ""
-
 #. translators: %d: minimum quantity
-#: woocommerce/content-product.php:43
+#: woocommerce/content-product.php:44
 #, php-format
 msgid "from %d pcs."
 msgstr ""
 
 #. translators: %d: number of pieces in the package
-#: woocommerce/content-product.php:45
+#: woocommerce/content-product.php:46
 #, php-format
 msgid "%d pcs."
 msgstr ""
 
-#: woocommerce/content-product.php:51
+#: woocommerce/content-product.php:55
 msgid "per piece"
 msgstr ""
 
-#: woocommerce/content-product.php:51
+#: woocommerce/content-product.php:55
 msgid "incl. VAT"
 msgstr ""
 
-#: woocommerce/content-product.php:62
+#. translators: %s: what comes free with the product
+#: woocommerce/content-product.php:65
+#, php-format
+msgid "Gift: %s"
+msgstr ""
+
+#: woocommerce/content-product.php:69
 msgid "View more"
 msgstr ""
 
@@ -606,26 +619,26 @@ msgid "Production starts once you approve."
 msgstr ""
 
 #. translators: %s: product category name
-#: woocommerce/content-single-product.php:95
+#: woocommerce/content-single-product.php:93
 #, php-format
 msgid "The %s collection"
 msgstr ""
 
-#: woocommerce/content-single-product.php:118
+#: woocommerce/content-single-product.php:116
 msgid "From, per piece"
 msgstr ""
 
-#: woocommerce/content-single-product.php:118
+#: woocommerce/content-single-product.php:116
 msgid "Price per piece"
 msgstr ""
 
 #. translators: %d: minimum quantity
-#: woocommerce/content-single-product.php:123
+#: woocommerce/content-single-product.php:121
 #, php-format
 msgid "min. %d pcs."
 msgstr ""
 
-#: woocommerce/content-single-product.php:127
+#: woocommerce/content-single-product.php:125
 msgid "Final price"
 msgstr ""
 
@@ -633,27 +646,31 @@ msgstr ""
 msgid "What does the package include?"
 msgstr ""
 
-#: woocommerce/content-single-product.php:186
+#: woocommerce/content-single-product.php:176
+msgid "Gift with this order"
+msgstr ""
+
+#: woocommerce/content-single-product.php:190
 msgid "Upload a logo and request a mockup"
 msgstr ""
 
-#: woocommerce/content-single-product.php:191
+#: woocommerce/content-single-product.php:195
 msgid "No payment at this stage"
 msgstr ""
 
-#: woocommerce/content-single-product.php:201
+#: woocommerce/content-single-product.php:205
 msgid "Important:"
 msgstr ""
 
-#: woocommerce/content-single-product.php:202
+#: woocommerce/content-single-product.php:206
 msgid "The mockup shown is a guide and not a 100% exact image of the final product. Slight differences in colour, size and logo position are possible, depending on the material, the printing technique and the screen settings. Before production you will receive a final mockup for approval."
 msgstr ""
 
-#: woocommerce/content-single-product.php:239
+#: woocommerce/content-single-product.php:243
 msgid "Our consultant will help you choose the right package for your business."
 msgstr ""
 
-#: woocommerce/content-single-product.php:247
+#: woocommerce/content-single-product.php:251
 msgid "How ordering works"
 msgstr ""
 

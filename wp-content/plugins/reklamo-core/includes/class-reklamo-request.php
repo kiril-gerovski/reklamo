@@ -319,6 +319,10 @@ final class Reklamo_Request {
 				}
 				$item->add_meta_data( Reklamo_Cart::META_FILE, $line['token'], true );
 				$item->add_meta_data( Reklamo_Items::META_STATE, Reklamo_Items::WAITING, true );
+				// The gift as promised when the order was placed, for the shop to pack.
+				if ( '' !== Reklamo_Product::gift( $line['product'] ) ) {
+					$item->add_meta_data( __( 'Gift', 'reklamo-core' ), Reklamo_Product::gift( $line['product'] ), true );
+				}
 				if ( '' !== $line['note'] ) {
 					$item->add_meta_data( Reklamo_Items::META_NOTE, $line['note'], true );
 					$item->add_meta_data( __( 'Note to designer', 'reklamo-core' ), $line['note'], true );

@@ -116,6 +116,7 @@ final class Reklamo_Cart {
 					'id'      => $v->get_id(),
 					'attrs'   => $v->get_variation_attributes(),
 					'price'   => (float) wc_get_price_to_display( $v ),
+					'regular' => (float) wc_get_price_to_display( $v, array( 'price' => $v->get_regular_price() ) ),
 					'gallery' => self::gallery_html( $v ),
 				);
 			}
@@ -129,7 +130,8 @@ final class Reklamo_Cart {
 			data-variations="<?php echo esc_attr( (string) wp_json_encode( $vars ) ); ?>"
 			data-price="<?php echo esc_attr( (string) $price ); ?>"
 			data-gallery="<?php echo esc_attr( $vars ? self::gallery_html( $product ) : '' ); ?>"
-			data-currency="<?php echo esc_attr( html_entity_decode( get_woocommerce_currency_symbol(), ENT_QUOTES, 'UTF-8' ) ); ?>">
+			data-currency="<?php echo esc_attr( html_entity_decode( get_woocommerce_currency_symbol(), ENT_QUOTES, 'UTF-8' ) ); ?>"
+			data-thousand-sep="<?php echo esc_attr( wc_get_price_thousand_separator() ); ?>" data-decimal-sep="<?php echo esc_attr( wc_get_price_decimal_separator() ); ?>">
 			<?php wp_nonce_field( self::NONCE, 'reklamo_nonce' ); ?>
 			<input type="hidden" name="add-to-cart" value="<?php echo esc_attr( (string) $product->get_id() ); ?>">
 			<?php if ( $vars ) : ?>
@@ -545,6 +547,9 @@ final class Reklamo_Cart {
 										<h3 class="rk-cart__name"><a href="<?php echo esc_url( $product->get_permalink() ); ?>"><?php echo esc_html( $product->get_name() ); ?></a></h3>
 										<span class="rk-cart__price"><?php echo wp_kses_post( wc_price( self::line_total( $line ) ) ); ?></span>
 									</div>
+									<?php if ( '' !== Reklamo_Product::gift( $product ) ) : ?>
+										<p class="rk-cart__gift"><?php echo esc_html( sprintf( /* translators: %s: what comes free with the product */ __( '+ Gift: %s', 'reklamo-core' ), Reklamo_Product::gift( $product ) ) ); ?></p>
+									<?php endif; ?>
 									<?php $variant = wc_get_formatted_cart_item_data( $line, true ); ?>
 									<?php if ( '' !== trim( $variant ) ) : ?>
 										<p class="rk-cart__variant" data-cart-variant><?php echo esc_html( trim( str_replace( "\n", ' · ', $variant ) ) ); ?></p>
