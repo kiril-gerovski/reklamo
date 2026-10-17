@@ -30,7 +30,8 @@ final class Reklamo_Admin_Order {
 		add_action( 'admin_post_reklamo_send_mockup', array( __CLASS__, 'handle_send_mockup' ) );
 		add_action( 'admin_post_reklamo_order_action', array( __CLASS__, 'handle_action' ) );
 		add_action( 'admin_notices', array( __CLASS__, 'notices' ) );
-		add_action( 'woocommerce_process_shop_order_meta', array( __CLASS__, 'save_details' ), 20, 2 );
+		// After WooCommerce's own order data (40), so a delivery change made here is not overwritten.
+		add_action( 'woocommerce_process_shop_order_meta', array( __CLASS__, 'save_details' ), 50, 2 );
 	}
 
 	/**
@@ -56,9 +57,23 @@ final class Reklamo_Admin_Order {
 		$order->update_meta_data( '_reklamo_vat', 'company' === $type ? strtoupper( str_replace( ' ', '', $get( 'vat' ) ) ) : '' );
 		$order->update_meta_data( '_reklamo_mol', 'company' === $type ? $get( 'mol' ) : '' );
 		$order->update_meta_data( '_reklamo_delivery_note', $get( 'note' ) );
+		// Delivery: only what was changed in this box, compared with what it showed. The Shipping box
+		// above posts the same address, and an edit made there must stand.
+		$changed = static fn( string $k ): bool => isset( $_POST[ 'reklamo_d_' . $k ], $_POST[ 'reklamo_d_was_' . $k ] ) && $get( $k ) !== sanitize_text_field( wp_unslash( $_POST[ 'reklamo_d_was_' . $k ] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		if ( $changed( 'delivery_type' ) ) {
+			$order->update_meta_data( '_reklamo_delivery_type', in_array( $get( 'delivery_type' ), Reklamo_Approval::DELIVERY_TYPES, true ) ? $get( 'delivery_type' ) : 'address' );
+		}
+		if ( $changed( 'courier' ) ) {
+			$order->update_meta_data( '_reklamo_courier', isset( Reklamo_Approval::COURIERS[ $get( 'courier' ) ] ) ? $get( 'courier' ) : '' );
+		}
+		foreach ( array( 'address_1', 'city', 'postcode' ) as $f ) {
+			if ( $changed( $f ) ) {
+				$order->{ 'set_shipping_' . $f }( $get( $f ) );
+			}
+		}
 		$order->save();
 		if ( Reklamo_Approval::details( $order ) !== $before ) {
-			$order->add_order_note( __( 'Invoice details edited by the shop.', 'reklamo-core' ) );
+			$order->add_order_note( __( 'Invoice and delivery details edited by the shop.', 'reklamo-core' ) );
 		}
 	}
 
@@ -278,7 +293,7 @@ final class Reklamo_Admin_Order {
 
 			<h4><?php esc_html_e( 'Invoice & delivery details', 'reklamo-core' ); ?></h4>
 			<?php if ( $details['submitted_at'] ) : ?>
-				<?php // Inside the order form, so "Update" saves them (see save_details()). Address and phone are WooCommerce billing fields, edited in their own box. ?>
+				<?php // Inside the order form, so "Update" saves them (see save_details()). Company and phone are WooCommerce billing fields, edited in their own box. ?>
 				<table class="widefat striped reklamo-details" style="max-width:600px">
 					<tr><th style="width:40%"><?php esc_html_e( 'Type', 'reklamo-core' ); ?></th><td>
 						<select name="reklamo_d_customer_type">
@@ -291,10 +306,33 @@ final class Reklamo_Admin_Order {
 					<tr><th><?php esc_html_e( 'Delivery note', 'reklamo-core' ); ?></th><td><input type="text" name="reklamo_d_note" value="<?php echo esc_attr( $details['note'] ); ?>" class="regular-text"></td></tr>
 					<tr><th><?php esc_html_e( 'Company', 'reklamo-core' ); ?></th><td><?php echo esc_html( $details['company'] ); ?></td></tr>
 					<tr><th><?php esc_html_e( 'Phone', 'reklamo-core' ); ?></th><td><?php echo esc_html( $details['phone'] ); ?></td></tr>
-					<tr><th><?php esc_html_e( 'Delivery address', 'reklamo-core' ); ?></th><td><?php echo esc_html( trim( $details['address_1'] . ', ' . $details['postcode'] . ' ' . $details['city'], ', ' ) ); ?></td></tr>
+					<tr><th><?php esc_html_e( 'Delivery', 'reklamo-core' ); ?></th><td>
+						<select name="reklamo_d_delivery_type">
+							<?php foreach ( Reklamo_Approval::DELIVERY_TYPES as $reklamo_dt ) : ?>
+								<option value="<?php echo esc_attr( $reklamo_dt ); ?>" <?php selected( $reklamo_dt, $details['delivery_type'] ); ?>><?php echo esc_html( Reklamo_Approval::delivery_type_label( $reklamo_dt ) ); ?></option>
+							<?php endforeach; ?>
+						</select></td></tr>
+					<tr><th><?php esc_html_e( 'Courier', 'reklamo-core' ); ?></th><td>
+						<select name="reklamo_d_courier">
+							<option value=""><?php esc_html_e( 'No preference', 'reklamo-core' ); ?></option>
+							<?php foreach ( Reklamo_Approval::COURIERS as $reklamo_ck => $reklamo_cn ) : ?>
+								<option value="<?php echo esc_attr( $reklamo_ck ); ?>" <?php selected( $reklamo_ck, $details['courier'] ); ?>><?php echo esc_html( $reklamo_cn ); ?></option>
+							<?php endforeach; ?>
+						</select></td></tr>
+					<tr><th><?php esc_html_e( 'Address, office or parcel locker', 'reklamo-core' ); ?></th><td><input type="text" name="reklamo_d_address_1" value="<?php echo esc_attr( $details['address_1'] ); ?>" class="regular-text"></td></tr>
+					<tr><th><?php esc_html_e( 'City', 'reklamo-core' ); ?></th><td><input type="text" name="reklamo_d_city" value="<?php echo esc_attr( $details['city'] ); ?>" class="regular-text"></td></tr>
+					<tr><th><?php esc_html_e( 'Postcode', 'reklamo-core' ); ?></th><td><input type="text" name="reklamo_d_postcode" value="<?php echo esc_attr( $details['postcode'] ); ?>" class="small-text"></td></tr>
+					<?php if ( $details['billing_address'] ) : ?>
+						<tr><th><?php esc_html_e( 'Company address (for the invoice)', 'reklamo-core' ); ?></th><td><?php echo esc_html( $details['billing_address'] ); ?></td></tr>
+					<?php endif; ?>
+					<?php
+					foreach ( array( 'delivery_type', 'courier', 'address_1', 'city', 'postcode' ) as $reklamo_f ) {
+						printf( '<input type="hidden" name="reklamo_d_was_%1$s" value="%2$s">', esc_attr( $reklamo_f ), esc_attr( $details[ $reklamo_f ] ) );
+					}
+					?>
 					<tr><th><?php esc_html_e( 'Submitted', 'reklamo-core' ); ?></th><td><?php echo esc_html( $fmt_date( $details['submitted_at'] ) ); ?></td></tr>
 				</table>
-				<p class="description"><?php esc_html_e( 'ЕИК, VAT, МОЛ and the note are saved with the order\'s "Update" button. Company name, phone and address are edited in the Billing / Shipping boxes.', 'reklamo-core' ); ?></p>
+				<p class="description"><?php esc_html_e( 'Saved with the order\'s "Update" button, e.g. when the customer calls to change the delivery. Company name and phone are edited in the Billing box.', 'reklamo-core' ); ?></p>
 			<?php else : ?>
 				<p class="description"><?php esc_html_e( 'Not submitted yet — the customer gets the form after approving the mockup.', 'reklamo-core' ); ?></p>
 			<?php endif; ?>

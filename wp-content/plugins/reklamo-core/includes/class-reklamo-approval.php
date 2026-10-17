@@ -387,22 +387,57 @@ final class Reklamo_Approval {
 	/* ------------------------------------------------------------------- details */
 
 	/** Fields collected after approval, all stored on the order. */
-	const DETAIL_FIELDS = array( 'customer_type', 'name', 'company', 'eik', 'vat', 'mol', 'phone', 'address_1', 'city', 'postcode', 'note' );
+	const DETAIL_FIELDS = array( 'customer_type', 'name', 'company', 'eik', 'vat', 'mol', 'phone', 'delivery_type', 'courier', 'address_1', 'city', 'postcode', 'billing_address', 'note' );
+
+	/** Where the parcel goes: the customer's address, a courier's office or one of its parcel lockers. */
+	const DELIVERY_TYPES = array( 'address', 'office', 'locker' );
+
+	/** The couriers the shop ships with (brand names, not translated). BoxNow has parcel lockers only. */
+	const COURIERS = array(
+		'speedy' => 'Спиди',
+		'econt'  => 'Еконт',
+		'boxnow' => 'BoxNow',
+		'pigeon' => 'Pigeon',
+	);
+
+	public static function delivery_type_label( string $type ): string {
+		$labels = array(
+			'address' => __( 'To an address', 'reklamo-core' ),
+			'office'  => __( 'To a courier office', 'reklamo-core' ),
+			'locker'  => __( 'To a parcel locker', 'reklamo-core' ),
+		);
+		return $labels[ $type ] ?? $labels['address'];
+	}
+
+	/** One line for the order page, the admin and emails: "Офис на Еконт: …, София". */
+	public static function delivery_summary( array $d ): string {
+		$type    = in_array( $d['delivery_type'] ?? '', self::DELIVERY_TYPES, true ) ? $d['delivery_type'] : 'address';
+		$courier = self::COURIERS[ $d['courier'] ?? '' ] ?? '';
+		$place   = 'address' === $type
+			? trim( ( $d['address_1'] ?? '' ) . ', ' . trim( ( $d['postcode'] ?? '' ) . ' ' . ( $d['city'] ?? '' ) ), ', ' )
+			: trim( ( $d['address_1'] ?? '' ) . ', ' . ( $d['city'] ?? '' ), ', ' );
+		$how     = self::delivery_type_label( $type ) . ( '' !== $courier ? ' — ' . $courier : '' );
+		return $how . ': ' . $place;
+	}
 
 	public static function details( WC_Order $order ): array {
 		return array(
-			'customer_type' => (string) $order->get_meta( '_reklamo_customer_type' ),
-			'name'          => trim( $order->get_billing_first_name() . ' ' . $order->get_billing_last_name() ),
-			'company'       => $order->get_billing_company(),
-			'eik'           => (string) $order->get_meta( '_reklamo_eik' ),
-			'vat'           => (string) $order->get_meta( '_reklamo_vat' ),
-			'mol'           => (string) $order->get_meta( '_reklamo_mol' ),
-			'phone'         => $order->get_billing_phone(),
-			'address_1'     => $order->get_shipping_address_1() ? $order->get_shipping_address_1() : $order->get_billing_address_1(),
-			'city'          => $order->get_shipping_city() ? $order->get_shipping_city() : $order->get_billing_city(),
-			'postcode'      => $order->get_shipping_postcode() ? $order->get_shipping_postcode() : $order->get_billing_postcode(),
-			'note'          => (string) $order->get_meta( '_reklamo_delivery_note' ),
-			'submitted_at'  => (string) $order->get_meta( '_reklamo_details_at' ),
+			'customer_type'   => (string) $order->get_meta( '_reklamo_customer_type' ),
+			'name'            => trim( $order->get_billing_first_name() . ' ' . $order->get_billing_last_name() ),
+			'company'         => $order->get_billing_company(),
+			'eik'             => (string) $order->get_meta( '_reklamo_eik' ),
+			'vat'             => (string) $order->get_meta( '_reklamo_vat' ),
+			'mol'             => (string) $order->get_meta( '_reklamo_mol' ),
+			'phone'           => $order->get_billing_phone(),
+			'delivery_type'   => in_array( (string) $order->get_meta( '_reklamo_delivery_type' ), self::DELIVERY_TYPES, true ) ? (string) $order->get_meta( '_reklamo_delivery_type' ) : 'address',
+			'courier'         => (string) $order->get_meta( '_reklamo_courier' ),
+			'address_1'       => $order->get_shipping_address_1() ? $order->get_shipping_address_1() : $order->get_billing_address_1(),
+			'city'            => $order->get_shipping_city() ? $order->get_shipping_city() : $order->get_billing_city(),
+			'postcode'        => $order->get_shipping_postcode() ? $order->get_shipping_postcode() : $order->get_billing_postcode(),
+			// Delivered elsewhere, the invoice keeps the company's own address.
+			'billing_address' => 'address' !== (string) $order->get_meta( '_reklamo_delivery_type' ) && '' !== (string) $order->get_meta( '_reklamo_delivery_type' ) ? $order->get_billing_address_1() : '',
+			'note'            => (string) $order->get_meta( '_reklamo_delivery_note' ),
+			'submitted_at'    => (string) $order->get_meta( '_reklamo_details_at' ),
 		);
 	}
 
@@ -434,6 +469,11 @@ final class Reklamo_Approval {
 			$in[ $f ] = isset( $_POST[ 'd_' . $f ] ) ? sanitize_text_field( wp_unslash( $_POST[ 'd_' . $f ] ) ) : '';
 		}
 		$in['customer_type'] = 'company' === $in['customer_type'] ? 'company' : 'person';
+		$in['delivery_type'] = in_array( $in['delivery_type'], self::DELIVERY_TYPES, true ) ? $in['delivery_type'] : 'address';
+		$in['courier']       = isset( self::COURIERS[ $in['courier'] ] ) ? $in['courier'] : '';
+		if ( 'address' !== $in['delivery_type'] ) {
+			$in['postcode'] = '';
+		}
 
 		$errors = array();
 		if ( 'company' === $in['customer_type'] ) {
@@ -452,11 +492,21 @@ final class Reklamo_Approval {
 		} elseif ( '' === $in['name'] ) {
 			$errors[] = __( 'Please enter your name.', 'reklamo-core' );
 		}
-		foreach ( array( 'phone', 'address_1', 'city', 'postcode' ) as $req ) {
+		$required = 'address' === $in['delivery_type'] ? array( 'phone', 'address_1', 'city', 'postcode' ) : array( 'phone', 'address_1', 'city' );
+		foreach ( $required as $req ) {
 			if ( '' === $in[ $req ] ) {
 				$errors[] = __( 'Please fill in phone and delivery address.', 'reklamo-core' );
 				break;
 			}
+		}
+		if ( 'address' !== $in['delivery_type'] && '' === $in['courier'] ) {
+			$errors[] = __( 'Please choose the courier whose office or parcel locker the parcel goes to.', 'reklamo-core' );
+		}
+		if ( 'boxnow' === $in['courier'] && 'locker' !== $in['delivery_type'] ) {
+			$errors[] = __( 'BoxNow delivers to parcel lockers only.', 'reklamo-core' );
+		}
+		if ( 'company' === $in['customer_type'] && 'address' !== $in['delivery_type'] && '' === $in['billing_address'] ) {
+			$errors[] = __( 'Please enter the company address for the invoice.', 'reklamo-core' );
 		}
 		if ( $errors ) {
 			$vars['errors']  = $errors;
@@ -473,9 +523,11 @@ final class Reklamo_Approval {
 		}
 		$order->set_billing_company( 'company' === $in['customer_type'] ? $in['company'] : '' );
 		$order->set_billing_phone( $in['phone'] );
-		$order->set_billing_address_1( $in['address_1'] );
-		$order->set_billing_city( $in['city'] );
-		$order->set_billing_postcode( $in['postcode'] );
+		// The invoice address: the delivery address, unless the parcel goes to an office or locker.
+		$to_address = 'address' === $in['delivery_type'];
+		$order->set_billing_address_1( $to_address ? $in['address_1'] : $in['billing_address'] );
+		$order->set_billing_city( $to_address ? $in['city'] : '' );
+		$order->set_billing_postcode( $to_address ? $in['postcode'] : '' );
 		$order->set_billing_country( 'BG' );
 		$order->set_shipping_first_name( $order->get_billing_first_name() );
 		$order->set_shipping_last_name( $order->get_billing_last_name() );
@@ -489,6 +541,8 @@ final class Reklamo_Approval {
 		$order->update_meta_data( '_reklamo_vat', 'company' === $in['customer_type'] ? strtoupper( str_replace( ' ', '', $in['vat'] ) ) : '' );
 		$order->update_meta_data( '_reklamo_mol', 'company' === $in['customer_type'] ? $in['mol'] : '' );
 		$order->update_meta_data( '_reklamo_delivery_note', $in['note'] );
+		$order->update_meta_data( '_reklamo_delivery_type', $in['delivery_type'] );
+		$order->update_meta_data( '_reklamo_courier', $in['courier'] );
 		$order->update_meta_data( '_reklamo_details_at', current_time( 'mysql', true ) );
 		$order->save();
 		$order->add_order_note( $first_time ? __( 'Customer submitted invoice and delivery details.', 'reklamo-core' ) : __( 'Customer updated invoice and delivery details.', 'reklamo-core' ) );

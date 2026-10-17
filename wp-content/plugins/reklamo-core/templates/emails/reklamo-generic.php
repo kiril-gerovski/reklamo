@@ -51,23 +51,24 @@ do_action( 'woocommerce_email_header', $email_heading, $email ); ?>
 <?php if ( $details ) : ?>
 	<table cellspacing="0" cellpadding="6" border="0" style="width:100%; margin: 16px 0 24px; font-size:14px;">
 		<?php
-		$reklamo_labels = array(
-			'company'   => __( 'Company', 'reklamo-core' ),
-			'eik'       => __( 'Company ID (ЕИК)', 'reklamo-core' ),
-			'vat'       => __( 'VAT no.', 'reklamo-core' ),
-			'mol'       => __( 'Responsible person (МОЛ)', 'reklamo-core' ),
-			'phone'     => __( 'Phone', 'reklamo-core' ),
-			'address_1' => __( 'Address', 'reklamo-core' ),
-			'city'      => __( 'City', 'reklamo-core' ),
-			'postcode'  => __( 'Postcode', 'reklamo-core' ),
-			'note'      => __( 'Delivery note', 'reklamo-core' ),
+		$reklamo_labels              = array(
+			'company'         => __( 'Company', 'reklamo-core' ),
+			'eik'             => __( 'Company ID (ЕИК)', 'reklamo-core' ),
+			'vat'             => __( 'VAT no.', 'reklamo-core' ),
+			'mol'             => __( 'Responsible person (МОЛ)', 'reklamo-core' ),
+			'phone'           => __( 'Phone', 'reklamo-core' ),
+			'delivery'        => __( 'Delivery', 'reklamo-core' ),
+			'billing_address' => __( 'Company address (for the invoice)', 'reklamo-core' ),
+			'note'            => __( 'Delivery note', 'reklamo-core' ),
 		);
+		$reklamo_details             = $details;
+		$reklamo_details['delivery'] = Reklamo_Approval::delivery_summary( $details );
 		foreach ( $reklamo_labels as $reklamo_key => $reklamo_label ) :
-			if ( empty( $details[ $reklamo_key ] ) ) {
+			if ( empty( $reklamo_details[ $reklamo_key ] ) ) {
 				continue;
 			}
 			?>
-			<tr><th align="left" style="color:#555; width:40%;"><?php echo esc_html( $reklamo_label ); ?></th><td><?php echo esc_html( $details[ $reklamo_key ] ); ?></td></tr>
+			<tr><th align="left" style="color:#555; width:40%;"><?php echo esc_html( $reklamo_label ); ?></th><td><?php echo esc_html( $reklamo_details[ $reklamo_key ] ); ?></td></tr>
 		<?php endforeach; ?>
 	</table>
 <?php endif; ?>

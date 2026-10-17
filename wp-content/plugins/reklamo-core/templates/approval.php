@@ -211,9 +211,25 @@ $view_url = add_query_arg(
 					<div class="only-company"><label class="f"><?php esc_html_e( 'VAT no. (optional)', 'reklamo-core' ); ?></label><input type="text" name="d_vat" placeholder="BG123456789" value="<?php echo esc_attr( $details['vat'] ?? '' ); ?>"></div>
 					<div class="full only-company"><label class="f"><?php esc_html_e( 'Responsible person (МОЛ)', 'reklamo-core' ); ?></label><input type="text" name="d_mol" value="<?php echo esc_attr( $details['mol'] ?? '' ); ?>"></div>
 					<div class="full"><label class="f"><?php esc_html_e( 'Phone', 'reklamo-core' ); ?></label><input type="tel" name="d_phone" autocomplete="tel" value="<?php echo esc_attr( $details['phone'] ?? '' ); ?>" required></div>
-					<div class="full"><label class="f"><?php esc_html_e( 'Delivery address', 'reklamo-core' ); ?></label><input type="text" name="d_address_1" autocomplete="street-address" value="<?php echo esc_attr( $details['address_1'] ?? '' ); ?>" required></div>
+					<div class="full"><span class="f"><?php esc_html_e( 'Delivery', 'reklamo-core' ); ?></span>
+						<div class="seg seg--delivery">
+							<?php foreach ( Reklamo_Approval::DELIVERY_TYPES as $reklamo_dt ) : ?>
+								<label><input type="radio" name="d_delivery_type" value="<?php echo esc_attr( $reklamo_dt ); ?>" <?php checked( $reklamo_dt, $details['delivery_type'] ?? 'address' ); ?>><span><?php echo esc_html( Reklamo_Approval::delivery_type_label( $reklamo_dt ) ); ?></span></label>
+							<?php endforeach; ?>
+						</div>
+					</div>
+					<div class="full"><label class="f"><?php esc_html_e( 'Courier', 'reklamo-core' ); ?></label>
+						<select name="d_courier">
+							<option value="" data-any><?php esc_html_e( 'No preference', 'reklamo-core' ); ?></option>
+							<?php foreach ( Reklamo_Approval::COURIERS as $reklamo_ck => $reklamo_cn ) : ?>
+								<option value="<?php echo esc_attr( $reklamo_ck ); ?>" <?php selected( $reklamo_ck, $details['courier'] ?? '' ); ?><?php echo 'boxnow' === $reklamo_ck ? ' data-locker-only' : ''; ?>><?php echo esc_html( $reklamo_cn ); ?></option>
+							<?php endforeach; ?>
+						</select>
+					</div>
+					<div class="full"><label class="f" data-label-address="<?php esc_attr_e( 'Delivery address', 'reklamo-core' ); ?>" data-label-office="<?php esc_attr_e( 'Courier office (name or address)', 'reklamo-core' ); ?>" data-label-locker="<?php esc_attr_e( 'Parcel locker (name or address)', 'reklamo-core' ); ?>"><?php esc_html_e( 'Delivery address', 'reklamo-core' ); ?></label><input type="text" name="d_address_1" autocomplete="street-address" value="<?php echo esc_attr( $details['address_1'] ?? '' ); ?>" required></div>
 					<div><label class="f"><?php esc_html_e( 'City', 'reklamo-core' ); ?></label><input type="text" name="d_city" autocomplete="address-level2" value="<?php echo esc_attr( $details['city'] ?? '' ); ?>" required></div>
-					<div><label class="f"><?php esc_html_e( 'Postcode', 'reklamo-core' ); ?></label><input type="text" name="d_postcode" inputmode="numeric" autocomplete="postal-code" value="<?php echo esc_attr( $details['postcode'] ?? '' ); ?>" required></div>
+					<div class="only-address"><label class="f"><?php esc_html_e( 'Postcode', 'reklamo-core' ); ?></label><input type="text" name="d_postcode" inputmode="numeric" autocomplete="postal-code" value="<?php echo esc_attr( $details['postcode'] ?? '' ); ?>" required></div>
+					<div class="full only-company only-elsewhere"><label class="f"><?php esc_html_e( 'Company address (for the invoice)', 'reklamo-core' ); ?></label><input type="text" name="d_billing_address" value="<?php echo esc_attr( $details['billing_address'] ?? '' ); ?>"></div>
 					<div class="full"><label class="f"><?php esc_html_e( 'Delivery note (optional)', 'reklamo-core' ); ?></label><input type="text" name="d_note" value="<?php echo esc_attr( $details['note'] ?? '' ); ?>"></div>
 				</div>
 				<div class="actions"><button type="submit"><?php echo $saved ? esc_html__( 'Update details', 'reklamo-core' ) : esc_html__( 'Save details', 'reklamo-core' ); ?></button></div>
@@ -227,10 +243,28 @@ $view_url = add_query_arg(
 				form = form.form;
 				function sync() {
 					var company = form.querySelector( 'input[name="d_customer_type"][value="company"]' ).checked;
-					form.querySelectorAll( '.only-company' ).forEach( function ( el ) { el.hidden = ! company; } );
+					var picked = form.querySelector( 'input[name="d_delivery_type"]:checked' );
+					var where = picked ? picked.value : 'address';
+					form.querySelectorAll( '.only-company' ).forEach( function ( el ) { el.hidden = ! company || ( el.classList.contains( 'only-elsewhere' ) && 'address' === where ); } );
 					form.querySelectorAll( '.only-person' ).forEach( function ( el ) { el.hidden = company; } );
+					// Delivery: the address field names what goes in it; the postcode only for an address.
+					var label = form.querySelector( '[data-label-address]' );
+					if ( label ) { label.textContent = label.getAttribute( 'data-label-' + where ); }
+					form.querySelectorAll( '.only-address' ).forEach( function ( el ) { el.hidden = 'address' !== where; el.querySelectorAll( 'input' ).forEach( function ( i ) { i.required = 'address' === where; } ); } );
+					var billing = form.querySelector( 'input[name="d_billing_address"]' );
+					if ( billing ) { billing.required = company && 'address' !== where; }
+					// An office or locker needs a courier; BoxNow has lockers only.
+					var courier = form.querySelector( 'select[name="d_courier"]' );
+					if ( courier ) {
+						courier.required = 'address' !== where;
+						courier.querySelector( '[data-any]' ).hidden = 'address' !== where;
+						var boxnow = courier.querySelector( '[data-locker-only]' );
+						boxnow.disabled = 'locker' !== where;
+						if ( boxnow.disabled && boxnow.selected ) { courier.value = ''; }
+						if ( 'address' !== where && '' === courier.value ) { courier.selectedIndex = -1; }
+					}
 				}
-				form.addEventListener( 'change', function ( e ) { if ( 'd_customer_type' === e.target.name ) { sync(); } } );
+				form.addEventListener( 'change', function ( e ) { if ( 'd_customer_type' === e.target.name || 'd_delivery_type' === e.target.name ) { sync(); } } );
 				sync();
 			} )();
 			</script>

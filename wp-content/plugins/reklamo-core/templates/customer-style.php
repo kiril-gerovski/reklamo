@@ -39,7 +39,11 @@ defined( 'ABSPATH' ) || exit;
 	details[open] > :not(summary) { animation: fade-up .25s ease-out; }
 	.grid { display: grid; grid-template-columns: 1fr 1fr; gap: .9rem; }
 	.grid .full { grid-column: 1 / -1; }
-	label.f { display: block; font-size: .75rem; color: #555; margin-bottom: .3rem; }
+	label.f, span.f { display: block; font-size: .75rem; color: #555; margin-bottom: .3rem; }
+	select { width: 100%; box-sizing: border-box; padding: .7rem .8rem; border: 1px solid #e8e2d6; border-radius: 4px; background: #fff; font: inherit; color: inherit; }
+	select:focus { outline: none; border-color: #b8892b; box-shadow: 0 0 0 3px #f3ead6; }
+	.seg--delivery { flex-wrap: wrap; margin-bottom: 0; }
+	.seg--delivery label { flex: 1 1 9rem; }
 	input[type="text"], input[type="tel"] { width: 100%; box-sizing: border-box; padding: .7rem .8rem; border: 1px solid #e8e2d6; border-radius: 4px; font: inherit; transition: border-color .15s, box-shadow .15s; }
 	.seg { display: flex; gap: .5rem; margin-bottom: 1rem; }
 	.seg label { flex: 1; text-align: center; padding: .7rem; border: 1px solid #e8e2d6; border-radius: 4px; cursor: pointer; font-size: .875rem; transition: border-color .15s, background .15s, color .15s; }
@@ -51,6 +55,7 @@ defined( 'ABSPATH' ) || exit;
 	.seg label:has(input:checked) { border-color: #b8892b; background: #f3ead6; }
 	.grid [hidden] { display: none; }
 	form:has(input[name="d_customer_type"][value="person"]:checked) .only-company, form:has(input[name="d_customer_type"][value="company"]:checked) .only-person { display: none; }
+	form:has(input[name="d_delivery_type"][value="office"]:checked) .only-address, form:has(input[name="d_delivery_type"][value="locker"]:checked) .only-address, form:has(input[name="d_delivery_type"][value="address"]:checked) .only-elsewhere { display: none; }
 	.bank-details { display: grid; grid-template-columns: max-content 1fr; gap: .35rem 1.25rem; margin: 1rem 0; padding: 1rem 1.25rem; background: #faf8f4; border: 1px solid #e8e2d6; border-radius: 6px; font-size: .9375rem; }
 	.bank-details dt { color: #555; }
 	.bank-details dd { margin: 0; font-weight: 500; }

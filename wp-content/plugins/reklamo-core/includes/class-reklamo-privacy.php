@@ -27,6 +27,8 @@ final class Reklamo_Privacy {
 		'_reklamo_mol',
 		'_reklamo_delivery_note',
 		'_reklamo_customer_type',
+		'_reklamo_delivery_type',
+		'_reklamo_courier',
 	);
 
 	/** Comment meta marking an order note that quotes the customer or records their IP. */

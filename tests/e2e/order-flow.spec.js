@@ -421,6 +421,79 @@ test( 'deposit email arrived; customer fills invoice and delivery details', asyn
 
 	const admin = await mailpitFind( `Данни за фактура по поръчка ${ orderId }` );
 	expect( admin.text ).toContain( '123456789' );
+
+	// Delivery to a courier's office: no postcode, a courier is required (BoxNow only for lockers),
+	// and a company gives its own address for the invoice.
+	await page.fill( 'input[name="d_eik"]', '123456789' );
+	await page.locator( '.seg--delivery label', { hasText: 'До офис на куриер' } ).click();
+	await expect( page.locator( 'input[name="d_postcode"]' ) ).toBeHidden();
+	await expect( page.locator( '[data-label-address]' ) ).toHaveText( 'Офис на куриера (име или адрес)' );
+	await expect( page.locator( 'select[name="d_courier"] option[value="boxnow"]' ) ).toBeDisabled();
+	await expect( page.locator( 'input[name="d_billing_address"]' ) ).toBeVisible();
+	await page.selectOption( 'select[name="d_courier"]', 'econt' );
+	await page.fill( 'input[name="d_address_1"]', 'офис Младост 1' );
+	await page.fill( 'input[name="d_billing_address"]', 'гр. София, ул. Фирмена 5' );
+	await page.click( 'form button[type="submit"]' );
+	await expect( page.locator( '.notice.ok' ) ).toContainText( 'Получихме данните Ви' );
+	await expect( page.locator( 'input[name="d_delivery_type"][value="office"]' ) ).toBeChecked();
+	await expect( page.locator( 'select[name="d_courier"]' ) ).toHaveValue( 'econt' );
+} );
+
+test( 'the shop changes the delivery from the order screen, e.g. after a call', async ( { page } ) => {
+	await adminLogin( page );
+	await page.goto( `/wp-admin/admin.php?page=wc-orders&action=edit&id=${ orderId }` );
+	await expect( page.locator( 'select[name="reklamo_d_delivery_type"]' ) ).toHaveValue( 'office' );
+	await expect( page.locator( 'select[name="reklamo_d_courier"]' ) ).toHaveValue( 'econt' );
+	await expect( page.locator( 'input[name="reklamo_d_address_1"]' ) ).toHaveValue( 'офис Младост 1' );
+	await page.selectOption( 'select[name="reklamo_d_delivery_type"]', 'locker' );
+	await page.selectOption( 'select[name="reklamo_d_courier"]', 'speedy' );
+	await page.fill( 'input[name="reklamo_d_address_1"]', 'автомат Бизнес парк' );
+	await page.click( 'button.save_order' );
+	await expect( page.locator( 'select[name="reklamo_d_delivery_type"]' ) ).toHaveValue( 'locker' );
+	await expect( page.locator( 'select[name="reklamo_d_courier"]' ) ).toHaveValue( 'speedy' );
+	await expect( page.locator( 'input[name="reklamo_d_address_1"]' ) ).toHaveValue( 'автомат Бизнес парк' );
+	await expect( page.locator( '#woocommerce-order-notes' ) ).toContainText( 'Данните за фактура и доставка са редактирани от магазина' );
+} );
+
+test( 'the shop\'s emails go to every WordPress administrator, too', async ( { page } ) => {
+	await adminLogin( page );
+	const removeHelper = async () => {
+		await page.goto( '/wp-admin/users.php?s=e2e-second-admin' );
+		const row = page.locator( 'tr', { hasText: 'e2e-second-admin' } );
+		if ( await row.count() ) {
+			await row.locator( '.delete a' ).evaluate( ( a ) => a.click() );
+			await page.locator( '#submit' ).click();
+		}
+		await expect( page.locator( 'tr', { hasText: 'e2e-second-admin' } ) ).toHaveCount( 0 );
+	};
+	await removeHelper(); // left over from an interrupted run
+	// A second administrator, as when someone helps the shop.
+	await page.goto( '/wp-admin/user-new.php' );
+	await page.fill( '#user_login', 'e2e-second-admin' );
+	await page.fill( '#email', 'second-admin@example.com' );
+	await page.selectOption( '#role', 'administrator' );
+	await page.locator( '#send_user_notification' ).uncheck();
+	await page.locator( '#createusersub' ).click();
+	await expect( page.locator( '#message, .notice-success, .updated' ).first() ).toBeVisible();
+
+	// WooCommerce's own "resend new order notification" goes to the configured address and to both administrators.
+	await page.goto( `/wp-admin/admin.php?page=wc-orders&action=edit&id=${ orderId }` );
+	await page.selectOption( 'select[name="wc_order_action"]', 'send_order_details_admin' );
+	await page.locator( 'button.wc-reload' ).evaluate( ( b ) => b.click() );
+	await page.waitForLoadState( 'load' );
+	// Not there yet is not a failure: ask Mailpit again until the resent email arrives.
+	const recipients = async () => {
+		try {
+			return ( await mailpitFind( `нова поръчка #${ orderId }` ) ).all.join( ' ' );
+		} catch {
+			return '';
+		}
+	};
+	await expect.poll( recipients, { timeout: 15_000 } ).toContain( 'second-admin@example.com' );
+	const mail = await mailpitFind( `нова поръчка #${ orderId }` );
+	expect( mail.all ).toContain( 'dev@reklamo.local' );
+
+	await removeHelper();
 } );
 
 test( 'shop moves the order: payment → production → dispatched and completed', async ( { page } ) => {
@@ -463,6 +536,7 @@ test( 'order page after completion: full history, all steps done, nothing left t
 	await expect( page.locator( '.rev' ).last() ).toContainText( 'по-голямо' );
 	await expect( page.locator( '.kv' ).first() ).toContainText( 'получен' );
 	await expect( page.locator( 'body' ) ).toContainText( 'Ноубъл ЕООД' );
+	await expect( page.locator( '.kv' ).last() ).toContainText( 'До автомат — Спиди: автомат Бизнес парк, София' );
 	await expect( page.locator( 'form.inline-form' ) ).toHaveCount( 0 );
 	// The completed-order email from WooCommerce carries the link too.
 	const done = await mailpitFind( 'Вашата поръчка от' );

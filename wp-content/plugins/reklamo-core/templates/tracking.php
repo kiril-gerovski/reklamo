@@ -306,7 +306,7 @@ $multi    = ( $counts['total'] ?? 0 ) > 1;
 				<?php if ( $v['details']['company'] ) : ?>
 					<dt><?php esc_html_e( 'Company', 'reklamo-core' ); ?></dt><dd><?php echo esc_html( $v['details']['company'] ); ?><?php echo $v['details']['eik'] ? ', ' . esc_html__( 'Company ID (ЕИК)', 'reklamo-core' ) . ' ' . esc_html( $v['details']['eik'] ) : ''; ?></dd>
 				<?php endif; ?>
-				<dt><?php esc_html_e( 'Delivery address', 'reklamo-core' ); ?></dt><dd><?php echo esc_html( trim( $v['details']['address_1'] . ', ' . $v['details']['postcode'] . ' ' . $v['details']['city'], ', ' ) ); ?></dd>
+				<dt><?php esc_html_e( 'Delivery', 'reklamo-core' ); ?></dt><dd><?php echo esc_html( Reklamo_Approval::delivery_summary( $v['details'] ) ); ?></dd>
 				<dt><?php esc_html_e( 'Phone', 'reklamo-core' ); ?></dt><dd><?php echo esc_html( $v['details']['phone'] ); ?></dd>
 			</dl>
 		<?php endif; ?>

@@ -233,6 +233,8 @@ test( 'Вдъхновение is off the site: no link anywhere and its page is 
 test( 'Промо пакети filters by category through its chips and shows the price seal', async ( { page } ) => {
 	await page.goto( '/promo-paketi/' );
 	await expect( page.locator( '.shop-hero h1' ) ).toHaveText( /Промо пакети/i );
+	// "Подходящи за всякакъв бизнес" carries a briefcase, not the delivery truck.
+	await expect( page.locator( '.shop-hero__usps li' ).last().locator( 'svg' ) ).toHaveClass( /icon-briefcase/ );
 	const chips = page.locator( '.shop-chip' );
 	await expect( chips.first() ).toHaveText( /Всички пакети/i );
 	await expect( chips.first() ).toHaveClass( /is-active/ );
@@ -266,6 +268,11 @@ test( 'on a phone the category chips fit the screen and the cards sit two to a r
 			expect( box ).toBeLessThanOrEqual( 390 );
 		}
 		await expect( chips.first().locator( 'svg' ) ).toBeVisible();
+		// Every card's price fits inside its round seal, the longest ones included.
+		const seals = await page.locator( '.package-card__seal' ).evaluateAll( ( els ) => els.map( ( e ) => [ e.getBoundingClientRect().width, e.querySelector( '.woocommerce-Price-amount' ).getBoundingClientRect().width ] ) );
+		for ( const [ circle, price ] of seals ) {
+			expect( price ).toBeLessThan( circle * 0.9 );
+		}
 		// The chips span the page like the sort box under them, however few there are.
 		const widths = await page.evaluate( () => [ '.shop-chips', '.shop-tools .woocommerce-ordering select' ].map( ( q ) => Math.round( document.querySelector( q ).getBoundingClientRect().width ) ) );
 		expect( widths[ 0 ] ).toBe( widths[ 1 ] );

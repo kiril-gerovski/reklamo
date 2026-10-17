@@ -45,7 +45,7 @@ $reklamo_all_url  = $reklamo_packages ? (string) get_permalink( wc_get_page_id( 
 	<ul class="shop-hero__usps">
 		<li><?php echo reklamo_icon( 'diamond', 30 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?><span><?php esc_html_e( 'Stylish and practical combinations', 'reklamo' ); ?></span></li>
 		<li><?php echo reklamo_icon( 'gift', 30 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?><span><?php esc_html_e( 'Personalised with your logo', 'reklamo' ); ?></span></li>
-		<li><?php echo reklamo_icon( 'truck', 30 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?><span><?php esc_html_e( 'Suitable for any business', 'reklamo' ); ?></span></li>
+		<li><?php echo reklamo_icon( 'briefcase', 30 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?><span><?php esc_html_e( 'Suitable for any business', 'reklamo' ); ?></span></li>
 	</ul>
 </header>
 

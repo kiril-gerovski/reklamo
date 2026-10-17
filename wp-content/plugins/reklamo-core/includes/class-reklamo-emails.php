@@ -13,6 +13,38 @@ final class Reklamo_Emails {
 	public static function init(): void {
 		add_filter( 'woocommerce_email_classes', array( __CLASS__, 'register' ) );
 		add_filter( 'woocommerce_email_actions', array( __CLASS__, 'actions' ) );
+		add_action( 'woocommerce_email', array( __CLASS__, 'to_administrators' ) );
+	}
+
+	/**
+	 * Every email for the shop (new order, changes requested, all approved, invoice details,
+	 * a waiting order) also goes to each WordPress administrator, read when it is sent: a new
+	 * administrator gets them from then on, a removed one no longer does.
+	 *
+	 * @param WC_Emails $mailer The mailer, once its emails are loaded.
+	 */
+	public static function to_administrators( $mailer ): void {
+		foreach ( $mailer->get_emails() as $email ) {
+			if ( ! $email->is_customer_email() ) {
+				add_filter( 'woocommerce_email_recipient_' . $email->id, array( __CLASS__, 'add_administrators' ) );
+			}
+		}
+	}
+
+	/** The configured recipients plus the administrators' addresses, each once. */
+	public static function add_administrators( $recipient ): string {
+		$list   = array_map( 'trim', explode( ',', (string) $recipient ) );
+		$admins = get_users(
+			array(
+				'role'   => 'administrator',
+				'fields' => array( 'user_email' ),
+			)
+		);
+		foreach ( $admins as $user ) {
+			$list[] = $user->user_email;
+		}
+		$list = array_filter( $list, 'is_email' );
+		return implode( ', ', array_values( array_unique( array_map( 'strtolower', $list ) ) ) );
 	}
 
 	/** WC_Email exists only once the mailer loads, hence the lazy requires. */

@@ -661,6 +661,25 @@ applied, pending the owner.
   `Reklamo_Cart::gallery_html()` now falls back to the product's photo for a variation that has a
   gallery but no image (the e2e colour-gallery test caught it).
 
+**2026-10-17: delivery to an address, a courier office or a parcel locker** (owner's request; the
+customer chooses, the shop can edit). The details form asks how the parcel travels
+(`_reklamo_delivery_type`: address / office / locker) and with which courier (`_reklamo_courier`:
+Спиди, Еконт, BoxNow, Pigeon; required for an office or locker, BoxNow lockers only). The shipping
+address holds the address or the office / locker; the postcode only for an address. The invoice used
+to take the delivery address, wrong for an office, so a company delivered elsewhere enters its own
+address for the invoice (billing address). The order box edits delivery type, courier, address, city
+and postcode; it now saves after WooCommerce's order data (priority 50) and applies only the delivery
+fields changed in the box (hidden "was" values), so an edit in WooCommerce's Shipping box on the same
+save still stands. One summary line (`Reklamo_Approval::delivery_summary()`) on the order page and in
+emails. Both meta keys are in `Reklamo_Privacy::PERSONAL_META` and `docs/GDPR.md` § 1.
+
+**2026-10-17: the shop's emails also go to every administrator** (owner's request). Every email that is
+not a customer's (WooCommerce's new / cancelled / failed order and ours: changes requested, all approved,
+invoice details, waiting order) gets the addresses of the users with the Administrator role added to
+its configured recipients, read when it is sent, each address once. A new admin account receives them
+from then on, a deleted one no longer. Verified in e2e with a second administrator and WooCommerce's
+"Resend new order notification" (the Bulgarian subject is „Имате нова поръчка #…“).
+
 ## Deployment scripts
 
 `scripts/deploy.sh` (workstation) → `scripts/host/{bootstrap,install,update,check}.sh` (server). `install.sh` is idempotent and converges an existing account with its `.env`; `update.sh` fetches, switches the checkout under maintenance mode, converges WordPress/WooCommerce to `versions.env` (database dump first, `wp core update --force`, `wp plugin install --force`, `update-db`, `wp wc update`), flushes and runs `check.sh`, and re-runs `seed.sh` only with `--seed`. `check.sh` drops a one-off PHP probe into `public_html`, fetches it over HTTP and compares web PHP with `PHP_BIN`, prints the applied `upload_max_filesize` and friends, fetches the theme's `style.css` through the symlink and confirms the private directory is not addressable.

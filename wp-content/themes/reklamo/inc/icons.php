@@ -44,6 +44,7 @@ function reklamo_icon( string $name, int $size = 24 ): string {
 		'chevron-r' => '<path d="m9 6 6 6-6 6"/>',
 		'notebook'  => '<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v18M3 7.5h2M3 12h2M3 16.5h2"/>',
 		'ballpen'   => '<path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4z"/><path d="m14.5 5.5 3 3"/>',
+		'briefcase' => '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5.5A2.5 2.5 0 0 1 11.5 3h1A2.5 2.5 0 0 1 15 5.5V7M3 13h18"/><rect x="10.5" y="11.5" width="3" height="3" rx=".6"/>',
 		'gift'      => '<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M5 12v9h14v-9M12 8v13M12 8S10.5 3 8 4s0 4 4 4zM12 8s1.5-5 4-4 0 4-4 4z"/>',
 		'mug'       => '<path d="M5 8h11v9a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3z"/><path d="M16 10h1.5a2.5 2.5 0 0 1 0 5H16M8.5 3v2.5M12.5 3v2.5"/>',
 		'bottle'    => '<path d="M10 2h4v3l2 3v12a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V8l2-3z"/><path d="M8 12h8"/>',
