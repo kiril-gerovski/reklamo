@@ -207,8 +207,12 @@ final class Reklamo_Cart {
 	private static function gallery_html( WC_Product $product ): string {
 		$ids = array();
 		if ( $product->is_type( 'variation' ) ) {
+			$gallery = Reklamo_Product::variation_gallery( $product );
+			// WooCommerce 11.2 keeps no variation image that equals the parent's; the colour then
+			// opens on the product's own photo, as WooCommerce shows it.
 			$own = (int) $product->get_image_id( 'edit' );
-			$ids = array_merge( $own ? array( $own ) : array(), Reklamo_Product::variation_gallery( $product ) );
+			$own = $own ? $own : ( $gallery ? (int) $product->get_image_id() : 0 );
+			$ids = array_merge( $own ? array( $own ) : array(), $gallery );
 			if ( ! $ids ) {
 				return '';
 			}

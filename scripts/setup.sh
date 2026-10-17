@@ -56,7 +56,15 @@ if [ "$cur_wp" != "$WP_VERSION" ]; then
 fi
 
 if wp plugin is-installed woocommerce >/dev/null 2>&1; then
-  echo "→ WooCommerce present ($(wp plugin get woocommerce --field=version))"
+  cur_wc=$(wp plugin get woocommerce --field=version)
+  # Raised to the pin like WordPress (and like the host's update.sh); never lowered.
+  if [ "$cur_wc" != "$WC_VERSION" ] && [ "$(printf '%s\n%s\n' "$cur_wc" "$WC_VERSION" | sort -V | head -n1)" = "$cur_wc" ]; then
+    echo "→ WooCommerce $cur_wc → $WC_VERSION (versions.env)"
+    wp plugin install woocommerce --version="$WC_VERSION" --force >/dev/null && wp wc update >/dev/null 2>&1 || echo "  ! WooCommerce update failed — kept $cur_wc"
+    wp language plugin update woocommerce >/dev/null 2>&1 || true
+  else
+    echo "→ WooCommerce present ($cur_wc)"
+  fi
 else
   echo "→ installing WooCommerce $WC_VERSION (pinned)"
   wp plugin install woocommerce --version="$WC_VERSION"

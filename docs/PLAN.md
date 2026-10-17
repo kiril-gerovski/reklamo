@@ -651,6 +651,16 @@ filled after each batch (on an existing site also every run), so Техноло�
 The folder also renames two existing products (Stone White → "Stone", Satin Black → "Satin"); not
 applied, pending the owner.
 
+**2026-10-17: WooCommerce 11.2.1.** Tested locally before the deploy, as the pins require.
+- `setup.sh` only installed a missing WooCommerce and never raised it, so the local stack stayed on
+  11.1.1 after the pin moved; it now raises it like WordPress (`plugin install --force`, `wc update`),
+  never lowering.
+- Verified: after 11.2.1's update a variation whose image is the parent's own has none of its own
+  (`get_image_id( 'edit' )` 0, no `_thumbnail_id`). The first colour of Magnet and of Бутилка Matt
+  uses the product's photo, so its colour gallery lost the first slide.
+  `Reklamo_Cart::gallery_html()` now falls back to the product's photo for a variation that has a
+  gallery but no image (the e2e colour-gallery test caught it).
+
 ## Deployment scripts
 
 `scripts/deploy.sh` (workstation) → `scripts/host/{bootstrap,install,update,check}.sh` (server). `install.sh` is idempotent and converges an existing account with its `.env`; `update.sh` fetches, switches the checkout under maintenance mode, converges WordPress/WooCommerce to `versions.env` (database dump first, `wp core update --force`, `wp plugin install --force`, `update-db`, `wp wc update`), flushes and runs `check.sh`, and re-runs `seed.sh` only with `--seed`. `check.sh` drops a one-off PHP probe into `public_html`, fetches it over HTTP and compares web PHP with `PHP_BIN`, prints the applied `upload_max_filesize` and friends, fetches the theme's `style.css` through the symlink and confirms the private directory is not addressable.

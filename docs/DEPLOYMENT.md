@@ -162,7 +162,8 @@ forward-only, so a rollback across a `WC_VERSION` bump also needs the dump from
 **Updating WordPress or WooCommerce**: change `versions.env`, keep the `wordpress:` image tag in
 `docker-compose.yml` on the same WordPress major.minor, run `scripts/reset.sh` and `scripts/e2e.sh`
 locally, commit, then `scripts/deploy.sh update`. Point releases (`7.1.1`) need no image change:
-`setup.sh` raises the bind-mounted core to the pin, exactly as `update.sh` does on the host.
+`setup.sh` raises the bind-mounted core and WooCommerce to the pins, exactly as `update.sh` does on the host
+(before 2026-10-17 it only installed a missing WooCommerce, so a raised `WC_VERSION` went untested locally).
 
 **When the host is ahead**: `WP_AUTO_UPDATE_CORE minor` lets WordPress apply security point
 releases itself, so `check.sh` will occasionally report "WordPress 7.1.x ahead of versions.env".

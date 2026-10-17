@@ -39,7 +39,7 @@ anything that stores customer data.
   on a fresh install. A later `update --seed` prints that the store is hidden and leaves it alone —
   going live is the owner's decision, taken in the dashboard.
 - **Version pins live in `versions.env`**, nowhere else. `scripts/setup.sh` and
-  `scripts/host/update.sh` both read it and raise core to `WP_VERSION`; the `wordpress:` image
+  `scripts/host/update.sh` both read it and raise core to `WP_VERSION` and WooCommerce to `WC_VERSION`; the `wordpress:` image
   tag in `docker-compose.yml` carries the major.minor of `WP_VERSION` (`7.1` for `7.1.1`). The
   pins are floors: the server is raised to them, never lowered. When the live site is ahead,
   because `WP_AUTO_UPDATE_CORE minor` applied a security release, bump the pin here and test.
