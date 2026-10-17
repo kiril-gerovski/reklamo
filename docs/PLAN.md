@@ -564,7 +564,7 @@ Dev-only exception: **Query Monitor** locally for debugging — gitignored, neve
 **Ops / CI:** HTTPS redirect + HSTS in `.htaccess`, `WP_DEBUG_LOG` path, backup cadence + restore drill, wp-login protection / `DISALLOW_FILE_MODS`, never *delete* the plugin, xmlrpc off. Done by the deployment scripts: `WP_AUTO_UPDATE_CORE minor`, `chmod 600 wp-config.php`, pins in `versions.env`, `update.sh` dumps the DB before version changes. GitHub Actions: lint + PHPUnit + E2E; mobile Playwright project; axe; rate-limit spec with limits on.
 
 **Decision (2026-10-11): the owner's company data and texts.** From the owner's document „Данни, необходими за завършване на Reklamo.bg“:
-- Trader: ДИ АР ТИ ЕООД, ЕИК 205018634, ДДС № BG205018634, seat гр. София 1000, р-н Красно село, ул. Хризантема 15, ет. 2, ап. 8, МОЛ Бойка Николаева Заркова (new settings `reklamo_legal_name`, `reklamo_manager`). Bank: УниКредит Булбанк АД, BG36UNCR70001523203323, UNCRBGSF, holder ДИ АР ТИ ЕООД. Contacts: +359 894 65 58 58, office@reklamo.bg, София, ул. Източна тангента 96 (the city was not in the document and is assumed), 10:00 – 17:00. Facebook and Instagram links are to follow; LinkedIn is dropped. Personal-data requests go to privacy@reklamo.bg (`reklamo_privacy_email`, quoted in the Privacy Policy).
+- Trader: ДИ АР ТИ ЕООД, ЕИК 205018634, ДДС № BG205018634, seat гр. София 1000, р-н Красно село, ул. Хризантема 15, ет. 2, ап. 8, МОЛ Бойка Николаева Заркова (new settings `reklamo_legal_name`, `reklamo_manager`). Bank: УниКредит Булбанк АД, BG36UNCR70001523203323, UNCRBGSF, holder ДИ АР ТИ ЕООД. Contacts: +359 894 65 58 58, office@reklamo.bg, София, ул. Източна тангента 96 (the city was not in the document and is assumed), 10:00 – 17:00. Facebook and Instagram links are to follow; LinkedIn is dropped. (2026-10-17: Facebook is https://www.facebook.com/people/Reklamobg/61595198469381/, seeded with `opt_replace` over the empty or placeholder value.) Personal-data requests go to privacy@reklamo.bg (`reklamo_privacy_email`, quoted in the Privacy Policy).
 - **Payment is 100% before production** (owner's answer). `reklamo_deposit_pct` defaults to 100 and the seed moves the earlier sample 50 to it; the English source strings keep "deposit", the Bulgarian ones say „плащане“. With no balance, `rq-production` may go straight to `completed` (transition table), and the admin box offers "Dispatched — complete the order" instead of asking for a final payment. A lower percentage brings the old flow back unchanged.
 - Corrections: the first mockup and 2 free corrections per product (`reklamo_free_corrections`), each further one 15 € (`reklamo_correction_fee`), the shop's own mistakes not counted. Shown, never charged automatically. Production 5–10 working days from payment, delivery not included (`reklamo_production_days`); couriers Спиди, Еконт, BoxNow, Pigeon; free delivery over 400 € (`reklamo_free_shipping`), otherwise the recipient pays the courier — WooCommerce's shipping stays a zero-cost method because the courier collects.
 - Cancellation (Terms): before approval free unless a paid design service was agreed; after payment and before production 50% of the paid sum refunded; after production starts nothing. Retention confirmed: files 12 months, anonymisation 36 months. Fixed quantities only, so the by-the-piece sample NB-001 is a draft.
@@ -624,6 +624,21 @@ products in 20 / 50 / 100 / 200 like the packages; "Бизнес календа�
 **2026-10-12: За бизнеса** carries the owner's text („Рекламни решения за Вашия бизнес“, four paragraphs
 and the closing line „Вашата идея. Вашият бранд. Нашето изпълнение.“), „индивидуална оферта“ linking
 to Контакти. The seed replaces the page only while it holds one of the two earlier seeded texts.
+
+**2026-10-17: the client's real prices** (`design/v3/prices`, one spreadsheet screenshot per product).
+They came with other sizes than the samples: 50 / 100 / 150 / 200 for products and packages, 50 / 100 /
+200 / 300 / 500 for Mono and Trio, 10 / 20 for the Photo calendar; Magnet is priced per colour (blue
+349,99 € for 50, red and white 539,99 €; white 200 is 2115,99 € against red's 2109,99 €, as given).
+- The catalogue data carries them (`prices` per size, or per colour → size), and a one-time step
+  (`reklamo_seeded_prices_v2`) brings a site built with the samples to them: each product's sizes
+  become exactly these (a new size added with its colour's photos, a dropped one deleted), the prices
+  are set, and the smallest quantity in the texts, the specs' quantities line and the hero badge's
+  "20 тефтера" follow. New size terms 10 and 150 бр.; the size order (term meta) is now enforced.
+- "Prices by quantity" writes one price per size into every colour, which would flatten Magnet's
+  per-colour prices on save; where a product's colours differ, the editor shows a note instead.
+- Cards and the hero badge show the lowest price, so Magnet reads "от 349,99 €" (blue) beside its red
+  photo; the page itself opens on red at 539,99 €.
+- The e2e price test now restores the client's price after changing it.
 
 ## Deployment scripts
 

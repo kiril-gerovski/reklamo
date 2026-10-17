@@ -2515,16 +2515,17 @@ msgstr "Галерия за този цвят"
 msgid "The other photos of this colour, shown after the variation image above. Empty: the product gallery is shown."
 msgstr "Останалите снимки на този цвят, показвани след снимката на вариацията по-горе. Ако е празно, се показва галерията на продукта."
 
-#: includes/class-reklamo-product.php:255
+#: includes/class-reklamo-product.php:260
+#: includes/class-reklamo-product.php:263
 msgid "Prices by quantity"
 msgstr "Цени по количество"
 
-#: includes/class-reklamo-product.php:255
+#: includes/class-reklamo-product.php:263
 msgid "One price per package size, the same for every colour, VAT included. A size without a price is not offered."
 msgstr "Една цена за всяко количество, еднаква за всички цветове, с ДДС. Количество без цена не се предлага."
 
 #. translators: %s: package size, e.g. "50 бр."
-#: includes/class-reklamo-product.php:262
+#: includes/class-reklamo-product.php:270
 #, php-format
 msgid "Price for %s"
 msgstr "Цена за %s"
@@ -2614,3 +2615,7 @@ msgid "So far: %d correction."
 msgid_plural "So far: %d corrections."
 msgstr[0] "Досега: %d корекция."
 msgstr[1] "Досега: %d корекции."
+
+#: includes/class-reklamo-product.php:260
+msgid "The colours of this product are priced differently, so each price is set in its own variation (Variations tab)."
+msgstr "Цветовете на този продукт са с различни цени, затова всяка цена се задава в своята разновидност (раздел „Разновидности“)."

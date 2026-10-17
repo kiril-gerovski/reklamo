@@ -80,13 +80,13 @@ test( 'logos with notes are marked for products; a marked product leaves the nex
 	await expect( items.nth( 0 ) ).toHaveClass( /is-ready/ );
 	await expect( page.locator( '[data-rk-continue]' ) ).toBeDisabled();
 	// The page says exactly what is missing, product by product.
-	await expect( page.locator( '[data-rk-blocked] li' ) ).toHaveText( [ 'Комплект Cork – чаша, тефтер и химикалка - 20 бр.: не е маркиран при нито едно лого.' ] );
+	await expect( page.locator( '[data-rk-blocked] li' ) ).toHaveText( [ 'Комплект Cork – чаша, тефтер и химикалка - 50 бр.: не е маркиран при нито едно лого.' ] );
 	await page.getByRole( 'button', { name: /Добави още едно лого/ } ).click();
 	const pending = page.locator( '.rk-logo' ).nth( 1 );
 	await pending.locator( 'textarea' ).fill( 'Без файл засега' );
 	await pending.locator( '.rk-logo__item', { hasText: 'Комплект Cork' } ).locator( 'input' ).check();
 	await expect( pending.locator( '[data-rk-nofile]' ) ).toBeVisible();
-	await expect( page.locator( '[data-rk-blocked] li' ) ).toHaveText( [ 'Комплект Cork – чаша, тефтер и химикалка - 20 бр.: файлът на „Лого 2“ още не е качен.' ] );
+	await expect( page.locator( '[data-rk-blocked] li' ) ).toHaveText( [ 'Комплект Cork – чаша, тефтер и химикалка - 50 бр.: файлът на „Лого 2“ още не е качен.' ] );
 	await pending.getByRole( 'button', { name: 'Премахни това лого' } ).click();
 	await page.getByRole( 'button', { name: /Добави още едно лого/ } ).click();
 	await expect( page.locator( '.rk-logo' ) ).toHaveCount( 2 );
@@ -106,7 +106,7 @@ test( 'logos with notes are marked for products; a marked product leaves the nex
 	await second.locator( '.rk-logo__item', { hasText: 'Бизнес комплект Magnet' } ).locator( 'input' ).evaluate( ( el ) => { el.checked = true; } );
 	await page.locator( '[data-rk-continue]' ).evaluate( ( b ) => { b.disabled = false; } );
 	await page.locator( '[data-rk-continue]' ).click();
-	await expect( page.locator( '.rq-errors' ) ).toContainText( 'Бизнес комплект Magnet - Червен, 20 бр.: маркиран е при повече от едно лого' );
+	await expect( page.locator( '.rq-errors' ) ).toContainText( 'Бизнес комплект Magnet - Червен, 50 бр.: маркиран е при повече от едно лого' );
 	await page.locator( '.rk-logo' ).nth( 1 ).locator( '.rk-logo__item', { hasText: 'Бизнес комплект Magnet' } ).locator( 'input' ).evaluate( ( el ) => { el.checked = false; el.dispatchEvent( new Event( 'change', { bubbles: true } ) ); } );
 
 	await expect( page.locator( '[data-rk-continue]' ) ).toBeEnabled();
@@ -175,20 +175,20 @@ test( 'the designer sends both mockups at once: one email, a link per product', 
 	await blocks.nth( 0 ).locator( 'input[type="file"]' ).setInputFiles( `${ FIXTURES }/mockup.png` );
 	await blocks.nth( 1 ).locator( 'input[type="file"]' ).setInputFiles( `${ FIXTURES }/mockup.png` );
 	await page.getByRole( 'button', { name: 'Изпрати на клиента' } ).click();
-	await expect( page.locator( '.notice-success' ) ).toContainText( 'Бизнес комплект Magnet - Червен, 20 бр. (визуализация №1), Комплект Cork – чаша, тефтер и химикалка - 20 бр. (визуализация №1)' );
+	await expect( page.locator( '.notice-success' ) ).toContainText( 'Бизнес комплект Magnet - Червен, 50 бр. (визуализация №1), Комплект Cork – чаша, тефтер и химикалка - 50 бр. (визуализация №1)' );
 	await expect( page.locator( '#order_status' ) ).toHaveValue( 'wc-rq-mockup-sent' );
 
 	const mail = await mailpitFind( `Визуализацията за поръчка ${ orderId }` );
 	links = [ ...new Set( mail.text.match( LINK ) ) ];
 	expect( links ).toHaveLength( 2 );
-	expect( mail.text ).toContain( 'Бизнес комплект Magnet - Червен, 20 бр. (визуализация №1)' );
-	expect( mail.text ).toContain( 'Комплект Cork – чаша, тефтер и химикалка - 20 бр. (визуализация №1)' );
+	expect( mail.text ).toContain( 'Бизнес комплект Magnet - Червен, 50 бр. (визуализация №1)' );
+	expect( mail.text ).toContain( 'Комплект Cork – чаша, тефтер и химикалка - 50 бр. (визуализация №1)' );
 } );
 
 test( 'each product is decided on its own; no deposit while one is open', async ( { page } ) => {
 	await page.context().clearCookies();
 	await page.goto( links[ 0 ] );
-	await expect( page.locator( '.product-name' ) ).toHaveText( 'Бизнес комплект Magnet - Червен, 20 бр.' );
+	await expect( page.locator( '.product-name' ) ).toHaveText( 'Бизнес комплект Magnet - Червен, 50 бр.' );
 	await page.click( 'button[name="decision"][value="approve"]' );
 	await expect( page.locator( '.next h2' ) ).toContainText( 'Одобрено' );
 	await expect( page.locator( '.next' ) ).toContainText( 'Одобрени: 1 от 2' );
@@ -225,7 +225,7 @@ test( 'the revised mockup is approved and only then the deposit is asked for', a
 	await expect( office ).toContainText( 'по-малко' );
 	await office.locator( 'input[type="file"]' ).setInputFiles( `${ FIXTURES }/mockup.png` );
 	await page.getByRole( 'button', { name: 'Изпрати на клиента' } ).click();
-	await expect( page.locator( '.notice-success' ) ).toContainText( 'Комплект Cork – чаша, тефтер и химикалка - 20 бр. (визуализация №2)' );
+	await expect( page.locator( '.notice-success' ) ).toContainText( 'Комплект Cork – чаша, тефтер и химикалка - 50 бр. (визуализация №2)' );
 	await expect( page.locator( '#order_status' ) ).toHaveValue( 'wc-rq-mockup-sent' );
 
 	const mail = await mailpitFind( `Визуализацията за поръчка ${ orderId }` );
@@ -235,7 +235,7 @@ test( 'the revised mockup is approved and only then the deposit is asked for', a
 	await page.context().clearCookies();
 	await page.goto( second[ 0 ] );
 	await expect( page.locator( '.next h2' ) ).toContainText( '№2' );
-	await expect( page.locator( '.product-name' ) ).toHaveText( 'Комплект Cork – чаша, тефтер и химикалка - 20 бр.' );
+	await expect( page.locator( '.product-name' ) ).toHaveText( 'Комплект Cork – чаша, тефтер и химикалка - 50 бр.' );
 	await page.click( 'button[name="decision"][value="approve"]' );
 	await page.waitForURL( /odobrenie\/\?s=/ );
 	await expect( page.locator( '.next h2' ) ).toHaveText( 'Плащане' );
@@ -406,41 +406,71 @@ test( 'choosing a colour swaps the whole gallery for that colour\'s photos, and 
 	await page.context().close();
 } );
 
-test( 'package sizes: the owner sets a price per size; choosing a size changes only the price and the counts', async ( { page, browser } ) => {
+test( 'package sizes: the owner sets one price per size; choosing a size changes only the price and the counts', async ( { page, browser } ) => {
+	await adminLogin( page );
+	const id = ( await ( await page.request.get( '/wp-json/wc/store/v1/products?sku=PKG-STRIPE' ) ).json() )[ 0 ].id;
+	const edit = `/wp-admin/post.php?post=${ id }&action=edit`;
+	// WooCommerce's admin overlay sits over the button for a pointer click; press it in the page.
+	const save = () => Promise.all( [ page.waitForURL( /message=/, { waitUntil: 'commit' } ), page.locator( '#publish' ).evaluate( ( b ) => b.click() ) ] );
+	await page.goto( edit );
+	const field = page.locator( 'input[name="reklamo_tier_price[150-br]"]' );
+	const real = await field.inputValue();
+	await expect( page.locator( 'input[name="reklamo_tier_price[50-br]"]' ) ).toHaveValue( '409,99' );
+	await field.fill( '1250' );
+	await save();
+	await expect( field ).toHaveValue( '1250' );
+
+	const shop = await ( await browser.newContext( { locale: 'bg-BG' } ) ).newPage();
+	await shop.goto( '/product/komplekt-stripe/' );
+	const sizes = shop.locator( '[data-attribute="attribute_pa_kolichestvo"] .rk-option' );
+	await expect( sizes ).toHaveText( [ '50 бр.', '100 бр.', '150 бр.', '200 бр.' ] );
+	const slides = () => shop.locator( '.woocommerce-product-gallery__image img' ).evaluateAll( ( imgs ) => imgs.map( ( i ) => i.getAttribute( 'src' ) ) );
+	const before = await slides();
+	await expect( shop.locator( '[data-rk-badge-price]' ) ).toHaveText( /409,99\s€/ );
+	await sizes.filter( { hasText: '150 бр.' } ).click();
+	await expect( shop.locator( '[data-rk-badge-price]' ) ).toHaveText( /1250\s€/ );
+	await expect( shop.locator( '[data-rk-count]' ).first() ).toHaveText( '150' );
+	expect( await slides() ).toEqual( before );
+	await shop.context().close();
+
+	// The client's price goes back.
+	await page.goto( edit );
+	await field.fill( real );
+	await save();
+	await expect( field ).toHaveValue( real );
+} );
+
+test( 'a package priced per colour: no shared price fields, and the size and the colour each set the price', async ( { page, browser } ) => {
 	await adminLogin( page );
 	const id = ( await ( await page.request.get( '/wp-json/wc/store/v1/products?sku=PKG-MAGNET' ) ).json() )[ 0 ].id;
 	await page.goto( `/wp-admin/post.php?post=${ id }&action=edit` );
-	await expect( page.locator( 'input[name="reklamo_tier_price[20-br]"]' ) ).toHaveValue( '189' );
-	await page.fill( 'input[name="reklamo_tier_price[50-br]"]', '230' );
-	await page.fill( 'input[name="reklamo_tier_price[100-br]"]', '440' );
-	await page.fill( 'input[name="reklamo_tier_price[200-br]"]', '820' );
-	// WooCommerce's admin overlay sits over the button for a pointer click; press it in the page.
-	await Promise.all( [ page.waitForURL( /message=/, { waitUntil: 'commit' } ), page.locator( '#publish' ).evaluate( ( b ) => b.click() ) ] );
-	await expect( page.locator( 'input[name="reklamo_tier_price[100-br]"]' ) ).toHaveValue( '440' );
+	// One price per size would overwrite the colours' own prices on save, so the editor offers none.
+	await expect( page.locator( 'input[name^="reklamo_tier_price"]' ) ).toHaveCount( 0 );
+	await expect( page.locator( '#general_product_data' ) ).toContainText( 'различни цени' );
 
 	const shop = await ( await browser.newContext( { locale: 'bg-BG' } ) ).newPage();
 	await shop.goto( '/product/biznes-komplekt-magnet/' );
 	const sizes = shop.locator( '[data-attribute="attribute_pa_kolichestvo"] .rk-option' );
-	await expect( sizes ).toHaveText( [ '20 бр.', '50 бр.', '100 бр.', '200 бр.' ] );
+	await expect( sizes ).toHaveText( [ '50 бр.', '100 бр.', '150 бр.', '200 бр.' ] );
 	const slides = () => shop.locator( '.woocommerce-product-gallery__image img' ).evaluateAll( ( imgs ) => imgs.map( ( i ) => i.getAttribute( 'src' ) ) );
-	const before = await slides();
-	await expect( shop.locator( '[data-rk-badge-price]' ) ).toHaveText( /189\s€/ );
+	const red = await slides();
+	await expect( shop.locator( '[data-rk-badge-price]' ) ).toHaveText( /539,99\s€/ );
 
-	await sizes.filter( { hasText: '100 бр.' } ).click();
-	await expect( shop.locator( '[data-rk-badge-price]' ) ).toHaveText( /440\s€/ );
-	await expect( shop.locator( '[data-rk-count]' ).first() ).toHaveText( '100' );
-	expect( await slides() ).toEqual( before );
+	await sizes.filter( { hasText: '150 бр.' } ).click();
+	await expect( shop.locator( '[data-rk-badge-price]' ) ).toHaveText( /1589,99\s€/ );
+	await expect( shop.locator( '[data-rk-count]' ).first() ).toHaveText( '150' );
+	expect( await slides() ).toEqual( red );
 
-	// The colour still changes the photos, and keeps the size's price.
+	// Blue is its own price, with its own photos.
 	await shop.locator( '.rk-option', { has: shop.locator( 'input[value="sin"]' ) } ).click();
 	await expect.poll( async () => ( await slides() ).every( ( s ) => s.includes( '-blue' ) ) ).toBe( true );
-	await expect( shop.locator( '[data-rk-badge-price]' ) ).toHaveText( /440\s€/ );
+	await expect( shop.locator( '[data-rk-badge-price]' ) ).toHaveText( /999,99\s€/ );
 
 	await shop.locator( 'form.rq-form--product' ).getByRole( 'button', { name: 'Добави в количката' } ).click();
 	await shop.locator( '[data-rk-added]' ).getByRole( 'link', { name: 'Към количката' } ).click();
 	await shop.waitForURL( /\/koshnitsa\/$/ );
 	await expect( shop.locator( '.rk-cart__name' ) ).toContainText( 'Син' );
-	await expect( shop.locator( '.rk-cart__name' ) ).toContainText( '100 бр.' );
-	await expect( shop.locator( '.rk-cart__price' ) ).toContainText( '440,00' );
+	await expect( shop.locator( '.rk-cart__name' ) ).toContainText( '150 бр.' );
+	await expect( shop.locator( '.rk-cart__price' ) ).toContainText( '999,99' );
 	await shop.context().close();
 } );

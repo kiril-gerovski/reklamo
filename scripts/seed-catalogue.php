@@ -19,18 +19,6 @@ require_once ABSPATH . 'wp-admin/includes/file.php';
 require_once ABSPATH . 'wp-admin/includes/media.php';
 require_once ABSPATH . 'wp-admin/includes/image.php';
 
-$sizes = array( 20, 50, 100, 200 );
-
-// A sample price list from a price per piece, cheaper per piece as the size grows.
-$tiers = static function ( float $piece ) use ( $sizes ): array {
-	$discount = array( 20 => 1, 50 => 0.95, 100 => 0.9, 200 => 0.85 );
-	$out      = array();
-	foreach ( $sizes as $qty ) {
-		$out[ $qty ] = (string) round( $piece * $qty * $discount[ $qty ] );
-	}
-	return $out;
-};
-
 // Bulgarian site content from here on.
 $catalogue = array(
 	array(
@@ -40,10 +28,14 @@ $catalogue = array(
 		'cats'     => array( 'paketi', 'tefteri', 'himikalki' ),
 		'order'    => 1,
 		'featured' => true,
-		'prices'   => array( 20 => '189', 50 => '449', 100 => '849', 200 => '1590' ),
-		'short'    => '<p>Тефтер и метална химикалка в един цвят — червен, бял или син — с Вашето лого на двете.</p><ul><li><strong>20 бр. Тефтери</strong><br>Твърда корица, с Вашето лого</li><li><strong>20 бр. Метални химикалки</strong><br>В цвета на тефтера, с Вашето лого</li></ul>',
+		'prices'   => array(
+			'cherven' => array( 50 => '539.99', 100 => '1079.99', 150 => '1589.99', 200 => '2109.99' ),
+			'byal'    => array( 50 => '539.99', 100 => '1079.99', 150 => '1589.99', 200 => '2115.99' ),
+			'sin'     => array( 50 => '349.99', 100 => '689.99', 150 => '999.99', 200 => '1329.99' ),
+		),
+		'short'    => '<p>Тефтер и метална химикалка в един цвят — червен, бял или син — с Вашето лого на двете.</p><ul><li><strong>50 бр. Тефтери</strong><br>Твърда корица, с Вашето лого</li><li><strong>50 бр. Метални химикалки</strong><br>В цвета на тефтера, с Вашето лого</li></ul>',
 		'desc'     => '<p>Бизнес комплект Magnet събира тефтер и химикалка в един цвят, с Вашето лого на двете. Изчистен и практичен подарък, който се използва всеки ден и държи бранда Ви пред очите на екипа, клиентите и партньорите.</p><p>Подходящ за конференции, обучения, нови служители и корпоративни подаръци.</p>',
-		'specs'  => '<ul><li><strong>Тефтер:</strong> твърда корица, лентичка за отбелязване</li><li><strong>Химикалка:</strong> метална, в цвета на тефтера</li><li><strong>Цветове:</strong> червен, бял или син</li><li><strong>Брандиране:</strong> Вашето лого, с печат или гравиране според материала. Точното разположение виждате на визуализацията преди производството.</li><li><strong>Количества:</strong> 20, 50, 100 или 200 бр.</li></ul>',
+		'specs'  => '<ul><li><strong>Тефтер:</strong> твърда корица, лентичка за отбелязване</li><li><strong>Химикалка:</strong> метална, в цвета на тефтера</li><li><strong>Цветове:</strong> червен, бял или син</li><li><strong>Брандиране:</strong> Вашето лого, с печат или гравиране според материала. Точното разположение виждате на визуализацията преди производството.</li><li><strong>Количества:</strong> 50, 100, 150 или 200 бр.</li></ul>',
 		'colours'  => array(
 			'cherven' => array( 'red', 'червен' ),
 			'byal'    => array( 'white', 'бял' ),
@@ -56,10 +48,10 @@ $catalogue = array(
 		'slug'   => 'komplekt-stripe',
 		'cats'   => array( 'paketi', 'tefteri', 'butilki-i-chashi', 'himikalki' ),
 		'order'  => 2,
-		'prices' => array( 20 => '229', 50 => '539', 100 => '1029', 200 => '1949' ),
-		'short'  => '<p>Изцяло черен комплект: тефтер с релефна корица, чаша и химикалка, всяко с Вашето лого.</p><ul><li><strong>20 бр. Тефтери</strong><br>Релефна корица, с Вашето лого</li><li><strong>20 бр. Чаши</strong><br>Черни, с Вашето лого</li><li><strong>20 бр. Химикалки</strong><br>Черни, с Вашето лого</li></ul>',
+		'prices' => array( 50 => '409.99', 100 => '819.99', 150 => '1199.99', 200 => '1599.99' ),
+		'short'  => '<p>Изцяло черен комплект: тефтер с релефна корица, чаша и химикалка, всяко с Вашето лого.</p><ul><li><strong>50 бр. Тефтери</strong><br>Релефна корица, с Вашето лого</li><li><strong>50 бр. Чаши</strong><br>Черни, с Вашето лого</li><li><strong>50 бр. Химикалки</strong><br>Черни, с Вашето лого</li></ul>',
 		'desc'   => '<p>Комплект Stripe е в изцяло черно — тефтер с релефна корица, чаша и химикалка, с Вашето лого в бяло. Стилен и сдържан избор за офиса и за подарък на клиенти и партньори.</p>',
-		'specs'  => '<ul><li><strong>Тефтер:</strong> черен, с релефна корица на райета и лентичка за отбелязване</li><li><strong>Чаша:</strong> черна, с бяло лого</li><li><strong>Химикалка:</strong> черна, с хромирани детайли</li><li><strong>Цвят:</strong> черен</li><li><strong>Брандиране:</strong> Вашето лого, с печат или гравиране според материала. Точното разположение виждате на визуализацията преди производството.</li><li><strong>Количества:</strong> 20, 50, 100 или 200 бр.</li></ul>',
+		'specs'  => '<ul><li><strong>Тефтер:</strong> черен, с релефна корица на райета и лентичка за отбелязване</li><li><strong>Чаша:</strong> черна, с бяло лого</li><li><strong>Химикалка:</strong> черна, с хромирани детайли</li><li><strong>Цвят:</strong> черен</li><li><strong>Брандиране:</strong> Вашето лого, с печат или гравиране според материала. Точното разположение виждате на визуализацията преди производството.</li><li><strong>Количества:</strong> 50, 100, 150 или 200 бр.</li></ul>',
 		'photos' => array(
 			'main'    => array( 'komplekt-stripe/main', 'Комплект Stripe — черен тефтер, чаша и химикалка с лого' ),
 			'gallery' => array(
@@ -76,10 +68,10 @@ $catalogue = array(
 		'slug'   => 'komplekt-cork',
 		'cats'   => array( 'paketi', 'tefteri', 'butilki-i-chashi', 'himikalki' ),
 		'order'  => 3,
-		'prices' => array( 20 => '219', 50 => '519', 100 => '989', 200 => '1869' ),
-		'short'  => '<p>Жълто и черно, което се забелязва: чаша с коркова основа, тефтер с ластик и химикалка в тон.</p><ul><li><strong>20 бр. Чаши</strong><br>Жълти, с коркова основа и Вашето лого</li><li><strong>20 бр. Тефтери</strong><br>Черни, с жълт ластик и Вашето лого</li><li><strong>20 бр. Химикалки</strong><br>Жълти, с Вашето лого</li></ul>',
+		'prices' => array( 50 => '619.99', 100 => '1239.99', 150 => '1819.99', 200 => '2429.99' ),
+		'short'  => '<p>Жълто и черно, което се забелязва: чаша с коркова основа, тефтер с ластик и химикалка в тон.</p><ul><li><strong>50 бр. Чаши</strong><br>Жълти, с коркова основа и Вашето лого</li><li><strong>50 бр. Тефтери</strong><br>Черни, с жълт ластик и Вашето лого</li><li><strong>50 бр. Химикалки</strong><br>Жълти, с Вашето лого</li></ul>',
 		'desc'   => '<p>Комплект Cork съчетава ярко жълто и черно — чаша с коркова основа, тефтер с ластик и химикалка в тон, с Вашето лого. Весел и запомнящ се подарък за екип, събитие или клиенти.</p>',
-		'specs'  => '<ul><li><strong>Чаша:</strong> жълта, с коркова основа</li><li><strong>Тефтер:</strong> черен, с жълт ластик за затваряне и жълта лентичка</li><li><strong>Химикалка:</strong> жълта, метална, с хромирани детайли</li><li><strong>Цвят:</strong> жълто и черно</li><li><strong>Брандиране:</strong> Вашето лого, с печат или гравиране според материала. Точното разположение виждате на визуализацията преди производството.</li><li><strong>Количества:</strong> 20, 50, 100 или 200 бр.</li></ul>',
+		'specs'  => '<ul><li><strong>Чаша:</strong> жълта, с коркова основа</li><li><strong>Тефтер:</strong> черен, с жълт ластик за затваряне и жълта лентичка</li><li><strong>Химикалка:</strong> жълта, метална, с хромирани детайли</li><li><strong>Цвят:</strong> жълто и черно</li><li><strong>Брандиране:</strong> Вашето лого, с печат или гравиране според материала. Точното разположение виждате на визуализацията преди производството.</li><li><strong>Количества:</strong> 50, 100, 150 или 200 бр.</li></ul>',
 		'photos' => array(
 			'main'    => array( 'komplekt-cork/main', 'Комплект Cork — жълта чаша, черен тефтер и жълта химикалка с лого' ),
 			'gallery' => array(
@@ -96,8 +88,8 @@ $catalogue = array(
 		'slug'   => 'kalendar-mono',
 		'cats'   => array( 'kalendari' ),
 		'order'  => 10,
-		'prices' => array( 20 => '56.40', 50 => '136.80', 100 => '205.20', 200 => '391.20', 300 => '529.20', 500 => '846' ),
-		'short'  => '<p>Едносекционен стенен календар с голяма глава за Вашия дизайн и лого.</p><ul><li>20 броя календари с индивидуален дизайн</li></ul>',
+		'prices' => array( 50 => '137.99', 100 => '205.99', 200 => '391.99', 300 => '530.99', 500 => '845.99' ),
+		'short'  => '<p>Едносекционен стенен календар с голяма глава за Вашия дизайн и лого.</p><ul><li>50 броя календари с индивидуален дизайн</li></ul>',
 		'desc'   => '<p>Размер на подложката 320 x 240 мм. Размер на главата 320 x 240 мм.</p>',
 		'specs'  => '<p>Всички тела за календари се изработват от 70 г/м2 офсетова хартия. С перфорация и шапка и прозорче за отбелязване на дата. Съдържат информация за:</p><ul><li>номер на седмица,</li><li>фази на луната,</li><li>начало на астрологичната зодия,</li><li>официални и православни празници в България.</li></ul><p>Подложката е от 295 г/м2 едностранно хромов картон Зенит, бигована за сгъване.</p>',
 		'photos' => array(
@@ -111,10 +103,10 @@ $catalogue = array(
 		'slug'   => 'trisektsionen-kalendar-trio',
 		'cats'   => array( 'kalendari' ),
 		'order'  => 11,
-		'prices' => $tiers( 4.2 ),
-		'short'  => '<p>Стенен календар с три месеца наведнъж и голяма глава за Вашия дизайн и лого.</p><ul><li>20 броя календари с индивидуален дизайн</li></ul>',
+		'prices' => array( 50 => '151.99', 100 => '286.99', 200 => '538.99', 300 => '786.99', 500 => '1274.99' ),
+		'short'  => '<p>Стенен календар с три месеца наведнъж и голяма глава за Вашия дизайн и лого.</p><ul><li>50 броя календари с индивидуален дизайн</li></ul>',
 		'desc'   => '<p>Трисекционният календар показва предходния, текущия и следващия месец, с подвижно прозорче за датата. Главата е изцяло за Вашия дизайн — лого, слоган и контакти стоят на стената на клиента цяла година.</p>',
-		'specs'  => '<p>Всички тела за календари се изработват от 70 г/м2 офсетова хартия. С перфорация и шапка и прозорче за отбелязване на дата. Съдържат информация за:</p><ul><li>номер на седмица,</li><li>фази на луната,</li><li>начало на астрологичната зодия,</li><li>официални и православни празници в България.</li></ul><ul><li><strong>Вид:</strong> стенен трисекционен календар, три месеца наведнъж, с подвижно прозорче за датата.</li><li><strong>Брандиране:</strong> Вашето лого, с печат или гравиране според материала. Точното разположение виждате на визуализацията преди производството.</li><li><strong>Количества:</strong> 20, 50, 100 или 200 бр.</li></ul>',
+		'specs'  => '<p>Всички тела за календари се изработват от 70 г/м2 офсетова хартия. С перфорация и шапка и прозорче за отбелязване на дата. Съдържат информация за:</p><ul><li>номер на седмица,</li><li>фази на луната,</li><li>начало на астрологичната зодия,</li><li>официални и православни празници в България.</li></ul><ul><li><strong>Вид:</strong> стенен трисекционен календар, три месеца наведнъж, с подвижно прозорче за датата.</li><li><strong>Брандиране:</strong> Вашето лого, с печат или гравиране според материала. Точното разположение виждате на визуализацията преди производството.</li><li><strong>Количества:</strong> 50, 100, 200, 300 или 500 бр.</li></ul>',
 		'photos' => array(
 			'main'    => array( 'kalendar-trio/main', 'Трисекционен календар Trio с Вашия дизайн' ),
 			'section' => array( 'kalendar-trio/section-centred', 'Трисекционен календар с Вашето лого' ),
@@ -126,10 +118,10 @@ $catalogue = array(
 		'slug'   => 'nastolen-kalendar-photo',
 		'cats'   => array( 'kalendari' ),
 		'order'  => 12,
-		'prices' => $tiers( 6.9 ),
-		'short'  => '<p>Настолен календар-пирамидка с Вашите снимки за всеки месец.</p><ul><li>20 броя календари с Вашите снимки и лого</li></ul>',
+		'prices' => array( 10 => '71.99', 20 => '119.99' ),
+		'short'  => '<p>Настолен календар-пирамидка с Вашите снимки за всеки месец.</p><ul><li>10 броя календари с Вашите снимки и лого</li></ul>',
 		'desc'   => '<p>Календар-пирамидка за бюрото, със снимка по Ваш избор за всеки месец и Вашето лого. Личен подарък, който остава пред очите на клиента всеки ден.</p>',
-		'specs'  => '<ul><li><strong>Вид:</strong> настолен календар-пирамидка със спирала</li><li><strong>Снимки:</strong> по една Ваша снимка за всеки месец</li><li><strong>Брандиране:</strong> Вашето лого, с печат или гравиране според материала. Точното разположение виждате на визуализацията преди производството.</li><li><strong>Количества:</strong> 20, 50, 100 или 200 бр.</li></ul>',
+		'specs'  => '<ul><li><strong>Вид:</strong> настолен календар-пирамидка със спирала</li><li><strong>Снимки:</strong> по една Ваша снимка за всеки месец</li><li><strong>Брандиране:</strong> Вашето лого, с печат или гравиране според материала. Точното разположение виждате на визуализацията преди производството.</li><li><strong>Количества:</strong> 10 или 20 бр.</li></ul>',
 		'photos' => array(
 			'main'    => array( 'kalendar-photo/main', 'Настолен календар-пирамидка със снимки на клиента' ),
 			'section' => array( 'kalendar-photo/section-centred', 'Настолен календар-пирамидка с Вашите снимки' ),
@@ -141,10 +133,10 @@ $catalogue = array(
 		'slug'   => 'tefter-vintage-black',
 		'cats'   => array( 'tefteri' ),
 		'order'  => 20,
-		'prices' => $tiers( 9.9 ),
-		'short'  => '<p>Черен тефтер с ластик и лентичка за отбелязване — класика, която стои добре с всяко лого.</p><ul><li>20 бр. тефтери с Вашето лого</li></ul>',
+		'prices' => array( 50 => '222.99', 100 => '444.99', 150 => '666.99', 200 => '899.99' ),
+		'short'  => '<p>Черен тефтер с ластик и лентичка за отбелязване — класика, която стои добре с всяко лого.</p><ul><li>50 бр. тефтери с Вашето лого</li></ul>',
 		'desc'   => '<p>Тефтер Vintage Black е с мека на допир черна корица, ластик за затваряне и лентичка за отбелязване. Вашето лого стои изчистено на корицата — за срещи, обучения и подарък.</p>',
-		'specs'  => '<ul><li><strong>Корица:</strong> черна, мека на допир</li><li><strong>Детайли:</strong> ластик за затваряне и лентичка за отбелязване</li><li><strong>Цвят:</strong> черен</li><li><strong>Брандиране:</strong> Вашето лого, с печат или гравиране според материала. Точното разположение виждате на визуализацията преди производството.</li><li><strong>Количества:</strong> 20, 50, 100 или 200 бр.</li></ul>',
+		'specs'  => '<ul><li><strong>Корица:</strong> черна, мека на допир</li><li><strong>Детайли:</strong> ластик за затваряне и лентичка за отбелязване</li><li><strong>Цвят:</strong> черен</li><li><strong>Брандиране:</strong> Вашето лого, с печат или гравиране според материала. Точното разположение виждате на визуализацията преди производството.</li><li><strong>Количества:</strong> 50, 100, 150 или 200 бр.</li></ul>',
 		'photos' => array(
 			'main'    => array( 'tefter-vintage-black/main', 'Тефтер Vintage Black с Вашето лого' ),
 			'gallery' => array(
@@ -160,10 +152,10 @@ $catalogue = array(
 		'slug'   => 'tefter-contrast-red',
 		'cats'   => array( 'tefteri' ),
 		'order'  => 21,
-		'prices' => $tiers( 11.5 ),
-		'short'  => '<p>Червен тефтер с черна лента и държач за химикалка — ярък и запомнящ се.</p><ul><li>20 бр. тефтери с Вашето лого</li></ul>',
+		'prices' => array( 50 => '329.99', 100 => '649.99', 150 => '969.99', 200 => '1289.99' ),
+		'short'  => '<p>Червен тефтер с черна лента и държач за химикалка — ярък и запомнящ се.</p><ul><li>50 бр. тефтери с Вашето лого</li></ul>',
 		'desc'   => '<p>Тефтер Contrast Red съчетава наситено червено с черна лента и държач за химикалка. Вашето лого изпъква на корицата — подарък, който се забелязва на всяко бюро.</p>',
-		'specs'  => '<ul><li><strong>Корица:</strong> червена</li><li><strong>Детайли:</strong> черна лента с държач за химикалка и лентичка за отбелязване</li><li><strong>Цвят:</strong> червен с черно</li><li><strong>Брандиране:</strong> Вашето лого, с печат или гравиране според материала. Точното разположение виждате на визуализацията преди производството.</li><li><strong>Количества:</strong> 20, 50, 100 или 200 бр.</li></ul>',
+		'specs'  => '<ul><li><strong>Корица:</strong> червена</li><li><strong>Детайли:</strong> черна лента с държач за химикалка и лентичка за отбелязване</li><li><strong>Цвят:</strong> червен с черно</li><li><strong>Брандиране:</strong> Вашето лого, с печат или гравиране според материала. Точното разположение виждате на визуализацията преди производството.</li><li><strong>Количества:</strong> 50, 100, 150 или 200 бр.</li></ul>',
 		'photos' => array(
 			'main'    => array( 'tefter-contrast-red/main', 'Тефтер Contrast Red с Вашето лого' ),
 			'gallery' => array(
@@ -179,10 +171,10 @@ $catalogue = array(
 		'slug'   => 'pamuchna-torba-basic-black',
 		'cats'   => array( 'chanti' ),
 		'order'  => 30,
-		'prices' => $tiers( 4.5 ),
-		'short'  => '<p>Черна памучна торба с дълги дръжки — практична за всеки ден и за събития.</p><ul><li>20 бр. торби с Вашето лого</li></ul>',
+		'prices' => array( 50 => '183.99', 100 => '366.99', 150 => '549.99', 200 => '729.99' ),
+		'short'  => '<p>Черна памучна торба с дълги дръжки — практична за всеки ден и за събития.</p><ul><li>50 бр. торби с Вашето лого</li></ul>',
 		'desc'   => '<p>Памучната торба Basic Black се носи на рамо и побира всичко за деня. С Вашето лого тя е реклама, която обикаля града — за събития, конференции и магазини.</p>',
-		'specs'  => '<ul><li><strong>Материал:</strong> памук</li><li><strong>Дръжки:</strong> дълги, за носене на рамо</li><li><strong>Цвят:</strong> черен</li><li><strong>Брандиране:</strong> Вашето лого, с печат или гравиране според материала. Точното разположение виждате на визуализацията преди производството.</li><li><strong>Количества:</strong> 20, 50, 100 или 200 бр.</li></ul>',
+		'specs'  => '<ul><li><strong>Материал:</strong> памук</li><li><strong>Дръжки:</strong> дълги, за носене на рамо</li><li><strong>Цвят:</strong> черен</li><li><strong>Брандиране:</strong> Вашето лого, с печат или гравиране според материала. Точното разположение виждате на визуализацията преди производството.</li><li><strong>Количества:</strong> 50, 100, 150 или 200 бр.</li></ul>',
 		'photos' => array(
 			'main'    => array( 'pamuchna-torba-basic-black/main', 'Черна памучна торба с Вашето лого' ),
 			'gallery' => array(
@@ -198,10 +190,10 @@ $catalogue = array(
 		'slug'   => 'pamuchna-torba-classic-red',
 		'cats'   => array( 'chanti' ),
 		'order'  => 31,
-		'prices' => $tiers( 4.5 ),
-		'short'  => '<p>Червена памучна торба с дълги дръжки — ярка и удобна.</p><ul><li>20 бр. торби с Вашето лого</li></ul>',
+		'prices' => array( 50 => '215.99', 100 => '431.99', 150 => '647.99', 200 => '863.99' ),
+		'short'  => '<p>Червена памучна торба с дълги дръжки — ярка и удобна.</p><ul><li>50 бр. торби с Вашето лого</li></ul>',
 		'desc'   => '<p>Памучната торба Classic Red е в наситено червено, с дълги дръжки за носене на рамо. Вашето лого в бяло изпъква отдалеч — за събития, промоции и подарък.</p>',
-		'specs'  => '<ul><li><strong>Материал:</strong> памук</li><li><strong>Дръжки:</strong> дълги, за носене на рамо</li><li><strong>Цвят:</strong> червен</li><li><strong>Брандиране:</strong> Вашето лого, с печат или гравиране според материала. Точното разположение виждате на визуализацията преди производството.</li><li><strong>Количества:</strong> 20, 50, 100 или 200 бр.</li></ul>',
+		'specs'  => '<ul><li><strong>Материал:</strong> памук</li><li><strong>Дръжки:</strong> дълги, за носене на рамо</li><li><strong>Цвят:</strong> червен</li><li><strong>Брандиране:</strong> Вашето лого, с печат или гравиране според материала. Точното разположение виждате на визуализацията преди производството.</li><li><strong>Количества:</strong> 50, 100, 150 или 200 бр.</li></ul>',
 		'photos' => array(
 			'main'    => array( 'pamuchna-torba-classic-red/main', 'Червена памучна торба с Вашето лого' ),
 			'gallery' => array(
@@ -217,10 +209,10 @@ $catalogue = array(
 		'slug'   => 'chasha-s-kapak-travel-black',
 		'cats'   => array( 'butilki-i-chashi' ),
 		'order'  => 40,
-		'prices' => $tiers( 12.9 ),
-		'short'  => '<p>Черна чаша за път с прозрачен капак — за кафето в офиса и в колата.</p><ul><li>20 бр. чаши с Вашето лого</li></ul>',
+		'prices' => array( 50 => '319.99', 100 => '639.99', 150 => '959.99', 200 => '1269.99' ),
+		'short'  => '<p>Черна чаша за път с прозрачен капак — за кафето в офиса и в колата.</p><ul><li>50 бр. чаши с Вашето лого</li></ul>',
 		'desc'   => '<p>Чашата Travel Black е с матово черно покритие и капак с отвор за пиене. Вашето лого е с нея всеки ден — на бюрото, в колата и на път.</p>',
-		'specs'  => '<ul><li><strong>Корпус:</strong> черен, матово покритие</li><li><strong>Капак:</strong> прозрачен, с отвор за пиене и капаче</li><li><strong>Цвят:</strong> черен</li><li><strong>Брандиране:</strong> Вашето лого, с печат или гравиране според материала. Точното разположение виждате на визуализацията преди производството.</li><li><strong>Количества:</strong> 20, 50, 100 или 200 бр.</li></ul>',
+		'specs'  => '<ul><li><strong>Корпус:</strong> черен, матово покритие</li><li><strong>Капак:</strong> прозрачен, с отвор за пиене и капаче</li><li><strong>Цвят:</strong> черен</li><li><strong>Брандиране:</strong> Вашето лого, с печат или гравиране според материала. Точното разположение виждате на визуализацията преди производството.</li><li><strong>Количества:</strong> 50, 100, 150 или 200 бр.</li></ul>',
 		'photos' => array(
 			'main'    => array( 'chasha-travel-black/main', 'Черна чаша с капак и Вашето лого' ),
 			'gallery' => array(
@@ -236,10 +228,10 @@ $catalogue = array(
 		'slug'   => 'butilka-bamboo-black',
 		'cats'   => array( 'butilki-i-chashi' ),
 		'order'  => 41,
-		'prices' => $tiers( 14.9 ),
-		'short'  => '<p>Матова черна бутилка с бамбукова капачка — елегантна и за многократна употреба.</p><ul><li>20 бр. бутилки с Вашето лого</li></ul>',
+		'prices' => array( 50 => '609.99', 100 => '1219.99', 150 => '1829.99', 200 => '2429.99' ),
+		'short'  => '<p>Матова черна бутилка с бамбукова капачка — елегантна и за многократна употреба.</p><ul><li>50 бр. бутилки с Вашето лого</li></ul>',
 		'desc'   => '<p>Бутилката Bamboo Black съчетава матово черно с топлината на бамбука. Вашето лого стои изчистено на корпуса — подарък, който се носи навсякъде.</p>',
-		'specs'  => '<ul><li><strong>Корпус:</strong> черен, матово покритие</li><li><strong>Капачка:</strong> бамбукова</li><li><strong>Употреба:</strong> многократна</li><li><strong>Брандиране:</strong> Вашето лого, с печат или гравиране според материала. Точното разположение виждате на визуализацията преди производството.</li><li><strong>Количества:</strong> 20, 50, 100 или 200 бр.</li></ul>',
+		'specs'  => '<ul><li><strong>Корпус:</strong> черен, матово покритие</li><li><strong>Капачка:</strong> бамбукова</li><li><strong>Употреба:</strong> многократна</li><li><strong>Брандиране:</strong> Вашето лого, с печат или гравиране според материала. Точното разположение виждате на визуализацията преди производството.</li><li><strong>Количества:</strong> 50, 100, 150 или 200 бр.</li></ul>',
 		'photos' => array(
 			'main'    => array( 'butilka-bamboo-black/main', 'Черна бутилка с бамбукова капачка и Вашето лого' ),
 			'gallery' => array(
@@ -255,10 +247,10 @@ $catalogue = array(
 		'slug'   => 'metalna-himikalka-classic',
 		'cats'   => array( 'himikalki' ),
 		'order'  => 50,
-		'prices' => $tiers( 2.2 ),
-		'short'  => '<p>Черна метална химикалка с хромирани детайли — класика за всеки офис.</p><ul><li>20 бр. химикалки с Вашето лого</li></ul>',
+		'prices' => array( 50 => '45.99', 100 => '99.99', 150 => '139.99', 200 => '189.99' ),
+		'short'  => '<p>Черна метална химикалка с хромирани детайли — класика за всеки офис.</p><ul><li>50 бр. химикалки с Вашето лого</li></ul>',
 		'desc'   => '<p>Металната химикалка Classic е в лъскаво черно с хромирани пръстени и връх. Вашето лого стои по дължината на корпуса — за рецепции, конференции и подаръчни комплекти.</p>',
-		'specs'  => '<ul><li><strong>Корпус:</strong> метален, лъскаво черен</li><li><strong>Детайли:</strong> хромирани пръстени, клипс и връх</li><li><strong>Механизъм:</strong> с натискане</li><li><strong>Брандиране:</strong> Вашето лого, с печат или гравиране според материала. Точното разположение виждате на визуализацията преди производството.</li><li><strong>Количества:</strong> 20, 50, 100 или 200 бр.</li></ul>',
+		'specs'  => '<ul><li><strong>Корпус:</strong> метален, лъскаво черен</li><li><strong>Детайли:</strong> хромирани пръстени, клипс и връх</li><li><strong>Механизъм:</strong> с натискане</li><li><strong>Брандиране:</strong> Вашето лого, с печат или гравиране според материала. Точното разположение виждате на визуализацията преди производството.</li><li><strong>Количества:</strong> 50, 100, 150 или 200 бр.</li></ul>',
 		'photos' => array(
 			'main'    => array( 'himikalka-classic/main', 'Черна метална химикалка с Вашето лого' ),
 			'gallery' => array(
@@ -274,10 +266,10 @@ $catalogue = array(
 		'slug'   => 'metalna-himikalka-stone-white',
 		'cats'   => array( 'himikalki' ),
 		'order'  => 51,
-		'prices' => $tiers( 2.9 ),
-		'short'  => '<p>Бяла метална химикалка с графитени детайли — изчистена и премиум.</p><ul><li>20 бр. химикалки с Вашето лого</li></ul>',
+		'prices' => array( 50 => '43.99', 100 => '87.99', 150 => '131.99', 200 => '175.99' ),
+		'short'  => '<p>Бяла метална химикалка с графитени детайли — изчистена и премиум.</p><ul><li>50 бр. химикалки с Вашето лого</li></ul>',
 		'desc'   => '<p>Металната химикалка Stone White е в матово бяло с графитени детайли. Вашето лого изпъква ясно на светлия корпус — практичен и стилен избор за офиса и събития.</p>',
-		'specs'  => '<ul><li><strong>Корпус:</strong> метален, матово бял</li><li><strong>Детайли:</strong> графитен клипс и връх</li><li><strong>Механизъм:</strong> с натискане</li><li><strong>Брандиране:</strong> Вашето лого, с печат или гравиране според материала. Точното разположение виждате на визуализацията преди производството.</li><li><strong>Количества:</strong> 20, 50, 100 или 200 бр.</li></ul>',
+		'specs'  => '<ul><li><strong>Корпус:</strong> метален, матово бял</li><li><strong>Детайли:</strong> графитен клипс и връх</li><li><strong>Механизъм:</strong> с натискане</li><li><strong>Брандиране:</strong> Вашето лого, с печат или гравиране според материала. Точното разположение виждате на визуализацията преди производството.</li><li><strong>Количества:</strong> 50, 100, 150 или 200 бр.</li></ul>',
 		'photos' => array(
 			'main'    => array( 'himikalka-stone-white/main', 'Бяла метална химикалка с Вашето лого' ),
 			'gallery' => array(
@@ -293,10 +285,10 @@ $catalogue = array(
 		'slug'   => 'zapalka-satin-black',
 		'cats'   => array( 'zapalki' ),
 		'order'  => 60,
-		'prices' => $tiers( 1.5 ),
-		'short'  => '<p>Черна запалка с матово покритие — малък подарък, който се използва всеки ден.</p><ul><li>20 бр. запалки с Вашето лого</li></ul>',
+		'prices' => array( 50 => '46.99', 100 => '93.99', 150 => '139.99', 200 => '189.99' ),
+		'short'  => '<p>Черна запалка с матово покритие — малък подарък, който се използва всеки ден.</p><ul><li>50 бр. запалки с Вашето лого</li></ul>',
 		'desc'   => '<p>Запалката Satin Black е с матово черно покритие и метален капак. Вашето лого стои по дължината на корпуса — евтина и ефективна реклама, която минава от ръка на ръка.</p>',
-		'specs'  => '<ul><li><strong>Корпус:</strong> черен, матово покритие</li><li><strong>Капак:</strong> метален</li><li><strong>Цвят:</strong> черен</li><li><strong>Брандиране:</strong> Вашето лого, с печат или гравиране според материала. Точното разположение виждате на визуализацията преди производството.</li><li><strong>Количества:</strong> 20, 50, 100 или 200 бр.</li></ul>',
+		'specs'  => '<ul><li><strong>Корпус:</strong> черен, матово покритие</li><li><strong>Капак:</strong> метален</li><li><strong>Цвят:</strong> черен</li><li><strong>Брандиране:</strong> Вашето лого, с печат или гравиране според материала. Точното разположение виждате на визуализацията преди производството.</li><li><strong>Количества:</strong> 50, 100, 150 или 200 бр.</li></ul>',
 		'photos' => array(
 			'main'    => array( 'zapalka-satin-black/main', 'Черна запалка с Вашето лого' ),
 			'gallery' => array(
@@ -307,6 +299,12 @@ $catalogue = array(
 		),
 	),
 );
+
+// A product's prices by size: one table, or one per colour (Magnet's colours are priced apart).
+$price_table = static function ( array $item, string $colour = '' ): array {
+	$prices = $item['prices'];
+	return is_array( reset( $prices ) ) ? ( $prices[ $colour ] ?? reset( $prices ) ) : $prices;
+};
 
 // One attachment per photo: found again by its source path, so a re-run never duplicates it.
 $import = static function ( array $photo, int $parent ): int {
@@ -409,6 +407,68 @@ foreach ( $catalogue as $item ) {
 	}
 }
 
+// The client's real prices (2026-10-15): other sizes than the samples (50 / 100 / 150 / 200, the
+// calendars 50 to 500, Photo 10 and 20) and Magnet priced per colour. Once, on a site built with the
+// sample prices: each product gets exactly these sizes (a missing one added with the colour's photos,
+// a dropped one deleted), these prices, and its texts' smallest quantity. Later edits are the owner's.
+if ( ! get_option( 'reklamo_seeded_prices_v2' ) ) {
+	foreach ( $catalogue as $item ) {
+		$p = wc_get_product( wc_get_product_id_by_sku( $item['sku'] ) );
+		if ( ! $p || ! $p->is_type( 'variable' ) ) {
+			continue;
+		}
+		$sizes = array_keys( $price_table( $item ) );
+		$attrs = $p->get_attributes();
+		$attrs['pa_kolichestvo'] = $attribute( 'pa_kolichestvo', $term_ids( 'pa_kolichestvo', array_map( static fn( $q ) => $q . '-br', $sizes ) ), isset( $attrs['pa_cvyat'] ) ? 1 : 0 );
+		$p->set_attributes( $attrs );
+		$p->set_default_attributes( array_merge( $p->get_default_attributes(), array( 'pa_kolichestvo' => $sizes[0] . '-br' ) ) );
+		$min  = (string) $sizes[0];
+		$p->set_short_description( (string) preg_replace( '~(<li>(?:<strong>)?)20 (бр\.|броя)~u', '${1}' . $min . ' $2', $p->get_short_description() ) );
+		$specs = (string) $p->get_meta( '_reklamo_specs' );
+		if ( isset( $item['specs'] ) && preg_match( '~<li><strong>Количества:</strong>.*?</li>~u', $item['specs'], $line ) ) {
+			$p->update_meta_data( '_reklamo_specs', str_replace( '<li><strong>Количества:</strong> 20, 50, 100 или 200 бр.</li>', $line[0], $specs ) );
+		}
+		$p->save();
+
+		$have = array();
+		foreach ( $p->get_children() as $child ) {
+			$v      = wc_get_product( $child );
+			$a      = $v ? $v->get_attributes() : array();
+			$colour = (string) ( $a['pa_cvyat'] ?? '' );
+			$qty    = (int) ( $a['pa_kolichestvo'] ?? 0 );
+			if ( ! $v || ! in_array( $qty, $sizes, true ) ) {
+				$v && $v->delete( true );
+				continue;
+			}
+			$v->set_regular_price( $price_table( $item, $colour )[ $qty ] );
+			$v->save();
+			$have[ $colour ][ $qty ] = $v;
+		}
+		foreach ( $have as $colour => $by_size ) {
+			$model = reset( $by_size );
+			foreach ( $price_table( $item, (string) $colour ) as $qty => $price ) {
+				if ( isset( $by_size[ $qty ] ) ) {
+					continue;
+				}
+				$v = new WC_Product_Variation();
+				$v->set_parent_id( $p->get_id() );
+				$v->set_attributes( array_filter( array( 'pa_cvyat' => (string) $colour, 'pa_kolichestvo' => $qty . '-br' ) ) );
+				$v->set_regular_price( $price );
+				$v->set_manage_stock( false );
+				$v->set_image_id( $model->get_image_id( 'edit' ) );
+				$gallery = $model->get_meta( '_reklamo_variation_gallery' );
+				if ( $gallery ) {
+					$v->update_meta_data( '_reklamo_variation_gallery', $gallery );
+				}
+				$v->save();
+			}
+		}
+		WC_Product_Variable::sync( $p->get_id() );
+		echo "  {$item['name']}: prices and sizes " . implode( ' / ', $sizes ) . "\n";
+	}
+	update_option( 'reklamo_seeded_prices_v2', 1 );
+}
+
 if ( get_option( 'reklamo_seeded_catalogue_v3' ) ) {
 	return;
 }
@@ -431,7 +491,7 @@ foreach ( $catalogue as $item ) {
 	if ( isset( $item['specs'] ) ) {
 		$p->update_meta_data( '_reklamo_specs', $item['specs'] );
 	}
-	$size_slugs = array_map( static fn( $q ) => $q . '-br', array_keys( $item['prices'] ) );
+	$size_slugs = array_map( static fn( $q ) => $q . '-br', array_keys( $price_table( $item ) ) );
 	$attrs      = array();
 	$defaults   = array( 'pa_kolichestvo' => $size_slugs[0] );
 	if ( ! empty( $item['colours'] ) ) {
@@ -465,7 +525,7 @@ foreach ( $catalogue as $item ) {
 	}
 
 	foreach ( $item['colours'] ?? array( '' => null ) as $colour => $c ) {
-		foreach ( $item['prices'] as $qty => $price ) {
+		foreach ( $price_table( $item, (string) $colour ) as $qty => $price ) {
 			$v = new WC_Product_Variation();
 			$v->set_parent_id( $p->get_id() );
 			$v->set_attributes( array_filter( array( 'pa_cvyat' => $colour, 'pa_kolichestvo' => $qty . '-br' ) ) );

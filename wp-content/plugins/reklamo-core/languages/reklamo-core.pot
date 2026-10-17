@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-11T15:30:50+00:00\n"
+"POT-Creation-Date: 2026-10-17T08:16:31+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: reklamo-core\n"
@@ -1214,16 +1214,21 @@ msgstr ""
 msgid "Shown behind the tabs on the product page, fading in from the right. Leave empty for a plain section."
 msgstr ""
 
-#: includes/class-reklamo-product.php:255
+#: includes/class-reklamo-product.php:260
+#: includes/class-reklamo-product.php:263
 msgid "Prices by quantity"
 msgstr ""
 
-#: includes/class-reklamo-product.php:255
+#: includes/class-reklamo-product.php:260
+msgid "The colours of this product are priced differently, so each price is set in its own variation (Variations tab)."
+msgstr ""
+
+#: includes/class-reklamo-product.php:263
 msgid "One price per package size, the same for every colour, VAT included. A size without a price is not offered."
 msgstr ""
 
 #. translators: %s: package size, e.g. "50 бр."
-#: includes/class-reklamo-product.php:262
+#: includes/class-reklamo-product.php:270
 #, php-format
 msgid "Price for %s"
 msgstr ""

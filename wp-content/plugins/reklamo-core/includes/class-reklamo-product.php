@@ -233,7 +233,9 @@ final class Reklamo_Product {
 
 	/**
 	 * One price per package size, for every colour: entered here, written into each matching
-	 * variation on save. Shown only for a variable product sold in sizes.
+	 * variation on save. Shown only for a variable product sold in sizes whose colours cost the
+	 * same; where they differ, saving one price per size would overwrite them, so the editor
+	 * points to the variations instead.
 	 */
 	private static function tier_fields(): void {
 		global $product_object;
@@ -244,13 +246,19 @@ final class Reklamo_Product {
 		if ( ! $tiers ) {
 			return;
 		}
-		$prices = array();
+		$prices  = array();
+		$by_size = array();
 		foreach ( $product_object->get_children() as $child ) {
 			$v    = wc_get_product( $child );
 			$slug = $v ? (string) ( $v->get_variation_attributes()[ 'attribute_' . self::QTY_TAX ] ?? '' ) : '';
-			if ( '' !== $slug && ! isset( $prices[ $slug ] ) && '' !== $v->get_regular_price() ) {
-				$prices[ $slug ] = $v->get_regular_price();
+			if ( '' !== $slug && '' !== $v->get_regular_price() ) {
+				$prices[ $slug ] = $prices[ $slug ] ?? $v->get_regular_price();
+				$by_size[ $slug ][ wc_format_decimal( $v->get_regular_price() ) ] = true;
 			}
+		}
+		if ( array_filter( $by_size, static fn( $set ) => count( $set ) > 1 ) ) {
+			echo '<p class="form-field"><strong>' . esc_html__( 'Prices by quantity', 'reklamo-core' ) . '</strong><br><span class="description">' . esc_html__( 'The colours of this product are priced differently, so each price is set in its own variation (Variations tab).', 'reklamo-core' ) . '</span></p>';
+			return;
 		}
 		echo '<p class="form-field"><strong>' . esc_html__( 'Prices by quantity', 'reklamo-core' ) . '</strong><br><span class="description">' . esc_html__( 'One price per package size, the same for every colour, VAT included. A size without a price is not offered.', 'reklamo-core' ) . '</span></p>';
 		foreach ( $tiers as $term ) {

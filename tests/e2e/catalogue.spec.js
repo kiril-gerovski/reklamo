@@ -4,12 +4,11 @@
 const { test, expect } = require( '@playwright/test' );
 
 const TIERS = [
-	{ qty: 20, price: '56,40' },
-	{ qty: 50, price: '136,80' },
-	{ qty: 100, price: '205,20' },
-	{ qty: 200, price: '391,20' },
-	{ qty: 300, price: '529,20' },
-	{ qty: 500, price: '846' }, // whole euros drop the ",00"
+	{ qty: 50, price: '137,99' },
+	{ qty: 100, price: '205,99' },
+	{ qty: 200, price: '391,99' },
+	{ qty: 300, price: '530,99' },
+	{ qty: 500, price: '845,99' },
 ];
 
 test( 'the Календари category lists the three calendars, each from its smallest size', async ( { page } ) => {
@@ -45,8 +44,8 @@ test( 'a calendar has a latin URL, the client copy and its own cart form', async
 	await page.goto( '/product/kalendar-mono/' );
 
 	await expect( page.locator( 'h1' ) ).toHaveText( 'Календар Mono' );
-	await expect( page.locator( '.summary' ) ).toContainText( '56,40' );
-	await expect( page.locator( '.summary' ) ).toContainText( '20 броя календари с индивидуален дизайн' );
+	await expect( page.locator( '.summary' ) ).toContainText( '137,99' );
+	await expect( page.locator( '.summary' ) ).toContainText( '50 броя календари с индивидуален дизайн' );
 
 	// Dimensions supplied by the client; the materials live in the Specifications tab.
 	const description = page.locator( '#tab-description, .woocommerce-Tabs-panel--description' ).first();
@@ -120,12 +119,12 @@ test( 'the package page follows the redesign: badge, lead, contents with details
 	await expect( page.locator( '.product-lead' ) ).toContainText( 'Тефтер и метална химикалка в един цвят' );
 
 	const items = page.locator( '.product-includes__list li' );
-	await expect( items.locator( 'strong' ) ).toHaveText( [ '20 бр. Тефтери', '20 бр. Метални химикалки' ] );
+	await expect( items.locator( 'strong' ) ).toHaveText( [ '50 бр. Тефтери', '50 бр. Метални химикалки' ] );
 	await expect( items.first().locator( 'small' ) ).toHaveText( 'Твърда корица, с Вашето лого' );
 	await expect( items.first().locator( 'svg' ) ).toHaveClass( /icon-notebook/ );
 	await expect( items.last().locator( 'svg' ) ).toHaveClass( /icon-ballpen/ );
 
-	await expect( page.locator( '.product-price-badge__value .woocommerce-Price-amount' ) ).toHaveText( /^189\s€$/ );
+	await expect( page.locator( '.product-price-badge__value .woocommerce-Price-amount' ) ).toHaveText( /^539,99\s€$/ );
 	await expect( page.locator( '.woocommerce-tabs ul.tabs li' ).first() ).toHaveText( 'Описание' );
 	await expect( page.locator( '.woocommerce-Tabs-panel--description' ) ).toContainText( 'Изчистен и практичен подарък' );
 } );
@@ -254,8 +253,8 @@ test( 'Промо пакети filters by category through its chips and shows t
 	await expect( mugs.filter( { hasText: 'Чаша с капак Travel Black' } ) ).toHaveCount( 0 );
 
 	const seal = mugs.filter( { hasText: 'Комплект Stripe' } ).locator( '.package-card__seal' );
-	await expect( seal ).toContainText( '20 бр.' );
-	await expect( seal ).toContainText( /229\s€/ );
+	await expect( seal ).toContainText( '50 бр.' );
+	await expect( seal ).toContainText( /409,99\s€/ );
 } );
 
 test( 'on a phone the category chips fit the screen and the cards sit two to a row', async ( { page } ) => {
@@ -292,8 +291,8 @@ test( 'the homepage hero shows the Magnet package: its photo, the badge and its 
 	await page.goto( '/' );
 	const badge = page.locator( '.hero__badge' );
 	await expect( badge.locator( '.eyebrow' ) ).toHaveText( 'Metal Business Pack' );
-	await expect( badge ).toContainText( '20 тефтера' );
-	await expect( badge.locator( 'strong' ) ).toHaveText( /^\d+\s€$/ );
+	await expect( badge ).toContainText( '50 тефтера' );
+	await expect( badge.locator( 'strong' ) ).toHaveText( /^[\d\s]+(,\d\d)?\s€$/ );
 	await expect( page.locator( '.hero__photo img' ) ).toHaveAttribute( 'src', /biznes-komplekt-magnet-red/ );
 	await expect( page.locator( '.hero__photo' ) ).toHaveAttribute( 'href', /\/product\/biznes-komplekt-magnet\/$/ );
 	// The same price the package card shows.

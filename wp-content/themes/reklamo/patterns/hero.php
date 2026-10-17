@@ -52,7 +52,7 @@ defined( 'ABSPATH' ) || exit;
 <!-- wp:column {"verticalAlignment":"center","width":"50%","className":"hero__media"} -->
 <div class="wp-block-column is-vertically-aligned-center hero__media" style="flex-basis:50%">
 <!-- wp:shortcode -->
-[reklamo_hero_product sku="PKG-MAGNET" title="Metal Business Pack" items="20 тефтера|20 химикалки"]
+[reklamo_hero_product sku="PKG-MAGNET" title="Metal Business Pack" items="50 тефтера|50 химикалки"]
 <!-- /wp:shortcode -->
 </div>
 <!-- /wp:column -->

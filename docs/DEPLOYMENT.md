@@ -150,7 +150,8 @@ alone and reported, and the right response is to bump `versions.env` after testi
 moves. Compiled `.mo` files are committed, nothing to build.
 
 **The catalogue release (2026-10-12)** needs `--seed`: the first seeded update after it creates the
-fifteen products from the client's photos with **sample prices**, sets the earlier sample packages and
+fifteen products from the client's photos (sample prices at first, the client's real ones since the
+release of 2026-10-17, `reklamo_seeded_prices_v2`), sets the earlier sample packages and
 calendar tiers to draft and redirects their addresses (`scripts/seed-catalogue.php`, once). Real
 prices go into each product's "Prices by quantity" before the store is made visible.
 

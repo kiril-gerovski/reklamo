@@ -93,7 +93,7 @@ test( 'validation: no step 2 without a logo and a note; then consents and phone 
 	// The disabled button is a convenience; the server refuses the same on its own.
 	await page.locator( '[data-rk-continue]' ).evaluate( ( b ) => { b.disabled = false; } );
 	await page.locator( '[data-rk-continue]' ).click();
-	await expect( page.locator( '.rq-errors' ) ).toContainText( 'Бизнес комплект Magnet - Червен, 20 бр.: логото му още не е качено' );
+	await expect( page.locator( '.rq-errors' ) ).toContainText( 'Бизнес комплект Magnet - Червен, 50 бр.: логото му още не е качено' );
 	await expect( page.locator( '.rk-cart' ) ).toHaveAttribute( 'data-step', 'logos' );
 
 	await logoInCart( page, 'logo.png', '' );
@@ -212,7 +212,7 @@ test( 'admin sees the logo and sends a mockup', async ( { page } ) => {
 
 	await page.setInputFiles( 'input[name^="reklamo_mockup["]', `${ FIXTURES }/mockup.png` );
 	await page.getByRole( 'button', { name: 'Изпрати на клиента' } ).click();
-	await expect( page.locator( '.notice-success' ) ).toContainText( 'Бизнес комплект Magnet - Червен, 20 бр. (визуализация №1)' );
+	await expect( page.locator( '.notice-success' ) ).toContainText( 'Бизнес комплект Magnet - Червен, 50 бр. (визуализация №1)' );
 	await expect( page.locator( '#order_status' ) ).toHaveValue( 'wc-rq-mockup-sent' );
 
 	const mail = await mailpitFind( `Визуализацията за поръчка ${ orderId }` );
@@ -299,7 +299,7 @@ test( 'approval link: GET is idempotent, POST approves once, replay is refused',
 	await expect( page.locator( '#order_status' ) ).toHaveValue( 'wc-rq-changes' );
 	await page.setInputFiles( 'input[name^="reklamo_mockup["]', `${ FIXTURES }/mockup.png` );
 	await page.getByRole( 'button', { name: 'Изпрати на клиента' } ).click();
-	await expect( page.locator( '.notice-success' ) ).toContainText( 'Бизнес комплект Magnet - Червен, 20 бр. (визуализация №2)' );
+	await expect( page.locator( '.notice-success' ) ).toContainText( 'Бизнес комплект Magnet - Червен, 50 бр. (визуализация №2)' );
 	const second = ( await mailpitFind( `Визуализацията за поръчка ${ orderId }` ) ).text.match( /https?:\/\/\S+odobrenie\/\?s=[A-Za-z0-9]+&k=[A-Za-z0-9_-]+/ );
 	// The link for #1 is used up and reports so; it cannot approve #2.
 	await page.context().clearCookies();

@@ -149,7 +149,7 @@ opt_replace reklamo_phone "+359 894 65 58 58" "+359 88 123 4567"
 opt_default reklamo_email "office@reklamo.bg"
 opt_replace reklamo_address "София, ул. Източна тангента 96" "София, България"
 opt_default reklamo_hours "10:00 – 17:00"
-opt_replace reklamo_facebook "" "https://facebook.com/"
+opt_replace reklamo_facebook "https://www.facebook.com/people/Reklamobg/61595198469381/" "https://facebook.com/"
 opt_default reklamo_instagram "https://www.instagram.com/reklamo.bg/"
 # Replaces the earlier seed placeholder only, so an owner's own link is never touched.
 [ "$(wp option get reklamo_instagram 2>/dev/null || true)" = "https://instagram.com/" ] && opt reklamo_instagram "https://www.instagram.com/reklamo.bg/"
@@ -1035,13 +1035,24 @@ $p  = get_post( $id );
 if ( $p && str_contains( $p->post_content, "hero-placeholder.svg" ) ) {
 	$new = preg_replace(
 		"~<!-- wp:image \{\"sizeSlug\":\"large\"\} -->\s*<figure class=\"wp-block-image size-large\"><img src=\"[^\"]*hero-placeholder\.svg\"[^>]*/></figure>\s*<!-- /wp:image -->\s*<!-- wp:group \{\"className\":\"hero__badge\"[^}]*\}\} -->.*?Red Business Pack.*?<!-- /wp:group -->~s",
-		"<!-- wp:shortcode -->\n[reklamo_hero_product sku=\"PKG-MAGNET\" title=\"Metal Business Pack\" items=\"20 тефтера|20 химикалки\"]\n<!-- /wp:shortcode -->",
+		"<!-- wp:shortcode -->\n[reklamo_hero_product sku=\"PKG-MAGNET\" title=\"Metal Business Pack\" items=\"50 тефтера|50 химикалки\"]\n<!-- /wp:shortcode -->",
 		$p->post_content
 	);
 	if ( $new && $new !== $p->post_content ) {
 		wp_update_post( array( "ID" => $id, "post_content" => $new ) );
 		echo "  homepage hero: Бизнес комплект Magnet\n";
 	}
+}
+'
+
+# The real prices start at 50 pieces: the hero badge's seeded lines still said 20.
+wp eval '
+$id  = (int) get_option( "page_on_front" );
+$p   = get_post( $id );
+$old = "items=\"20 тефтера|20 химикалки\"";
+if ( $p && str_contains( $p->post_content, $old ) ) {
+	wp_update_post( array( "ID" => $id, "post_content" => str_replace( $old, "items=\"50 тефтера|50 химикалки\"", $p->post_content ) ) );
+	echo "  homepage hero: 50 pieces\n";
 }
 '
 
@@ -1250,7 +1261,7 @@ if [ -z "$(product_id NB-001)" ]; then
   wp post meta update "$nb_id" _reklamo_specs "<p>Твърди корици, 96 листа на редове, ластик за затваряне и лента за отбелязване.</p>" >/dev/null
   echo "  Класически тефтер created (4 colours, 3,20 € per piece, minimum 50)"
 fi
-# Sizes: WooCommerce's global attribute "Количество" (pa_kolichestvo), 20 to 500 бр. Each product
+# Sizes: WooCommerce's global attribute "Количество" (pa_kolichestvo), 10 to 500 бр. Each product
 # and package is variable on it, one price per size ("Prices by quantity" in the product).
 size_attr=$(wc product_attribute list --format=csv --fields=id,slug 2>/dev/null | awk -F, '$2=="pa_kolichestvo"{print $1}' | head -n1)
 if [ -z "$size_attr" ]; then
@@ -1258,10 +1269,12 @@ if [ -z "$size_attr" ]; then
   echo "  attribute Количество created"
 fi
 n=0
-for c in "20-br:20 бр." "50-br:50 бр." "100-br:100 бр." "200-br:200 бр." "300-br:300 бр." "500-br:500 бр."; do
+# The order the sizes are listed in (term meta "order") is enforced, so a size added later lands in place.
+for c in "10-br:10 бр." "20-br:20 бр." "50-br:50 бр." "100-br:100 бр." "150-br:150 бр." "200-br:200 бр." "300-br:300 бр." "500-br:500 бр."; do
   slug=${c%%:*}; name=${c#*:}; n=$((n + 1))
   term=$(wp term get pa_kolichestvo "$slug" --by=slug --field=term_id 2>/dev/null || true)
-  [ -n "$term" ] || { term=$(wc product_attribute_term create "$size_attr" --name="$name" --slug="$slug" --porcelain); wp term meta update "$term" order "$n" >/dev/null; }
+  [ -n "$term" ] || term=$(wc product_attribute_term create "$size_attr" --name="$name" --slug="$slug" --porcelain)
+  [ "$(wp term meta get "$term" order 2>/dev/null || true)" = "$n" ] || wp term meta update "$term" order "$n" >/dev/null
 done
 # The catalogue from the client's photos (design/v3/web product): packages and products, created
 # once with sample prices; the earlier sample packages and calendar tiers go to draft and their
