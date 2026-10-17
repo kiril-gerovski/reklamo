@@ -35,9 +35,9 @@ test( 'each calendar size has its own price and count under one photo', async ( 
 } );
 
 // The redirects from the earlier samples exist only on a site that had them, so they are not tested here.
-test( 'Промо пакети holds the three packages from the client\'s photos', async ( { page } ) => {
+test( 'Промо пакети holds the four packages from the client\'s photos', async ( { page } ) => {
 	await page.goto( '/promo-paketi/' );
-	await expect( page.locator( 'li.product h3' ) ).toHaveText( [ /Бизнес комплект Magnet/i, /Комплект Stripe/i, /Комплект Cork/i ] );
+	await expect( page.locator( 'li.product h3' ) ).toHaveText( [ /Бизнес комплект Magnet/i, /Комплект Stripe/i, /Комплект Cork/i, /Комплект Trio/i ] );
 } );
 
 test( 'a calendar has a latin URL, the client copy and its own cart form', async ( { page } ) => {
@@ -110,7 +110,7 @@ test( 'packages and products have both tabs, Описание and Специфи
 test( 'Продукти sorts through its dropdown', async ( { page } ) => {
 	await page.goto( '/produkti/?orderby=price-desc' );
 	await expect( page.locator( 'select.orderby' ) ).toHaveValue( 'price-desc' );
-	await expect( page.locator( 'li.product h3' ).first() ).toHaveText( /Бутилка Bamboo Black/i );
+	await expect( page.locator( 'li.product h3' ).first() ).toHaveText( /Бутилка Bamboo Black|Комплект Cork/i ); // both top out at 2429,99 €
 } );
 
 test( 'the package page follows the redesign: badge, lead, contents with details, whole-euro price', async ( { page } ) => {
@@ -298,4 +298,28 @@ test( 'the homepage hero shows the Magnet package: its photo, the badge and its 
 	// The same price the package card shows.
 	const card = page.locator( '.packages li.product', { hasText: 'Бизнес комплект Magnet' } ).locator( '.package-card__amount' );
 	expect( ( await badge.locator( 'strong' ).innerText() ).replace( /\s/g, '' ) ).toBe( ( await card.innerText() ).replace( /\s/g, '' ) );
+} );
+
+test( 'Бутилка Matt is one product in two colours, each with its own photos, at the same price', async ( { page } ) => {
+	await page.goto( '/product/butilka-matt/' );
+	const form = page.locator( 'form.rq-form--product' );
+	const slides = () => page.locator( '.woocommerce-product-gallery__image img' ).evaluateAll( ( imgs ) => imgs.map( ( i ) => i.getAttribute( 'src' ) ) );
+	await expect( form.locator( '[data-attribute="attribute_pa_cvyat"] input' ) ).toHaveCount( 2 );
+	await expect( page.locator( '[data-rk-badge-price]' ) ).toHaveText( /519,99\s€/ );
+	expect( ( await slides() ).every( ( s ) => s.includes( '-blue' ) ) ).toBe( true );
+
+	await form.locator( '.rk-option', { has: page.locator( 'input[value="byal"]' ) } ).click();
+	await expect.poll( async () => ( await slides() ).every( ( s ) => s.includes( '-white' ) ) ).toBe( true );
+	await expect( page.locator( '[data-rk-badge-price]' ) ).toHaveText( /519,99\s€/ );
+	await form.locator( '.rk-option', { has: page.locator( 'input[value="150-br"]' ) } ).click();
+	await expect( page.locator( '[data-rk-badge-price]' ) ).toHaveText( /1549,99\s€/ );
+} );
+
+test( 'the second batch is in its categories: lighters, pens and Trio under Технологии', async ( { page } ) => {
+	for ( const [ cat, names ] of [ [ 'zapalki', [ 'Запалка Chrome', 'Запалка Spark' ] ], [ 'himikalki', [ 'Метална химикалка Slim', 'Метална химикалка Soft' ] ], [ 'tehnologii', [ 'Комплект Trio' ] ] ] ) {
+		await page.goto( `/product-category/${ cat }/` );
+		for ( const name of names ) {
+			await expect( page.locator( 'li.product', { hasText: name } ) ).toHaveCount( 1 );
+		}
+	}
 } );

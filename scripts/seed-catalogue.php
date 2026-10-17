@@ -1,9 +1,10 @@
 <?php
 /**
  * The catalogue from the client's photos (design/v3/web product, 2026-10-12), run by seed.sh
- * through `wp eval-file`. Once (reklamo_seeded_catalogue_v3): afterwards names, prices, texts
- * and photos belong to the owner in Products. Two steps run every time: specifications and the
- * section photo are filled while a product has none (an earlier seeded section shot is replaced).
+ * through `wp eval-file`. Each batch is created once (reklamo_seeded_catalogue_v3, then _v4 for the
+ * second batch, products marked 'batch' => 2); afterwards names, prices, texts and photos belong to
+ * the owner in Products. On every run, specifications, the section photo and a category's picture
+ * are filled while missing (an earlier seeded section shot is replaced).
  *
  * Every product and package is variable on "Количество" with one price per size. The prices are
  * SAMPLES until the owner sets the real ones (owner's decision: visible with sample prices).
@@ -36,6 +37,10 @@ $catalogue = array(
 		'short'    => '<p>Тефтер и метална химикалка в един цвят — червен, бял или син — с Вашето лого на двете.</p><ul><li><strong>50 бр. Тефтери</strong><br>Твърда корица, с Вашето лого</li><li><strong>50 бр. Метални химикалки</strong><br>В цвета на тефтера, с Вашето лого</li></ul>',
 		'desc'     => '<p>Бизнес комплект Magnet събира тефтер и химикалка в един цвят, с Вашето лого на двете. Изчистен и практичен подарък, който се използва всеки ден и държи бранда Ви пред очите на екипа, клиентите и партньорите.</p><p>Подходящ за конференции, обучения, нови служители и корпоративни подаръци.</p>',
 		'specs'  => '<ul><li><strong>Тефтер:</strong> твърда корица, лентичка за отбелязване</li><li><strong>Химикалка:</strong> метална, в цвета на тефтера</li><li><strong>Цветове:</strong> червен, бял или син</li><li><strong>Брандиране:</strong> Вашето лого, с печат или гравиране според материала. Точното разположение виждате на визуализацията преди производството.</li><li><strong>Количества:</strong> 50, 100, 150 или 200 бр.</li></ul>',
+		'colour_gallery' => array(
+			'notebook' => 'Тефтер — %s, с Вашето лого',
+			'pen'      => 'Метална химикалка — %s, с Вашето лого',
+		),
 		'colours'  => array(
 			'cherven' => array( 'red', 'червен' ),
 			'byal'    => array( 'white', 'бял' ),
@@ -298,6 +303,124 @@ $catalogue = array(
 			'section' => array( 'zapalka-satin-black/section-centred', 'Черна запалка с лого' ),
 		),
 	),
+	array(
+		'sku'    => 'PKG-TRIO',
+		'batch'  => 2,
+		'name'   => 'Комплект Trio – химикалка и кабел в подаръчна кутия',
+		'slug'   => 'komplekt-trio',
+		'cats'   => array( 'paketi', 'himikalki', 'tehnologii' ),
+		'order'  => 4,
+		'prices' => array( 50 => '489.99', 100 => '989.99', 150 => '1479.99', 200 => '1969.99' ),
+		'short'  => '<p>Метална химикалка и кабел за зареждане с ключодържател, в черна подаръчна кутия — с Вашето лого.</p><ul><li><strong>50 бр. Химикалки</strong><br>Метални, черни, с Вашето лого</li><li><strong>50 бр. Кабели за зареждане</strong><br>С ключодържател и Вашето лого</li><li><strong>50 бр. Подаръчни кутии</strong><br>Черни, с Вашето лого на капака</li></ul>',
+		'desc'   => '<p>Комплект Trio е елегантен подарък за партньори и клиенти: метална химикалка и кабел за зареждане с ключодържател, подредени в черна кутия с Вашето лого. Използват се всеки ден — химикалката на бюрото, кабелът в чантата.</p>',
+		'specs'  => '<ul><li><strong>Химикалка:</strong> метална, черна, с хромирани детайли</li><li><strong>Кабел:</strong> за зареждане, с няколко накрайника и ключодържател</li><li><strong>Кутия:</strong> черна, с капак</li><li><strong>Цвят:</strong> черен</li><li><strong>Брандиране:</strong> Вашето лого, с печат или гравиране според материала. Точното разположение виждате на визуализацията преди производството.</li><li><strong>Количества:</strong> 50, 100, 150 или 200 бр.</li></ul>',
+		'photos' => array(
+			'main'    => array( 'komplekt-trio/main', 'Комплект Trio — химикалка и кабел с лого в подаръчна кутия' ),
+			'gallery' => array(
+				array( 'komplekt-trio/logo', 'Комплект Trio с бяло лого' ),
+				array( 'komplekt-trio/pen', 'Черна метална химикалка с лого' ),
+				array( 'komplekt-trio/cable', 'Кабел за зареждане с ключодържател и лого' ),
+				array( 'komplekt-trio/box', 'Черна подаръчна кутия с лого' ),
+			),
+			'section' => array( 'komplekt-trio/section-centred', 'Комплект Trio — химикалка и кабел с лого в подаръчна кутия' ),
+		),
+	),
+	array(
+		'sku'    => 'BUT-MATT',
+		'batch'  => 2,
+		'name'   => 'Бутилка Matt',
+		'slug'   => 'butilka-matt',
+		'cats'   => array( 'butilki-i-chashi' ),
+		'order'  => 42,
+		'prices' => array( 50 => '519.99', 100 => '1029.99', 150 => '1549.99', 200 => '2069.99' ),
+		'short'  => '<p>Бутилка с матово покритие в тъмносиньо или бяло — изчистена и за многократна употреба.</p><ul><li>50 бр. бутилки с Вашето лого</li></ul>',
+		'desc'   => '<p>Бутилката Matt е с меко матово покритие и капачка в цвета на корпуса. Изберете тъмносиньо или бяло — Вашето лого стои изчистено на корпуса, а бутилката е с клиента навсякъде.</p>',
+		'specs'  => '<ul><li><strong>Корпус:</strong> матово покритие</li><li><strong>Капачка:</strong> в цвета на корпуса</li><li><strong>Цветове:</strong> тъмносин или бял</li><li><strong>Употреба:</strong> многократна</li><li><strong>Брандиране:</strong> Вашето лого, с печат или гравиране според материала. Точното разположение виждате на визуализацията преди производството.</li><li><strong>Количества:</strong> 50, 100, 150 или 200 бр.</li></ul>',
+		'colours' => array(
+			'sin'  => array( 'blue', 'тъмносиня' ),
+			'byal' => array( 'white', 'бяла' ),
+		),
+		'colour_gallery' => array(
+			'logo'  => 'Бутилка Matt — %s, с лого Reklamo',
+			'plain' => 'Бутилка Matt — %s, без лого',
+		),
+	),
+	array(
+		'sku'    => 'ZAP-002-GD',
+		'batch'  => 2,
+		'name'   => 'Запалка Chrome',
+		'slug'   => 'zapalka-chrome',
+		'cats'   => array( 'zapalki' ),
+		'order'  => 61,
+		'prices' => array( 50 => '49.99', 100 => '99.99', 150 => '149.99', 200 => '199.99' ),
+		'short'  => '<p>Златиста запалка с хромиран метален капак — малък подарък с блясък.</p><ul><li>50 бр. запалки с Вашето лого</li></ul>',
+		'desc'   => '<p>Запалката Chrome е в златист цвят с хромиран метален капак. Вашето лого стои по дължината на корпуса — малък подарък, който се забелязва и използва всеки ден.</p>',
+		'specs'  => '<ul><li><strong>Корпус:</strong> златист</li><li><strong>Капак:</strong> метален, хромиран</li><li><strong>Цвят:</strong> златист</li><li><strong>Брандиране:</strong> Вашето лого, с печат или гравиране според материала. Точното разположение виждате на визуализацията преди производството.</li><li><strong>Количества:</strong> 50, 100, 150 или 200 бр.</li></ul>',
+		'photos' => array(
+			'main'    => array( 'zapalka-chrome/main', 'Златиста запалка с Вашето лого' ),
+			'gallery' => array(
+				array( 'zapalka-chrome/logo', 'Златиста запалка с лого Reklamo' ),
+				array( 'zapalka-chrome/plain', 'Златиста запалка без лого' ),
+			),
+			'section' => array( 'zapalka-chrome/section-centred', 'Златиста запалка с Вашето лого' ),
+		),
+	),
+	array(
+		'sku'    => 'ZAP-003-RD',
+		'batch'  => 2,
+		'name'   => 'Запалка Spark',
+		'slug'   => 'zapalka-spark',
+		'cats'   => array( 'zapalki' ),
+		'order'  => 62,
+		'prices' => array( 50 => '41.99', 100 => '84.99', 150 => '126.99', 200 => '169.99' ),
+		'short'  => '<p>Червена запалка с метален капак — ярка и запомняща се.</p><ul><li>50 бр. запалки с Вашето лого</li></ul>',
+		'desc'   => '<p>Запалката Spark е в наситено червено с метален капак. Вашето лого в бяло изпъква по дължината на корпуса — евтина и ефективна реклама, която минава от ръка на ръка.</p>',
+		'specs'  => '<ul><li><strong>Корпус:</strong> червен, лъскав</li><li><strong>Капак:</strong> метален</li><li><strong>Цвят:</strong> червен</li><li><strong>Брандиране:</strong> Вашето лого, с печат или гравиране според материала. Точното разположение виждате на визуализацията преди производството.</li><li><strong>Количества:</strong> 50, 100, 150 или 200 бр.</li></ul>',
+		'photos' => array(
+			'main'    => array( 'zapalka-spark/main', 'Червена запалка с Вашето лого' ),
+			'gallery' => array(
+				array( 'zapalka-spark/logo', 'Червена запалка с лого Reklamo' ),
+				array( 'zapalka-spark/plain', 'Червена запалка без лого' ),
+			),
+			'section' => array( 'zapalka-spark/section-centred', 'Червена запалка с Вашето лого' ),
+		),
+	),
+	array(
+		'sku'    => 'HIM-002-RD',
+		'batch'  => 2,
+		'name'   => 'Метална химикалка Slim',
+		'slug'   => 'metalna-himikalka-slim',
+		'cats'   => array( 'himikalki' ),
+		'order'  => 52,
+		'prices' => array( 50 => '47.99', 100 => '95.99', 150 => '143.99', 200 => '191.99' ),
+		'short'  => '<p>Тънка червена метална химикалка с хромирани детайли — лека и елегантна.</p><ul><li>50 бр. химикалки с Вашето лого</li></ul>',
+		'desc'   => '<p>Металната химикалка Slim е с тънък червен корпус и хромирани клипс и връх. Вашето лого стои по дължината на корпуса — за офиса, събития и подаръчни комплекти.</p>',
+		'specs'  => '<ul><li><strong>Корпус:</strong> метален, тънък, червен</li><li><strong>Детайли:</strong> хромирани клипс и връх</li><li><strong>Механизъм:</strong> с натискане</li><li><strong>Брандиране:</strong> Вашето лого, с печат или гравиране според материала. Точното разположение виждате на визуализацията преди производството.</li><li><strong>Количества:</strong> 50, 100, 150 или 200 бр.</li></ul>',
+		'photos' => array(
+			'main'    => array( 'himikalka-slim/main', 'Червена метална химикалка Slim с Вашето лого' ),
+			'section' => array( 'himikalka-slim/section-centred', 'Червена метална химикалка Slim с Вашето лого' ),
+		),
+	),
+	array(
+		'sku'    => 'HIM-003-BL',
+		'batch'  => 2,
+		'name'   => 'Метална химикалка Soft',
+		'slug'   => 'metalna-himikalka-soft',
+		'cats'   => array( 'himikalki' ),
+		'order'  => 53,
+		'prices' => array( 50 => '55.99', 100 => '111.99', 150 => '166.99', 200 => '222.99' ),
+		'short'  => '<p>Тъмносиня метална химикалка с меко покритие — приятна на допир.</p><ul><li>50 бр. химикалки с Вашето лого</li></ul>',
+		'desc'   => '<p>Металната химикалка Soft е с матово тъмносиньо покритие, меко на допир, и детайли в същия цвят. Вашето лого изпъква в бяло — за офиса, рецепции и конференции.</p>',
+		'specs'  => '<ul><li><strong>Корпус:</strong> метален, тъмносин, с меко покритие</li><li><strong>Детайли:</strong> клипс и връх в тон</li><li><strong>Механизъм:</strong> с натискане</li><li><strong>Брандиране:</strong> Вашето лого, с печат или гравиране според материала. Точното разположение виждате на визуализацията преди производството.</li><li><strong>Количества:</strong> 50, 100, 150 или 200 бр.</li></ul>',
+		'photos' => array(
+			'main'    => array( 'himikalka-soft/main', 'Тъмносиня метална химикалка с Вашето лого' ),
+			'gallery' => array(
+				array( 'himikalka-soft/logo', 'Тъмносиня химикалка с лого Reklamo' ),
+				array( 'himikalka-soft/plain', 'Тъмносиня химикалка без лого' ),
+			),
+			'section' => array( 'himikalka-soft/section-centred', 'Тъмносиня метална химикалка с Вашето лого' ),
+		),
+	),
 );
 
 // A product's prices by size: one table, or one per colour (Magnet's colours are priced apart).
@@ -469,14 +592,12 @@ if ( ! get_option( 'reklamo_seeded_prices_v2' ) ) {
 	update_option( 'reklamo_seeded_prices_v2', 1 );
 }
 
-if ( get_option( 'reklamo_seeded_catalogue_v3' ) ) {
-	return;
-}
-
-// Create a product that is still missing, with a variation per colour and size.
-foreach ( $catalogue as $item ) {
+// Create a product that is still missing, with a variation per colour and size. A product in colours
+// takes the first colour's photos as its own; each colour's photos (its image, then its
+// colour_gallery) go on its variations.
+$create = static function ( array $item ) use ( $price_table, $term_ids, $attribute, $set_photos, $import ): void {
 	if ( wc_get_product_id_by_sku( $item['sku'] ) ) {
-		continue;
+		return;
 	}
 	$p = new WC_Product_Variable();
 	$p->set_name( $item['name'] );
@@ -503,26 +624,26 @@ foreach ( $catalogue as $item ) {
 	$p->set_default_attributes( $defaults );
 	$p->save();
 
-	$folder = $item['slug'];
+	$folder  = $item['slug'];
+	$gallery = static fn( array $c ): array => array_map(
+		static fn( $suffix, $alt ) => array( "$folder/{$c[0]}-$suffix", sprintf( $alt, $c[1] ) ),
+		array_keys( $item['colour_gallery'] ?? array() ),
+		array_values( $item['colour_gallery'] ?? array() )
+	);
 	if ( ! empty( $item['colours'] ) ) {
-		// The first colour's photos are the product's own; every colour's are its variations'.
 		$first = reset( $item['colours'] );
 		$set_photos(
 			$p,
 			array(
 				'main'    => array( "$folder/{$first[0]}", "{$item['name']} — {$first[1]}" ),
-				'gallery' => array(
-					array( "$folder/{$first[0]}-notebook", "Тефтер — {$first[1]}, с Вашето лого" ),
-					array( "$folder/{$first[0]}-pen", "Метална химикалка — {$first[1]}, с Вашето лого" ),
-				),
+				'gallery' => $gallery( $first ),
 				'section' => array( "$folder/{$first[0]}-section-centred", "{$item['name']} — {$first[1]}" ),
 			)
 		);
-		$p->save();
 	} else {
 		$set_photos( $p, $item['photos'] );
-		$p->save();
 	}
+	$p->save();
 
 	foreach ( $item['colours'] ?? array( '' => null ) as $colour => $c ) {
 		foreach ( $price_table( $item, (string) $colour ) as $qty => $price ) {
@@ -533,24 +654,53 @@ foreach ( $catalogue as $item ) {
 			$v->set_manage_stock( false );
 			if ( $c ) {
 				$v->set_image_id( $import( array( "$folder/{$c[0]}", "{$item['name']} — {$c[1]}" ), $p->get_id() ) );
-				$v->update_meta_data(
-					'_reklamo_variation_gallery',
-					implode(
-						',',
-						array_filter(
-							array(
-								$import( array( "$folder/{$c[0]}-notebook", "Тефтер — {$c[1]}, с Вашето лого" ), $p->get_id() ),
-								$import( array( "$folder/{$c[0]}-pen", "Метална химикалка — {$c[1]}, с Вашето лого" ), $p->get_id() ),
-							)
-						)
-					)
-				);
+				$v->update_meta_data( '_reklamo_variation_gallery', implode( ',', array_filter( array_map( static fn( $photo ) => $import( $photo, $p->get_id() ), $gallery( $c ) ) ) ) );
 			}
 			$v->save();
 		}
 	}
 	WC_Product_Variable::sync( $p->get_id() );
-	echo "  {$item['name']}: created (sample prices)\n";
+	echo "  {$item['name']}: created\n";
+};
+
+// The second batch of the client's products (2026-10-17, design/v3/prices), once — also on a site
+// that already has the first.
+if ( ! get_option( 'reklamo_seeded_catalogue_v4' ) ) {
+	foreach ( $catalogue as $item ) {
+		if ( 2 === ( $item['batch'] ?? 1 ) ) {
+			$create( $item );
+		}
+	}
+	update_option( 'reklamo_seeded_catalogue_v4', 1 );
+}
+
+// A product category's picture: its first product's photo, while it has none (or still shows the
+// old calendar artwork with its printed price). Run after each batch is created.
+$category_pictures = static function () use ( $catalogue ): void {
+	foreach ( $catalogue as $item ) {
+		$photo = (int) get_post_thumbnail_id( (int) wc_get_product_id_by_sku( $item['sku'] ) );
+		foreach ( $item['cats'] as $slug ) {
+			$cat = get_term_by( 'slug', $slug, 'product_cat' );
+			if ( ! $cat || 'paketi' === $slug || ! $photo ) {
+				continue;
+			}
+			$current = (int) get_term_meta( $cat->term_id, 'thumbnail_id', true );
+			if ( ! $current || str_contains( (string) get_attached_file( $current ), 'calendar-start' ) ) {
+				update_term_meta( $cat->term_id, 'thumbnail_id', $photo );
+			}
+		}
+	}
+};
+
+if ( get_option( 'reklamo_seeded_catalogue_v3' ) ) {
+	$category_pictures();
+	return;
+}
+
+foreach ( $catalogue as $item ) {
+	if ( 1 === ( $item['batch'] ?? 1 ) ) {
+		$create( $item );
+	}
 }
 
 // Where the six tiers were already merged into one calendar, that product becomes "Календар Mono"
@@ -618,19 +768,5 @@ if ( $retired ) {
 	echo "  $retired earlier samples: draft, their addresses redirect\n";
 }
 
-// A product category's picture: its first product's photo, while it has none (or still shows the
-// old calendar artwork with its printed price).
-foreach ( $catalogue as $item ) {
-	$photo = (int) get_post_thumbnail_id( (int) wc_get_product_id_by_sku( $item['sku'] ) );
-	foreach ( $item['cats'] as $slug ) {
-		$cat = get_term_by( 'slug', $slug, 'product_cat' );
-		if ( ! $cat || 'paketi' === $slug || ! $photo ) {
-			continue;
-		}
-		$current = (int) get_term_meta( $cat->term_id, 'thumbnail_id', true );
-		if ( ! $current || str_contains( (string) get_attached_file( $current ), 'calendar-start' ) ) {
-			update_term_meta( $cat->term_id, 'thumbnail_id', $photo );
-		}
-	}
-}
+$category_pictures();
 update_option( 'reklamo_seeded_catalogue_v3', 1 );

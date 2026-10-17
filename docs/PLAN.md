@@ -640,6 +640,17 @@ They came with other sizes than the samples: 50 / 100 / 150 / 200 for products a
   photo; the page itself opens on red at 539,99 €.
 - The e2e price test now restores the client's price after changing it.
 
+**2026-10-17: the second batch** (also in `design/v3/prices`, with prices): Комплект Trio (pen and
+charging cable in a gift box; Пакети, Химикалки, Технологии), Бутилка Matt (owner's choice: one product,
+navy and white, same price, each colour its own photos — BUT-007 and BUT-008 in the folder), Запалка
+Chrome (gold in the photos, ZAP-002-GD) and Spark, Метална химикалка Slim (one photo, its section photo
+recomposed from it) and Soft. Created once by `reklamo_seeded_catalogue_v4`, also on a site that has
+the first batch; creation is one function for both batches. A product's colour gallery is data now
+(`colour_gallery`: photo suffix → alt), so the bottle and Magnet share the code. Category pictures are
+filled after each batch (on an existing site also every run), so Технологии got Trio's photo.
+The folder also renames two existing products (Stone White → "Stone", Satin Black → "Satin"); not
+applied, pending the owner.
+
 ## Deployment scripts
 
 `scripts/deploy.sh` (workstation) → `scripts/host/{bootstrap,install,update,check}.sh` (server). `install.sh` is idempotent and converges an existing account with its `.env`; `update.sh` fetches, switches the checkout under maintenance mode, converges WordPress/WooCommerce to `versions.env` (database dump first, `wp core update --force`, `wp plugin install --force`, `update-db`, `wp wc update`), flushes and runs `check.sh`, and re-runs `seed.sh` only with `--seed`. `check.sh` drops a one-off PHP probe into `public_html`, fetches it over HTTP and compares web PHP with `PHP_BIN`, prints the applied `upload_max_filesize` and friends, fetches the theme's `style.css` through the symlink and confirms the private directory is not addressable.
