@@ -202,12 +202,12 @@ li.product-category img { border-radius: var(--radius); border: 1px solid var(--
 .package-card__amount .woocommerce-Price-amount { color: inherit; }
 /* On promotion the seal grows a little to hold the old price, struck through in red. */
 .package-card__seal.is-sale { width: 92px; height: 92px; }
-/* The strike is drawn through the exact middle of the old price, not left to the font's own line-through. */
 .package-card__was, .product-price-badge__was { position: relative; text-decoration: none; }
-.package-card__was::after, .product-price-badge__was::after { content: ""; position: absolute; left: -.15em; right: -.15em; top: 50%; height: 2px; margin-top: -1px; border-radius: 1px; background: #ff6b57; }
-.package-card__was { font: 500 .66rem/1 var(--sans); opacity: .9; }
+/* A thin diagonal line: it crosses each figure in one small spot, so the old price stays readable. */
+.package-card__was::after, .product-price-badge__was::after { content: ""; position: absolute; left: -.1em; right: -.1em; top: 50%; height: 1.25px; margin-top: -.625px; border-radius: 1px; background: #ff6b57; transform: rotate(-12deg); }
+.package-card__was { font: 500 .72rem/1 var(--sans); opacity: .9; }
 /* Inter's figures sit .12em above the middle of its line box (measured), so the strike follows them. */
-.package-card__was::after { margin-top: calc(-1px - .12em); }
+.package-card__was::after { margin-top: calc(-.625px - .12em); }
 .package-card__was .woocommerce-Price-amount { color: inherit; }
 .package-card__foot { display: flex; justify-content: flex-end; margin-top: .6rem; }
 .package-card__vat { font: 500 .56rem/1 var(--sans); letter-spacing: .04em; opacity: .85; }
@@ -230,7 +230,8 @@ li.product-category img { border-radius: var(--radius); border: 1px solid var(--
 	.package-card__qty { font-size: .5rem; }
 	.package-card__amount { font-size: .66rem; }
 	.package-card__seal.is-sale { width: 64px; height: 64px; }
-	.package-card__was { font-size: .5rem; }
+	.package-card__was { font-size: .56rem; }
+	.package-card__was::after { height: 1px; margin-top: calc(-.5px - .12em); }
 	.badges { left: .45rem; top: .45rem; gap: .25rem; }
 	.badge--promo, .badge--gift { font-size: .5rem; padding: .35rem .5rem; letter-spacing: .08em; }
 	.package-card__gift { font-size: .7rem; }
@@ -630,7 +631,7 @@ html { scroll-behavior: smooth; }
 .product-main__gallery .badges { left: 1rem; top: 1rem; z-index: 5; flex-direction: row; flex-wrap: wrap; }
 .product-main__badge.badge--promo, .product-main__badge.badge--gift { border-radius: 999px; background: linear-gradient(135deg, #d0452f 0%, #a8281c 100%); }
 .product-price-badge__was { font: 400 1rem/1 var(--serif); color: var(--muted); }
-.product-price-badge__was::after { height: 1.5px; margin-top: -.75px; background: #c0392b; }
+.product-price-badge__was::after { height: 1.25px; margin-top: -.625px; background: #c0392b; }
 .product-price-badge__was[hidden] { display: none; }
 .product-gift { display: flex; align-items: flex-start; gap: .75rem; margin: 1.1rem 0 0; padding: .85rem 1rem; border: 1px solid color-mix(in srgb, #c0392b 25%, var(--line)); border-radius: 12px; background: #fdf3f1; }
 .product-gift .icon { flex: none; color: var(--gold-dark); }

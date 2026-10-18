@@ -697,6 +697,8 @@ product, a gift as text, these labels replacing "Най-популярен").
 - The old price's strike is a drawn line (`::after`) through the digits' middle, not the font's
   `line-through`, whose height depends on the font metrics: in Inter it ran .12em below the figures
   (measured with the canvas against the baseline); Playfair's line-through was already centred.
+  Owner's request (2026-10-18): the old price must stay readable, so the line is thin (1.25 px, 1 px
+  on phones) and diagonal (−12°), and the old price on cards is a little larger (.72rem / .56rem).
 - Prices in the product page badge now use WooCommerce's thousands and decimal separators
   (1 019,99 €), like the cart.
 - The e2e tests that change a product's prices restore them in `finally`: an interrupted run had left
