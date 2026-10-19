@@ -87,7 +87,29 @@ final class Reklamo_Settings {
 	/** [reklamo_value key="retention_months"]: a setting inline in page text, so the legal pages never go stale. */
 	public static function value_shortcode( $atts ): string {
 		$key = sanitize_key( (string) ( ( (array) $atts )['key'] ?? '' ) );
+		if ( 'address' === $key ) {
+			return self::address_link( self::get( 'address' ) );
+		}
 		return in_array( $key, self::PUBLIC_KEYS, true ) ? esc_html( self::get( $key ) ) : '';
+	}
+
+	/** Google Maps search for an address; on a phone it opens the maps app, ready to navigate. */
+	public static function maps_url( string $address ): string {
+		return 'https://www.google.com/maps/search/?api=1&query=' . rawurlencode( $address );
+	}
+
+	/** The address as a link to it on the map, opened in a new tab; empty when there is none. */
+	public static function address_link( string $address ): string {
+		if ( '' === trim( $address ) ) {
+			return '';
+		}
+		return sprintf(
+			'<a class="maps-link" href="%1$s" target="_blank" rel="noopener" aria-label="%2$s">%3$s</a>',
+			esc_url( self::maps_url( $address ) ),
+			/* translators: %s: street address */
+			esc_attr( sprintf( __( '%s — open in Google Maps', 'reklamo-core' ), $address ) ),
+			esc_html( $address )
+		);
 	}
 
 	/** @return array<string,string> label => value, only the filled ones */

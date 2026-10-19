@@ -83,7 +83,7 @@ $reklamo_social  = array_filter(
 					<li><?php echo reklamo_icon( 'mail', 18 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?><a href="mailto:<?php echo esc_attr( $reklamo_email ); ?>"><?php echo esc_html( $reklamo_email ); ?></a></li>
 				<?php endif; ?>
 				<?php if ( $reklamo_address ) : ?>
-					<li><?php echo reklamo_icon( 'pin', 18 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?><span><?php echo esc_html( $reklamo_address ); ?></span></li>
+					<li><?php echo reklamo_icon( 'pin', 18 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?><?php echo class_exists( 'Reklamo_Settings' ) ? Reklamo_Settings::address_link( $reklamo_address ) : '<span>' . esc_html( $reklamo_address ) . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in address_link(). ?></li>
 				<?php endif; ?>
 			</ul>
 		</div>

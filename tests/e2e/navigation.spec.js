@@ -196,3 +196,16 @@ test( 'Корпоративни подаръци sits right after Продукт
 		expect( new Set( heights ).size, `every item on one line at ${ width } px` ).toBe( 1 );
 	}
 } );
+
+test( 'the address opens Google Maps, in the footer and on Контакти', async ( { page } ) => {
+	await page.goto( '/kontakti/' );
+	for ( const link of [ page.locator( '.site-footer a.maps-link' ), page.locator( 'main a.maps-link' ) ] ) {
+		await expect( link ).toHaveCount( 1 );
+		const text = ( await link.innerText() ).trim();
+		expect( text ).not.toBe( '' );
+		const href = new URL( await link.getAttribute( 'href' ) );
+		expect( href.origin + href.pathname ).toBe( 'https://www.google.com/maps/search/' );
+		expect( href.searchParams.get( 'query' ) ).toBe( text );
+		await expect( link ).toHaveAttribute( 'target', '_blank' );
+	}
+} );
