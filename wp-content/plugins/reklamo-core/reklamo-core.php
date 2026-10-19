@@ -53,6 +53,7 @@ require REKLAMO_PATH . 'includes/class-reklamo-email-check.php';
 require REKLAMO_PATH . 'includes/class-reklamo-privacy.php';
 require REKLAMO_PATH . 'includes/class-reklamo-reminders.php';
 require REKLAMO_PATH . 'includes/class-reklamo-payment-deadline.php';
+require REKLAMO_PATH . 'includes/class-reklamo-dispatch.php';
 
 /**
  * Declare compatibility with WooCommerce features.
@@ -108,6 +109,7 @@ function reklamo_boot(): void {
 	Reklamo_Settings::init();
 	Reklamo_Request::init();
 	Reklamo_Reminders::init();
+	Reklamo_Dispatch::init();
 	Reklamo_Upload::init();
 	Reklamo_Cleanup::init();
 	Reklamo_Diagnostics::init();

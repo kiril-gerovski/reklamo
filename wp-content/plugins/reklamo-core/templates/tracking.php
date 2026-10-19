@@ -169,6 +169,25 @@ $multi    = ( $counts['total'] ?? 0 ) > 1;
 				?>
 				<h2><?php echo esc_html( $v['completed_on'] ? sprintf( /* translators: %s: date */ __( 'Completed on %s — thank you!', 'reklamo-core' ), $v['completed_on'] ) : __( 'Completed — thank you!', 'reklamo-core' ) ); ?></h2>
 				<p><?php esc_html_e( 'Your order is paid in full and on its way or delivered. This page stays available for a while as your record.', 'reklamo-core' ); ?></p>
+				<?php $reklamo_ship = Reklamo_Dispatch::shipment( $order ); ?>
+				<?php $reklamo_invoice = Reklamo_Dispatch::invoice( $order ); ?>
+				<?php if ( $reklamo_ship || $reklamo_invoice ) : ?>
+					<dl class="kv shipment">
+						<?php if ( $reklamo_ship ) : ?>
+							<dt><?php esc_html_e( 'Waybill', 'reklamo-core' ); ?></dt>
+							<dd>
+								<?php echo esc_html( trim( $reklamo_ship['courier_name'] . ' ' . $reklamo_ship['waybill'] ) ); ?>
+								<?php if ( $reklamo_ship['url'] ) : ?>
+									— <a href="<?php echo esc_url( $reklamo_ship['url'] ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'Track the parcel', 'reklamo-core' ); ?></a>
+								<?php endif; ?>
+							</dd>
+						<?php endif; ?>
+						<?php if ( $reklamo_invoice ) : ?>
+							<dt><?php esc_html_e( 'Invoice', 'reklamo-core' ); ?></dt>
+							<dd><a href="<?php echo esc_url( $file_url( (int) $reklamo_invoice->id ) ); ?>"><?php echo esc_html( Reklamo_Dispatch::invoice_name( $order, $reklamo_invoice ) ); ?></a></dd>
+						<?php endif; ?>
+					</dl>
+				<?php endif; ?>
 				<?php
 				break;
 			default:

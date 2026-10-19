@@ -18,8 +18,9 @@ defined( 'ABSPATH' ) || exit;
 
 final class Reklamo_Admin_Order {
 
-	const FORM_MOCKUP = 'reklamo-mockup-form';
-	const FORM_ACTION = 'reklamo-action-form';
+	const FORM_MOCKUP   = 'reklamo-mockup-form';
+	const FORM_ACTION   = 'reklamo-action-form';
+	const FORM_DISPATCH = 'reklamo-dispatch-form';
 
 	public static function init(): void {
 		if ( ! is_admin() ) {
@@ -29,6 +30,7 @@ final class Reklamo_Admin_Order {
 		add_action( 'admin_footer', array( __CLASS__, 'print_forms' ) );
 		add_action( 'admin_post_reklamo_send_mockup', array( __CLASS__, 'handle_send_mockup' ) );
 		add_action( 'admin_post_reklamo_order_action', array( __CLASS__, 'handle_action' ) );
+		add_action( 'admin_post_reklamo_dispatch', array( __CLASS__, 'handle_dispatch' ) );
 		add_action( 'admin_notices', array( __CLASS__, 'notices' ) );
 		// After WooCommerce's own order data (40), so a delivery change made here is not overwritten.
 		add_action( 'woocommerce_process_shop_order_meta', array( __CLASS__, 'save_details' ), 50, 2 );
@@ -93,7 +95,6 @@ final class Reklamo_Admin_Order {
 	/** Actions offered per status: slug => [label, next status, confirm text]. */
 	private static function actions_for( WC_Order $order ): array {
 		$deposit = wp_strip_all_tags( wc_price( (float) $order->get_meta( '_reklamo_deposit_amount' ), array( 'currency' => $order->get_currency() ) ) );
-		$balance = wp_strip_all_tags( wc_price( Reklamo_Money::balance( (float) $order->get_total(), (float) $order->get_meta( '_reklamo_deposit_amount' ) ), array( 'currency' => $order->get_currency() ) ) );
 		$all     = array(
 			Reklamo_Statuses::APPROVED     => array(
 				/* translators: %s: deposit amount */
@@ -110,14 +111,8 @@ final class Reklamo_Admin_Order {
 			Reklamo_Statuses::DEPOSIT_PAID => array(
 				'production' => array( __( 'Start production', 'reklamo-core' ), Reklamo_Statuses::PRODUCTION ),
 			),
-			Reklamo_Statuses::PRODUCTION   => Reklamo_Money::balance( (float) $order->get_total(), (float) $order->get_meta( '_reklamo_deposit_amount' ) ) > 0
-				? array( 'final_due' => array( __( 'Ready — request final payment', 'reklamo-core' ), Reklamo_Statuses::FINAL_DUE ) )
-				// Paid in full before production: nothing left to ask for, the order ends with the dispatch.
-				: array( 'dispatched' => array( __( 'Dispatched — complete the order', 'reklamo-core' ), 'completed' ) ),
-			Reklamo_Statuses::FINAL_DUE    => array(
-				/* translators: %s: balance amount */
-				'complete' => array( sprintf( __( 'Final payment received (%s) — complete', 'reklamo-core' ), $balance ), 'completed' ),
-			),
+			// Paid in full before production: nothing left to ask for, the order ends with the dispatch box.
+			Reklamo_Statuses::PRODUCTION   => self::can_dispatch( $order ) ? array() : array( 'final_due' => array( __( 'Ready — request final payment', 'reklamo-core' ), Reklamo_Statuses::FINAL_DUE ) ),
 		);
 		if ( $order->has_status( 'cancelled' ) && $order->get_meta( Reklamo_Payment_Deadline::META_EXPIRED ) ) {
 			/* translators: %s: deposit amount */
@@ -167,6 +162,10 @@ final class Reklamo_Admin_Order {
 						<button type="submit" class="button <?php echo $a[1] ? 'button-primary' : ''; ?>" name="reklamo_action" value="<?php echo esc_attr( $key ); ?>" form="<?php echo esc_attr( self::FORM_ACTION ); ?>"><?php echo esc_html( $a[0] ); ?></button>
 					<?php endforeach; ?>
 				</p>
+			<?php endif; ?>
+
+			<?php if ( self::can_dispatch( $order ) ) : ?>
+				<?php self::render_dispatch( $order ); ?>
 			<?php endif; ?>
 
 			<?php $track_url = Reklamo_Tracking::url( $order ); ?>
@@ -376,6 +375,130 @@ final class Reklamo_Admin_Order {
 		}
 		printf( '<form id="%s" method="post" enctype="multipart/form-data" action="%s"></form>', esc_attr( self::FORM_MOCKUP ), esc_url( admin_url( 'admin-post.php' ) ) );
 		printf( '<form id="%s" method="post" action="%s"></form>', esc_attr( self::FORM_ACTION ), esc_url( admin_url( 'admin-post.php' ) ) );
+		printf( '<form id="%s" method="post" enctype="multipart/form-data" action="%s"></form>', esc_attr( self::FORM_DISPATCH ), esc_url( admin_url( 'admin-post.php' ) ) );
+	}
+
+	/** The last step: paid in full and in production, or the balance requested. */
+	private static function can_dispatch( WC_Order $order ): bool {
+		if ( $order->has_status( Reklamo_Statuses::FINAL_DUE ) ) {
+			return true;
+		}
+		return $order->has_status( Reklamo_Statuses::PRODUCTION ) && Reklamo_Money::balance( (float) $order->get_total(), (float) $order->get_meta( '_reklamo_deposit_amount' ) ) <= 0;
+	}
+
+	private static function render_dispatch( WC_Order $order ): void {
+		$f       = self::FORM_DISPATCH;
+		$courier = (string) $order->get_meta( Reklamo_Dispatch::META_COURIER );
+		$courier = '' !== $courier ? $courier : (string) ( Reklamo_Approval::details( $order )['courier'] ?? '' );
+		$final   = $order->has_status( Reklamo_Statuses::FINAL_DUE );
+		$balance = wp_strip_all_tags( wc_price( Reklamo_Money::balance( (float) $order->get_total(), (float) $order->get_meta( '_reklamo_deposit_amount' ) ), array( 'currency' => $order->get_currency() ) ) );
+		?>
+		<div class="reklamo-dispatch">
+			<h4><?php esc_html_e( 'Dispatch', 'reklamo-core' ); ?></h4>
+			<p class="description"><?php esc_html_e( 'The waybill and the invoice go to the customer in the "Order completed" email, the last one they get; the order page shows them too.', 'reklamo-core' ); ?></p>
+			<table class="form-table reklamo-details">
+				<tr>
+					<th><label for="reklamo-courier"><?php esc_html_e( 'Courier', 'reklamo-core' ); ?></label></th>
+					<td>
+						<select id="reklamo-courier" name="courier" form="<?php echo esc_attr( $f ); ?>">
+							<option value=""><?php esc_html_e( '— none —', 'reklamo-core' ); ?></option>
+							<?php foreach ( Reklamo_Approval::COURIERS as $key => $label ) : ?>
+								<option value="<?php echo esc_attr( $key ); ?>" <?php selected( $courier, $key ); ?>><?php echo esc_html( $label ); ?></option>
+							<?php endforeach; ?>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<th><label for="reklamo-waybill"><?php esc_html_e( 'Waybill number', 'reklamo-core' ); ?></label></th>
+					<td><input type="text" id="reklamo-waybill" name="waybill" maxlength="40" value="<?php echo esc_attr( (string) $order->get_meta( Reklamo_Dispatch::META_WAYBILL ) ); ?>" form="<?php echo esc_attr( $f ); ?>"></td>
+				</tr>
+				<tr>
+					<th><label for="reklamo-invoice"><?php esc_html_e( 'Invoice', 'reklamo-core' ); ?></label></th>
+					<td>
+						<?php $invoice = Reklamo_Dispatch::invoice( $order ); ?>
+						<?php if ( $invoice ) : ?>
+							<a href="<?php echo esc_url( Reklamo_Storage::download_url( (int) $invoice->id ) ); ?>"><?php echo esc_html( $invoice->orig_name ); ?></a> — <?php esc_html_e( 'a new file replaces it', 'reklamo-core' ); ?><br>
+						<?php endif; ?>
+						<input type="file" id="reklamo-invoice" name="invoice" accept=".pdf,.png,.jpg,.jpeg" form="<?php echo esc_attr( $f ); ?>">
+					</td>
+				</tr>
+			</table>
+			<p>
+				<button type="submit" class="button button-primary" form="<?php echo esc_attr( $f ); ?>">
+					<?php
+					echo esc_html(
+						$final
+							/* translators: %s: balance amount */
+							? sprintf( __( 'Final payment received (%s) — complete', 'reklamo-core' ), $balance )
+							: __( 'Dispatched — complete the order', 'reklamo-core' )
+					);
+					?>
+				</button>
+			</p>
+			<?php
+			printf(
+				'<input type="hidden" name="order_id" value="%1$d" form="%2$s"><input type="hidden" name="_wpnonce" value="%3$s" form="%2$s"><input type="hidden" name="action" value="reklamo_dispatch" form="%2$s">',
+				(int) $order->get_id(),
+				esc_attr( $f ),
+				esc_attr( wp_create_nonce( 'reklamo_dispatch' ) )
+			);
+			?>
+		</div>
+		<?php
+	}
+
+	/** Store the waybill and the invoice, then complete: WooCommerce's "Completed order" email carries both. */
+	public static function handle_dispatch(): void {
+		$order = self::order_from_request( 'reklamo_dispatch' );
+		$back  = $order->get_edit_order_url();
+		if ( ! self::can_dispatch( $order ) ) {
+			self::redirect( $back, 'error', __( 'That action is not available for the current status.', 'reklamo-core' ) );
+		}
+		$courier = isset( $_POST['courier'] ) ? sanitize_key( wp_unslash( $_POST['courier'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- checked in order_from_request().
+		$courier = isset( Reklamo_Approval::COURIERS[ $courier ] ) ? $courier : '';
+		$waybill = Reklamo_Dispatch::clean_waybill( isset( $_POST['waybill'] ) ? sanitize_text_field( wp_unslash( $_POST['waybill'] ) ) : '' ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		if ( null === $waybill ) {
+			self::redirect( $back, 'error', __( 'The waybill number may hold only letters, digits, spaces and dashes (4–40 characters).', 'reklamo-core' ) );
+		}
+		$file = isset( $_FILES['invoice'] ) && is_array( $_FILES['invoice'] ) ? $_FILES['invoice'] : array(); // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput -- validated in store_upload().
+		$note = array();
+		if ( $file && UPLOAD_ERR_NO_FILE !== (int) ( $file['error'] ?? UPLOAD_ERR_NO_FILE ) ) {
+			$row = Reklamo_Storage::store_upload( $file, Reklamo_Dispatch::INVOICE_KIND, Reklamo_Dispatch::INVOICE_EXTENSIONS, Reklamo_Storage::MOCKUP_MAX_BYTES );
+			if ( is_wp_error( $row ) ) {
+				/* translators: %s: error message */
+				self::redirect( $back, 'error', sprintf( __( 'Invoice: %s', 'reklamo-core' ), $row->get_error_message() ) );
+			}
+			Reklamo_Storage::claim( $row['token'], $order->get_id() );
+			/* translators: %s: file name */
+			$note[] = sprintf( __( 'invoice %s attached', 'reklamo-core' ), $row['orig_name'] ?? '' );
+		}
+		$order->update_meta_data( Reklamo_Dispatch::META_COURIER, $courier );
+		$order->update_meta_data( Reklamo_Dispatch::META_WAYBILL, $waybill );
+		if ( $order->has_status( Reklamo_Statuses::FINAL_DUE ) ) {
+			$order->update_meta_data( '_reklamo_final_paid_at', current_time( 'mysql', true ) );
+		}
+		$order->save();
+		if ( '' !== $waybill ) {
+			array_unshift(
+				$note,
+				'' !== $courier
+					/* translators: 1: waybill number, 2: courier */
+					? sprintf( __( 'waybill %1$s (%2$s)', 'reklamo-core' ), $waybill, Reklamo_Approval::COURIERS[ $courier ] )
+					/* translators: %s: waybill number */
+					: sprintf( __( 'waybill %s', 'reklamo-core' ), $waybill )
+			);
+		}
+		$order->update_status(
+			'completed',
+			$order->has_status( Reklamo_Statuses::FINAL_DUE )
+				? __( 'Final payment received; order completed.', 'reklamo-core' )
+				: __( 'Order dispatched; it was paid in full before production.', 'reklamo-core' )
+		);
+		if ( $note ) {
+			/* translators: %s: waybill and invoice summary */
+			$order->add_order_note( sprintf( __( 'Dispatch: %s.', 'reklamo-core' ), implode( '; ', $note ) ) );
+		}
+		self::redirect( $back, 'success', __( 'Order completed; the customer got the final email.', 'reklamo-core' ) );
 	}
 
 	private static function order_from_request( string $nonce_action ): WC_Order {
@@ -525,16 +648,8 @@ final class Reklamo_Admin_Order {
 			case 'production':
 				$order->update_status( Reklamo_Statuses::PRODUCTION, __( 'Production started.', 'reklamo-core' ) );
 				break;
-			case 'dispatched':
-				$order->update_status( 'completed', __( 'Order dispatched; it was paid in full before production.', 'reklamo-core' ) );
-				break;
 			case 'final_due':
 				$order->update_status( Reklamo_Statuses::FINAL_DUE, __( 'Order ready; final payment requested.', 'reklamo-core' ) );
-				break;
-			case 'complete':
-				$order->update_meta_data( '_reklamo_final_paid_at', $now );
-				$order->save();
-				$order->update_status( 'completed', __( 'Final payment received; order completed.', 'reklamo-core' ) );
 				break;
 		}
 		self::redirect( $back, 'success', sprintf( /* translators: %s: new status */ __( 'Order moved to "%s".', 'reklamo-core' ), wc_get_order_status_name( wc_get_order( $order->get_id() )->get_status() ) ) );

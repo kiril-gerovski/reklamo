@@ -29,6 +29,8 @@ final class Reklamo_Privacy {
 		'_reklamo_customer_type',
 		'_reklamo_delivery_type',
 		'_reklamo_courier',
+		'_reklamo_waybill',
+		'_reklamo_waybill_courier',
 	);
 
 	/** Comment meta marking an order note that quotes the customer or records their IP. */
@@ -200,7 +202,10 @@ final class Reklamo_Privacy {
 			}
 			foreach ( Reklamo_Storage::for_order( $order_id ) as $f ) {
 				$product = $names[ (int) $f->order_item_id ] ?? '';
-				$label   = 'logo' === $f->kind ? __( 'Logo file', 'reklamo-core' ) : sprintf( /* translators: %d: revision */ __( 'Mockup #%d', 'reklamo-core' ), (int) $f->revision );
+				$label   = array(
+					'logo'    => __( 'Logo file', 'reklamo-core' ),
+					'invoice' => __( 'Invoice', 'reklamo-core' ),
+				)[ $f->kind ] ?? sprintf( /* translators: %d: revision */ __( 'Mockup #%d', 'reklamo-core' ), (int) $f->revision );
 				$data[]  = array(
 					'name'  => '' !== $product ? $label . ' — ' . $product : $label,
 					'value' => sprintf( '%s — %s, %s (%s)', $f->orig_name, strtoupper( $f->ext ), size_format( (int) $f->bytes ), '' === (string) $f->path ? __( 'deleted', 'reklamo-core' ) : $f->created_at ),

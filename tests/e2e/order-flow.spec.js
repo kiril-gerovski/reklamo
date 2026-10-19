@@ -481,8 +481,8 @@ test( 'the shop\'s emails go to every WordPress administrator, too', async ( { p
 	// WooCommerce's own "resend new order notification" goes to the configured address and to both administrators.
 	await page.goto( `/wp-admin/admin.php?page=wc-orders&action=edit&id=${ orderId }` );
 	await page.selectOption( 'select[name="wc_order_action"]', 'send_order_details_admin' );
-	await page.locator( 'button.wc-reload' ).evaluate( ( b ) => b.click() );
-	await page.waitForLoadState( 'load' );
+	// The click submits the order form; wait for that navigation, or its late redirect aborts the next goto.
+	await Promise.all( [ page.waitForNavigation( { waitUntil: 'load' } ), page.locator( 'button.wc-reload' ).evaluate( ( b ) => b.click() ) ] );
 	// Not there yet is not a failure: ask Mailpit again until the resent email arrives.
 	const recipients = async () => {
 		try {
@@ -523,8 +523,17 @@ test( 'shop moves the order: payment → production → dispatched and completed
 
 	// Paid in full before production: nothing is left to collect, so there is no final-payment step.
 	await expect( page.getByRole( 'button', { name: /поискай доплащане/ } ) ).toHaveCount( 0 );
+	// The dispatch box: courier from the customer's choice, a bad waybill is refused, then waybill and invoice.
+	await expect( page.locator( '#reklamo-courier' ) ).toHaveValue( 'speedy' );
+	await page.fill( '#reklamo-waybill', '600/123' );
+	await page.getByRole( 'button', { name: 'Изпратена — приключи поръчката' } ).click();
+	await expect( page.locator( '.notice-error' ) ).toContainText( 'товарителницата' );
+	await expect( page.locator( '#order_status' ) ).toHaveValue( 'wc-rq-production' );
+	await page.fill( '#reklamo-waybill', '600 123 456 78' );
+	await page.setInputFiles( '#reklamo-invoice', `${ FIXTURES }/logo.pdf` );
 	await page.getByRole( 'button', { name: 'Изпратена — приключи поръчката' } ).click();
 	await expect( page.locator( '#order_status' ) ).toHaveValue( 'wc-completed' );
+	await expect( page.locator( '#woocommerce-order-notes' ) ).toContainText( 'товарителница 600 123 456 78 (Спиди); прикачена фактура logo.pdf' );
 } );
 
 test( 'order page after completion: full history, all steps done, nothing left to do', async ( { page } ) => {
@@ -536,13 +545,24 @@ test( 'order page after completion: full history, all steps done, nothing left t
 	await expect( page.locator( '.rev' ) ).toHaveCount( 3 );
 	await expect( page.locator( '.rev' ).first() ).toContainText( 'Одобрена на' );
 	await expect( page.locator( '.rev' ).last() ).toContainText( 'по-голямо' );
-	await expect( page.locator( '.kv' ).first() ).toContainText( 'получен' );
+	await expect( page.locator( '.kv:not(.shipment)' ).first() ).toContainText( 'получен' );
 	await expect( page.locator( 'body' ) ).toContainText( 'Ноубъл ЕООД' );
 	await expect( page.locator( '.kv' ).last() ).toContainText( 'До автомат — Спиди: автомат Бизнес парк, София' );
 	await expect( page.locator( 'form.inline-form' ) ).toHaveCount( 0 );
 	// The completed-order email from WooCommerce carries the link too.
 	const done = await mailpitFind( 'Вашата поръчка от' );
 	expect( done.text ).toContain( 'porachka/?s=' );
+	// …and the waybill with its tracking link, and the invoice as an attachment with a readable name.
+	expect( done.text ).toContain( 'Поръчката Ви е изпратена — Спиди, товарителница № 600 123 456 78.' );
+	expect( done.text ).toContain( 'https://www.speedy.bg/bg/track-shipment?shipmentNumber=60012345678' );
+	expect( done.attachments ).toEqual( [ `Фактура-${ orderId }.pdf` ] );
+	// The order page shows both; the invoice downloads through the page's own guarded link.
+	const ship = page.locator( '.kv.shipment' );
+	await expect( ship ).toContainText( 'Спиди 600 123 456 78' );
+	await expect( ship.getByRole( 'link', { name: 'Проследете пратката' } ) ).toHaveAttribute( 'href', /shipmentNumber=60012345678/ );
+	const invoice = await page.request.get( await ship.getByRole( 'link', { name: `Фактура-${ orderId }.pdf` } ).getAttribute( 'href' ) );
+	expect( invoice.status() ).toBe( 200 );
+	expect( invoice.headers()[ 'content-disposition' ] ).toMatch( /^attachment; filename="logo\.pdf"/ );
 } );
 
 test( 'diagnostics: storage protected, probe finds the real single-request ceiling', async ( { page } ) => {
