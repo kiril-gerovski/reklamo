@@ -712,9 +712,11 @@ products in it, narrowing in place like Промо пакети (`reklamo_shop_c
 Продукти built inline is now `reklamo_catalogue_sort()` for both. No product is in it yet: the page
 shows an invitation to ask for an offer until the owner ticks the category on products.
 - The header had room for six items; the seventh overflowed by 228 px at 1280 (measured, also past the
-  container at 1920). From 1280 px the menu is compact (gap .9rem, letter-spacing .06em, .72rem) with
-  „Корпоративни подаръци“ on two lines and slightly tighter header gaps; from 1760 px, where the wider
-  container fits it (from 1720, measured), the airier one-line menu returns. The shop band's title may
+  container at 1920). From 1280 px every item stays on one line in a compact header: logo 50 px
+  (was 54), menu gap .7rem, .7rem type with letter-spacing .05em, tighter header gaps and button
+  padding; it fits the 1240 px container at 1280 with ~20 px to spare (measured). An earlier version
+  broke „Корпоративни подаръци“ over two lines; the owner wanted one line. From 1760 px, where the
+  wider container fits it (from 1720, measured), the airier menu and the 54 px logo return. The shop band's title may
   wrap (`text-wrap: balance`), so the long title no longer runs under the advantages.
 
 ## Deployment scripts

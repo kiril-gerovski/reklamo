@@ -192,5 +192,7 @@ test( 'Корпоративни подаръци sits right after Продукт
 		await page.setViewportSize( { width, height: 800 } );
 		const over = await page.evaluate( () => [ document.documentElement.scrollWidth - innerWidth, document.querySelector( '.site-header__inner' ).scrollWidth - document.querySelector( '.site-header__inner' ).clientWidth ] );
 		expect( over, `at ${ width } px` ).toEqual( [ 0, 0 ] );
+		const heights = await top.evaluateAll( ( links ) => links.map( ( a ) => a.getBoundingClientRect().height ) );
+		expect( new Set( heights ).size, `every item on one line at ${ width } px` ).toBe( 1 );
 	}
 } );

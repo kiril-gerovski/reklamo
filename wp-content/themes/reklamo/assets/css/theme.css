@@ -106,18 +106,20 @@ p { margin: 0 0 1em; }
 .primary-menu a:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; border-radius: 2px; }
 .site-header__actions { display: flex; align-items: center; gap: 1rem; }
 .site-header__cta { white-space: nowrap; }
-/* Seven items fit the header only with the longest on two lines (measured at 1280–1920 px). */
+/* Seven items on one line in the 1240 px container (measured at 1280 px, ~20 px to spare). */
 @media (min-width: 1280px) {
-	.primary-menu > li > a[href*="korporativni-podaratsi"] { white-space: normal; max-width: 8.5em; line-height: 1.3; text-align: center; }
-	.site-header .site-header__cta { padding-inline: .9rem; }
-	.site-header__inner { gap: 1rem; }
-	.site-header__actions { gap: .75rem; }
+	.brand--slogan .brand__logo { height: 50px; }
+	.primary-menu { gap: .7rem; }
+	.primary-menu a { font-size: .7rem; letter-spacing: .05em; }
+	.site-header .site-header__cta { padding-inline: .8rem; }
+	.site-header__inner { gap: .9rem; }
+	.site-header__actions { gap: .6rem; }
 }
-/* Wide screens have room for the airy original: every item on one line (fits from 1720 px). */
+/* Wide screens have room for the airy original (fits from 1720 px). */
 @media (min-width: 1760px) {
+	.brand--slogan .brand__logo { height: 54px; }
 	.primary-menu { gap: 1.3rem; }
-	.primary-menu a { letter-spacing: .1em; }
-	.primary-menu > li > a[href*="korporativni-podaratsi"] { white-space: nowrap; max-width: none; }
+	.primary-menu a { font-size: .72rem; letter-spacing: .1em; }
 	.site-header__inner { gap: 1.5rem; }
 }
 .nav-toggle { display: none; background: none; border: 0; padding: .25rem; color: var(--ink); cursor: pointer; border-radius: 4px; transition: color var(--fast); }
