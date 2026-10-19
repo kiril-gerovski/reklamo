@@ -108,6 +108,7 @@ add_filter( 'loop_shop_columns', static fn() => 4 );
 add_filter( 'loop_shop_per_page', static fn() => 24 );
 
 const REKLAMO_PACKAGES_CAT   = 'paketi';
+const REKLAMO_GIFTS_CAT      = 'korporativni-podaratsi'; // also the slug of its page
 const REKLAMO_PACKAGE_FILTER = 'kategoria';
 
 /** The category Промо пакети is narrowed to through its chips (?kategoria=<slug>), or null. */
@@ -144,17 +145,22 @@ add_action(
 );
 
 /**
- * The chips: product categories in the order of the ПРОДУКТИ menu, never Пакети itself. For
- * 'packages' only the categories some package is in; for 'products' every category with products.
+ * The chips: product categories in the order of the ПРОДУКТИ menu, never a collection (Пакети,
+ * Корпоративни подаръци) itself. For 'packages' and 'gifts' only the categories something in that
+ * collection is in; for 'products' every category with products.
  *
- * @param string $context 'packages' or 'products'.
+ * @param string $context 'packages', 'gifts' or 'products'.
  * @return WP_Term[]
  */
 function reklamo_shop_chips( string $context ): array {
-	if ( 'packages' === $context ) {
+	$collection = array(
+		'packages' => REKLAMO_PACKAGES_CAT,
+		'gifts'    => REKLAMO_GIFTS_CAT,
+	)[ $context ] ?? '';
+	if ( '' !== $collection ) {
 		$ids   = wc_get_products(
 			array(
-				'category' => array( REKLAMO_PACKAGES_CAT ),
+				'category' => array( $collection ),
 				'status'   => 'publish',
 				'limit'    => -1,
 				'return'   => 'ids',
@@ -172,7 +178,7 @@ function reklamo_shop_chips( string $context ): array {
 	if ( ! is_array( $terms ) ) {
 		return array();
 	}
-	$terms = array_filter( $terms, static fn( $t ) => REKLAMO_PACKAGES_CAT !== $t->slug );
+	$terms = array_filter( $terms, static fn( $t ) => ! in_array( $t->slug, array( REKLAMO_PACKAGES_CAT, REKLAMO_GIFTS_CAT ), true ) );
 	$order = array();
 	foreach ( (array) wp_get_nav_menu_items( 'Главно меню' ) as $item ) {
 		if ( 'product_cat' === ( $item->object ?? '' ) ) {
@@ -181,6 +187,53 @@ function reklamo_shop_chips( string $context ): array {
 	}
 	usort( $terms, static fn( $a, $b ) => ( $order[ $a->term_id ] ?? 99 ) <=> ( $order[ $b->term_id ] ?? 99 ) );
 	return $terms;
+}
+
+/**
+ * Sorting for a listing built on the [products] shortcode (Продукти, Корпоративни подаръци), which
+ * does not read ?orderby itself: WooCommerce's dropdown, and the order the choice stands for.
+ *
+ * @return array{html:string,orderby:string,order:string}
+ */
+function reklamo_catalogue_sort(): array {
+	// WooCommerce's own labels, so the dropdown reads exactly as on Промо пакети.
+	// phpcs:disable WordPress.WP.I18n.TextDomainMismatch
+	$options = apply_filters(
+		'woocommerce_catalog_orderby',
+		array(
+			'menu_order' => __( 'Default sorting', 'woocommerce' ),
+			'popularity' => __( 'Sort by popularity', 'woocommerce' ),
+			'rating'     => __( 'Sort by average rating', 'woocommerce' ),
+			'date'       => __( 'Sort by latest', 'woocommerce' ),
+			'price'      => __( 'Sort by price: low to high', 'woocommerce' ),
+			'price-desc' => __( 'Sort by price: high to low', 'woocommerce' ),
+		)
+	);
+	// phpcs:enable WordPress.WP.I18n.TextDomainMismatch
+	$orderby = isset( $_GET['orderby'] ) ? sanitize_key( wp_unslash( $_GET['orderby'] ) ) : 'menu_order'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- a public sort.
+	$orderby = isset( $options[ $orderby ] ) ? $orderby : 'menu_order';
+	$map     = array(
+		'menu_order' => array( 'menu_order', 'ASC' ),
+		'popularity' => array( 'popularity', 'DESC' ),
+		'rating'     => array( 'rating', 'DESC' ),
+		'date'       => array( 'date', 'DESC' ),
+		'price'      => array( 'price', 'ASC' ),
+		'price-desc' => array( 'price', 'DESC' ),
+	);
+	ob_start();
+	wc_get_template(
+		'loop/orderby.php',
+		array(
+			'catalog_orderby_options' => $options,
+			'orderby'                 => $orderby,
+			'use_label'               => false,
+		)
+	);
+	return array(
+		'html'    => (string) ob_get_clean(),
+		'orderby' => $map[ $orderby ][0],
+		'order'   => $map[ $orderby ][1],
+	);
 }
 
 /** Pieces in a package: the number its first contents item starts with, e.g. "50 бр. …" → 50. */

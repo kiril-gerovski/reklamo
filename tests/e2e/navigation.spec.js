@@ -180,3 +180,17 @@ test( 'on a phone the company details stack, each value on its own full-width li
 		expect( ( await dd.boundingBox() ).width ).toBeGreaterThan( box.width / 2 );
 	}
 } );
+
+test( 'Корпоративни подаръци sits right after Продукти in the header and after Промо пакети in the footer', async ( { page } ) => {
+	await page.setViewportSize( { width: 1366, height: 800 } );
+	await page.goto( '/' );
+	const top = page.locator( '.primary-menu > li > a' );
+	await expect( top ).toHaveText( [ /Начало/i, /Промо пакети/i, /Продукти/i, /Корпоративни подаръци/i, /Как работи/i, /За бизнеса/i, /Контакти/i ] );
+	await expect( page.locator( '.site-footer a', { hasText: 'Корпоративни подаръци' } ) ).toHaveCount( 1 );
+	// Seven items still fit the header from laptop to wide screens, without a sideways scroll.
+	for ( const width of [ 1280, 1440, 1920 ] ) {
+		await page.setViewportSize( { width, height: 800 } );
+		const over = await page.evaluate( () => [ document.documentElement.scrollWidth - innerWidth, document.querySelector( '.site-header__inner' ).scrollWidth - document.querySelector( '.site-header__inner' ).clientWidth ] );
+		expect( over, `at ${ width } px` ).toEqual( [ 0, 0 ] );
+	}
+} );

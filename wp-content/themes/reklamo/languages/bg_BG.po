@@ -351,7 +351,7 @@ msgstr "Наш консултант е на разположение да ви �
 msgid "Contact us"
 msgstr "Свържи се с нас"
 
-#: functions.php:334
+#: functions.php:387
 msgid "Most popular"
 msgstr "Най-популярен"
 
@@ -608,11 +608,11 @@ msgstr "Доставка и срокове"
 msgid "Frequently asked questions"
 msgstr "Често задавани въпроси"
 
-#: functions.php:365
+#: functions.php:418
 msgid "View the package"
 msgstr "Виж пакета"
 
-#: functions.php:221
+#: functions.php:274
 msgid "Specifications"
 msgstr "Спецификации"
 
@@ -644,28 +644,28 @@ msgstr "Подробно за доставката"
 msgid "How ordering works"
 msgstr "Как става поръчката"
 
-#: template-parts/shop-hero.php:26
+#: template-parts/shop-hero.php:27
 #: woocommerce/archive-product.php:23
 msgid "Ready-made solutions for your business"
 msgstr "Готови решения за вашия бизнес"
 
-#: template-parts/shop-hero.php:46
+#: template-parts/shop-hero.php:55
 msgid "Stylish and practical combinations"
 msgstr "Стилни и практични комбинации"
 
-#: template-parts/shop-hero.php:47
+#: template-parts/shop-hero.php:56
 msgid "Personalised with your logo"
 msgstr "Персонализирани с вашето лого"
 
-#: template-parts/shop-hero.php:48
+#: template-parts/shop-hero.php:57
 msgid "Suitable for any business"
 msgstr "Подходящи за всякакъв бизнес"
 
-#: template-parts/shop-hero.php:53
+#: template-parts/shop-hero.php:62
 msgid "Filter by category"
 msgstr "Филтър по категория"
 
-#: template-parts/shop-hero.php:56
+#: template-parts/shop-hero.php:42
 msgid "All packages"
 msgstr "Всички пакети"
 
@@ -683,11 +683,11 @@ msgstr "Виж повече"
 msgid "incl. VAT"
 msgstr "с ДДС"
 
-#: page-produkti.php:57
+#: page-produkti.php:22
 msgid "Everything we can brand with your logo"
 msgstr "Всичко, което можем да брандираме с вашето лого"
 
-#: template-parts/shop-hero.php:56
+#: template-parts/shop-hero.php:44
 msgid "All products"
 msgstr "Всички продукти"
 
@@ -755,11 +755,11 @@ msgstr "Важно:"
 msgid "The mockup shown is a guide and not a 100% exact image of the final product. Slight differences in colour, size and logo position are possible, depending on the material, the printing technique and the screen settings. Before production you will receive a final mockup for approval."
 msgstr "Показаната визуализация е ориентировъчна и не представлява 100% точно изображение на крайния продукт. Възможни са минимални разлики в цветовете, размера и позиционирането на логото в зависимост от материала, използваната технология за печат и настройките на екрана. Преди производство ще получите финална визуализация за одобрение."
 
-#: functions.php:320
+#: functions.php:373
 msgid "Promotion"
 msgstr "Промоция"
 
-#: functions.php:327
+#: functions.php:380
 msgid "+ Gift"
 msgstr "+ Подарък"
 
@@ -777,3 +777,23 @@ msgstr "Подарък: %s"
 #: woocommerce/content-single-product.php:176
 msgid "Gift with this order"
 msgstr "Подарък към поръчката"
+
+#: page-korporativni-podaratsi.php:32
+msgid "Gifts for your partners, clients and team"
+msgstr "Подаръци за партньори, клиенти и екип"
+
+#: page-korporativni-podaratsi.php:45
+msgid "We are putting the corporate gifts together."
+msgstr "Подбираме корпоративните подаръци."
+
+#: page-korporativni-podaratsi.php:45
+msgid "Tell us the occasion, the number of people and your budget, and we will suggest gifts with your logo."
+msgstr "Кажете ни повода, броя хора и бюджета си и ще Ви предложим подаръци с Вашето лого."
+
+#: page-korporativni-podaratsi.php:46
+msgid "Ask for an offer"
+msgstr "Поискайте оферта"
+
+#: template-parts/shop-hero.php:43
+msgid "All gifts"
+msgstr "Всички подаръци"

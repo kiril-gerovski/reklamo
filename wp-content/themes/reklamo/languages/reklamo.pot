@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-17T19:46:10+00:00\n"
+"POT-Creation-Date: 2026-10-19T15:36:01+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: reklamo\n"
@@ -95,23 +95,23 @@ msgstr ""
 msgid "Footer — Information"
 msgstr ""
 
-#: functions.php:221
+#: functions.php:274
 msgid "Specifications"
 msgstr ""
 
-#: functions.php:320
+#: functions.php:373
 msgid "Promotion"
 msgstr ""
 
-#: functions.php:327
+#: functions.php:380
 msgid "+ Gift"
 msgstr ""
 
-#: functions.php:334
+#: functions.php:387
 msgid "Most popular"
 msgstr ""
 
-#: functions.php:365
+#: functions.php:418
 msgid "View the package"
 msgstr ""
 
@@ -153,7 +153,23 @@ msgstr ""
 msgid "Nothing found."
 msgstr ""
 
-#: page-produkti.php:57
+#: page-korporativni-podaratsi.php:32
+msgid "Gifts for your partners, clients and team"
+msgstr ""
+
+#: page-korporativni-podaratsi.php:45
+msgid "We are putting the corporate gifts together."
+msgstr ""
+
+#: page-korporativni-podaratsi.php:45
+msgid "Tell us the occasion, the number of people and your budget, and we will suggest gifts with your logo."
+msgstr ""
+
+#: page-korporativni-podaratsi.php:46
+msgid "Ask for an offer"
+msgstr ""
+
+#: page-produkti.php:22
 msgid "Everything we can brand with your logo"
 msgstr ""
 
@@ -295,33 +311,37 @@ msgstr ""
 msgid "All questions"
 msgstr ""
 
-#: template-parts/shop-hero.php:26
+#: template-parts/shop-hero.php:27
 #: woocommerce/archive-product.php:23
 msgid "Ready-made solutions for your business"
 msgstr ""
 
-#: template-parts/shop-hero.php:46
-msgid "Stylish and practical combinations"
-msgstr ""
-
-#: template-parts/shop-hero.php:47
-msgid "Personalised with your logo"
-msgstr ""
-
-#: template-parts/shop-hero.php:48
-msgid "Suitable for any business"
-msgstr ""
-
-#: template-parts/shop-hero.php:53
-msgid "Filter by category"
-msgstr ""
-
-#: template-parts/shop-hero.php:56
+#: template-parts/shop-hero.php:42
 msgid "All packages"
 msgstr ""
 
-#: template-parts/shop-hero.php:56
+#: template-parts/shop-hero.php:43
+msgid "All gifts"
+msgstr ""
+
+#: template-parts/shop-hero.php:44
 msgid "All products"
+msgstr ""
+
+#: template-parts/shop-hero.php:55
+msgid "Stylish and practical combinations"
+msgstr ""
+
+#: template-parts/shop-hero.php:56
+msgid "Personalised with your logo"
+msgstr ""
+
+#: template-parts/shop-hero.php:57
+msgid "Suitable for any business"
+msgstr ""
+
+#: template-parts/shop-hero.php:62
+msgid "Filter by category"
 msgstr ""
 
 #: template-parts/steps.php:35

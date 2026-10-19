@@ -2,6 +2,7 @@
 // The catalogue from the client's photos: three calendars, the single products and the packages, each
 // sold in sizes with a price per size.
 const { test, expect } = require( '@playwright/test' );
+const { adminLogin } = require( './helpers' );
 
 const TIERS = [
 	{ qty: 50, price: '137,99' },
@@ -329,4 +330,42 @@ test( 'the second batch is in its categories: lighters, pens and Trio under Те
 			await expect( page.locator( 'li.product', { hasText: name } ) ).toHaveCount( 1 );
 		}
 	}
+} );
+
+test( 'Корпоративни подаръци lists what is ticked into it, like Промо пакети, and invites an offer while empty', async ( { page, browser } ) => {
+	const shop = await ( await browser.newContext( { locale: 'bg-BG' } ) ).newPage();
+	await shop.goto( '/korporativni-podaratsi/' );
+	await expect( shop.locator( '.shop-hero h1' ) ).toHaveText( /Корпоративни подаръци/i );
+	await expect( shop.locator( '.shop-chip' ).first() ).toHaveText( /Всички подаръци/i );
+	await expect( shop.locator( '.shop-empty' ) ).toContainText( 'Подбираме корпоративните подаръци' );
+	await expect( shop.locator( '.shop-empty a' ) ).toHaveAttribute( 'href', /kontakti/ );
+
+	// The owner ticks the category on a product; untick it whatever happens, for the other tests.
+	await adminLogin( page );
+	const id = ( await ( await page.request.get( '/wp-json/wc/store/v1/products?sku=TEF-002' ) ).json() )[ 0 ].id;
+	const save = () => Promise.all( [ page.waitForURL( /message=/, { waitUntil: 'commit' } ), page.locator( '#publish' ).evaluate( ( b ) => b.click() ) ] );
+	const tick = async ( on ) => {
+		await page.goto( `/wp-admin/post.php?post=${ id }&action=edit` );
+		await page.locator( '#product_catchecklist label', { hasText: 'Корпоративни подаръци' } ).locator( 'input' ).setChecked( on );
+		await save();
+	};
+	await tick( true );
+	try {
+		await shop.goto( '/korporativni-podaratsi/' );
+		await expect( shop.locator( 'li.product h3' ) ).toHaveText( [ /Тефтер Vintage Black/i ] );
+		await expect( shop.locator( '.shop-empty' ) ).toHaveCount( 0 );
+		// Its own category becomes a chip that narrows the page in place; the collection itself never is one.
+		const chip = shop.locator( '.shop-chip', { hasText: 'Тефтери' } );
+		await expect( chip ).toHaveAttribute( 'href', /korporativni-podaratsi\/\?kategoria=tefteri/ );
+		await expect( shop.locator( '.shop-chip', { hasText: 'Корпоративни подаръци' } ) ).toHaveCount( 0 );
+		await chip.click();
+		await expect( shop.locator( 'li.product h3' ) ).toHaveText( [ /Тефтер Vintage Black/i ] );
+		await shop.goto( '/produkti/' );
+		await expect( shop.locator( '.shop-chip', { hasText: 'Корпоративни подаръци' } ) ).toHaveCount( 0 );
+	} finally {
+		await tick( false );
+	}
+	await shop.goto( '/korporativni-podaratsi/' );
+	await expect( shop.locator( '.shop-empty' ) ).toBeVisible();
+	await shop.context().close();
 } );

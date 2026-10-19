@@ -228,6 +228,8 @@ ensure_page kak-raboti "Как работи" >/dev/null
 ensure_page za-biznesa "За бизнеса" >/dev/null
 # Landing page behind the ПРОДУКТИ menu item. The native WooCommerce shortcode lists every
 # top-level product category, so a category added later shows up without touching the page.
+# Корпоративни подаръци: its own listing like Промо пакети, of the products in that category (theme page-korporativni-podaratsi.php).
+ensure_page korporativni-podaratsi "Корпоративни подаръци" >/dev/null
 ensure_page produkti "Продукти" '<!-- wp:shortcode -->[product_categories parent="0" hide_empty="0" columns="3"]<!-- /wp:shortcode -->' >/dev/null
 ensure_page za-nas "За нас" >/dev/null
 ensure_page kontakti "Контакти" >/dev/null
@@ -1141,6 +1143,8 @@ done
 # WooCommerce ships an "Uncategorized" term and refuses to delete whichever one is the default,
 # so hand the default to Пакети first and only then drop it — and only while it holds nothing.
 opt default_product_cat "$(ensure_cat paketi "Пакети")"
+# A collection like Пакети, not one of the ПРОДУКТИ categories: a product belongs when the owner ticks it.
+ensure_cat korporativni-podaratsi "Корпоративни подаръци" >/dev/null
 uncat=$(wc product_cat list --slug=uncategorized --fields=id,count --format=csv | tail -n +2 | tr -d '"')
 if [ -n "$uncat" ] && [ "${uncat#*,}" = "0" ]; then
   wp term delete product_cat "${uncat%%,*}" >/dev/null 2>&1 && echo "  removed the empty Uncategorized category"
@@ -1167,6 +1171,7 @@ ensure_menu "Главно меню"
 wp menu item list "Главно меню" --fields=object_id --format=csv | tail -n +2 | grep -x "$home_id" >/dev/null || wp menu item add-post "Главно меню" "$home_id" --position=1 >/dev/null
 [ -n "$shop_id" ] && { wp menu item list "Главно меню" --fields=object_id --format=csv | tail -n +2 | grep -x "$shop_id" >/dev/null || wp menu item add-post "Главно меню" "$shop_id" >/dev/null; }
 menu_add_page "Главно меню" produkti 3
+menu_add_page "Главно меню" korporativni-podaratsi 4
 for s in kak-raboti za-biznesa kontakti; do menu_add_page "Главно меню" "$s"; done
 # The nine categories hang under ПРОДУКТИ, in the design's order.
 produkti_item=$(menu_item_id "Главно меню" post_type "$(page_id produkti)")
@@ -1186,6 +1191,7 @@ wp menu location assign "Главно меню" primary >/dev/null 2>&1 || true
 
 ensure_menu "Футър — Навигация"
 [ -n "$shop_id" ] && { wp menu item list "Футър — Навигация" --fields=object_id --format=csv | tail -n +2 | grep -x "$shop_id" >/dev/null || wp menu item add-post "Футър — Навигация" "$shop_id" >/dev/null; }
+menu_add_page "Футър — Навигация" korporativni-podaratsi 2
 for s in kak-raboti za-biznesa za-nas kontakti; do menu_add_page "Футър — Навигация" "$s"; done
 # Вдъхновение was dropped from the site: out of every menu, and its page back to a draft while it
 # still holds only the seed placeholder. Done once, so an owner who brings it back keeps it.

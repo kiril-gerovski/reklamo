@@ -704,6 +704,19 @@ product, a gift as text, these labels replacing "Най-популярен").
 - The e2e tests that change a product's prices restore them in `finally`: an interrupted run had left
   Stripe on promotion and its 150 pcs at a test price.
 
+**2026-10-19: Корпоративни подаръци** (owner's request: a new section after Продукти, like Промо пакети).
+A product category `korporativni-podaratsi` (a collection like Пакети, outside the ПРОДУКТИ dropdown) and a
+page of the same slug, rendered by `page-korporativni-podaratsi.php` with the `[products]` shortcode
+(`category="korporativni-podaratsi,<chip>" cat_operator="AND"`); its chips are the categories of the
+products in it, narrowing in place like Промо пакети (`reklamo_shop_chips( 'gifts' )`). The sorting that
+Продукти built inline is now `reklamo_catalogue_sort()` for both. No product is in it yet: the page
+shows an invitation to ask for an offer until the owner ticks the category on products.
+- The header had room for six items; the seventh overflowed by 228 px at 1280 (measured, also past the
+  container at 1920). From 1280 px the menu is compact (gap .9rem, letter-spacing .06em, .72rem) with
+  „Корпоративни подаръци“ on two lines and slightly tighter header gaps; from 1760 px, where the wider
+  container fits it (from 1720, measured), the airier one-line menu returns. The shop band's title may
+  wrap (`text-wrap: balance`), so the long title no longer runs under the advantages.
+
 ## Deployment scripts
 
 `scripts/deploy.sh` (workstation) → `scripts/host/{bootstrap,install,update,check}.sh` (server). `install.sh` is idempotent and converges an existing account with its `.env`; `update.sh` fetches, switches the checkout under maintenance mode, converges WordPress/WooCommerce to `versions.env` (database dump first, `wp core update --force`, `wp plugin install --force`, `update-db`, `wp wc update`), flushes and runs `check.sh`, and re-runs `seed.sh` only with `--seed`. `check.sh` drops a one-off PHP probe into `public_html`, fetches it over HTTP and compares web PHP with `PHP_BIN`, prints the applied `upload_max_filesize` and friends, fetches the theme's `style.css` through the symlink and confirms the private directory is not addressable.

@@ -1,14 +1,15 @@
 <?php
 /**
  * The catalogue's title band with its three advantages, and below it the category chips and,
- * where there is a product grid, WooCommerce's sorting. Shared by Промо пакети, the category
- * archives and Продукти.
+ * where there is a product grid, WooCommerce's sorting. Shared by Промо пакети, Корпоративни
+ * подаръци, the category archives and Продукти.
  *
  * @var array $args {
  *   @type string       $title   Page title.
  *   @type string       $sub     Line under the title.
- *   @type string       $context 'packages' (Промо пакети: chips narrow the packages in place) or
- *                               'products' (Продукти: chips open the category pages).
+ *   @type string       $context 'packages' (Промо пакети) or 'gifts' (Корпоративни подаръци): chips
+ *                               narrow the collection in place; 'products' (Продукти): chips open
+ *                               the category pages.
  *   @type WP_Term|null $active  Category whose chip is lit; null lights the "all" chip.
  *   @type bool         $sorting Print WooCommerce's sorting dropdown.
  *   @type string       $sort    Sorting markup to print instead, for a page outside WooCommerce's loop.
@@ -31,8 +32,16 @@ $reklamo_args     = wp_parse_args(
 	)
 );
 $reklamo_active   = $reklamo_args['active'];
-$reklamo_packages = 'packages' === $reklamo_args['context'];
-$reklamo_all_url  = $reklamo_packages ? (string) get_permalink( wc_get_page_id( 'shop' ) ) : (string) get_permalink( get_page_by_path( 'produkti' ) );
+$reklamo_context  = $reklamo_args['context'];
+$reklamo_in_place = in_array( $reklamo_context, array( 'packages', 'gifts' ), true ); // chips filter this page
+$reklamo_all_url  = array(
+	'packages' => (string) get_permalink( wc_get_page_id( 'shop' ) ),
+	'gifts'    => (string) get_permalink( get_page_by_path( REKLAMO_GIFTS_CAT ) ),
+)[ $reklamo_context ] ?? (string) get_permalink( get_page_by_path( 'produkti' ) );
+$reklamo_all      = array(
+	'packages' => array( 'gift', __( 'All packages', 'reklamo' ) ),
+	'gifts'    => array( 'briefcase', __( 'All gifts', 'reklamo' ) ),
+)[ $reklamo_context ] ?? array( 'cube', __( 'All products', 'reklamo' ) );
 ?>
 <header class="shop-hero">
 	<div class="shop-hero__text">
@@ -52,13 +61,13 @@ $reklamo_all_url  = $reklamo_packages ? (string) get_permalink( wc_get_page_id( 
 <div class="shop-tools">
 	<nav class="shop-chips" aria-label="<?php esc_attr_e( 'Filter by category', 'reklamo' ); ?>">
 		<a class="shop-chip<?php echo $reklamo_active ? '' : ' is-active'; ?>" href="<?php echo esc_url( $reklamo_all_url ); ?>"<?php echo $reklamo_active ? '' : ' aria-current="page"'; ?>>
-			<?php echo reklamo_icon( $reklamo_packages ? 'gift' : 'cube', 18 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?>
-			<span><?php $reklamo_packages ? esc_html_e( 'All packages', 'reklamo' ) : esc_html_e( 'All products', 'reklamo' ); ?></span>
+			<?php echo reklamo_icon( $reklamo_all[0], 18 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?>
+			<span><?php echo esc_html( $reklamo_all[1] ); ?></span>
 		</a>
 		<?php foreach ( reklamo_shop_chips( $reklamo_args['context'] ) as $reklamo_chip ) : ?>
 			<?php
 			$reklamo_on  = $reklamo_active && $reklamo_active->term_id === $reklamo_chip->term_id;
-			$reklamo_url = $reklamo_packages ? add_query_arg( REKLAMO_PACKAGE_FILTER, $reklamo_chip->slug, $reklamo_all_url ) : (string) get_term_link( $reklamo_chip );
+			$reklamo_url = $reklamo_in_place ? add_query_arg( REKLAMO_PACKAGE_FILTER, $reklamo_chip->slug, $reklamo_all_url ) : (string) get_term_link( $reklamo_chip );
 			?>
 			<a class="shop-chip<?php echo $reklamo_on ? ' is-active' : ''; ?>" href="<?php echo esc_url( $reklamo_url ); ?>"<?php echo $reklamo_on ? ' aria-current="page"' : ''; ?>><?php echo reklamo_icon( reklamo_item_icon( $reklamo_chip->name ), 18 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?><span><?php echo esc_html( $reklamo_chip->name ); ?></span></a>
 		<?php endforeach; ?>
