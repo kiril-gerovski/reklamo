@@ -41,6 +41,10 @@ class Reklamo_Email_Deposit_Request extends Reklamo_Email {
 		return __( 'Prices include VAT. We will issue the invoice from the details you provide.', 'reklamo-core' );
 	}
 
+	protected function notice(): string {
+		return Reklamo_Payment_Deadline::notice( $this->object, $this->reminder ? 'reminder' : 'request' );
+	}
+
 	protected function amount_label(): string {
 		return __( 'Deposit due', 'reklamo-core' );
 	}

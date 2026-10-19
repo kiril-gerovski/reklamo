@@ -31,6 +31,8 @@ final class Reklamo_Settings {
 		'reklamo_account_holder'   => '',
 		'reklamo_reminder_days'    => '3,7,14',
 		'reklamo_stale_days'       => '7',
+		'reklamo_payment_hours'    => '48',
+		'reklamo_cancel_hours'     => '72',
 		'reklamo_max_upload_mb'    => '300',
 		'reklamo_retention_months' => '12',
 		'reklamo_anonymize_months' => '36',

@@ -35,6 +35,10 @@ class Reklamo_Email_Cancelled extends Reklamo_Email {
 		return __( 'You are welcome to place a new request at any time.', 'reklamo-core' );
 	}
 
+	protected function notice(): string {
+		return Reklamo_Payment_Deadline::notice( $this->object, 'cancelled' );
+	}
+
 	public function trigger( $order_id, $order = false ) {
 		$this->setup_locale();
 		if ( $order_id && ! $order instanceof WC_Order ) {

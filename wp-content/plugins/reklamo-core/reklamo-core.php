@@ -52,6 +52,7 @@ require REKLAMO_PATH . 'includes/class-reklamo-request.php';
 require REKLAMO_PATH . 'includes/class-reklamo-email-check.php';
 require REKLAMO_PATH . 'includes/class-reklamo-privacy.php';
 require REKLAMO_PATH . 'includes/class-reklamo-reminders.php';
+require REKLAMO_PATH . 'includes/class-reklamo-payment-deadline.php';
 
 /**
  * Declare compatibility with WooCommerce features.

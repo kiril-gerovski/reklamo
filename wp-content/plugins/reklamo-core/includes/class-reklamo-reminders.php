@@ -17,6 +17,7 @@ final class Reklamo_Reminders {
 	const HOOK_DEPOSIT  = 'reklamo_remind_deposit';
 	const HOOK_FINAL    = 'reklamo_remind_final';
 	const HOOK_STALE    = 'reklamo_stale_alert';
+	const HOOK_EXPIRE   = 'reklamo_payment_expire';
 	const GROUP         = 'reklamo';
 
 	public static function init(): void {
@@ -25,6 +26,7 @@ final class Reklamo_Reminders {
 		add_action( self::HOOK_DEPOSIT, array( __CLASS__, 'remind_deposit' ), 10, 1 );
 		add_action( self::HOOK_FINAL, array( __CLASS__, 'remind_final' ), 10, 1 );
 		add_action( self::HOOK_STALE, array( __CLASS__, 'alert_stale' ), 10, 2 );
+		add_action( self::HOOK_EXPIRE, array( 'Reklamo_Payment_Deadline', 'expire' ), 10, 1 );
 	}
 
 	private static function available(): bool {
@@ -67,6 +69,16 @@ final class Reklamo_Reminders {
 					}
 				}
 			}
+		}
+
+		$deadline = $order->has_status( Reklamo_Statuses::APPROVED ) && Reklamo_Payment_Deadline::enabled() ? Reklamo_Payment_Deadline::for_order( $order ) : null;
+		if ( $deadline ) {
+			if ( $deadline['remind'] > time() ) {
+				as_schedule_single_action( $deadline['remind'], self::HOOK_DEPOSIT, array( $order_id ), self::GROUP );
+			}
+			// No shop alert: the order cancels itself and that email tells the shop.
+			as_schedule_single_action( max( $deadline['cancel'], time() ), self::HOOK_EXPIRE, array( $order_id ), self::GROUP );
+			return;
 		}
 
 		$hook = '';

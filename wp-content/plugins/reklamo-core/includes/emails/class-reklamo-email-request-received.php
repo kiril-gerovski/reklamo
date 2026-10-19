@@ -98,6 +98,7 @@ class Reklamo_Email_Request_Received extends WC_Email {
 			'email_heading'      => $this->get_heading(),
 			'intro_text'         => $this->format_string( $this->get_option( 'intro_text', $this->get_default_intro_text() ) ),
 			'additional_content' => $this->get_additional_content(),
+			'notice'             => Reklamo_Payment_Deadline::notice( null, 'terms' ),
 			'sent_to_admin'      => false,
 			'plain_text'         => $plain,
 			'email'              => $this,

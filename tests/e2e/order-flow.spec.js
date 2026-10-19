@@ -3,6 +3,8 @@
 // no-payment request → admin sends mockup → customer approves via one-time link → replay
 // is refused. Several products with their own mockups: cart.spec.js.
 const { test, expect, request } = require( '@playwright/test' );
+const { execFileSync } = require( 'child_process' );
+const path = require( 'path' );
 const { FIXTURES, mailpitFind, adminLogin } = require( './helpers' );
 
 test.describe.configure( { mode: 'serial' } );
@@ -568,6 +570,75 @@ test( 'storefront sets no cookies: home, product, request and order pages', asyn
 	const cookies = await ctx.cookies();
 	expect( cookies.map( ( c ) => c.name ), 'no cookie may be set without consent' ).toEqual( [] );
 	await ctx.close();
+} );
+
+/** WP-CLI on the local stack, for what a browser cannot do (time passing). */
+function wp( ...args ) {
+	return execFileSync( path.resolve( __dirname, '../../scripts/wp' ), args, { encoding: 'utf8', stdio: [ 'ignore', 'pipe', 'ignore' ] } ).trim();
+}
+
+test( 'an unpaid order is reminded at 48 h and cancelled at 72 h; a late payment restores it', async ( { page } ) => {
+	const received = await mailpitFind( `Получихме Вашата заявка ${ bigOrderId }` );
+	expect( received.text ).toContain( 'имате 48 часа за плащане' );
+
+	await adminLogin( page );
+	const url = `/wp-admin/admin.php?page=wc-orders&action=edit&id=${ bigOrderId }`;
+	await page.goto( url );
+	await page.setInputFiles( 'input[name^="reklamo_mockup["]', `${ FIXTURES }/mockup.png` );
+	await page.getByRole( 'button', { name: 'Изпрати на клиента' } ).click();
+	await expect( page.locator( '#order_status' ) ).toHaveValue( 'wc-rq-mockup-sent' );
+	const link = ( await mailpitFind( `Визуализацията за поръчка ${ bigOrderId }` ) ).text.match( /https?:\/\/\S+odobrenie\/\?s=[A-Za-z0-9]+&k=[A-Za-z0-9_-]+/ )[ 0 ];
+	await page.context().clearCookies();
+	await page.goto( link );
+	await page.click( 'button[name="decision"][value="approve"]' );
+	await expect( page.locator( '.next h2' ) ).toHaveText( 'Плащане' );
+
+	const request = await mailpitFind( `Одобрено — плащане и данни за поръчка ${ bigOrderId }` );
+	expect( request.text ).toMatch( /Моля, платете до \d\d\.\d\d\.\d{4}, \d\d:\d\d \(в рамките на 48 часа\)/ );
+	expect( request.text ).toContain( 'поръчката се анулира автоматично' );
+	expect( request.text ).toContain( 'изчерпа' );
+
+	// Reminder at 48 h and cancellation at 72 h after the approval, in calendar hours.
+	const plan = JSON.parse( wp( 'eval', `
+		$o = wc_get_order( ${ bigOrderId } );
+		$at = strtotime( $o->get_meta( '_reklamo_approved_at' ) . ' UTC' );
+		$out = array();
+		foreach ( as_get_scheduled_actions( array( 'group' => 'reklamo', 'status' => 'pending', 'per_page' => 100 ) ) as $a ) {
+			if ( (int) ( $a->get_args()[0] ?? 0 ) === ${ bigOrderId } ) {
+				$out[ $a->get_hook() ] = $a->get_schedule()->get_date()->getTimestamp() - $at;
+			}
+		}
+		echo wp_json_encode( $out );` ) );
+	expect( plan ).toEqual( { reklamo_remind_deposit: 48 * 3600, reklamo_payment_expire: 72 * 3600 } );
+
+	// The order page quotes the same deadline.
+	await page.goto( ( request.text.match( /https?:\/\/\S+moyata-porachka\/\?s=[A-Za-z0-9]+&k=[A-Za-z0-9_-]+/ ) || [ link ] )[ 0 ] );
+	await expect( page.locator( '.deadline' ) ).toContainText( 'Моля, платете до' );
+
+	// Hour 48: the reminder. Hour 72: the order cancels itself and both sides hear of it.
+	wp( 'eval', `do_action( 'reklamo_remind_deposit', ${ bigOrderId } );` );
+	const reminder = await mailpitFind( `Напомняне: Одобрено — плащане и данни за поръчка ${ bigOrderId }` );
+	expect( reminder.text ).toContain( 'все още не сме получили превода Ви' );
+	wp( 'eval', `do_action( 'reklamo_payment_expire', ${ bigOrderId } );` );
+	const cancelled = await mailpitFind( `Поръчка ${ bigOrderId } е отказана` );
+	expect( cancelled.to ).toBe( 'big@example.com' );
+	expect( cancelled.text ).toContain( 'анулирана автоматично, защото плащането не пристигна' );
+	const shop = await mailpitFind( `Поръчка #${ bigOrderId } беше отказана` );
+	expect( shop.all ).not.toContain( 'big@example.com' );
+	const track = cancelled.text.match( /https?:\/\/\S+moyata-porachka\/\?s=[A-Za-z0-9]+&k=[A-Za-z0-9_-]+/ );
+	if ( track ) {
+		await page.goto( track[ 0 ] );
+		await expect( page.locator( '.next' ) ).toContainText( 'анулирана автоматично' );
+	}
+
+	// The money arrives late after all: the shop restores the order.
+	await adminLogin( page );
+	await page.goto( url );
+	await expect( page.locator( '#order_status' ) ).toHaveValue( 'wc-cancelled' );
+	await page.getByRole( 'button', { name: /Плащането пристигна късно/ } ).click();
+	await expect( page.locator( '#order_status' ) ).toHaveValue( 'wc-rq-deposit-paid' );
+	expect( ( await mailpitFind( `Получено плащане по поръчка ${ bigOrderId }` ) ).to ).toBe( 'big@example.com' );
+	expect( wp( 'eval', `echo count( as_get_scheduled_actions( array( 'hook' => 'reklamo_payment_expire', 'args' => array( ${ bigOrderId } ), 'status' => 'pending' ) ) );` ) ).toBe( '0' );
 } );
 
 test( 'deleting an order removes its files, links and notes', async ( { page } ) => {

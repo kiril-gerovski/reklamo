@@ -5,6 +5,7 @@
  * @var WC_Order $order
  * @var string   $email_heading
  * @var string   $intro_text
+ * @var string   $notice
  * @var string   $additional_content
  * @var bool     $sent_to_admin
  * @var bool     $plain_text
@@ -26,6 +27,9 @@ do_action( 'woocommerce_email_customer_details', $order, $sent_to_admin, $plain_
 
 if ( $additional_content ) {
 	echo wp_kses_post( wpautop( wptexturize( $additional_content ) ) );
+}
+if ( ! empty( $notice ) ) {
+	echo '<p>' . esc_html( $notice ) . '</p>';
 }
 
 do_action( 'woocommerce_email_footer', $email );

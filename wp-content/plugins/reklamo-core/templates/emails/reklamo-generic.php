@@ -5,6 +5,7 @@
  * @var WC_Order $order
  * @var string   $email_heading
  * @var string   $intro_text
+ * @var string   $notice
  * @var string   $button_label
  * @var string   $button_url
  * @var string   $bank_html
@@ -25,6 +26,10 @@ defined( 'ABSPATH' ) || exit;
 do_action( 'woocommerce_email_header', $email_heading, $email ); ?>
 
 <p><?php echo wp_kses_post( wpautop( wptexturize( $intro_text ) ) ); ?></p>
+
+<?php if ( ! empty( $notice ) ) : ?>
+	<p style="margin: 16px 0; padding: 12px 14px; border-left: 3px solid #b8892b; background: #faf8f4;"><strong><?php echo esc_html( $notice ); ?></strong></p>
+<?php endif; ?>
 
 <?php if ( $button_label && $button_url ) : ?>
 	<p style="text-align:center; margin: 28px 0;">

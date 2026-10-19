@@ -119,6 +119,10 @@ final class Reklamo_Admin_Order {
 				'complete' => array( sprintf( __( 'Final payment received (%s) — complete', 'reklamo-core' ), $balance ), 'completed' ),
 			),
 		);
+		if ( $order->has_status( 'cancelled' ) && $order->get_meta( Reklamo_Payment_Deadline::META_EXPIRED ) ) {
+			/* translators: %s: deposit amount */
+			$all['cancelled'] = array( 'deposit_paid' => array( sprintf( __( 'Late payment received (%s) — restore the order', 'reklamo-core' ), $deposit ), Reklamo_Statuses::DEPOSIT_PAID ) );
+		}
 		$offer = $all[ $order->get_status() ] ?? array();
 		if ( isset( $offer['resend_mockup'] ) && ! Reklamo_Items::counts( $order )['sent'] ) {
 			unset( $offer['resend_mockup'] ); // nothing awaits the customer
@@ -146,6 +150,15 @@ final class Reklamo_Admin_Order {
 		?>
 		<div class="reklamo-admin">
 			<p><strong><?php esc_html_e( 'Status', 'reklamo-core' ); ?>:</strong> <?php echo esc_html( wc_get_order_status_name( $order->get_status() ) ); ?></p>
+			<?php $deadline = $order->has_status( Reklamo_Statuses::APPROVED ) && Reklamo_Payment_Deadline::enabled() ? Reklamo_Payment_Deadline::for_order( $order ) : null; ?>
+			<?php if ( $deadline ) : ?>
+				<p class="reklamo-deadline">
+					<?php if ( $deadline['remind'] ) : ?>
+						<?php /* translators: %s: date and time */ echo esc_html( sprintf( __( 'Payment due by %s (reminder then).', 'reklamo-core' ), Reklamo_Payment_Deadline::format( $deadline['remind'] ) ) ); ?><br>
+					<?php endif; ?>
+					<strong><?php /* translators: %s: date and time */ echo esc_html( sprintf( __( 'Cancelled automatically at %s if still unpaid.', 'reklamo-core' ), Reklamo_Payment_Deadline::format( $deadline['cancel'] ) ) ); ?></strong>
+				</p>
+			<?php endif; ?>
 
 			<?php $actions = self::actions_for( $order ); ?>
 			<?php if ( $actions ) : ?>
@@ -507,7 +520,7 @@ final class Reklamo_Admin_Order {
 			case 'deposit_paid':
 				$order->update_meta_data( '_reklamo_deposit_paid_at', $now );
 				$order->save();
-				$order->update_status( Reklamo_Statuses::DEPOSIT_PAID, __( 'Deposit marked as received by the shop.', 'reklamo-core' ) );
+				$order->update_status( Reklamo_Statuses::DEPOSIT_PAID, $order->has_status( 'cancelled' ) ? __( 'Late payment received: the automatically cancelled order is restored.', 'reklamo-core' ) : __( 'Deposit marked as received by the shop.', 'reklamo-core' ) );
 				break;
 			case 'production':
 				$order->update_status( Reklamo_Statuses::PRODUCTION, __( 'Production started.', 'reklamo-core' ) );

@@ -9,6 +9,9 @@ defined( 'ABSPATH' ) || exit;
 
 echo '= ' . esc_html( wp_strip_all_tags( $email_heading ) ) . " =\n\n";
 echo esc_html( wp_strip_all_tags( $intro_text ) ) . "\n\n";
+if ( ! empty( $notice ) ) {
+	echo esc_html( $notice ) . "\n\n";
+}
 
 if ( $button_label && $button_url ) {
 	echo esc_html( wp_strip_all_tags( $button_label ) ) . ":\n" . esc_url( $button_url ) . "\n\n";

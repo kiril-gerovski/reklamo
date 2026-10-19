@@ -125,6 +125,10 @@ $multi    = ( $counts['total'] ?? 0 ) > 1;
 					<div class="amount"><?php echo esc_html( sprintf( /* translators: %s: deposit amount */ __( 'Deposit due: %s', 'reklamo-core' ), $v['deposit'] ) ); ?></div>
 				<?php endif; ?>
 				<?php echo wp_kses_post( $v['bank'] ); ?>
+				<?php $reklamo_deadline = Reklamo_Payment_Deadline::notice( $order, 'request' ); ?>
+				<?php if ( $reklamo_deadline ) : ?>
+					<p class="deadline"><strong><?php echo esc_html( $reklamo_deadline ); ?></strong></p>
+				<?php endif; ?>
 				<?php if ( empty( $v['details']['submitted_at'] ) ) : ?>
 					<p><strong><?php esc_html_e( 'We still need your invoice and delivery details.', 'reklamo-core' ); ?></strong></p>
 				<?php else : ?>
@@ -176,6 +180,10 @@ $multi    = ( $counts['total'] ?? 0 ) > 1;
 				} elseif ( $v['cancelled'] ) {
 					?>
 					<h2><?php esc_html_e( 'This order was cancelled', 'reklamo-core' ); ?></h2>
+					<?php $reklamo_expired = Reklamo_Payment_Deadline::notice( $order, 'cancelled' ); ?>
+					<?php if ( $reklamo_expired ) : ?>
+						<p><?php echo esc_html( $reklamo_expired ); ?></p>
+					<?php endif; ?>
 					<p><?php esc_html_e( 'If that is a surprise, please contact us.', 'reklamo-core' ); ?></p>
 					<?php
 				} else {

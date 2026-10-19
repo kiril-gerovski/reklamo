@@ -103,6 +103,7 @@ abstract class Reklamo_Email extends WC_Email {
 			'order'              => $order,
 			'email_heading'      => $this->get_heading(),
 			'intro_text'         => $this->format_string( $this->get_option( 'intro_text', $this->get_default_intro_text() ) ),
+			'notice'             => $order ? $this->notice() : '',
 			'button_label'       => $this->with_button ? $this->get_option( 'button_label', $this->get_default_button_label() ) : '',
 			'button_url'         => $this->button_url,
 			'bank_html'          => $this->with_bank && $order ? Reklamo_Settings::bank_details_html( sprintf( /* translators: %s: order number */ __( 'Order %s', 'reklamo-core' ), $order->get_order_number() ) ) : '',
@@ -115,6 +116,11 @@ abstract class Reklamo_Email extends WC_Email {
 			'plain_text'         => $plain,
 			'email'              => $this,
 		);
+	}
+
+	/** A paragraph the code writes after the main text (deadlines), outside the owner's text. */
+	protected function notice(): string {
+		return '';
 	}
 
 	/** Which amount the bank block asks for; subclasses override. */

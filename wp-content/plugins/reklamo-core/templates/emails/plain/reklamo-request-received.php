@@ -19,4 +19,7 @@ echo "\n\n----------------------------------------\n\n";
 if ( $additional_content ) {
 	echo esc_html( wp_strip_all_tags( wptexturize( $additional_content ) ) ) . "\n\n";
 }
+if ( ! empty( $notice ) ) {
+	echo esc_html( $notice ) . "\n\n";
+}
 echo esc_html( wp_strip_all_tags( wptexturize( apply_filters( 'woocommerce_email_footer_text', get_option( 'woocommerce_email_footer_text' ) ) ) ) );
