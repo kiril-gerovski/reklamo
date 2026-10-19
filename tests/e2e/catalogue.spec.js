@@ -308,6 +308,20 @@ test( 'the homepage hero shows the Magnet package: its photo, the badge and its 
 	expect( ( await badge.locator( 'strong' ).innerText() ).replace( /\s/g, '' ) ).toBe( ( await card.innerText() ).replace( /\s/g, '' ) );
 } );
 
+test( 'the two hero buttons are the same size, side by side on a laptop and stacked on a phone', async ( { page } ) => {
+	const boxes = async () => page.locator( '.hero .wp-block-button__link' ).evaluateAll( ( links ) => links.map( ( a ) => {
+		const r = a.getBoundingClientRect();
+		return { w: Math.round( r.width ), h: Math.round( r.height ), x: Math.round( r.x ), y: Math.round( r.y ) };
+	} ) );
+	await page.goto( '/' );
+	let [ filled, outline ] = await boxes();
+	expect( [ outline.w, outline.h, outline.y ] ).toEqual( [ filled.w, filled.h, filled.y ] );
+	await page.setViewportSize( { width: 390, height: 844 } );
+	[ filled, outline ] = await boxes();
+	expect( [ outline.w, outline.h, outline.x ] ).toEqual( [ filled.w, filled.h, filled.x ] );
+	expect( outline.y ).toBeGreaterThan( filled.y );
+} );
+
 test( 'Бутилка Matt is one product in two colours, each with its own photos, at the same price', async ( { page } ) => {
 	await page.goto( '/product/butilka-matt/' );
 	const form = page.locator( 'form.rq-form--product' );

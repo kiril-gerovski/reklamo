@@ -73,6 +73,8 @@ p { margin: 0 0 1em; }
 .btn--primary:hover, .wp-block-button__link:hover, .rq-button:hover { background: var(--gold-dark); border-color: var(--gold-dark); color: var(--white); }
 .btn--outline, .is-style-outline .wp-block-button__link, .woocommerce a.button, .woocommerce button.button { background: var(--white); color: var(--gold-dark); }
 .btn--outline:hover { background: var(--gold-soft); color: var(--gold-dark); }
+/* Core's outline style sets its own padding and a 2px border; keep it the size of the filled button. */
+.wp-block-buttons .wp-block-button.is-style-outline > .wp-block-button__link { padding: .95rem 1.5rem; border: 1px solid var(--gold); }
 .btn--sm { padding: .7rem 1.1rem; font-size: .6875rem; }
 .btn--card, .rq-submit .rq-button { line-height: 1.3; }
 .btn--card { width: 100%; }
@@ -154,6 +156,9 @@ p { margin: 0 0 1em; }
 .hero h1 .gold { color: var(--gold); display: block; }
 .hero .hero__rule { width: 48px; height: 2px; background: var(--gold); margin: -.5rem 0 1.5rem; }
 .hero p.lead { color: var(--graphite); max-width: 46ch; }
+.hero .wp-block-buttons { display: inline-grid; grid-auto-flow: column; grid-auto-columns: 1fr; }
+.hero .wp-block-button__link { width: 100%; }
+@media (max-width: 480px) { .hero .wp-block-buttons { display: grid; grid-auto-flow: row; } }
 .entry-content p.lead { font: 500 1.2rem/1.6 var(--sans); color: var(--ink); }
 .hero__features { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-top: 2.25rem; list-style: none; padding: 0; }
 .hero__features li { display: flex; gap: .6rem; align-items: flex-start; font-size: .75rem; line-height: 1.35; color: var(--graphite); }
