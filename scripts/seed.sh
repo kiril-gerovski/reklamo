@@ -66,7 +66,8 @@ wp rewrite structure '/%postname%/' >/dev/null
 wp rewrite flush --hard >/dev/null 2>&1 || wp rewrite flush >/dev/null
 
 echo "→ WooCommerce store settings"
-opt_replace woocommerce_store_address "ул. Хризантема 15, ет. 2, ап. 8" "ул. Примерна 1"
+# No floor or flat on the site (owner, 2026-10-19); the full address stays in the Commercial Register.
+opt_replace woocommerce_store_address "ул. Хризантема 15" "ул. Хризантема 15, ет. 2, ап. 8" "ул. Примерна 1"
 opt_default woocommerce_store_city "София"
 opt_default woocommerce_store_postcode "1000"
 opt woocommerce_default_country "BG"
@@ -188,7 +189,7 @@ echo "→ legal & privacy (WooCommerce → Settings → Reklamo → Legal & priv
 opt_default reklamo_legal_name "ДИ АР ТИ ЕООД"
 opt_default reklamo_eik "205018634"
 opt_default reklamo_vat "BG205018634"
-opt_default reklamo_legal_address "гр. София 1000, р-н Красно село, ул. Хризантема 15, ет. 2, ап. 8"
+opt_replace reklamo_legal_address "гр. София 1000, р-н Красно село, ул. Хризантема 15" "гр. София 1000, р-н Красно село, ул. Хризантема 15, ет. 2, ап. 8"
 opt_default reklamo_manager "Бойка Николаева Заркова"
 opt_default reklamo_privacy_email "privacy@reklamo.bg"
 opt_default reklamo_anonymize_months 36
@@ -729,7 +730,7 @@ terms_old=$(cat <<'HTML'
 <!-- /wp:paragraph -->
 HTML
 )
-terms_new=$(cat <<'HTML'
+terms_v2=$(cat <<'HTML'
 <!-- wp:paragraph {"className":"lead"} -->
 <p class="lead">Тези общи условия уреждат поръчките на промоционални пакети, брандирани с логото на клиента, през сайта Reklamo.bg. С изпращането на заявка приемате условията по-долу.</p>
 <!-- /wp:paragraph -->
@@ -808,7 +809,87 @@ terms_new=$(cat <<'HTML'
 <!-- /wp:paragraph -->
 HTML
 )
-refresh_if_seeded obshti-usloviya "$terms_new" '<!-- wp:paragraph --><p>Общи условия.</p><!-- /wp:paragraph -->' "$terms_old"
+# Търговец last, the owner's wish (2026-10-19); v2 had it first.
+terms_new=$(cat <<'HTML'
+<!-- wp:paragraph {"className":"lead"} -->
+<p class="lead">Тези общи условия уреждат поръчките на промоционални пакети, брандирани с логото на клиента, през сайта Reklamo.bg. С изпращането на заявка приемате условията по-долу.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">1. Продукти и цени</h2>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Всеки пакет е с фиксирано съдържание, количество и цена. Цените са в евро и включват ДДС и брандирането с едно лого. Доставката не е включена в цената: при поръчка над [reklamo_value key="free_shipping"] € е безплатна, а под тази сума е за сметка на получателя по тарифите на избрания куриер.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">2. Поръчка и одобрение</h2>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Заявката се изпраща без плащане. До [reklamo_value key="mockup_deadline"] работни часа получавате визуализация за одобрение. Договорът се сключва с одобрението на визуализацията от Ваша страна. Визуализацията е ориентировъчна: възможни са минимални разлики в цветовете, размера и позиционирането на логото в зависимост от материала, технологията за печат и настройките на екрана.</p>
+<!-- /wp:paragraph -->
+<!-- wp:paragraph -->
+<p>Включени са първоначалната визуализация и до [reklamo_value key="free_corrections"] безплатни корекции на продукт. Всяка следваща корекция е [reklamo_value key="correction_fee"] € и се договаря предварително. Корекции на грешки, допуснати от Reklamo.bg, са безплатни и не се броят за корекции на клиента.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">3. Плащане</h2>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Плащането е само по банков път. След одобрение на визуализациите получавате потвърждение на поръчката и документ за плащане. За стартиране на производството е необходимо плащане в пълен размер на стойността на поръчката. Номерът на поръчката е основанието за превода. За получените плащания се издават съответните счетоводни документи по данните, които попълвате на страницата на поръчката.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">4. Срокове и доставка</h2>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Стандартният срок за производство е [reklamo_value key="production_days"] работни дни. Той започва от момента на плащането и не включва времето за доставка; при по-големи количества, нестандартни продукти или специфични изисквания се уточнява индивидуално. Доставките в България се извършват чрез Спиди, Еконт и при възможност BoxNow и Pigeon. За доставки извън България се изготвя индивидуална оферта. Вижте и <a href="/dostavka-i-srokove/">Доставка и срокове</a>.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">5. Право на отказ</h2>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Продуктите се изработват по индивидуална спецификация с Вашето лого. Съгласно чл. 57, т. 3 от Закона за защита на потребителите 14-дневното право на отказ не се прилага за такива стоки. Потвърждавате това изрично при изпращане на заявката.</p>
+<!-- /wp:paragraph -->
+<!-- wp:list -->
+<ul class="wp-block-list">
+<li><strong>Преди одобрение на визуализацията</strong> можете да се откажете без неустойка, освен ако предварително не е договорена отделна платена дизайнерска услуга.</li>
+<li><strong>След плащането, но преди започване на производството</strong> се възстановяват 50% от платената сума.</li>
+<li><strong>След започване на производството</strong> платената сума не се възстановява.</li>
+</ul>
+<!-- /wp:list -->
+<!-- wp:paragraph -->
+<p>Отказът се заявява писмено на имейла за контакт с номера на поръчката.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">6. Рекламации</h2>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>За несъответствие с одобрената визуализация или дефект ни пишете на посочения имейл с номера на поръчката и снимки. Отговаряме в работни дни. При спор можете да се обърнете към Комисията за защита на потребителите (<a href="https://kzp.bg" target="_blank" rel="noopener">kzp.bg</a>).</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">7. Лични данни</h2>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Как обработваме личните Ви данни е описано в <a href="/politika-za-poveritelnost/">Политиката за поверителност</a>.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">8. Търговец</h2>
+<!-- /wp:heading -->
+<!-- wp:shortcode -->
+[reklamo_company]
+<!-- /wp:shortcode -->
+
+<!-- wp:paragraph {"className":"muted"} -->
+<p class="muted">Версия [reklamo_value key="legal_version"]. Прилага се българското право.</p>
+<!-- /wp:paragraph -->
+HTML
+)
+refresh_if_seeded obshti-usloviya "$terms_new" '<!-- wp:paragraph --><p>Общи условия.</p><!-- /wp:paragraph -->' "$terms_old" "$terms_v2"
 priv_old=$(cat <<'HTML'
 <!-- wp:paragraph {"className":"lead"} -->
 <p class="lead">Тази политика обяснява какви лични данни обработваме, когато поръчвате през Reklamo.bg, защо, колко време ги пазим и какви права имате съгласно Регламент (ЕС) 2016/679 (GDPR) и Закона за защита на личните данни.</p>

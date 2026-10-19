@@ -830,7 +830,10 @@ html { scroll-behavior: smooth; }
 .bank-details, .company-details { display: grid; grid-template-columns: max-content 1fr; gap: .4rem 1.5rem; margin: 1.5rem 0; padding: 1.25rem 1.5rem; background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); }
 .bank-details dt, .company-details dt { color: var(--graphite); font-size: .8125rem; }
 .bank-details dd, .company-details dd { margin: 0; font-weight: 500; color: var(--ink); overflow-wrap: break-word; }
-@media (max-width: 560px) { .bank-details, .company-details { grid-template-columns: minmax(0, 1fr); gap: 0; padding: 1rem 1.25rem; } .bank-details dt, .company-details dt { margin-top: .6rem; } .bank-details dt:first-child, .company-details dt:first-child { margin-top: 0; } }
+.company-details { gap: .15rem 1.25rem; margin: 1rem 0; padding: 0; background: none; border: 0; font-size: .8125rem; }
+.company-details dt { font-size: inherit; color: var(--muted); }
+.company-details dd { font-weight: 400; color: var(--graphite); }
+@media (max-width: 560px) { .bank-details, .company-details { grid-template-columns: minmax(0, 1fr); gap: 0; padding: 1rem 1.25rem; } .company-details { padding: 0; } .bank-details dt, .company-details dt { margin-top: .6rem; } .bank-details dt:first-child, .company-details dt:first-child { margin-top: 0; } }
 
 /* ---------- motion off for those who asked for it ---------- */
 @media (prefers-reduced-motion: reduce) {
