@@ -35,9 +35,10 @@ never committed. Our code (theme + plugin) is a git checkout the site symlinks i
 | workstation | `scripts/deploy.sh install` | copies `bootstrap.sh` over SSH and runs it |
 | workstation | `scripts/deploy.sh update [tag\|branch]` | runs `update.sh` on the server |
 | workstation | `scripts/deploy.sh check [--mail-test a@b]`, `wp …`, `ssh` | health report, remote WP-CLI, shell |
+| workstation | `scripts/backup.sh pull \| list \| load \| restore` | snapshots of the live site in `~/reklamo-backups/` (§ 4) |
 | server | `scripts/host/bootstrap.sh <repo> [dir] [ref]` | deploy key for GitHub over 443, clone, hand over to `install.sh` |
 | server | `scripts/host/install.sh` | zero → live site; idempotent, converges an existing install with its `.env` |
-| server | `scripts/host/update.sh [ref] [--seed]` | fetch, maintenance mode, checkout, WP/WC pins, flush, `check.sh`; `seed.sh` only with `--seed` |
+| server | `scripts/host/update.sh [ref] [--seed]` | fetch, maintenance mode, checkout, WP/WC pins, flush, `check.sh`; `seed.sh` only with `--seed`, refused while `reklamo_seed_locked` is set |
 | server | `scripts/host/check.sh [--mail-test a@b]` | read-only report: versions, symlinks, config, cron, web PHP probe, mail |
 
 `scripts/deploy.sh` takes `DEPLOY_USER`, `DEPLOY_HOST` and optionally `DEPLOY_PORT` (1022),
@@ -175,9 +176,31 @@ commit. Never the other way round.
 ```bash
 scripts/deploy.sh check                       # health report, exit 1 when something needs attention
 scripts/deploy.sh wp plugin list              # any WP-CLI command on the server
-scripts/deploy.sh wp db export - | gzip > backup.sql.gz
+scripts/backup.sh pull                        # database + media + customer files → ~/reklamo-backups/<date>/
 scripts/deploy.sh ssh
 ```
+
+**Snapshots** (`scripts/backup.sh`). `pull` streams `wp db export` (checked for the closing "Dump
+completed" line), `wp-content/uploads`, `~/reklamo-private` and the rest of `public_html` (`site.tar.gz`, without
+uploads, `wp-config.php` and `error_log`; for disaster recovery only, never applied by `load` or
+`restore`; secrets are not copied) over SSH, without a pseudo-terminal
+(it would corrupt the streams), into `~/reklamo-backups/<YYYYMMDD-HHMMSS>/` with an `info.txt`
+(time, deployed commit, order and product counts), mode 700, and keeps the newest 30
+(`REKLAMO_BACKUP_KEEP`). `pull --daily` does nothing when today's snapshot exists; the
+workstation's crontab runs it hourly (README). `load` puts one into the local stack: the local database dumped first,
+`wp db reset` + import, `search-replace` of `https://reklamo.bg` (plain, protocol-relative and
+JSON-escaped) to the local URL, uploads and private files replaced, seed lock set. `restore <name>`
+goes the other way and asks you to type `reklamo.bg`: a dump of the current live database to the
+server's `~/reklamo-backups/before-restore-*.sql.gz`, maintenance mode, `wp db import`, the archives
+extracted over the live directories (added and overwritten, nothing deleted), flush.
+
+**Seed lock.** Since 2026-10-19 the live database carries `reklamo_seed_locked`: `seed.sh` exits
+with "nothing changed" and `update --seed` dies before maintenance mode. The client edits products,
+prices and settings in the dashboard, and even the seed's every-run catalogue steps would touch
+them. A configuration change is applied as a one-off `scripts/deploy.sh wp eval …` that creates only
+what is missing (how Корпоративни подаръци reached the site), and still goes into `seed.sh` for
+fresh installs. Lifting the lock (`scripts/deploy.sh wp option delete reklamo_seed_locked`) is the
+owner's decision.
 
 On the server itself: `cd ~/reklamo && scripts/wp …` runs the same WP-CLI through `PHP_BIN`.
 

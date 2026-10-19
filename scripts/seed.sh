@@ -10,6 +10,12 @@ cd "$(dirname "$0")/.."
 set -a; . ./.env; set +a
 . scripts/lib.sh
 cli_up
+# The live site and every local copy of it carry this lock: their products, prices and settings
+# are the client's. A fresh install has no lock; `wp option delete reklamo_seed_locked` lifts it.
+if [ -n "$(wp option get reklamo_seed_locked 2>/dev/null || true)" ]; then
+  echo "✘ the seed is locked on this database (reklamo_seed_locked) — nothing changed"
+  exit 0
+fi
 wc() { wp wc "$@" --user="$WP_ADMIN_USER"; }
 # Warn-and-continue: WooCommerce refuses direct writes to a few of its admin
 # options; a cosmetic setting must never abort the seed.

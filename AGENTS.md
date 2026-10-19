@@ -27,8 +27,12 @@ anything that stores customer data.
   in the dashboard has to become a line in `seed.sh` or it does not exist. `scripts/reset.sh`
   destroys everything and rebuilds from zero, which is what proves nothing lives only in the
   local database — run it as the master test.
-- **The seed runs on the live site at install and on `deploy.sh update --seed`, so it must stay
-  safe there.** A plain `update` never seeds: the owner edits settings in the dashboard and `opt`
+- **The live site is locked against the seed** (`reklamo_seed_locked`, since 2026-10-19): the
+  client's products live there. `seed.sh` changes nothing on a locked database and `update --seed`
+  refuses. Ship configuration to live as a create-if-missing `deploy.sh wp` one-off, and still add it
+  to `seed.sh` for fresh installs. Never delete the lock yourself. Copies of the live site:
+  `scripts/backup.sh` (`pull`, `list`, `load`, `restore`); `e2e.sh` refuses a loaded copy.
+- **The seed runs at install, so it must stay safe on a live database.** A plain `update` never seeds: the owner edits settings in the dashboard and `opt`
   lines would overwrite them. Configuration uses `opt` (enforced when the seed runs); owner-editable
   content — company details, bank data, prices, page texts — uses `opt_default` / `fill_if_empty` /
   create-if-missing and is never overwritten. `opt_default` treats **missing or empty** as unseeded,

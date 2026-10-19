@@ -3,7 +3,8 @@
 #   scripts/host/update.sh              fast-forward the deployed branch
 #   scripts/host/update.sh v1.4.0       deploy a tag (detached checkout; pass a branch to leave it)
 #   scripts/host/update.sh --seed       also run scripts/seed.sh (off by default: the owner
-#                                       edits settings in the dashboard, the seed would enforce ours)
+#                                       edits settings in the dashboard, the seed would enforce ours;
+#                                       refused while the reklamo_seed_locked option is set)
 # Theme and plugin are symlinked, so the checkout IS the deploy. WordPress/WooCommerce
 # follow versions.env (database backed up first). Maintenance mode covers the switch.
 set -euo pipefail
@@ -20,6 +21,9 @@ load_env
 [ "${REKLAMO_ENV:-}" = production ] || die "REKLAMO_ENV must be production in the server .env"
 ensure_wp_cli
 . scripts/lib.sh
+if [ "$seed" = 1 ] && [ -n "$(wp option get reklamo_seed_locked 2>/dev/null || true)" ]; then
+  die "the seed is locked on the live site (reklamo_seed_locked): it would overwrite the client's products and settings — deploy without --seed"
+fi
 
 [ -z "$(git status --porcelain --untracked-files=no)" ] || die "the checkout has local changes — production is deploy-only:
 $(git status --short --untracked-files=no)"

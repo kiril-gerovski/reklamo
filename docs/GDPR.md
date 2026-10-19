@@ -19,6 +19,7 @@ beside the GDPR: ЗЗЛД (personal data), ЗЗП (consumer protection), ЗЕТ 
 | Rate-limit counters | transients keyed by `md5(ip)` | abuse protection | one hour |
 | Every customer email | mailbox `office@reklamo.bg` on SuperHosting; shop notifications currently at an abv.bg mailbox | correspondence | mailbox retention |
 | Everything above | SuperHosting account backups | disaster recovery | SuperHosting's backup window |
+| Everything above (database, media, `reklamo-private`) | daily snapshots on the developer's workstation, `~/reklamo-backups/` (`scripts/backup.sh pull`), and a local stack after `scripts/backup.sh load` | disaster recovery, debugging with real data | the newest 30 snapshots; erased data survives in them until it ages out |
 
 No customer accounts, no cookies set by our code, fonts self-hosted, no analytics, no external
 requests from the storefront. WooCommerce's **Order Attribution** feature is enabled and sets

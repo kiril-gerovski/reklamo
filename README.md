@@ -21,6 +21,7 @@ wp-content/plugins/reklamo-core/  plugin — all business logic (statuses, uploa
 scripts/seed.sh                   THE site configuration, as WP-CLI commands
 scripts/host/                     runs ON the hosting account: install.sh / update.sh / check.sh / bootstrap.sh
 scripts/deploy.sh                 drives the hosting account over SSH from your workstation
+scripts/backup.sh                 snapshots of the live site on your workstation: pull / list / load / restore
 scripts/worktree/                 per-branch isolated stacks (wt-new / wt-build / wt-push / wt-merge / wt-drop)
 versions.env                      WordPress + WooCommerce version pins, used locally and on the server
 docker-compose.yml                local environment (Apache, MariaDB, Mailpit)
@@ -67,10 +68,40 @@ export DEPLOY_USER=<cpanel-user> DEPLOY_HOST=reklamo.bg   # or put them in .env.
 cp .env.server.example .env.server    # optional: fill it in and no prompt is asked
 scripts/deploy.sh install             # fresh account → live site
 scripts/deploy.sh update [tag]        # ship a version: checkout, WP/WC pins, flush, health check
-scripts/deploy.sh update --seed       # same, plus re-apply scripts/seed.sh (only when the seed changed)
+scripts/deploy.sh update --seed       # refused on the live site: the seed is locked there (below)
 scripts/deploy.sh check --mail-test you@example.com
 scripts/deploy.sh wp plugin list      # any WP-CLI command on the server
 ```
+
+**Copies of the live site** (`scripts/backup.sh`, from your workstation):
+
+```bash
+scripts/backup.sh pull [--daily]      # snapshot: database, media, customer files, site files → ~/reklamo-backups/<date>/
+scripts/backup.sh list                # the snapshots you have (the newest 30 are kept)
+scripts/backup.sh load [snapshot]     # put one into the LOCAL stack (default: latest), live URLs → localhost
+scripts/backup.sh restore <snapshot>  # put one back on the LIVE site; asks you to type reklamo.bg first
+```
+
+A snapshot is about 64 MB. The site-files archive (`site.tar.gz`: `public_html` without uploads,
+`wp-config.php` and `error_log`) is kept for disaster recovery only; `load` and `restore` never apply
+it. Secrets (`wp-config.php`, the server `.env`) are not copied. On the workstation a crontab line
+runs `scripts/backup.sh pull --daily` every hour at :17, which takes one snapshot a day whenever the
+machine is on (log: `~/reklamo-backups/pull.log`):
+
+```
+17 * * * * /home/<you>/projects/reklamo/scripts/backup.sh pull --daily >> $HOME/reklamo-backups/pull.log 2>&1
+```
+
+`load` saves the local database to `~/reklamo-backups/local/` first, replaces `wp/wp-content/uploads`
+and `private/`, and locks the seed on the copy. Log in with your live account; emails go to
+Mailpit. `scripts/e2e.sh` refuses a live copy because the tests edit products;
+`scripts/reset.sh` brings the test data back. `REKLAMO_BACKUP_DIR` and `REKLAMO_BACKUP_KEEP`
+override the folder and the count. The snapshots hold customer data: keep them on an encrypted disk.
+
+**The seed is locked on the live site.** The option `reklamo_seed_locked` makes `scripts/seed.sh`
+change nothing and `update --seed` stop before it touches the site, because the client's products,
+prices and settings live there now. A configuration change after that is a one-off WP-CLI command
+(`scripts/deploy.sh wp …`), written to create only what is missing. A fresh install has no lock.
 
 The server runs the same `scripts/seed.sh` and `scripts/wp` natively (`WP_PATH` set in its
 `.env`). WordPress and WooCommerce versions come from `versions.env`; bump it, test with
@@ -119,7 +150,7 @@ Claude Code. Details: [`scripts/worktree/README.md`](scripts/worktree/README.md)
 
 ## The configuration rule
 
-The database is not in git — **`scripts/seed.sh` is**. The same script runs on the hosting account at install and whenever `scripts/deploy.sh update --seed` is used — see `docs/DEPLOYMENT.md`. Every setting you click in the dashboard
+The database is not in git — **`scripts/seed.sh` is**. The same script runs on the hosting account at install; since the client started adding products the live site is locked against it (`reklamo_seed_locked`, see Deploying) — see `docs/DEPLOYMENT.md`. Every setting you click in the dashboard
 must become a line in `seed.sh`, otherwise it does not exist. `scripts/reset.sh` proves that
 nothing lives only in the local database.
 
