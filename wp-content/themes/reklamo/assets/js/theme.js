@@ -140,6 +140,22 @@
 		show( 0 );
 	} );
 
+	// "Copy" next to an address: shown only where the browser can copy.
+	if ( navigator.clipboard ) {
+		document.querySelectorAll( '[data-copy]' ).forEach( function ( button ) {
+			var text = button.parentNode.querySelector( '[data-copy-text]' );
+			if ( ! text ) { return; }
+			var label = button.textContent;
+			button.hidden = false;
+			button.addEventListener( 'click', function () {
+				navigator.clipboard.writeText( text.textContent.trim() ).then( function () {
+					button.textContent = button.dataset.copied;
+					setTimeout( function () { button.textContent = label; }, 2000 );
+				} );
+			} );
+		} );
+	}
+
 	// Character counter for the designer note.
 	document.querySelectorAll( '[data-rq-counter]' ).forEach( function ( ta ) {
 		var out = ta.parentNode.querySelector( '[data-rq-count]' );

@@ -22,10 +22,19 @@ $reklamo_reasons = array(
 			<p class="bulk-offer__sub"><?php esc_html_e( 'Get a tailored offer', 'reklamo' ); ?></p>
 		</div>
 	</div>
-	<a class="btn bulk-offer__cta" href="<?php echo esc_url( reklamo_offer_mailto(), array( 'mailto', 'http', 'https' ) ); ?>">
-		<?php esc_html_e( 'Send an inquiry', 'reklamo' ); ?>
-		<?php echo reklamo_icon( 'chevron-r', 16 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?>
-	</a>
+	<div class="bulk-offer__action">
+		<a class="btn bulk-offer__cta" href="<?php echo esc_url( reklamo_offer_mailto(), array( 'mailto', 'http', 'https' ) ); ?>">
+			<?php esc_html_e( 'Send an inquiry', 'reklamo' ); ?>
+			<?php echo reklamo_icon( 'chevron-r', 16 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?>
+		</a>
+		<?php $reklamo_offer_mail = reklamo_setting( 'email' ); ?>
+		<?php if ( $reklamo_offer_mail ) : ?>
+			<p class="bulk-offer__mail">
+				<span class="bulk-offer__or"><?php esc_html_e( 'or write to', 'reklamo' ); ?></span> <span data-copy-text><?php echo esc_html( $reklamo_offer_mail ); ?></span>
+				<button type="button" class="bulk-offer__copy" data-copy data-copied="<?php esc_attr_e( 'Copied ✓', 'reklamo' ); ?>" hidden><?php esc_html_e( 'Copy', 'reklamo' ); ?></button>
+			</p>
+		<?php endif; ?>
+	</div>
 	<ul class="bulk-offer__reasons">
 		<?php foreach ( $reklamo_reasons as $reklamo_icon_name => $reklamo_reason ) : ?>
 			<li><?php echo reklamo_icon( $reklamo_icon_name, 32 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?><span><?php echo esc_html( $reklamo_reason ); ?></span></li>

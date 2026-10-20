@@ -699,7 +699,7 @@ msgstr "Различни количества?"
 msgid "Get a tailored offer"
 msgstr "Получете индивидуална оферта"
 
-#: template-parts/bulk-offer.php:26
+#: template-parts/bulk-offer.php:27
 msgid "Send an inquiry"
 msgstr "Изпрати запитване"
 
@@ -821,3 +821,15 @@ msgstr "Желан срок:"
 #: functions.php:101
 msgid "Inquiry for a tailored offer"
 msgstr "Запитване за индивидуална оферта"
+
+#: template-parts/bulk-offer.php:33
+msgid "or write to"
+msgstr "или пишете на"
+
+#: template-parts/bulk-offer.php:34
+msgid "Copied ✓"
+msgstr "Копирано ✓"
+
+#: template-parts/bulk-offer.php:34
+msgid "Copy"
+msgstr "Копирай"

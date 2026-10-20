@@ -294,6 +294,9 @@ test( 'the homepage packages, Промо пакети, Продукти and the 
 		expect( mail.protocol + mail.pathname ).toBe( 'mailto:office@reklamo.bg' );
 		expect( mail.searchParams.get( 'subject' ) ).toBe( 'Запитване за индивидуална оферта' );
 		expect( mail.searchParams.get( 'body' ) ).toContain( 'Количество:' );
+		// For a computer without a mail program: the address in plain sight, with a copy button.
+		await expect( band.locator( '.bulk-offer__mail' ) ).toContainText( 'или пишете на office@reklamo.bg' );
+		await expect( band.locator( '[data-copy]' ) ).toBeVisible();
 	}
 	await page.goto( '/' );
 	await expect( page.locator( '.packages .bulk-offer' ) ).toHaveCount( 1 );
