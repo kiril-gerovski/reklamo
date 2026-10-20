@@ -692,8 +692,8 @@ msgid "All products"
 msgstr "Всички продукти"
 
 #: template-parts/bulk-offer.php:21
-msgid "Large quantities?"
-msgstr "Големи количества?"
+msgid "Different quantities?"
+msgstr "Различни количества?"
 
 #: template-parts/bulk-offer.php:22
 msgid "Get a tailored offer"

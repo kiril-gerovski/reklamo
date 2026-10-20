@@ -287,7 +287,7 @@ test( 'the homepage packages, Промо пакети, Продукти and the 
 	for ( const url of [ '/', '/promo-paketi/', '/produkti/', '/product-category/kalendari/' ] ) {
 		await page.goto( url );
 		const band = page.locator( '.bulk-offer' );
-		await expect( band.locator( 'h2' ) ).toHaveText( /Големи количества\?/i );
+		await expect( band.locator( 'h2' ) ).toHaveText( /Различни количества\?/i );
 		await expect( band.locator( '.bulk-offer__reasons li' ) ).toHaveText( [ /Конкурентни цени/i, /Индивидуален дизайн/i, /Бърза доставка/i ] );
 		await expect( band.locator( '.bulk-offer__cta' ) ).toHaveAttribute( 'href', /\/kontakti\/$/ );
 	}

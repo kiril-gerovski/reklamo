@@ -1,6 +1,6 @@
 <?php
 /**
- * The band under the catalogue grids: large quantities get a tailored offer through the
+ * The band under the catalogue grids: other quantities get a tailored offer through the
  * contacts page, next to three reasons to ask.
  *
  * @package Reklamo
@@ -18,7 +18,7 @@ $reklamo_reasons = array(
 	<div class="bulk-offer__lead">
 		<span class="bulk-offer__icon"><?php echo reklamo_icon( 'boxes', 48 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?></span>
 		<div>
-			<h2 class="bulk-offer__title" id="bulk-offer-title"><?php esc_html_e( 'Large quantities?', 'reklamo' ); ?></h2>
+			<h2 class="bulk-offer__title" id="bulk-offer-title"><?php esc_html_e( 'Different quantities?', 'reklamo' ); ?></h2>
 			<p class="bulk-offer__sub"><?php esc_html_e( 'Get a tailored offer', 'reklamo' ); ?></p>
 		</div>
 	</div>
