@@ -1,6 +1,6 @@
 /**
- * Cart, step 1: shows live which products have a logo and a note, and keeps "Continue"
- * disabled until every product has both. Step 2: "Send" waits for name, email, phone and both consents.
+ * Cart, step 1: shows live which products have a logo (the note is optional), and keeps
+ * "Continue" disabled until every product has one. Step 2: "Send" waits for name, email, phone and both consents.
  * The server checks all of it again on submit.
  */
 ( function () {
@@ -82,10 +82,9 @@
 				var box = set.querySelector( 'input[type="checkbox"][value="' + key + '"]' );
 				if ( box && box.checked ) {
 					marks++;
-					var note = set.querySelector( 'textarea' );
 					var title = ( set.querySelector( '.rk-logo__title' ) || set ).textContent.trim();
-					ok = hasFile( set ) && !! ( note && note.value.trim() );
-					reason = ! hasFile( set ) ? fmt( form.dataset.msgNofile, name, title ) : ( ok ? '' : fmt( form.dataset.msgNonote, name, title ) );
+					ok = hasFile( set );
+					reason = ok ? '' : fmt( form.dataset.msgNofile, name, title );
 				}
 			} );
 			if ( ! marks ) { reason = fmt( form.dataset.msgUnmarked, name ); }

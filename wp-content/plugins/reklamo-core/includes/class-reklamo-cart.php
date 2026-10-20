@@ -2,8 +2,8 @@
 /**
  * The cart: a customer collects products and packages and sends them as ONE request. They go
  * in with a plain "Add to cart". In the cart, step 1: the customer uploads one or more logos,
- * each with a note to the designer, and marks the products each one is for; nobody gets to
- * step 2 (details, consents, send) until every product has a logo and a note. Sending the cart creates
+ * each with an optional note to the designer, and marks the products each one is for; nobody gets to
+ * step 2 (details, consents, send) until every product has a logo. Sending the cart creates
  * the order directly (no checkout, no payment): one line per product, each line carrying its
  * logo, so every product gets its own mockup and approval (Reklamo_Items).
  *
@@ -444,7 +444,7 @@ final class Reklamo_Cart {
 	}
 
 	/**
-	 * Every product needs a logo and a note before the next step.
+	 * Every product needs a logo before the next step; the note is optional.
 	 *
 	 * @return string[] what is missing, one line per product
 	 */
@@ -463,9 +463,6 @@ final class Reklamo_Cart {
 			} elseif ( ! $a['file'] ) {
 				/* translators: %s: product name */
 				$missing[] = sprintf( __( '%s: its logo is not uploaded yet.', 'reklamo-core' ), $name );
-			} elseif ( '' === $a['note'] ) {
-				/* translators: %s: product name */
-				$missing[] = sprintf( __( '%s: its note to the designer is empty.', 'reklamo-core' ), $name );
 			}
 		}
 		return $missing;
@@ -528,8 +525,7 @@ final class Reklamo_Cart {
 
 				<form class="rq-form rk-cart__form" method="post" enctype="multipart/form-data" action="<?php echo esc_url( self::url() ); ?>" novalidate data-rk-cart
 					data-msg-unmarked="<?php /* translators: %s: product name */ echo esc_attr( __( '%s: not marked under any logo.', 'reklamo-core' ) ); ?>"
-					data-msg-nofile="<?php /* translators: 1: product name, 2: logo title such as "Logo 2" */ echo esc_attr( __( '%1$s: the file of %2$s is not uploaded yet.', 'reklamo-core' ) ); ?>"
-					data-msg-nonote="<?php /* translators: 1: product name, 2: logo title such as "Logo 2" */ echo esc_attr( __( '%1$s: the note of %2$s is empty.', 'reklamo-core' ) ); ?>">
+					data-msg-nofile="<?php /* translators: 1: product name, 2: logo title such as "Logo 2" */ echo esc_attr( __( '%1$s: the file of %2$s is not uploaded yet.', 'reklamo-core' ) ); ?>">
 					<?php wp_nonce_field( self::CART_NONCE, '_rk_cart_nonce' ); ?>
 					<div class="rq-hp" aria-hidden="true" style="position:absolute;left:-9999px"><label><?php esc_html_e( 'Website', 'reklamo-core' ); ?> <input type="text" name="rq_website" tabindex="-1" autocomplete="off"></label></div>
 
@@ -538,7 +534,7 @@ final class Reklamo_Cart {
 							<?php
 							$product = $line['data'];
 							$a       = $assigned[ $key ] ?? null;
-							$ok      = $a && $a['file'] && '' !== $a['note'];
+							$ok      = $a && $a['file'];
 							?>
 							<li class="rk-cart__item<?php echo $ok ? ' is-ready' : ''; ?>" data-cart-item="<?php echo esc_attr( $key ); ?>">
 								<a class="rk-cart__thumb" href="<?php echo esc_url( $product->get_permalink() ); ?>"><?php echo $product->get_image( 'woocommerce_thumbnail' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- WooCommerce escapes. ?></a>
@@ -577,12 +573,14 @@ final class Reklamo_Cart {
 											</span>
 										</p>
 									<?php endif; ?>
-									<p class="rk-cart__logo<?php echo $ok ? '' : ' is-missing'; ?>" data-cart-status data-ready-text="<?php esc_attr_e( 'Logo and note chosen ✓', 'reklamo-core' ); ?>">
+									<p class="rk-cart__logo<?php echo $ok ? '' : ' is-missing'; ?>" data-cart-status data-ready-text="<?php esc_attr_e( 'Logo chosen ✓', 'reklamo-core' ); ?>">
 										<?php if ( $ok ) : ?>
 											<?php esc_html_e( 'Logo', 'reklamo-core' ); ?>: <strong data-cart-logo><?php echo esc_html( Reklamo_Storage::describe( $a['file'] ) ); ?></strong>
-											<br><?php esc_html_e( 'Note', 'reklamo-core' ); ?>: <span data-cart-note><?php echo esc_html( $a['note'] ); ?></span>
+											<?php if ( '' !== $a['note'] ) : ?>
+												<br><?php esc_html_e( 'Note', 'reklamo-core' ); ?>: <span data-cart-note><?php echo esc_html( $a['note'] ); ?></span>
+											<?php endif; ?>
 										<?php else : ?>
-											<?php esc_html_e( 'Needs a logo and a note — mark it under a logo below.', 'reklamo-core' ); ?>
+											<?php esc_html_e( 'Needs a logo — mark it under a logo below.', 'reklamo-core' ); ?>
 										<?php endif; ?>
 									</p>
 									<?php if ( 'logos' === $step ) : ?>
@@ -623,8 +621,8 @@ final class Reklamo_Cart {
 									<?php endif; ?>
 									<?php echo self::drop_zone( $uid . '-file', 'reklamo_logo_file[' . $id . ']', $file ? __( 'Replace the logo', 'reklamo-core' ) : __( 'Upload the logo', 'reklamo-core' ), false, 'logos[' . $id . '][file_token]' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside. ?>
 									<div class="rq-field rq-field--note">
-										<label for="<?php echo esc_attr( $uid ); ?>-note"><?php esc_html_e( 'Note to the designer', 'reklamo-core' ); ?> <span class="rk-required" aria-hidden="true">*</span></label>
-										<textarea id="<?php echo esc_attr( $uid ); ?>-note" name="logos[<?php echo esc_attr( (string) $id ); ?>][note]" rows="2" maxlength="<?php echo esc_attr( (string) $max ); ?>" data-rq-counter required placeholder="<?php esc_attr_e( 'Example: gold logo, centered on the front cover of the notebook and engraved on the pen.', 'reklamo-core' ); ?>"><?php echo esc_textarea( $logo['note'] ); ?></textarea>
+										<label for="<?php echo esc_attr( $uid ); ?>-note"><?php esc_html_e( 'Note to the designer', 'reklamo-core' ); ?> <span class="rk-optional"><?php esc_html_e( '(optional)', 'reklamo-core' ); ?></span></label>
+										<textarea id="<?php echo esc_attr( $uid ); ?>-note" name="logos[<?php echo esc_attr( (string) $id ); ?>][note]" rows="2" maxlength="<?php echo esc_attr( (string) $max ); ?>" data-rq-counter placeholder="<?php esc_attr_e( 'Example: gold logo, centered on the front cover of the notebook and engraved on the pen.', 'reklamo-core' ); ?>"><?php echo esc_textarea( $logo['note'] ); ?></textarea>
 										<span class="rq-counter"><span data-rq-count>0</span>/<?php echo esc_html( (string) $max ); ?></span>
 									</div>
 									<div class="rk-logo__items">
@@ -653,7 +651,7 @@ final class Reklamo_Cart {
 						</div>
 						<div class="rq-submit">
 							<button type="submit" class="rq-button" name="cart_action" value="continue" data-rk-continue><?php esc_html_e( 'Continue to your details', 'reklamo-core' ); ?> <span aria-hidden="true">→</span></button>
-							<p class="rk-cart__blocked" data-rk-blocked><?php esc_html_e( 'Every product needs a logo and a note before you can continue.', 'reklamo-core' ); ?></p>
+							<p class="rk-cart__blocked" data-rk-blocked><?php esc_html_e( 'Every product needs a logo before you can continue.', 'reklamo-core' ); ?></p>
 						</div>
 					<?php else : ?>
 						<p><button type="submit" class="rk-cart__back" name="cart_action" value="back" formnovalidate>← <?php esc_html_e( 'Back to logos and notes', 'reklamo-core' ); ?></button></p>

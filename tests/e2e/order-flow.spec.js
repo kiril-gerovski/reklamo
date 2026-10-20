@@ -69,10 +69,9 @@ test( 'customer places a request with a logo and no payment', async ( { page } )
 	// Chunked uploader finished: token present, file input emptied so the form post stays small.
 	await expect( logo.locator( '.rq-progress.is-done' ) ).toContainText( 'Качено:' );
 	await expect( logo.locator( 'input[type="hidden"][name$="[file_token]"]' ) ).toHaveValue( /^[a-f0-9]{32}$/ );
-	// A logo without a note is not enough.
-	await expect( page.locator( '[data-rk-continue]' ) ).toBeDisabled();
-	await logo.locator( 'textarea' ).fill( 'E2E: златно лого, центрирано.' );
+	// The logo alone is enough; the note is optional.
 	await expect( page.locator( '[data-rk-continue]' ) ).toBeEnabled();
+	await logo.locator( 'textarea' ).fill( 'E2E: златно лого, центрирано.' );
 
 	// The confirmation page is the customer's own order page (passwordless, keyed by the link).
 	orderId = await sendCart( page, 'Е2Е Тест', 'e2e@example.com' );
@@ -90,7 +89,7 @@ test( 'customer places a request with a logo and no payment', async ( { page } )
 	expect( mail.text, 'tracking link in the confirmation email' ).toContain( trackUrl );
 } );
 
-test( 'validation: no step 2 without a logo and a note; then consents and phone are checked, values kept', async ( { page } ) => {
+test( 'validation: no step 2 without a logo, a note is optional; then consents and phone are checked, values kept', async ( { page } ) => {
 	await addFromRequestPage( page, 'biznes-komplekt-magnet' );
 	// The disabled button is a convenience; the server refuses the same on its own.
 	await page.locator( '[data-rk-continue]' ).evaluate( ( b ) => { b.disabled = false; } );
@@ -98,11 +97,10 @@ test( 'validation: no step 2 without a logo and a note; then consents and phone 
 	await expect( page.locator( '.rq-errors' ) ).toContainText( 'Бизнес комплект Magnet - Червен, 50 бр.: логото му още не е качено' );
 	await expect( page.locator( '.rk-cart' ) ).toHaveAttribute( 'data-step', 'logos' );
 
+	// A logo without a note is enough: the button turns on by itself.
 	await logoInCart( page, 'logo.png', '' );
-	await page.locator( '[data-rk-continue]' ).evaluate( ( b ) => { b.disabled = false; } );
-	await page.locator( '[data-rk-continue]' ).click();
-	await expect( page.locator( '.rq-errors' ) ).toContainText( 'бележката към дизайнера е празна' );
-	await page.locator( '.rk-logo' ).first().locator( 'textarea' ).fill( 'Бележка' );
+	await expect( page.locator( '.rk-logo' ).first().locator( 'textarea' ) ).not.toHaveAttribute( 'required', /.*/ );
+	await expect( page.locator( '[data-rk-continue]' ) ).toBeEnabled();
 	await page.locator( '[data-rk-continue]' ).click();
 	await expect( page.locator( '.rk-cart' ) ).toHaveAttribute( 'data-step', 'details' );
 
@@ -638,6 +636,7 @@ test( 'an unpaid order is reminded at 48 h and cancelled at 72 h; a late payment
 	// Hour 48: the reminder. Hour 72: the order cancels itself and both sides hear of it.
 	wp( 'eval', `do_action( 'reklamo_remind_deposit', ${ bigOrderId } );` );
 	const reminder = await mailpitFind( `Напомняне: Одобрено — плащане и данни за поръчка ${ bigOrderId }` );
+	expect( reminder.text ).toContain( `Срокът за плащане по поръчка ${ bigOrderId } изтече на` );
 	expect( reminder.text ).toContain( 'все още не сме получили превода Ви' );
 	wp( 'eval', `do_action( 'reklamo_payment_expire', ${ bigOrderId } );` );
 	const cancelled = await mailpitFind( `Поръчка ${ bigOrderId } е отказана` );

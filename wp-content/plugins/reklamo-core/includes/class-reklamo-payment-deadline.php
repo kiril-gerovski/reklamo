@@ -87,8 +87,8 @@ final class Reklamo_Payment_Deadline {
 					: '';
 			case 'reminder':
 				return $t['remind']
-					/* translators: 1: payment deadline, 2: cancellation time */
-					? sprintf( __( 'The payment was due by %1$s and we have not received your transfer yet. If it does not arrive by %2$s, the order will be cancelled automatically. If you have already paid, reply to this email with the payment order.', 'reklamo-core' ), self::format( $t['remind'] ), $cancel )
+					/* translators: 1: order number, 2: payment deadline, 3: cancellation time */
+					? sprintf( __( 'The payment deadline for order %1$s passed on %2$s and we have not received your transfer yet. If it does not arrive by %3$s, the order will be cancelled automatically. If you have already paid, reply to this email with the payment order.', 'reklamo-core' ), $order->get_order_number(), self::format( $t['remind'] ), $cancel )
 					/* translators: %s: cancellation time */
 					: sprintf( __( 'We have not received your transfer yet. If it does not arrive by %s, the order will be cancelled automatically.', 'reklamo-core' ), $cancel );
 			default:

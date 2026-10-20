@@ -411,6 +411,7 @@ a.steps__link:focus-visible .steps__icon { box-shadow: var(--focus), 0 0 0 1px v
 .rk-logo__none { flex-basis: 100%; margin: 0; font-size: .8125rem; color: var(--graphite); }
 .rk-logo__none[hidden] { display: none; }
 .rk-required { color: var(--red); }
+.rk-optional { font-weight: 400; color: var(--muted); }
 .rk-cart__actions { display: flex; flex-wrap: wrap; gap: .75rem; }
 .rk-cart__blocked { margin: .6rem 0 0; font-size: .78rem; color: var(--red); }
 .rk-cart__blocked ul { margin: .4rem 0 0; padding: 0; list-style: none; display: grid; gap: .2rem; }
