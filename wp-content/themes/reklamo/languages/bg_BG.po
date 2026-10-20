@@ -554,8 +554,8 @@ msgid "Free corrections to the design"
 msgstr "Безплатна корекция на дизайна"
 
 #: woocommerce/content-single-product.php:41
-msgid "Single-colour branding included"
-msgstr "Включено едноцветно брандиране"
+msgid "One-sided branding included"
+msgstr "Включено едностранно брандиране"
 
 #: woocommerce/content-single-product.php:42
 msgid "Further branding available on request"

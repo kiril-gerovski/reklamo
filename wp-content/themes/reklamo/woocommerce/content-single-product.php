@@ -38,7 +38,7 @@ $reklamo_deadline = (int) reklamo_setting( 'mockup_deadline', '24' );
 $reklamo_promises = array(
 	__( 'A mockup prepared before production', 'reklamo' ),
 	__( 'Free corrections to the design', 'reklamo' ),
-	__( 'Single-colour branding included', 'reklamo' ),
+	__( 'One-sided branding included', 'reklamo' ),
 	__( 'Further branding available on request', 'reklamo' ),
 );
 
