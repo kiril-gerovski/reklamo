@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-20T04:11:47+00:00\n"
+"POT-Creation-Date: 2026-10-20T16:52:47+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: reklamo\n"
@@ -95,23 +95,47 @@ msgstr ""
 msgid "Footer — Information"
 msgstr ""
 
-#: functions.php:274
+#: functions.php:92
+msgid "Hello,"
+msgstr ""
+
+#: functions.php:94
+msgid "I would like an offer for:"
+msgstr ""
+
+#: functions.php:95
+msgid "Product or package:"
+msgstr ""
+
+#: functions.php:96
+msgid "Quantity:"
+msgstr ""
+
+#: functions.php:97
+msgid "Wanted by:"
+msgstr ""
+
+#: functions.php:101
+msgid "Inquiry for a tailored offer"
+msgstr ""
+
+#: functions.php:295
 msgid "Specifications"
 msgstr ""
 
-#: functions.php:373
+#: functions.php:394
 msgid "Promotion"
 msgstr ""
 
-#: functions.php:380
+#: functions.php:401
 msgid "+ Gift"
 msgstr ""
 
-#: functions.php:387
+#: functions.php:408
 msgid "Most popular"
 msgstr ""
 
-#: functions.php:418
+#: functions.php:439
 msgid "View the package"
 msgstr ""
 

@@ -80,6 +80,27 @@ function reklamo_setting( string $key, string $fallback = '' ): string {
 }
 
 /** The contacts page, falling back to a mailto: so the button is never dead. */
+/** A new email to the shop for a tailored offer, subject and outline filled in; the contacts page when no email is set. */
+function reklamo_offer_mailto(): string {
+	$mail = reklamo_setting( 'email' );
+	if ( ! $mail ) {
+		return reklamo_contact_url();
+	}
+	$body = implode(
+		"\n",
+		array(
+			__( 'Hello,', 'reklamo' ),
+			'',
+			__( 'I would like an offer for:', 'reklamo' ),
+			__( 'Product or package:', 'reklamo' ) . ' ',
+			__( 'Quantity:', 'reklamo' ) . ' ',
+			__( 'Wanted by:', 'reklamo' ) . ' ',
+			'',
+		)
+	);
+	return 'mailto:' . $mail . '?subject=' . rawurlencode( __( 'Inquiry for a tailored offer', 'reklamo' ) ) . '&body=' . rawurlencode( $body );
+}
+
 function reklamo_contact_url(): string {
 	$page = get_page_by_path( 'kontakti' );
 	if ( $page instanceof WP_Post ) {

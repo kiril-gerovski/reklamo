@@ -109,7 +109,7 @@ case "$cmd" in
     scripts/wp search-replace "${LIVE_URL#https:}" "${local_url#http:}" --all-tables --precise --quiet
     scripts/wp search-replace "${LIVE_URL//\//\\/}" "${local_url//\//\\/}" --all-tables --precise --quiet
     # Even a snapshot taken before the lock existed must never be seeded over.
-    scripts/wp option update reklamo_seed_locked 1 --autoload=no --quiet
+    [ -n "$(scripts/wp option get reklamo_seed_locked 2>/dev/null || true)" ] || scripts/wp option update reklamo_seed_locked 1 --autoload=no --quiet
     say "media library and customer files"
     # Replaced, not merged: the local copy should match the live site exactly.
     # Contents only: private/ is a bind mount and must keep its inode.

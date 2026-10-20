@@ -289,7 +289,11 @@ test( 'the homepage packages, Промо пакети, Продукти and the 
 		const band = page.locator( '.bulk-offer' );
 		await expect( band.locator( 'h2' ) ).toHaveText( /Различни количества\?/i );
 		await expect( band.locator( '.bulk-offer__reasons li' ) ).toHaveText( [ /Конкурентни цени/i, /Индивидуален дизайн/i, /Бърза доставка/i ] );
-		await expect( band.locator( '.bulk-offer__cta' ) ).toHaveAttribute( 'href', /\/kontakti\/$/ );
+		// A new email to the shop, subject and outline filled in.
+		const mail = new URL( await band.locator( '.bulk-offer__cta' ).getAttribute( 'href' ) );
+		expect( mail.protocol + mail.pathname ).toBe( 'mailto:office@reklamo.bg' );
+		expect( mail.searchParams.get( 'subject' ) ).toBe( 'Запитване за индивидуална оферта' );
+		expect( mail.searchParams.get( 'body' ) ).toContain( 'Количество:' );
 	}
 	await page.goto( '/' );
 	await expect( page.locator( '.packages .bulk-offer' ) ).toHaveCount( 1 );

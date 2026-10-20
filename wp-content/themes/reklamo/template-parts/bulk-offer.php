@@ -1,7 +1,7 @@
 <?php
 /**
- * The band under the catalogue grids: other quantities get a tailored offer through the
- * contacts page, next to three reasons to ask.
+ * The band under the catalogue grids: other quantities get a tailored offer by email, next to
+ * three reasons to ask.
  *
  * @package Reklamo
  */
@@ -22,7 +22,7 @@ $reklamo_reasons = array(
 			<p class="bulk-offer__sub"><?php esc_html_e( 'Get a tailored offer', 'reklamo' ); ?></p>
 		</div>
 	</div>
-	<a class="btn bulk-offer__cta" href="<?php echo esc_url( reklamo_contact_url() ); ?>">
+	<a class="btn bulk-offer__cta" href="<?php echo esc_url( reklamo_offer_mailto(), array( 'mailto', 'http', 'https' ) ); ?>">
 		<?php esc_html_e( 'Send an inquiry', 'reklamo' ); ?>
 		<?php echo reklamo_icon( 'chevron-r', 16 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?>
 	</a>

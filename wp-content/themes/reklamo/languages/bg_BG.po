@@ -351,7 +351,7 @@ msgstr "Наш консултант е на разположение да ви �
 msgid "Contact us"
 msgstr "Свържи се с нас"
 
-#: functions.php:387
+#: functions.php:408
 msgid "Most popular"
 msgstr "Най-популярен"
 
@@ -608,11 +608,11 @@ msgstr "Доставка и срокове"
 msgid "Frequently asked questions"
 msgstr "Често задавани въпроси"
 
-#: functions.php:418
+#: functions.php:439
 msgid "View the package"
 msgstr "Виж пакета"
 
-#: functions.php:274
+#: functions.php:295
 msgid "Specifications"
 msgstr "Спецификации"
 
@@ -755,11 +755,11 @@ msgstr "Важно:"
 msgid "The mockup shown is a guide and not a 100% exact image of the final product. Slight differences in colour, size and logo position are possible, depending on the material, the printing technique and the screen settings. Before production you will receive a final mockup for approval."
 msgstr "Показаната визуализация е ориентировъчна и не представлява 100% точно изображение на крайния продукт. Възможни са минимални разлики в цветовете, размера и позиционирането на логото в зависимост от материала, използваната технология за печат и настройките на екрана. Преди производство ще получите финална визуализация за одобрение."
 
-#: functions.php:373
+#: functions.php:394
 msgid "Promotion"
 msgstr "Промоция"
 
-#: functions.php:380
+#: functions.php:401
 msgid "+ Gift"
 msgstr "+ Подарък"
 
@@ -797,3 +797,27 @@ msgstr "Поискайте оферта"
 #: template-parts/shop-hero.php:43
 msgid "All gifts"
 msgstr "Всички подаръци"
+
+#: functions.php:92
+msgid "Hello,"
+msgstr "Здравейте,"
+
+#: functions.php:94
+msgid "I would like an offer for:"
+msgstr "Бих искал(а) оферта за:"
+
+#: functions.php:95
+msgid "Product or package:"
+msgstr "Продукт или пакет:"
+
+#: functions.php:96
+msgid "Quantity:"
+msgstr "Количество:"
+
+#: functions.php:97
+msgid "Wanted by:"
+msgstr "Желан срок:"
+
+#: functions.php:101
+msgid "Inquiry for a tailored offer"
+msgstr "Запитване за индивидуална оферта"
