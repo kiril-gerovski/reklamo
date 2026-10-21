@@ -1198,11 +1198,23 @@ $p  = get_post( $id );
 if ( $p && ( "" === trim( $p->post_content ) || str_contains( $p->post_content, "Ние правим останалото.</p>" ) ) ) {
 	$reg = WP_Block_Patterns_Registry::get_instance();
 	$out = "";
-	foreach ( array( "reklamo/hero", "reklamo/packages", "reklamo/steps", "reklamo/trust", "reklamo/quick-start" ) as $slug ) {
+	foreach ( array( "reklamo/hero", "reklamo/packages", "reklamo/steps", "reklamo/trust" ) as $slug ) {
 		$pat = $reg->get_registered( $slug );
 		if ( $pat ) { $out .= trim( $pat["content"] ) . "\n\n"; }
 	}
 	if ( $out ) { wp_update_post( array( "ID" => $id, "post_content" => $out ) ); echo "  homepage built from patterns\n"; }
+}
+'
+
+# 2026-10-21: the quick-start band („Започни своята поръчка“) left the homepage; the request page and
+# „Добави свой надпис“ took its place. Only the section holding the seeded form is removed.
+wp eval '
+$id = (int) get_option( "page_on_front" );
+$p  = get_post( $id );
+if ( $p && str_contains( $p->post_content, "[reklamo_request_form compact=\"1\"]" ) ) {
+	$keep = array_filter( parse_blocks( $p->post_content ), static fn( $b ) => ! str_contains( serialize_block( $b ), "[reklamo_request_form compact=\"1\"]" ) );
+	wp_update_post( wp_slash( array( "ID" => $id, "post_content" => trim( serialize_blocks( array_values( $keep ) ) ) ) ) );
+	echo "  homepage: quick-start band removed\n";
 }
 '
 

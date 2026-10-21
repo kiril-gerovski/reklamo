@@ -144,15 +144,6 @@ test( 'the Продукти page lists every product with "all products" and the
 	await expect( page.locator( '.shop-chip' ).first() ).toHaveText( /Всички продукти/i );
 } );
 
-test( 'the homepage order form shows the brand mark from the logo kit', async ( { page } ) => {
-	await page.goto( '/' );
-
-	// Stored page content used to hard-code an inline SVG, which froze the old logo into the database.
-	const mark = page.locator( '.quick-start .brand__mark' );
-	await expect( mark ).toHaveAttribute( 'src', /mark\.png$/ );
-	expect( await mark.evaluate( ( img ) => img.naturalWidth ) ).toBeGreaterThan( 0 );
-} );
-
 test( 'the За нас page carries the company copy', async ( { page } ) => {
 	await page.goto( '/za-nas/' );
 	await expect( page.locator( 'h1' ) ).toHaveText( 'За нас' );

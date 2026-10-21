@@ -142,24 +142,6 @@ test( 'a mistyped email domain is refused, values and the logo are kept', async 
 	await sendCart( page, 'Грешен Домейн', 'fixed@example.com', '+359 2 987 65 43' );
 } );
 
-test( 'homepage quick-start form adds the chosen package to the cart', async ( { page } ) => {
-	await page.goto( '/' );
-	const form = page.locator( '.rq-form--compact' );
-	// No package chosen: the browser holds the form back.
-	await form.getByRole( 'button', { name: /Добави в количката/ } ).click();
-	await expect( page ).toHaveURL( /\/$/ );
-	expect( await form.locator( 'select[name="add-to-cart"]' ).evaluate( ( el ) => el.checkValidity() ) ).toBe( false );
-
-	await page.locator( '.rq-form--compact select[name="add-to-cart"]' ).selectOption( { index: 2 } );
-	await page.locator( '.rq-form--compact' ).getByRole( 'button', { name: /Добави в количката/ } ).click();
-	await page.locator( '[data-rk-added]' ).getByRole( 'link', { name: 'Към количката' } ).click();
-	await page.waitForURL( /\/koshnitsa\/$/ );
-	await expect( page.locator( '.rk-cart__item' ) ).toHaveCount( 1 );
-	await logoInCart( page, 'logo.png' );
-	await sendCart( page, 'Бърз Старт', 'quick@example.com', '0888123456' );
-	await expect( page.locator( 'body' ) ).toContainText( 'Заявката Ви е получена' );
-} );
-
 test( 'chunked upload: a 150 MB PSD gets through a 64 MB PHP limit', async ( { page } ) => {
 	test.setTimeout( 180_000 );
 	await addFromRequestPage( page, 'komplekt-cork' );
