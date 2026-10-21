@@ -9,7 +9,7 @@ const fs = require( 'fs' );
 const path = require( 'path' );
 
 const theme = path.join( __dirname, '../wp-content/themes/reklamo' );
-const tagline = 'Промо пакети с вашето лого';
+const tagline = 'Промо продукти и пакети с вашето лого';
 const face = ( weight, subset ) =>
 	`@font-face{font-family:Inter;font-style:normal;font-weight:${ weight };src:url('fonts/Inter-${ weight }-${ subset }.woff2') format('woff2')}`;
 

@@ -44,7 +44,7 @@ opt_replace() { # key new-value earlier-sample...
 
 echo "→ general settings"
 opt blogname "$WP_TITLE"
-opt_default blogdescription "Промо пакети с вашето лого"
+opt_replace blogdescription "Промо продукти и пакети с вашето лого" "Промо пакети с вашето лого"
 opt timezone_string "Europe/Sofia"
 opt date_format "d.m.Y"
 opt time_format "H:i"
@@ -106,7 +106,7 @@ opt woocommerce_enable_reviews "no"
 # Emails
 opt_default woocommerce_email_from_name "Reklamo.bg"
 opt_default woocommerce_email_from_address "office@reklamo.bg"
-opt_default woocommerce_email_footer_text "Reklamo.bg — промо пакети с вашето лого"
+opt_replace woocommerce_email_footer_text "Reklamo.bg — промо продукти и пакети с вашето лого" "Reklamo.bg — промо пакети с вашето лого"
 # Shop notifications carry customer data: they go to the shop's own mailbox, never to a consumer
 # address. Filled once when the recipient is empty; the owner may change it under WooCommerce → Emails.
 wp eval '
