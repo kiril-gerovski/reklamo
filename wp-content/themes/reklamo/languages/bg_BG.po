@@ -151,11 +151,7 @@ msgstr "Към съдържанието"
 msgid "Primary"
 msgstr "Основна"
 
-#: header.php:40
-msgid "Request a mockup"
-msgstr "Заяви визуализация"
-
-#: header.php:52
+#: header.php:53
 msgid "Menu"
 msgstr "Меню"
 
@@ -244,114 +240,23 @@ msgstr "Защо ние"
 msgid "Request page (upload logo)"
 msgstr "Страница за заявка (качване на лого)"
 
-#: templates/page-request.php:20
-msgid "Upload logo"
-msgstr "Качете лого"
-
-#: templates/page-request.php:20
-msgid "Send the file with your logo"
-msgstr "Изпратете файла с вашето лого"
-
-#. translators: %s: number of business hours
-#: templates/page-request.php:22
-msgid "Review of details"
-msgstr "Преглед на детайли"
-
-#. translators: %s: number of business hours
-#: templates/page-request.php:22
-#, php-format
-msgid "We prepare a mockup within %s h."
-msgstr "Ще изготвим визуализация до %s ч."
-
-#: templates/page-request.php:23
-msgid "Approval"
-msgstr "Одобрение"
-
-#: templates/page-request.php:23
-msgid "Review and approve the mockup"
-msgstr "Прегледайте и одобрете визията"
-
-#: templates/page-request.php:24
-msgid "Production"
-msgstr "Производство"
-
-#: templates/page-request.php:24
-msgid "Production starts after approval"
-msgstr "След одобрение започваме производство"
-
-#: templates/page-request.php:27
-msgid "We receive your logo"
-msgstr "Получаваме вашето лого"
-
-#: templates/page-request.php:27
-msgid "We check the quality of the file."
-msgstr "Проверяваме качеството на файла."
-
-#. translators: %s: number of business hours
-#: templates/page-request.php:29
-msgid "We prepare the mockup"
-msgstr "Подготвяме визуализация"
-
-#. translators: %s: number of business hours
-#: templates/page-request.php:29
-#, php-format
-msgid "You get the mockup by email within %s business hours."
-msgstr "Изпращаме ви mockup до %s работни часа."
-
 #: templates/page-request.php:30
-msgid "You review and approve"
-msgstr "Преглеждате и одобрявате"
-
-#: templates/page-request.php:30
-msgid "Or request corrections."
-msgstr "Или заявявате корекции."
-
-#. translators: %s: deposit percentage
-#: templates/page-request.php:32
-#, php-format
-msgid "You pay a %s%% deposit"
-msgstr "Плащате поръчката"
-
-#. translators: %s: deposit percentage
-#: templates/page-request.php:32
-msgid "Production starts after approval."
-msgstr "След одобрение стартираме производството."
-
-#: templates/page-request.php:39
 msgid "Breadcrumb"
 msgstr "Навигационна пътека"
 
-#: templates/page-request.php:40
+#: templates/page-request.php:31
 msgid "Home"
 msgstr "Начало"
 
-#: templates/page-request.php:41
-msgid "Promo packages"
-msgstr "Промо пакети"
-
-#: templates/page-request.php:65
 #: woocommerce/content-single-product.php:134
 msgid "branding included"
 msgstr "с включено брандиране"
 
-#: templates/page-request.php:90
-msgid "What happens next?"
-msgstr "Какво следва?"
-
-#: templates/page-request.php:103
 #: woocommerce/content-single-product.php:240
 msgid "Need help?"
 msgstr "Нуждаете се от помощ?"
 
-#: templates/page-request.php:104
-msgid "Our consultant is available to help you."
-msgstr "Наш консултант е на разположение да ви помогне."
-
-#: templates/page-request.php:107
-msgid "Contact us"
-msgstr "Свържи се с нас"
-
-#: functions.php:408
+#: functions.php:426
 msgid "Most popular"
 msgstr "Най-популярен"
 
@@ -528,7 +433,7 @@ msgstr "Брандиране"
 msgid "With your logo"
 msgstr "С вашето лого"
 
-#: template-parts/bulk-offer.php:14
+#: template-parts/bulk-offer.php:15
 #: woocommerce/content-single-product.php:32
 msgid "Fast delivery"
 msgstr "Бърза доставка"
@@ -608,11 +513,11 @@ msgstr "Доставка и срокове"
 msgid "Frequently asked questions"
 msgstr "Често задавани въпроси"
 
-#: functions.php:439
+#: functions.php:457
 msgid "View the package"
 msgstr "Виж пакета"
 
-#: functions.php:295
+#: functions.php:313
 msgid "Specifications"
 msgstr "Спецификации"
 
@@ -691,32 +596,32 @@ msgstr "Всичко, което можем да брандираме с ваш�
 msgid "All products"
 msgstr "Всички продукти"
 
-#: template-parts/bulk-offer.php:21
+#: template-parts/bulk-offer.php:22
 msgid "Different quantities?"
 msgstr "Различни количества?"
 
-#: template-parts/bulk-offer.php:22
+#: template-parts/bulk-offer.php:23
 msgid "Get a tailored offer"
 msgstr "Получете индивидуална оферта"
 
-#: template-parts/bulk-offer.php:27
+#: template-parts/bulk-offer.php:28
 msgid "Send an inquiry"
 msgstr "Изпрати запитване"
 
-#: template-parts/bulk-offer.php:12
+#: template-parts/bulk-offer.php:13
 msgid "Competitive prices"
 msgstr "Конкурентни цени"
 
-#: template-parts/bulk-offer.php:13
+#: template-parts/bulk-offer.php:14
 msgid "Custom design"
 msgstr "Индивидуален дизайн"
 
-#: header.php:45
+#: header.php:46
 msgid "Cart"
 msgstr "Количка"
 
 #. translators: %d: number of products in the cart
-#: header.php:47
+#: header.php:48
 #, php-format
 msgid "%d product"
 msgid_plural "%d products"
@@ -755,11 +660,11 @@ msgstr "Важно:"
 msgid "The mockup shown is a guide and not a 100% exact image of the final product. Slight differences in colour, size and logo position are possible, depending on the material, the printing technique and the screen settings. Before production you will receive a final mockup for approval."
 msgstr "Показаната визуализация е ориентировъчна и не представлява 100% точно изображение на крайния продукт. Възможни са минимални разлики в цветовете, размера и позиционирането на логото в зависимост от материала, използваната технология за печат и настройките на екрана. Преди производство ще получите финална визуализация за одобрение."
 
-#: functions.php:394
+#: functions.php:412
 msgid "Promotion"
 msgstr "Промоция"
 
-#: functions.php:401
+#: functions.php:419
 msgid "+ Gift"
 msgstr "+ Подарък"
 
@@ -798,38 +703,184 @@ msgstr "Поискайте оферта"
 msgid "All gifts"
 msgstr "Всички подаръци"
 
-#: functions.php:92
+#: functions.php:110
 msgid "Hello,"
 msgstr "Здравейте,"
 
-#: functions.php:94
+#: functions.php:112
 msgid "I would like an offer for:"
 msgstr "Бих искал(а) оферта за:"
 
-#: functions.php:95
+#: functions.php:113
 msgid "Product or package:"
 msgstr "Продукт или пакет:"
 
-#: functions.php:96
+#: functions.php:114
 msgid "Quantity:"
 msgstr "Количество:"
 
-#: functions.php:97
+#: functions.php:115
 msgid "Wanted by:"
 msgstr "Желан срок:"
 
-#: functions.php:101
+#: functions.php:119
+#: template-parts/inquiry-dialog.php:26
 msgid "Inquiry for a tailored offer"
 msgstr "Запитване за индивидуална оферта"
 
-#: template-parts/bulk-offer.php:33
+#: template-parts/bulk-offer.php:34
 msgid "or write to"
 msgstr "или пишете на"
 
-#: template-parts/bulk-offer.php:34
+#: template-parts/bulk-offer.php:35
 msgid "Copied ✓"
 msgstr "Копирано ✓"
 
-#: template-parts/bulk-offer.php:34
+#: template-parts/bulk-offer.php:35
 msgid "Copy"
 msgstr "Копирай"
+
+#: template-parts/inquiry-dialog.php:24
+msgid "The inquiry could not be sent. Please write to us by email."
+msgstr "Запитването не можа да бъде изпратено. Моля, пишете ни по имейл."
+
+#: template-parts/inquiry-dialog.php:25
+#: template-parts/inquiry-dialog.php:63
+msgid "Close"
+msgstr "Затвори"
+
+#: template-parts/inquiry-dialog.php:27
+msgid "Tell us what you need and we will send you an offer within one business day."
+msgstr "Кажете ни от какво имате нужда и ще Ви изпратим оферта до един работен ден."
+
+#: template-parts/inquiry-dialog.php:30
+msgid "Website"
+msgstr "Уебсайт"
+
+#: template-parts/inquiry-dialog.php:32
+msgid "Name / Company"
+msgstr "Име / фирма"
+
+#: template-parts/inquiry-dialog.php:33
+msgid "Email"
+msgstr "Имейл"
+
+#: template-parts/inquiry-dialog.php:34
+msgid "Phone"
+msgstr "Телефон"
+
+#: template-parts/inquiry-dialog.php:35
+msgid "Product or package"
+msgstr "Продукт или пакет"
+
+#: template-parts/inquiry-dialog.php:36
+msgid "Quantity"
+msgstr "Количество"
+
+#: template-parts/inquiry-dialog.php:36
+msgid "e.g. 300 pcs."
+msgstr "напр. 300 бр."
+
+#: template-parts/inquiry-dialog.php:37
+msgid "Wanted by"
+msgstr "Желан срок"
+
+#: template-parts/inquiry-dialog.php:37
+#: template-parts/inquiry-dialog.php:44
+msgid "(optional)"
+msgstr "(по желание)"
+
+#: template-parts/inquiry-dialog.php:37
+msgid "e.g. by 15 December"
+msgstr "напр. до 15 декември"
+
+#: template-parts/inquiry-dialog.php:44
+msgid "Message"
+msgstr "Съобщение"
+
+#: template-parts/inquiry-dialog.php:50
+msgid "Privacy Policy"
+msgstr "Политиката за поверителност"
+
+#. translators: %s: privacy policy link
+#: template-parts/inquiry-dialog.php:52
+#, php-format
+msgid "I agree that my details are used to answer this inquiry, as described in the %s."
+msgstr "Съгласен/на съм данните ми да бъдат използвани за отговор на запитването, както е описано в %s."
+
+#: template-parts/inquiry-dialog.php:58
+msgid "Sending…"
+msgstr "Изпраща се…"
+
+#: template-parts/inquiry-dialog.php:58
+msgid "Send the inquiry"
+msgstr "Изпрати запитването"
+
+#: template-parts/inquiry-dialog.php:61
+msgid "Thank you — your inquiry is on its way"
+msgstr "Благодарим — запитването Ви е изпратено"
+
+#: template-parts/inquiry-dialog.php:62
+msgid "We will reply within one business day. A copy is in your inbox."
+msgstr "Ще Ви отговорим до един работен ден. Копие е изпратено на имейла Ви."
+
+#: templates/page-request.php:19
+msgid "Choose a product"
+msgstr "Изберете продукт"
+
+#: templates/page-request.php:19
+msgid "From our products and packages"
+msgstr "От нашите продукти и пакети"
+
+#: templates/page-request.php:20
+msgid "Add a logo or an inscription"
+msgstr "Добавете лого или надпис"
+
+#: templates/page-request.php:20
+msgid "Upload the logo in the cart, or write a text"
+msgstr "Качете логото в количката или напишете текст"
+
+#. translators: %s: number of business hours
+#: templates/page-request.php:22
+msgid "Approve before printing"
+msgstr "Одобрете преди печат"
+
+#. translators: %s: number of business hours
+#: templates/page-request.php:22
+#, php-format
+msgid "You get a mockup to approve within %s h."
+msgstr "Ще получите визуализация за одобрение до %s ч."
+
+#: templates/page-request.php:61
+msgid "Your product"
+msgstr "Вашият продукт"
+
+#: templates/page-request.php:64
+msgid "Product photo"
+msgstr "Снимка на продукта"
+
+#: templates/page-request.php:68
+msgid "Printing after your approval"
+msgstr "Печат след вашето одобрение"
+
+#: templates/page-request.php:68
+msgid "You get the final mockup before anything is made."
+msgstr "Ще получите окончателна визуализация преди изработка."
+
+#: templates/page-request.php:72
+msgid "No logo?"
+msgstr "Нямате лого?"
+
+#: templates/page-request.php:72
+msgid "Write an inscription, or contact us and we will help."
+msgstr "Напишете надпис или се свържете с нас за съдействие."
+
+#: templates/page-request.php:74
+msgid "Contact us for help"
+msgstr "Свържете се с нас за съдействие"
+
+#: footer.php:106
+#: header.php:25
+#: header.php:41
+msgid "Add your inscription"
+msgstr "Добави свой надпис"

@@ -77,6 +77,7 @@
 		} );
 		form.querySelectorAll( '[data-cart-item]' ).forEach( function ( item ) {
 			var key = item.getAttribute( 'data-cart-item' ), marks = 0, ok = false, reason = '';
+			if ( item.hasAttribute( 'data-cart-text' ) ) { return; }
 			var name = ( item.querySelector( '.rk-cart__name' ) || item ).textContent.trim();
 			form.querySelectorAll( '.rk-logo' ).forEach( function ( set ) {
 				var box = set.querySelector( 'input[type="checkbox"][value="' + key + '"]' );

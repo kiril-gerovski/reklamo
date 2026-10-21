@@ -12,7 +12,7 @@ async function mailpitCount() {
 	return ( await r.json() ).total;
 }
 
-/** Newest message whose subject contains `needle`; returns { subject, to (the first), all, text, html, attachments (file names) }. */
+/** Newest message whose subject contains `needle`; returns { subject, to (the first), all, text, html, attachments (file names), replyTo }. */
 async function mailpitFind( needle ) {
 	const list = await ( await fetch( `${ MAILPIT }/api/v1/messages?limit=20` ) ).json();
 	const m = list.messages.find( ( x ) => x.Subject.includes( needle ) );
@@ -20,7 +20,7 @@ async function mailpitFind( needle ) {
 		throw new Error( `no email with subject containing "${ needle }"` );
 	}
 	const full = await ( await fetch( `${ MAILPIT }/api/v1/message/${ m.ID }` ) ).json();
-	return { subject: full.Subject, to: full.To[ 0 ].Address, all: full.To.map( ( r ) => r.Address ), text: full.Text, html: full.HTML, attachments: ( full.Attachments || [] ).map( ( a ) => a.FileName ) };
+	return { subject: full.Subject, to: full.To[ 0 ].Address, all: full.To.map( ( r ) => r.Address ), text: full.Text, html: full.HTML, attachments: ( full.Attachments || [] ).map( ( a ) => a.FileName ), replyTo: ( full.ReplyTo || [] ).map( ( r ) => r.Address ) };
 }
 
 async function adminLogin( page ) {

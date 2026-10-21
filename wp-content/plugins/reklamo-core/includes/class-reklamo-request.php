@@ -73,6 +73,9 @@ final class Reklamo_Request {
 	 */
 	public static function render( array $args = array() ): string {
 		$compact = ! empty( $args['compact'] );
+		if ( ! $compact ) {
+			return self::render_design( $args['product'] ?? self::current_product() );
+		}
 		$product = $args['product'] ?? self::current_product();
 		$uid     = wp_unique_id( 'rq' );
 		$picked  = isset( $_POST['reklamo_nonce'], $_POST['add-to-cart'] ) ? absint( $_POST['add-to-cart'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- redisplay only.
@@ -112,6 +115,153 @@ final class Reklamo_Request {
 			<div class="rq-submit">
 				<button type="submit" class="rq-button"><?php esc_html_e( 'Add to cart', 'reklamo-core' ); ?> <span aria-hidden="true">→</span></button>
 				<p class="rq-nopay"><?php esc_html_e( 'You upload your logo in the cart — one per product, or one for all of them. No payment is taken at this stage.', 'reklamo-core' ); ?></p>
+			</div>
+		</form>
+		<?php
+		return (string) ob_get_clean();
+	}
+
+	/**
+	 * Every product the request page offers, with its colours and quantities from WooCommerce,
+	 * the variation each pair leads to (price and photo) and the product's main photo.
+	 *
+	 * @return array<int,array<string,mixed>>
+	 */
+	public static function catalogue(): array {
+		$out = array();
+		foreach ( self::packages() as $p ) {
+			$attrs = array();
+			$vars  = array();
+			if ( $p instanceof WC_Product_Variable ) {
+				foreach ( $p->get_available_variations( 'objects' ) as $v ) {
+					if ( $v->is_purchasable() ) {
+						$vars[] = array(
+							'id'    => $v->get_id(),
+							'attrs' => $v->get_variation_attributes(),
+							'price' => wp_strip_all_tags( wc_price( (float) wc_get_price_to_display( $v ) ) ),
+							'image' => (string) wp_get_attachment_image_url( (int) $v->get_image_id(), 'woocommerce_single' ),
+						);
+					}
+				}
+				$defaults = $p->get_default_attributes();
+				foreach ( $p->get_variation_attributes() as $attribute => $values ) {
+					$name  = 'attribute_' . sanitize_title( $attribute );
+					$terms = taxonomy_exists( $attribute ) ? wc_get_product_terms( $p->get_id(), $attribute, array( 'fields' => 'all' ) ) : array();
+					$opts  = array();
+					foreach ( $terms ? $terms : $values as $o ) {
+						$slug = $o instanceof WP_Term ? $o->slug : (string) $o;
+						// Only values a purchasable variation has: a size without a price is not offered.
+						if ( in_array( $slug, $values, true ) && array_filter( $vars, static fn( $x ) => in_array( (string) ( $x['attrs'][ $name ] ?? '' ), array( '', $slug ), true ) ) ) {
+							$opts[] = array(
+								'value' => $slug,
+								'label' => $o instanceof WP_Term ? $o->name : $slug,
+							);
+						}
+					}
+					$attrs[] = array(
+						'name'    => $name,
+						'label'   => wc_attribute_label( $attribute, $p ),
+						'options' => $opts,
+						'default' => (string) ( $defaults[ sanitize_title( $attribute ) ] ?? '' ),
+					);
+				}
+			}
+			$out[] = array(
+				'id'    => $p->get_id(),
+				'image' => (string) wp_get_attachment_image_url( (int) $p->get_image_id(), 'woocommerce_single' ),
+				'price' => wp_strip_all_tags( wc_price( (float) wc_get_price_to_display( $p ) ) ),
+				'attrs' => $attrs,
+				'vars'  => $vars,
+			);
+		}
+		return $out;
+	}
+
+	/**
+	 * The request page: a product, its colour and quantity, then either "I have a logo" (the
+	 * logo follows in the cart) or an inscription, the print colour and extra instructions.
+	 */
+	private static function render_design( ?WC_Product $product ): string {
+		$uid    = wp_unique_id( 'rk-design' );
+		$picked = isset( $_POST['reklamo_nonce'], $_POST['add-to-cart'] ) ? absint( $_POST['add-to-cart'] ) : ( $product ? $product->get_id() : 0 ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- redisplay only.
+		// phpcs:disable WordPress.Security.NonceVerification -- which tab opens, and the values again after a refused add.
+		$again  = isset( $_POST['reklamo_nonce'], $_POST['rk_mode'] );
+		$mode   = $again ? ( 'text' === sanitize_key( wp_unslash( $_POST['rk_mode'] ) ) ? 'text' : 'logo' ) : ( isset( $_GET['logo'] ) ? 'logo' : 'text' );
+		$text   = $again && isset( $_POST['rk_text'] ) ? sanitize_textarea_field( wp_unslash( $_POST['rk_text'] ) ) : '';
+		$note   = $again && isset( $_POST['rk_note'] ) ? sanitize_text_field( wp_unslash( $_POST['rk_note'] ) ) : '';
+		$colour = $again && isset( $_POST['rk_colour'] ) ? sanitize_key( wp_unslash( $_POST['rk_colour'] ) ) : 'black';
+		$colour = isset( Reklamo_Cart::PRINT_HEX[ $colour ] ) ? $colour : 'black';
+		// phpcs:enable WordPress.Security.NonceVerification
+		$max = (int) Reklamo_Settings::get( 'note_max', '300' );
+		wp_enqueue_script( 'reklamo-design', REKLAMO_URL . 'assets/js/design.js', array(), (string) filemtime( REKLAMO_PATH . 'assets/js/design.js' ), true );
+		self::enqueue_uploader();
+		ob_start();
+		?>
+		<form class="rq-form rq-form--full rk-design" method="post" enctype="multipart/form-data" action="<?php echo esc_url( self::current_url() ); ?>" data-rk-design data-mode="<?php echo esc_attr( $mode ); ?>" data-vat="<?php esc_attr_e( 'incl. VAT', 'reklamo-core' ); ?>"
+			data-catalogue="<?php echo esc_attr( (string) wp_json_encode( self::catalogue() ) ); ?>">
+			<?php wp_nonce_field( Reklamo_Cart::NONCE, 'reklamo_nonce' ); ?>
+			<?php if ( isset( $_POST['reklamo_nonce'] ) && function_exists( 'wc_get_notices' ) && wc_notice_count( 'error' ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Missing -- redisplay only. ?>
+				<div class="rq-errors" role="alert">
+					<ul>
+						<?php foreach ( wc_get_notices( 'error' ) as $e ) : ?>
+							<li><?php echo wp_kses_post( is_array( $e ) ? $e['notice'] : $e ); ?></li>
+						<?php endforeach; ?>
+					</ul>
+				</div>
+				<?php wc_clear_notices(); ?>
+			<?php endif; ?>
+
+			<fieldset class="rk-mode">
+				<legend class="screen-reader-text"><?php esc_html_e( 'What do we print?', 'reklamo-core' ); ?></legend>
+				<label class="rk-mode__option"><input type="radio" name="rk_mode" value="text" <?php checked( 'text', $mode ); ?>><span><?php esc_html_e( 'An inscription', 'reklamo-core' ); ?></span></label>
+				<label class="rk-mode__option"><input type="radio" name="rk_mode" value="logo" <?php checked( 'logo', $mode ); ?>><span><?php esc_html_e( 'I have a logo', 'reklamo-core' ); ?></span></label>
+			</fieldset>
+
+			<div class="rq-field">
+				<label for="<?php echo esc_attr( $uid ); ?>-product"><?php esc_html_e( 'Product', 'reklamo-core' ); ?> <span class="rk-required" aria-hidden="true">*</span></label>
+				<select id="<?php echo esc_attr( $uid ); ?>-product" name="add-to-cart" required data-rk-product-select>
+					<option value=""><?php esc_html_e( 'Choose a product…', 'reklamo-core' ); ?></option>
+					<?php foreach ( self::packages() as $p ) : ?>
+						<option value="<?php echo esc_attr( (string) $p->get_id() ); ?>" <?php selected( $picked, $p->get_id() ); ?>><?php echo esc_html( $p->get_name() ); ?></option>
+					<?php endforeach; ?>
+				</select>
+			</div>
+			<div class="rk-design__attrs" data-rk-attrs></div>
+			<input type="hidden" name="variation_id" value="" data-rk-variation>
+			<p class="rk-design__price" data-rk-price hidden></p>
+
+			<div class="rk-design__logo" data-rk-when="logo"<?php echo 'logo' === $mode ? '' : ' hidden'; ?>>
+				<?php echo Reklamo_Cart::drop_zone( $uid . '-logo', 'rk_logo_file', __( 'Upload your logo', 'reklamo-core' ), false, 'rk_logo[file_token]' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside. ?>
+				<p class="rk-design__hint"><?php esc_html_e( 'Optional here: you can also upload it later in the cart.', 'reklamo-core' ); ?></p>
+			</div>
+
+			<div class="rq-field" data-rk-when="text"<?php echo 'text' === $mode ? '' : ' hidden'; ?>>
+				<label for="<?php echo esc_attr( $uid ); ?>-text"><?php esc_html_e( 'Your inscription', 'reklamo-core' ); ?> <span class="rk-required" aria-hidden="true">*</span></label>
+				<textarea id="<?php echo esc_attr( $uid ); ?>-text" name="rk_text" rows="3" maxlength="150" placeholder="<?php esc_attr_e( 'e.g. A team with character', 'reklamo-core' ); ?>"><?php echo esc_textarea( $text ); ?></textarea>
+				<p class="rk-design__hint"><?php esc_html_e( 'We print the text exactly as written.', 'reklamo-core' ); ?></p>
+			</div>
+
+			<fieldset class="rk-print">
+				<legend class="rk-print__label"><?php esc_html_e( 'Print colour', 'reklamo-core' ); ?>: <span data-rk-print-chosen><?php echo esc_html( Reklamo_Cart::print_colours()[ $colour ] ); ?></span></legend>
+				<div class="rk-print__list">
+					<?php foreach ( Reklamo_Cart::print_colours() as $slug => $label ) : ?>
+						<label class="rk-option rk-option--swatch" title="<?php echo esc_attr( $label ); ?>">
+							<input type="radio" name="rk_colour" value="<?php echo esc_attr( $slug ); ?>" data-label="<?php echo esc_attr( $label ); ?>" <?php checked( $colour, $slug ); ?>>
+							<span class="rk-option__swatch rk-print__swatch--<?php echo esc_attr( $slug ); ?>" style="--swatch: <?php echo esc_attr( Reklamo_Cart::PRINT_HEX[ $slug ] ); ?>"></span><span class="screen-reader-text"><?php echo esc_html( $label ); ?></span>
+						</label>
+					<?php endforeach; ?>
+				</div>
+			</fieldset>
+
+			<div class="rq-field">
+				<label for="<?php echo esc_attr( $uid ); ?>-note"><?php esc_html_e( 'Extra instructions', 'reklamo-core' ); ?> <span class="rk-optional"><?php esc_html_e( '(optional)', 'reklamo-core' ); ?></span></label>
+				<input type="text" id="<?php echo esc_attr( $uid ); ?>-note" name="rk_note" maxlength="<?php echo esc_attr( (string) $max ); ?>" value="<?php echo esc_attr( $note ); ?>" placeholder="<?php esc_attr_e( 'e.g. a smaller inscription, printed on both sides…', 'reklamo-core' ); ?>">
+			</div>
+
+			<div class="rq-submit">
+				<button type="submit" class="rq-button"><?php esc_html_e( 'Add to cart', 'reklamo-core' ); ?> <span aria-hidden="true">→</span></button>
+				<p class="rq-nopay" data-rk-when="logo"<?php echo 'logo' === $mode ? '' : ' hidden'; ?>><?php esc_html_e( 'The logo is saved with the chosen product. No payment is taken at this stage.', 'reklamo-core' ); ?></p>
+				<p class="rq-nopay" data-rk-when="text"<?php echo 'text' === $mode ? '' : ' hidden'; ?>><?php esc_html_e( 'The inscription is saved with the chosen product. No payment is taken at this stage.', 'reklamo-core' ); ?></p>
 			</div>
 		</form>
 		<?php
@@ -317,8 +467,18 @@ final class Reklamo_Request {
 				if ( ! $item ) {
 					continue;
 				}
-				$item->add_meta_data( Reklamo_Cart::META_FILE, $line['token'], true );
+				if ( '' !== $line['token'] ) {
+					$item->add_meta_data( Reklamo_Cart::META_FILE, $line['token'], true );
+				}
 				$item->add_meta_data( Reklamo_Items::META_STATE, Reklamo_Items::WAITING, true );
+				if ( '' !== ( $line['text'] ?? '' ) ) {
+					$item->add_meta_data( Reklamo_Items::META_TEXT, $line['text'], true );
+					$item->add_meta_data( __( 'Inscription', 'reklamo-core' ), $line['text'], true );
+				}
+				if ( '' !== ( $line['colour'] ?? '' ) ) {
+					$item->add_meta_data( Reklamo_Items::META_COLOUR, $line['colour'], true );
+					$item->add_meta_data( __( 'Print colour', 'reklamo-core' ), Reklamo_Cart::print_colours()[ $line['colour'] ] ?? $line['colour'], true );
+				}
 				// The gift as promised when the order was placed, for the shop to pack.
 				if ( '' !== Reklamo_Product::gift( $line['product'] ) ) {
 					$item->add_meta_data( __( 'Gift', 'reklamo-core' ), Reklamo_Product::gift( $line['product'] ), true );
@@ -328,7 +488,9 @@ final class Reklamo_Request {
 					$item->add_meta_data( __( 'Note to designer', 'reklamo-core' ), $line['note'], true );
 				}
 				$item->save();
-				$claims[ (int) $item_id ] = $line['token'];
+				if ( '' !== $line['token'] ) {
+					$claims[ (int) $item_id ] = $line['token'];
+				}
 			}
 
 			$parts = preg_split( '/\s+/', trim( $values['name'] ), 2 );

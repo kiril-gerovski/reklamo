@@ -311,7 +311,7 @@ test( 'adding to the cart keeps the customer on the page, with a dialog: the car
 	await expect( page.locator( '[data-rk-added]' ) ).toHaveCount( 0 );
 
 	// From another page the second product; this time to the cart, which shows no stale notice.
-	await page.goto( '/kachi-logo/?paket=komplekt-stripe' );
+	await page.goto( '/kachi-logo/?paket=komplekt-stripe&logo=1' );
 	await page.getByRole( 'button', { name: /Добави в количката/ } ).click();
 	await expect( page.locator( '[data-rk-added]' ) ).toContainText( 'Комплект Stripe' );
 	await page.locator( '[data-rk-added]' ).getByRole( 'link', { name: 'Към количката' } ).click();
@@ -532,4 +532,92 @@ test( 'a package priced per colour: no shared price fields, and the size and the
 	await expect( shop.locator( '.rk-cart__name' ) ).toContainText( '150 бр.' );
 	await expect( shop.locator( '.rk-cart__price' ) ).toContainText( '999,99' );
 	await shop.context().close();
+} );
+
+test( 'an inscription instead of a logo, and a print colour for a logo: request page → cart → order', async ( { browser } ) => {
+	const ctx = await browser.newContext( { locale: 'bg-BG' } );
+	const page = await ctx.newPage();
+	// The request page: product, its colour and quantity from WooCommerce, the inscription and the print colour.
+	await page.goto( '/kachi-logo/?paket=biznes-komplekt-magnet' );
+	await expect( page.locator( 'h1' ) ).toHaveText( 'Създайте продукт с вашето лого или надпис' );
+	await expect( page.locator( '[data-rk-product-select]' ) ).toHaveValue( /\d+/ );
+	const before = await page.locator( '[data-rk-design-image]' ).getAttribute( 'src' );
+	await expect( page.locator( 'input[name="rk_mode"][value="text"]' ) ).toBeChecked();
+	const form = page.locator( '[data-rk-design]' );
+	await form.getByLabel( 'Цвят', { exact: true } ).selectOption( { label: 'Син' } );
+	await form.getByLabel( 'Количество' ).selectOption( { label: '100 бр.' } );
+	await expect( page.locator( '[data-rk-design-image]' ) ).not.toHaveAttribute( 'src', before );
+	await expect( page.locator( '[data-rk-price]' ) ).toContainText( '€' );
+	// No text, no cart: the server says so.
+	await page.locator( 'textarea[name="rk_text"]' ).evaluate( ( t ) => { t.required = false; } );
+	await page.getByRole( 'button', { name: /Добави в количката/ } ).click();
+	await expect( page.locator( '[data-rk-design] .rq-errors' ) ).toContainText( 'напишете надписа' );
+	await expect( page.locator( 'input[name="rk_mode"][value="text"]' ) ).toBeChecked();
+	await page.fill( 'textarea[name="rk_text"]', 'Екип с характер' );
+	await page.locator( '.rk-print .rk-option', { hasText: '' } ).nth( 3 ).click();
+	await expect( page.locator( '[data-rk-print-chosen]' ) ).toHaveText( 'Злато' );
+	await page.fill( 'input[name="rk_note"]', 'По-малък надпис' );
+	await page.getByRole( 'button', { name: /Добави в количката/ } ).click();
+	await page.locator( '[data-rk-added]' ).getByRole( 'link', { name: 'Към количката' } ).click();
+	await page.waitForURL( /\/koshnitsa\/$/ );
+
+	// A second product with a logo, from its own page.
+	await addToCart( page, 'komplekt-cork' );
+	const magnet = page.locator( '.rk-cart__item', { hasText: 'Magnet' } );
+	await expect( magnet ).toContainText( 'Надпис: Екип с характер' );
+	await expect( magnet ).toContainText( 'Цвят на печата: Злато' );
+	await expect( magnet ).toContainText( 'Надпис вместо лого' );
+	await expect( magnet.locator( 'select[name^="colour"]' ) ).toHaveCount( 0 );
+	// Only the logo product waits for a logo, and gets its own print colour.
+	const logo = page.locator( '.rk-logo' ).first();
+	await expect( logo.locator( '.rk-logo__item' ) ).toHaveCount( 1 );
+	await page.locator( '.rk-cart__item', { hasText: 'Cork' } ).locator( 'select[name^="colour"]' ).selectOption( { label: 'Сребро' } );
+	await fillLogo( logo, 'logo.pdf', '', [ 'Cork' ] );
+	await page.locator( '[data-rk-continue]' ).click();
+	await expect( page.locator( '.rk-cart' ) ).toHaveAttribute( 'data-step', 'details' );
+	await expect( page.locator( '.rk-cart__item', { hasText: 'Cork' } ) ).toContainText( 'Цвят на печата: Сребро' );
+
+	await page.fill( 'input[name="rq_name"]', 'Надпис Тест' );
+	await page.fill( 'input[name="rq_email"]', 'nadpis@example.com' );
+	await page.fill( 'input[name="rq_phone"]', '0888 123 456' );
+	await page.check( 'input[name="rq_consent"]' );
+	await page.check( 'input[name="rq_waiver"]' );
+	await page.getByRole( 'button', { name: /Изпрати и заяви визуализации/ } ).click();
+	await page.waitForURL( /porachka\/\?s=/ );
+	const id = await page.locator( 'h1[data-order]' ).getAttribute( 'data-order' );
+	await ctx.close();
+
+	// The shop sees the text and both colours, per product.
+	await adminLogin( shopper );
+	await shopper.goto( `/wp-admin/admin.php?page=wc-orders&action=edit&id=${ id }` );
+	const box = shopper.locator( '#reklamo_mockup' );
+	await expect( box ).toContainText( 'Екип с характер' );
+	await expect( box ).toContainText( 'Цвят на печата: Злато' );
+	await expect( box ).toContainText( 'Цвят на печата: Сребро' );
+	await expect( box ).toContainText( 'По-малък надпис' );
+	await expect( shopper.locator( '#woocommerce-order-items' ) ).toContainText( 'Надпис:' );
+} );
+
+test( 'a logo uploaded on the request page arrives in the cart with its product, ready', async ( { browser } ) => {
+	const ctx = await browser.newContext( { locale: 'bg-BG' } );
+	const page = await ctx.newPage();
+	await page.goto( '/kachi-logo/?paket=komplekt-cork&logo=1' );
+	const form = page.locator( '[data-rk-design]' );
+	await expect( form.locator( 'input[name="rk_mode"][value="logo"]' ) ).toBeChecked();
+	await form.locator( 'input[type="file"][name="rk_logo_file"]' ).setInputFiles( `${ FIXTURES }/logo.png` );
+	await expect( form.locator( '.rq-progress.is-done' ) ).toContainText( 'logo.png' );
+	await form.getByRole( 'button', { name: /Добави в количката/ } ).click();
+	await page.locator( '[data-rk-added]' ).getByRole( 'link', { name: 'Към количката' } ).click();
+	await page.waitForURL( /\/koshnitsa\/$/ );
+	const cork = page.locator( '.rk-cart__item', { hasText: 'Cork' } );
+	await expect( cork ).toHaveClass( /is-ready/ );
+	await expect( cork ).toContainText( 'logo.png' );
+	await expect( page.locator( '[data-rk-continue]' ) ).toBeEnabled();
+	// A product added later is offered under "Add another logo"; the first keeps its file.
+	await addToCart( page, 'biznes-komplekt-magnet' );
+	await expect( page.locator( '.rk-cart__item', { hasText: 'Magnet' } ) ).not.toHaveClass( /is-ready/ );
+	await expect( page.locator( '.rk-cart__item', { hasText: 'Cork' } ) ).toHaveClass( /is-ready/ );
+	await page.getByRole( 'button', { name: /Добави още едно лого/ } ).click();
+	await expect( page.locator( '.rk-logo' ).nth( 1 ).locator( '.rk-logo__item:visible' ) ).toHaveText( [ /Magnet/ ] );
+	await ctx.close();
 } );

@@ -80,6 +80,24 @@ function reklamo_setting( string $key, string $fallback = '' ): string {
 }
 
 /** The contacts page, falling back to a mailto: so the button is never dead. */
+/** The phone's bottom bar to the request page: everywhere but that page and the cart. */
+function reklamo_show_mobile_cta(): bool {
+	$request = (int) get_option( 'reklamo_request_page_id' );
+	if ( ( $request && is_page( $request ) ) || ( function_exists( 'is_cart' ) && ( is_cart() || is_checkout() ) ) ) {
+		return false;
+	}
+	return true;
+}
+
+/** The inquiry dialog, once a page, wherever something can open it. */
+function reklamo_inquiry_dialog(): void {
+	static $done = false;
+	if ( ! $done ) {
+		$done = true;
+		get_template_part( 'template-parts/inquiry-dialog' );
+	}
+}
+
 /** A new email to the shop for a tailored offer, subject and outline filled in; the contacts page when no email is set. */
 function reklamo_offer_mailto(): string {
 	$mail = reklamo_setting( 'email' );

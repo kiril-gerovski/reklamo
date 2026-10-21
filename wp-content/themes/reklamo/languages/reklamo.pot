@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-20T17:27:16+00:00\n"
+"POT-Creation-Date: 2026-10-21T12:39:12+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: reklamo\n"
@@ -83,6 +83,12 @@ msgstr ""
 msgid "© %1$s %2$s — All rights reserved."
 msgstr ""
 
+#: footer.php:106
+#: header.php:25
+#: header.php:41
+msgid "Add your inscription"
+msgstr ""
+
 #: functions.php:45
 msgid "Primary Menu"
 msgstr ""
@@ -95,47 +101,48 @@ msgstr ""
 msgid "Footer — Information"
 msgstr ""
 
-#: functions.php:92
+#: functions.php:110
 msgid "Hello,"
 msgstr ""
 
-#: functions.php:94
+#: functions.php:112
 msgid "I would like an offer for:"
 msgstr ""
 
-#: functions.php:95
+#: functions.php:113
 msgid "Product or package:"
 msgstr ""
 
-#: functions.php:96
+#: functions.php:114
 msgid "Quantity:"
 msgstr ""
 
-#: functions.php:97
+#: functions.php:115
 msgid "Wanted by:"
 msgstr ""
 
-#: functions.php:101
+#: functions.php:119
+#: template-parts/inquiry-dialog.php:26
 msgid "Inquiry for a tailored offer"
 msgstr ""
 
-#: functions.php:295
+#: functions.php:313
 msgid "Specifications"
 msgstr ""
 
-#: functions.php:394
+#: functions.php:412
 msgid "Promotion"
 msgstr ""
 
-#: functions.php:401
+#: functions.php:419
 msgid "+ Gift"
 msgstr ""
 
-#: functions.php:408
+#: functions.php:426
 msgid "Most popular"
 msgstr ""
 
-#: functions.php:439
+#: functions.php:457
 msgid "View the package"
 msgstr ""
 
@@ -147,23 +154,19 @@ msgstr ""
 msgid "Primary"
 msgstr ""
 
-#: header.php:40
-msgid "Request a mockup"
-msgstr ""
-
-#: header.php:45
+#: header.php:46
 msgid "Cart"
 msgstr ""
 
 #. translators: %d: number of products in the cart
-#: header.php:47
+#: header.php:48
 #, php-format
 msgid "%d product"
 msgid_plural "%d products"
 msgstr[0] ""
 msgstr[1] ""
 
-#: header.php:52
+#: header.php:53
 msgid "Menu"
 msgstr ""
 
@@ -271,40 +274,40 @@ msgstr ""
 msgid "Try a different word, or start from the packages."
 msgstr ""
 
-#: template-parts/bulk-offer.php:12
+#: template-parts/bulk-offer.php:13
 msgid "Competitive prices"
 msgstr ""
 
-#: template-parts/bulk-offer.php:13
+#: template-parts/bulk-offer.php:14
 msgid "Custom design"
 msgstr ""
 
-#: template-parts/bulk-offer.php:14
+#: template-parts/bulk-offer.php:15
 #: woocommerce/content-single-product.php:32
 msgid "Fast delivery"
 msgstr ""
 
-#: template-parts/bulk-offer.php:21
+#: template-parts/bulk-offer.php:22
 msgid "Different quantities?"
 msgstr ""
 
-#: template-parts/bulk-offer.php:22
+#: template-parts/bulk-offer.php:23
 msgid "Get a tailored offer"
 msgstr ""
 
-#: template-parts/bulk-offer.php:27
+#: template-parts/bulk-offer.php:28
 msgid "Send an inquiry"
 msgstr ""
 
-#: template-parts/bulk-offer.php:33
+#: template-parts/bulk-offer.php:34
 msgid "or write to"
 msgstr ""
 
-#: template-parts/bulk-offer.php:34
+#: template-parts/bulk-offer.php:35
 msgid "Copied ✓"
 msgstr ""
 
-#: template-parts/bulk-offer.php:34
+#: template-parts/bulk-offer.php:35
 msgid "Copy"
 msgstr ""
 
@@ -345,6 +348,90 @@ msgstr ""
 
 #: template-parts/faq.php:51
 msgid "All questions"
+msgstr ""
+
+#: template-parts/inquiry-dialog.php:24
+msgid "The inquiry could not be sent. Please write to us by email."
+msgstr ""
+
+#: template-parts/inquiry-dialog.php:25
+#: template-parts/inquiry-dialog.php:63
+msgid "Close"
+msgstr ""
+
+#: template-parts/inquiry-dialog.php:27
+msgid "Tell us what you need and we will send you an offer within one business day."
+msgstr ""
+
+#: template-parts/inquiry-dialog.php:30
+msgid "Website"
+msgstr ""
+
+#: template-parts/inquiry-dialog.php:32
+msgid "Name / Company"
+msgstr ""
+
+#: template-parts/inquiry-dialog.php:33
+msgid "Email"
+msgstr ""
+
+#: template-parts/inquiry-dialog.php:34
+msgid "Phone"
+msgstr ""
+
+#: template-parts/inquiry-dialog.php:35
+msgid "Product or package"
+msgstr ""
+
+#: template-parts/inquiry-dialog.php:36
+msgid "Quantity"
+msgstr ""
+
+#: template-parts/inquiry-dialog.php:36
+msgid "e.g. 300 pcs."
+msgstr ""
+
+#: template-parts/inquiry-dialog.php:37
+msgid "Wanted by"
+msgstr ""
+
+#: template-parts/inquiry-dialog.php:37
+#: template-parts/inquiry-dialog.php:44
+msgid "(optional)"
+msgstr ""
+
+#: template-parts/inquiry-dialog.php:37
+msgid "e.g. by 15 December"
+msgstr ""
+
+#: template-parts/inquiry-dialog.php:44
+msgid "Message"
+msgstr ""
+
+#: template-parts/inquiry-dialog.php:50
+msgid "Privacy Policy"
+msgstr ""
+
+#. translators: %s: privacy policy link
+#: template-parts/inquiry-dialog.php:52
+#, php-format
+msgid "I agree that my details are used to answer this inquiry, as described in the %s."
+msgstr ""
+
+#: template-parts/inquiry-dialog.php:58
+msgid "Sending…"
+msgstr ""
+
+#: template-parts/inquiry-dialog.php:58
+msgid "Send the inquiry"
+msgstr ""
+
+#: template-parts/inquiry-dialog.php:61
+msgid "Thank you — your inquiry is on its way"
+msgstr ""
+
+#: template-parts/inquiry-dialog.php:62
+msgid "We will reply within one business day. A copy is in your inbox."
 msgstr ""
 
 #: template-parts/shop-hero.php:27
@@ -481,111 +568,67 @@ msgstr ""
 msgid "Request page (upload logo)"
 msgstr ""
 
-#: templates/page-request.php:20
-msgid "Upload logo"
+#: templates/page-request.php:19
+msgid "Choose a product"
+msgstr ""
+
+#: templates/page-request.php:19
+msgid "From our products and packages"
 msgstr ""
 
 #: templates/page-request.php:20
-msgid "Send the file with your logo"
+msgid "Add a logo or an inscription"
+msgstr ""
+
+#: templates/page-request.php:20
+msgid "Upload the logo in the cart, or write a text"
 msgstr ""
 
 #. translators: %s: number of business hours
 #: templates/page-request.php:22
-msgid "Review of details"
+msgid "Approve before printing"
 msgstr ""
 
 #. translators: %s: number of business hours
 #: templates/page-request.php:22
 #, php-format
-msgid "We prepare a mockup within %s h."
-msgstr ""
-
-#: templates/page-request.php:23
-msgid "Approval"
-msgstr ""
-
-#: templates/page-request.php:23
-msgid "Review and approve the mockup"
-msgstr ""
-
-#: templates/page-request.php:24
-msgid "Production"
-msgstr ""
-
-#: templates/page-request.php:24
-msgid "Production starts after approval"
-msgstr ""
-
-#: templates/page-request.php:27
-msgid "We receive your logo"
-msgstr ""
-
-#: templates/page-request.php:27
-msgid "We check the quality of the file."
-msgstr ""
-
-#. translators: %s: number of business hours
-#: templates/page-request.php:29
-msgid "We prepare the mockup"
-msgstr ""
-
-#. translators: %s: number of business hours
-#: templates/page-request.php:29
-#, php-format
-msgid "You get the mockup by email within %s business hours."
+msgid "You get a mockup to approve within %s h."
 msgstr ""
 
 #: templates/page-request.php:30
-msgid "You review and approve"
-msgstr ""
-
-#: templates/page-request.php:30
-msgid "Or request corrections."
-msgstr ""
-
-#. translators: %s: deposit percentage
-#: templates/page-request.php:32
-#, php-format
-msgid "You pay a %s%% deposit"
-msgstr ""
-
-#. translators: %s: deposit percentage
-#: templates/page-request.php:32
-msgid "Production starts after approval."
-msgstr ""
-
-#: templates/page-request.php:39
 msgid "Breadcrumb"
 msgstr ""
 
-#: templates/page-request.php:40
+#: templates/page-request.php:31
 msgid "Home"
 msgstr ""
 
-#: templates/page-request.php:41
-msgid "Promo packages"
+#: templates/page-request.php:61
+msgid "Your product"
 msgstr ""
 
-#: templates/page-request.php:65
-#: woocommerce/content-single-product.php:134
-msgid "branding included"
+#: templates/page-request.php:64
+msgid "Product photo"
 msgstr ""
 
-#: templates/page-request.php:90
-msgid "What happens next?"
+#: templates/page-request.php:68
+msgid "Printing after your approval"
 msgstr ""
 
-#: templates/page-request.php:103
-#: woocommerce/content-single-product.php:240
-msgid "Need help?"
+#: templates/page-request.php:68
+msgid "You get the final mockup before anything is made."
 msgstr ""
 
-#: templates/page-request.php:104
-msgid "Our consultant is available to help you."
+#: templates/page-request.php:72
+msgid "No logo?"
 msgstr ""
 
-#: templates/page-request.php:107
-msgid "Contact us"
+#: templates/page-request.php:72
+msgid "Write an inscription, or contact us and we will help."
+msgstr ""
+
+#: templates/page-request.php:74
+msgid "Contact us for help"
 msgstr ""
 
 #. translators: %d: minimum quantity
@@ -698,6 +741,10 @@ msgstr ""
 msgid "Final price"
 msgstr ""
 
+#: woocommerce/content-single-product.php:134
+msgid "branding included"
+msgstr ""
+
 #: woocommerce/content-single-product.php:152
 msgid "What does the package include?"
 msgstr ""
@@ -720,6 +767,10 @@ msgstr ""
 
 #: woocommerce/content-single-product.php:206
 msgid "The mockup shown is a guide and not a 100% exact image of the final product. Slight differences in colour, size and logo position are possible, depending on the material, the printing technique and the screen settings. Before production you will receive a final mockup for approval."
+msgstr ""
+
+#: woocommerce/content-single-product.php:240
+msgid "Need help?"
 msgstr ""
 
 #: woocommerce/content-single-product.php:243

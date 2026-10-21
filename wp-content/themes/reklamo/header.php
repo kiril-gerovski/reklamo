@@ -22,6 +22,7 @@ defined( 'ABSPATH' ) || exit;
 		<?php echo reklamo_logo( false, true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside. ?>
 
 		<nav class="primary-nav" id="primary-nav" aria-label="<?php esc_attr_e( 'Primary', 'reklamo' ); ?>">
+			<a class="btn btn--primary primary-nav__cta" href="<?php echo esc_url( reklamo_request_url() ); ?>"><?php echo reklamo_icon( 'pen', 18 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?><span><?php esc_html_e( 'Add your inscription', 'reklamo' ); ?></span></a>
 			<?php
 			wp_nav_menu(
 				array(
@@ -37,7 +38,7 @@ defined( 'ABSPATH' ) || exit;
 		</nav>
 
 		<div class="site-header__actions">
-			<a class="btn btn--outline btn--sm site-header__cta" href="<?php echo esc_url( reklamo_request_url() ); ?>"><?php esc_html_e( 'Request a mockup', 'reklamo' ); ?></a>
+			<a class="btn btn--outline btn--sm site-header__cta" href="<?php echo esc_url( reklamo_request_url() ); ?>"><?php echo reklamo_icon( 'pen', 18 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?><span class="site-header__cta-text"><?php esc_html_e( 'Add your inscription', 'reklamo' ); ?></span></a>
 			<?php if ( class_exists( 'Reklamo_Cart' ) ) : ?>
 				<?php $reklamo_cart_count = Reklamo_Cart::count(); ?>
 				<a class="site-header__cart" href="<?php echo esc_url( Reklamo_Cart::url() ); ?>" data-cart-count="<?php echo esc_attr( (string) $reklamo_cart_count ); ?>">

@@ -201,7 +201,16 @@ final class Reklamo_Admin_Order {
 					<?php if ( $used > $free ) : ?>
 						<p class="description" style="margin:0 0 .4em;color:#9a5b00"><?php echo esc_html( sprintf( /* translators: 1: corrections over the free ones, 2: fee */ __( '%1$d over the free corrections — %2$s € each, unless they fixed our own mistakes.', 'reklamo-core' ), $used - $free, Reklamo_Settings::get( 'correction_fee', '15' ) ) ); ?></p>
 					<?php endif; ?>
-					<p style="margin:.2em 0">
+					<?php $inscription = (string) $item->get_meta( Reklamo_Items::META_TEXT ); ?>
+					<?php $print = (string) $item->get_meta( Reklamo_Items::META_COLOUR ); ?>
+					<?php if ( '' !== $inscription ) : ?>
+						<p style="margin:.2em 0"><strong><?php esc_html_e( 'Inscription', 'reklamo-core' ); ?>:</strong></p>
+						<p style="margin:.2em 0 .4em;padding:.4em .6em;background:#f6f7f7;white-space:pre-line;font-size:1.05em"><?php echo esc_html( $inscription ); ?></p>
+					<?php endif; ?>
+					<?php if ( '' !== $print ) : ?>
+						<p style="margin:.2em 0"><strong><?php esc_html_e( 'Print colour', 'reklamo-core' ); ?>:</strong> <?php echo esc_html( Reklamo_Cart::print_colours()[ $print ] ?? $print ); ?></p>
+					<?php endif; ?>
+					<p style="margin:.2em 0"<?php echo '' !== $inscription && ! $logo ? ' hidden' : ''; ?>>
 						<strong><?php esc_html_e( 'Customer logo', 'reklamo-core' ); ?>:</strong>
 						<?php if ( $logo ) : ?>
 							<a href="<?php echo esc_url( Reklamo_Storage::download_url( (int) $logo->id ) ); ?>"><?php echo esc_html( Reklamo_Storage::describe( $logo ) ); ?></a>

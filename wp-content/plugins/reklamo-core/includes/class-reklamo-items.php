@@ -16,6 +16,8 @@ final class Reklamo_Items {
 	const META_REVISION = '_reklamo_revision';
 	const META_SENT_AT  = '_reklamo_sent_at';
 	const META_NOTE     = '_reklamo_note';
+	const META_TEXT     = '_reklamo_text';
+	const META_COLOUR   = '_reklamo_print_colour';
 
 	const WAITING  = 'waiting';  // no mockup yet: the designer's turn.
 	const SENT     = 'sent';     // a mockup awaits the customer.
@@ -184,7 +186,7 @@ final class Reklamo_Items {
 
 	/** Item meta the order screen would otherwise list under every product. */
 	public static function hidden_meta( array $hidden ): array {
-		return array_merge( $hidden, array( self::META_STATE, self::META_REVISION, self::META_SENT_AT, self::META_NOTE ) );
+		return array_merge( $hidden, array( self::META_STATE, self::META_REVISION, self::META_SENT_AT, self::META_NOTE, self::META_TEXT, self::META_COLOUR ) );
 	}
 
 	/**

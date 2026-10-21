@@ -2,7 +2,7 @@
 // The catalogue from the client's photos: three calendars, the single products and the packages, each
 // sold in sizes with a price per size.
 const { test, expect } = require( '@playwright/test' );
-const { adminLogin } = require( './helpers' );
+const { adminLogin, mailpitFind } = require( './helpers' );
 
 const TIERS = [
 	{ qty: 50, price: '137,99' },
@@ -300,6 +300,46 @@ test( 'the homepage packages, Промо пакети, Продукти and the 
 	}
 	await page.goto( '/' );
 	await expect( page.locator( '.packages .bulk-offer' ) ).toHaveCount( 1 );
+} );
+
+test( '„Изпрати запитване“ opens the inquiry form; the shop and the visitor both get an email', async ( { page } ) => {
+	await page.goto( '/promo-paketi/' );
+	const dialog = page.locator( '[data-inquiry]' );
+	await page.locator( '.bulk-offer__cta' ).click();
+	await expect( dialog ).toBeVisible();
+	await expect( dialog.locator( 'h2' ).first() ).toHaveText( 'Запитване за индивидуална оферта' );
+
+	// Empty: the server lists what is missing, the dialog stays open.
+	await dialog.getByRole( 'button', { name: 'Изпрати запитването' } ).click();
+	await expect( dialog.locator( '[data-inquiry-errors]' ) ).toContainText( 'Моля, посочете количество.' );
+	await expect( dialog.locator( '[data-inquiry-errors]' ) ).toContainText( 'съгласете' );
+
+	const who = `Е2Е Запитване ${ Date.now() }`;
+	await dialog.getByLabel( 'Име / фирма' ).fill( who );
+	await dialog.getByLabel( 'Имейл' ).fill( 'inquiry@example.com' );
+	await dialog.getByLabel( 'Телефон' ).fill( '0888 123 456' );
+	await dialog.getByLabel( 'Продукт или пакет' ).fill( 'Бизнес комплект Magnet' );
+	await dialog.getByLabel( 'Количество' ).fill( '300 бр.' );
+	await dialog.getByLabel( /Съобщение/ ).fill( 'Синьо лого, моля.' );
+	await dialog.locator( 'input[name="inq_consent"]' ).check();
+	await dialog.getByRole( 'button', { name: 'Изпрати запитването' } ).click();
+	await expect( dialog.locator( '[data-inquiry-done]' ) ).toContainText( 'запитването Ви е изпратено' );
+
+	// Mailpit indexes a message a moment after accepting it.
+	const arrived = async ( needle ) => {
+		await expect.poll( () => mailpitFind( needle ).then( () => true, () => false ), { timeout: 10_000 } ).toBe( true );
+		return mailpitFind( needle );
+	};
+	const shop = await arrived( `Запитване за оферта от ${ who }` );
+	expect( shop.all ).toContain( 'dev@reklamo.local' );
+	expect( shop.all ).not.toContain( 'inquiry@example.com' );
+	expect( shop.replyTo ).toEqual( [ 'inquiry@example.com' ] );
+	expect( shop.text ).toContain( '300 бр.' );
+	expect( shop.text ).toContain( 'Синьо лого, моля.' );
+	const copy = await arrived( 'Получихме запитването Ви' );
+	expect( copy.to ).toBe( 'inquiry@example.com' );
+	expect( copy.text ).toContain( who );
+	expect( copy.text ).toContain( 'Бизнес комплект Magnet' );
 } );
 
 test( 'the homepage hero shows the Magnet package: its photo, the badge and its price from the shop, linking to it', async ( { page } ) => {

@@ -240,7 +240,7 @@ ensure_page korporativni-podaratsi "Корпоративни подаръци" >
 ensure_page produkti "Продукти" '<!-- wp:shortcode -->[product_categories parent="0" hide_empty="0" columns="3"]<!-- /wp:shortcode -->' >/dev/null
 ensure_page za-nas "За нас" >/dev/null
 ensure_page kontakti "Контакти" >/dev/null
-ensure_page kachi-logo "Качи лого и визуализирай" >/dev/null
+ensure_page kachi-logo "Създайте продукт с вашето лого или надпис" >/dev/null
 ensure_page dostavka-i-srokove "Доставка и срокове" >/dev/null
 ensure_page plashtane "Плащане" >/dev/null
 ensure_page chesto-zadavani-vaprosi "Често задавани въпроси" >/dev/null
@@ -1182,7 +1182,12 @@ opt page_on_front "$home_id"
 # Request page: the design's single request step, rendered by the theme template.
 req_id=$(page_id kachi-logo)
 wp post meta update "$req_id" _wp_page_template "templates/page-request.php" >/dev/null
-fill_if_empty kachi-logo "<!-- wp:paragraph --><p>Изпратете вашето лого и ние ще подготвим професионална визуализация на избрания пакет.</p><!-- /wp:paragraph -->"
+# 2026-10-20: a logo or an inscription (the owner's mockup); only an unedited title and intro change.
+req_intro_old="<!-- wp:paragraph --><p>Изпратете вашето лого и ние ще подготвим професионална визуализация на избрания пакет.</p><!-- /wp:paragraph -->"
+req_intro='<!-- wp:paragraph --><p>Изберете продукт и качете логото си или напишете надпис. Нямате лого? <a href="#zapitvane">Свържете се с нас за съдействие</a>.</p><!-- /wp:paragraph -->'
+fill_if_empty kachi-logo "$req_intro"
+refresh_if_seeded kachi-logo "$req_intro" "$req_intro_old"
+[ "$(wp post get "$req_id" --field=post_title)" = "Качи лого и визуализирай" ] && wp post update "$req_id" --post_title="Създайте продукт с вашето лого или надпис" >/dev/null && echo "  kachi-logo: title updated" || true
 opt reklamo_request_page_id "$req_id"
 
 # Homepage: expand the theme's patterns into real, owner-editable blocks — only while the

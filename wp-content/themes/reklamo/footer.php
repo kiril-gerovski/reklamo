@@ -100,6 +100,13 @@ $reklamo_social  = array_filter(
 		</p>
 	</div>
 </footer>
+<?php if ( reklamo_show_mobile_cta() ) : ?>
+	<a class="mobile-cta" href="<?php echo esc_url( reklamo_request_url() ); ?>">
+		<?php echo reklamo_icon( 'pen', 20 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?>
+		<span><?php esc_html_e( 'Add your inscription', 'reklamo' ); ?></span>
+		<?php echo reklamo_icon( 'chevron-r', 18 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?>
+	</a>
+<?php endif; ?>
 <?php wp_footer(); ?>
 </body>
 </html>

@@ -140,6 +140,49 @@
 		show( 0 );
 	} );
 
+	// Inquiry dialog behind „Изпрати запитване“; without it (or without <dialog>) the mailto link stays.
+	var inquiry = document.querySelector( '[data-inquiry]' );
+	if ( inquiry && inquiry.showModal && window.fetch ) {
+		var iform = inquiry.querySelector( '[data-inquiry-form]' );
+		var ierrors = inquiry.querySelector( '[data-inquiry-errors]' );
+		var isend = inquiry.querySelector( '[data-inquiry-send]' );
+		var idone = inquiry.querySelector( '[data-inquiry-done]' );
+		var sendLabel = isend.textContent;
+		var showErrors = function ( list ) {
+			ierrors.innerHTML = '';
+			list.forEach( function ( text ) { var li = document.createElement( 'li' ); li.textContent = text; ierrors.appendChild( li ); } );
+			ierrors.hidden = ! list.length;
+		};
+		document.querySelectorAll( '[data-inquiry-open], a[href="#zapitvane"]' ).forEach( function ( a ) {
+			a.addEventListener( 'click', function ( e ) {
+				e.preventDefault();
+				inquiry.showModal();
+			} );
+		} );
+		inquiry.querySelectorAll( '[data-inquiry-close]' ).forEach( function ( b ) {
+			b.addEventListener( 'click', function () { inquiry.close(); } );
+		} );
+		inquiry.addEventListener( 'click', function ( e ) { if ( e.target === inquiry ) { inquiry.close(); } } );
+		iform.addEventListener( 'submit', function ( e ) {
+			e.preventDefault();
+			isend.disabled = true;
+			isend.textContent = isend.dataset.busy;
+			fetch( iform.getAttribute( 'action' ), { method: 'POST', body: new FormData( iform ), credentials: 'same-origin' } )
+				.then( function ( r ) { return r.json(); } )
+				.then( function ( res ) {
+					if ( res.ok ) {
+						showErrors( [] );
+						Array.prototype.forEach.call( iform.children, function ( el ) { if ( el !== idone && ! el.matches( '[data-inquiry-close], input[type=hidden]' ) ) { el.hidden = true; } } );
+						idone.hidden = false;
+					} else {
+						showErrors( res.errors || [] );
+					}
+				} )
+				.catch( function () { showErrors( [ iform.dataset.failed || 'Error' ] ); } )
+				.then( function () { isend.disabled = false; isend.textContent = sendLabel; } );
+		} );
+	}
+
 	// "Copy" next to an address: shown only where the browser can copy.
 	if ( navigator.clipboard ) {
 		document.querySelectorAll( '[data-copy]' ).forEach( function ( button ) {

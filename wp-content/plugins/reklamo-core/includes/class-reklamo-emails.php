@@ -50,7 +50,7 @@ final class Reklamo_Emails {
 	/** WC_Email exists only once the mailer loads, hence the lazy requires. */
 	public static function register( array $emails ): array {
 		require_once REKLAMO_PATH . 'includes/emails/class-reklamo-email.php';
-		foreach ( array( 'request-received', 'mockup-sent', 'deposit-request', 'deposit-received', 'production-started', 'final-payment', 'cancelled', 'admin-changes', 'admin-details', 'admin-approved', 'admin-stale' ) as $slug ) {
+		foreach ( array( 'request-received', 'mockup-sent', 'deposit-request', 'deposit-received', 'production-started', 'final-payment', 'cancelled', 'admin-changes', 'admin-details', 'admin-approved', 'admin-stale', 'admin-inquiry', 'inquiry-received' ) as $slug ) {
 			require_once REKLAMO_PATH . 'includes/emails/class-reklamo-email-' . $slug . '.php';
 		}
 		$emails['Reklamo_Email_Request_Received']   = new Reklamo_Email_Request_Received();
@@ -64,6 +64,8 @@ final class Reklamo_Emails {
 		$emails['Reklamo_Email_Cancelled']          = new Reklamo_Email_Cancelled();
 		$emails['Reklamo_Email_Admin_Approved']     = new Reklamo_Email_Admin_Approved();
 		$emails['Reklamo_Email_Admin_Stale']        = new Reklamo_Email_Admin_Stale();
+		$emails['Reklamo_Email_Admin_Inquiry']      = new Reklamo_Email_Admin_Inquiry();
+		$emails['Reklamo_Email_Inquiry_Received']   = new Reklamo_Email_Inquiry_Received();
 		return $emails;
 	}
 

@@ -24,11 +24,19 @@ final class Reklamo_Cart {
 	const LOGOS      = 'reklamo_logos'; // session: the customer's logos, notes and the lines each is for.
 	const STEP       = 'reklamo_cart_step'; // session: 'logos' or 'details'.
 	const ADDED      = 'reklamo_just_added'; // session: name of the product just added, for the dialog.
+	const DESIGN     = 'reklamo_design'; // cart item: an inscription instead of a logo, the print colour, extra instructions.
+	const PRINT_HEX  = array(
+		'black'  => '#1a1a1a',
+		'white'  => '#ffffff',
+		'silver' => '#c4c7cc',
+		'gold'   => '#c9a043',
+	);
 
 	public static function init(): void {
 		add_action( 'wp_loaded', array( __CLASS__, 'require_package' ), 19 );
 		add_filter( 'woocommerce_add_to_cart_validation', array( __CLASS__, 'validate' ), 10, 3 );
 		add_filter( 'woocommerce_add_cart_item_data', array( __CLASS__, 'add_cart_item_data' ), 10, 3 );
+		add_action( 'woocommerce_add_to_cart', array( __CLASS__, 'attach_posted_logo' ), 10, 1 );
 		add_filter( 'woocommerce_get_item_data', array( __CLASS__, 'display_item_data' ), 10, 2 );
 		add_filter( 'woocommerce_add_to_cart_redirect', array( __CLASS__, 'back_after_add' ), 10, 2 );
 		add_action( 'wp_footer', array( __CLASS__, 'added_dialog' ) );
@@ -71,8 +79,8 @@ final class Reklamo_Cart {
 
 	/* ------------------------------------------------------------ product page */
 
-	/** Drop zone + markup shared by the product form and each cart line. */
-	private static function drop_zone( string $id, string $name, string $label, bool $required, string $token_name = '' ): string {
+	/** Drop zone + markup shared by the request page and each logo in the cart. */
+	public static function drop_zone( string $id, string $name, string $label, bool $required, string $token_name = '' ): string {
 		$accept = '.' . implode( ',.', Reklamo_Storage::LOGO_EXTENSIONS );
 		ob_start();
 		?>
@@ -277,13 +285,83 @@ final class Reklamo_Cart {
 			wc_add_notice( __( 'The form has expired. Please reload the page and try again.', 'reklamo-core' ), 'error' );
 			return false;
 		}
+		$design = self::posted_design();
+		if ( $design && 'text' === $design['mode'] && '' === $design['text'] ) {
+			wc_add_notice( __( 'Please write the inscription, or choose "I have a logo".', 'reklamo-core' ), 'error' );
+			return false;
+		}
+		if ( $design && mb_strlen( $design['text'] ) > 150 ) {
+			wc_add_notice( __( 'The inscription is too long (maximum 150 characters).', 'reklamo-core' ), 'error' );
+			return false;
+		}
 		return $passed;
+	}
+
+	/**
+	 * The request page's inscription, print colour and instructions, when it sent them.
+	 *
+	 * @return array{mode:string,text:string,colour:string,note:string}|null
+	 */
+	private static function posted_design(): ?array {
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- validate() checks the nonce of our forms.
+		if ( ! isset( $_POST['rk_mode'] ) ) {
+			return null;
+		}
+		$mode   = 'text' === sanitize_key( wp_unslash( $_POST['rk_mode'] ) ) ? 'text' : 'logo';
+		$colour = isset( $_POST['rk_colour'] ) ? sanitize_key( wp_unslash( $_POST['rk_colour'] ) ) : '';
+		$max    = (int) Reklamo_Settings::get( 'note_max', '300' );
+		$design = array(
+			'mode'   => $mode,
+			'text'   => 'text' === $mode && isset( $_POST['rk_text'] ) ? trim( sanitize_textarea_field( wp_unslash( $_POST['rk_text'] ) ) ) : '',
+			'colour' => isset( self::PRINT_HEX[ $colour ] ) ? $colour : '',
+			'note'   => isset( $_POST['rk_note'] ) ? mb_substr( trim( sanitize_text_field( wp_unslash( $_POST['rk_note'] ) ) ), 0, $max ) : '',
+		);
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
+		return $design;
 	}
 
 	public static function add_cart_item_data( array $data, int $product_id, int $variation_id ): array { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
 		// The same product twice may get two different logos: never merge into quantity 2.
 		$data['unique_key'] = md5( microtime() . wp_rand() );
+		$design             = self::posted_design();
+		if ( $design ) {
+			unset( $design['mode'] );
+			$data[ self::DESIGN ] = $design;
+		}
 		return $data;
+	}
+
+	/**
+	 * A logo uploaded on the request page becomes the cart's logo for the line just added, so
+	 * the product arrives in the cart ready. A failed upload leaves the product in the cart,
+	 * and the logo is asked for there.
+	 *
+	 * @param string $cart_item_key The line just added.
+	 */
+	public static function attach_posted_logo( string $cart_item_key ): void {
+		// phpcs:disable WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput -- validate() checked the nonce; the file is validated in store_upload().
+		if ( ! isset( $_POST['rk_mode'] ) || 'logo' !== sanitize_key( wp_unslash( $_POST['rk_mode'] ) ) || ! WC()->session ) {
+			return;
+		}
+		$in    = isset( $_POST['rk_logo'] ) && is_array( $_POST['rk_logo'] ) ? wp_unslash( $_POST['rk_logo'] ) : array();
+		$file  = isset( $_FILES['rk_logo_file'] ) && is_array( $_FILES['rk_logo_file'] ) ? $_FILES['rk_logo_file'] : null;
+		$token = self::posted_logo( sanitize_text_field( (string) ( $in['file_token'] ?? '' ) ), $file );
+		// phpcs:enable WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput
+		if ( is_wp_error( $token ) ) {
+			/* translators: %s: error message */
+			wc_add_notice( sprintf( __( 'The logo was not uploaded (%s). The product is in the cart; upload the logo there.', 'reklamo-core' ), $token->get_error_message() ), 'error' );
+			return;
+		}
+		if ( ! $token ) {
+			return;
+		}
+		$logos = (array) WC()->session->get( self::LOGOS, array() );
+		$logos[ substr( md5( wp_rand() . microtime() ), 0, 8 ) ] = array(
+			'token' => $token,
+			'note'  => '',
+			'items' => array( $cart_item_key ),
+		);
+		self::save_logos( $logos );
 	}
 
 	/**
@@ -344,6 +422,25 @@ final class Reklamo_Cart {
 
 	/** Plain text only; the block cart escapes HTML. */
 	public static function display_item_data( array $item_data, array $cart_item ): array {
+		$design = self::design( $cart_item );
+		if ( '' !== $design['text'] ) {
+			$item_data[] = array(
+				'key'     => __( 'Inscription', 'reklamo-core' ),
+				'display' => $design['text'],
+			);
+		}
+		if ( '' !== $design['colour'] ) {
+			$item_data[] = array(
+				'key'     => __( 'Print colour', 'reklamo-core' ),
+				'display' => self::print_colours()[ $design['colour'] ],
+			);
+		}
+		if ( '' !== $design['note'] ) {
+			$item_data[] = array(
+				'key'     => __( 'Instructions', 'reklamo-core' ),
+				'display' => $design['note'],
+			);
+		}
 		if ( empty( $cart_item['reklamo'] ) ) {
 			return $item_data;
 		}
@@ -379,6 +476,36 @@ final class Reklamo_Cart {
 		return self::render_cart();
 	}
 
+	/** @return array<string,string> slug => label, the colours a logo or an inscription can be printed in */
+	public static function print_colours(): array {
+		return array(
+			'black'  => __( 'Black', 'reklamo-core' ),
+			'white'  => __( 'White', 'reklamo-core' ),
+			'silver' => __( 'Silver', 'reklamo-core' ),
+			'gold'   => __( 'Gold', 'reklamo-core' ),
+		);
+	}
+
+	/** @return array{text:string,colour:string,note:string} */
+	public static function design( array $line ): array {
+		$d = (array) ( $line[ self::DESIGN ] ?? array() );
+		return array(
+			'text'   => (string) ( $d['text'] ?? '' ),
+			'colour' => isset( self::PRINT_HEX[ $d['colour'] ?? '' ] ) ? (string) $d['colour'] : '',
+			'note'   => (string) ( $d['note'] ?? '' ),
+		);
+	}
+
+	/** A line with an inscription needs no logo. */
+	public static function is_text_line( array $line ): bool {
+		return '' !== self::design( $line )['text'];
+	}
+
+	/** @return array<string,array> the lines that wait for a logo */
+	private static function logo_lines(): array {
+		return array_filter( self::lines(), static fn( $line ) => ! self::is_text_line( $line ) );
+	}
+
 	/** @return array<string,array> cart item key => item, our products only */
 	private static function lines(): array {
 		$lines = array();
@@ -407,7 +534,7 @@ final class Reklamo_Cart {
 	 */
 	private static function logos(): array {
 		$logos = WC()->session ? (array) WC()->session->get( self::LOGOS, array() ) : array();
-		$keys  = array_keys( self::lines() );
+		$keys  = array_keys( self::logo_lines() );
 		foreach ( $logos as $id => $logo ) {
 			$logos[ $id ] = array(
 				'token' => (string) ( $logo['token'] ?? '' ),
@@ -444,7 +571,7 @@ final class Reklamo_Cart {
 	}
 
 	/**
-	 * Every product needs a logo before the next step; the note is optional.
+	 * Every product needs a logo before the next step, unless it carries an inscription; the note is optional.
 	 *
 	 * @return string[] what is missing, one line per product
 	 */
@@ -452,6 +579,9 @@ final class Reklamo_Cart {
 		$missing = array();
 		$marks   = array_count_values( array_merge( array(), ...array_values( array_map( static fn( $l ) => $l['items'], $logos ) ) ) );
 		foreach ( $lines as $key => $line ) {
+			if ( self::is_text_line( $line ) ) {
+				continue;
+			}
 			$name = $line['data']->get_name();
 			$a    = $assigned[ $key ] ?? null;
 			if ( ( $marks[ $key ] ?? 0 ) > 1 ) {
@@ -477,6 +607,7 @@ final class Reklamo_Cart {
 		$errors   = $state['errors'] ?? array();
 		$values   = $state['values'] ?? array();
 		$lines    = self::lines();
+		$for_logo = self::logo_lines();
 		$logos    = self::logos();
 		$assigned = self::assignments( $logos );
 		$missing  = self::missing( $lines, $assigned, $logos );
@@ -488,7 +619,7 @@ final class Reklamo_Cart {
 				'new' => array(
 					'token' => '',
 					'note'  => '',
-					'items' => array_keys( $lines ),
+					'items' => array_keys( $for_logo ),
 				),
 			);
 		}
@@ -534,9 +665,11 @@ final class Reklamo_Cart {
 							<?php
 							$product = $line['data'];
 							$a       = $assigned[ $key ] ?? null;
-							$ok      = $a && $a['file'];
+							$design  = self::design( $line );
+							$is_text = '' !== $design['text'];
+							$ok      = $is_text || ( $a && $a['file'] );
 							?>
-							<li class="rk-cart__item<?php echo $ok ? ' is-ready' : ''; ?>" data-cart-item="<?php echo esc_attr( $key ); ?>">
+							<li class="rk-cart__item<?php echo $ok ? ' is-ready' : ''; ?>" data-cart-item="<?php echo esc_attr( $key ); ?>"<?php echo $is_text ? ' data-cart-text' : ''; ?>>
 								<a class="rk-cart__thumb" href="<?php echo esc_url( $product->get_permalink() ); ?>"><?php echo $product->get_image( 'woocommerce_thumbnail' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- WooCommerce escapes. ?></a>
 								<div class="rk-cart__body">
 									<div class="rk-cart__head">
@@ -548,7 +681,7 @@ final class Reklamo_Cart {
 									<?php endif; ?>
 									<?php $variant = wc_get_formatted_cart_item_data( $line, true ); ?>
 									<?php if ( '' !== trim( $variant ) ) : ?>
-										<p class="rk-cart__variant" data-cart-variant><?php echo esc_html( trim( str_replace( "\n", ' · ', $variant ) ) ); ?></p>
+										<p class="rk-cart__variant" data-cart-variant><?php echo esc_html( implode( ' · ', array_filter( array_map( 'trim', explode( "\n", $variant ) ) ) ) ); ?></p>
 									<?php endif; ?>
 									<?php if ( Reklamo_Product::by_the_piece( $product ) ) : ?>
 										<?php $min = Reklamo_Product::min_qty( $product ); ?>
@@ -573,8 +706,23 @@ final class Reklamo_Cart {
 											</span>
 										</p>
 									<?php endif; ?>
+									<?php if ( ! $is_text && 'logos' === $step ) : ?>
+										<p class="rk-cart__colour">
+											<label>
+												<?php esc_html_e( 'Print colour', 'reklamo-core' ); ?>
+												<select name="colour[<?php echo esc_attr( $key ); ?>]">
+													<option value=""><?php esc_html_e( 'The designer decides', 'reklamo-core' ); ?></option>
+													<?php foreach ( self::print_colours() as $slug => $label ) : ?>
+														<option value="<?php echo esc_attr( $slug ); ?>" <?php selected( $design['colour'], $slug ); ?>><?php echo esc_html( $label ); ?></option>
+													<?php endforeach; ?>
+												</select>
+											</label>
+										</p>
+									<?php endif; ?>
 									<p class="rk-cart__logo<?php echo $ok ? '' : ' is-missing'; ?>" data-cart-status data-ready-text="<?php esc_attr_e( 'Logo chosen ✓', 'reklamo-core' ); ?>">
-										<?php if ( $ok ) : ?>
+										<?php if ( $is_text ) : ?>
+											<?php esc_html_e( 'Inscription instead of a logo ✓', 'reklamo-core' ); ?>
+										<?php elseif ( $ok ) : ?>
 											<?php esc_html_e( 'Logo', 'reklamo-core' ); ?>: <strong data-cart-logo><?php echo esc_html( Reklamo_Storage::describe( $a['file'] ) ); ?></strong>
 											<?php if ( '' !== $a['note'] ) : ?>
 												<br><?php esc_html_e( 'Note', 'reklamo-core' ); ?>: <span data-cart-note><?php echo esc_html( $a['note'] ); ?></span>
@@ -597,7 +745,11 @@ final class Reklamo_Cart {
 						<button type="submit" class="rk-cart__clear" name="cart_action" value="clear" formnovalidate data-rk-confirm="<?php esc_attr_e( 'Remove every product, logo and note from the cart?', 'reklamo-core' ); ?>"><?php esc_html_e( 'Empty the cart', 'reklamo-core' ); ?></button>
 					</div>
 
-					<?php if ( 'logos' === $step ) : ?>
+					<?php if ( 'logos' === $step && ! $for_logo ) : ?>
+						<div class="rq-submit">
+							<button type="submit" class="rq-button" name="cart_action" value="continue" data-rk-continue><?php esc_html_e( 'Continue to your details', 'reklamo-core' ); ?> <span aria-hidden="true">→</span></button>
+						</div>
+					<?php elseif ( 'logos' === $step ) : ?>
 						<h2 class="rk-cart__title"><?php esc_html_e( 'Logos and notes to the designer', 'reklamo-core' ); ?></h2>
 						<p class="rk-cart__hint"><?php esc_html_e( 'Upload a logo, write what the designer should do with it, and mark the products it is for. Different products need a different logo? Add another one.', 'reklamo-core' ); ?></p>
 						<div class="rk-logos">
@@ -627,7 +779,7 @@ final class Reklamo_Cart {
 									</div>
 									<div class="rk-logo__items">
 										<p class="rk-logo__label"><?php esc_html_e( 'For these products:', 'reklamo-core' ); ?></p>
-										<?php foreach ( $lines as $key => $line ) : ?>
+										<?php foreach ( $for_logo as $key => $line ) : ?>
 											<?php
 											// A product already marked under another logo is left out here; unticking it there brings it back.
 											$taken = ! in_array( $key, $logo['items'], true ) && in_array( $key, array_merge( array(), ...array_values( array_map( static fn( $l ) => $l['items'], array_diff_key( $logos, array( $id => 1 ) ) ) ) ), true );
@@ -712,6 +864,13 @@ final class Reklamo_Cart {
 			}
 			if ( $want !== (int) $line['quantity'] ) {
 				WC()->cart->set_quantity( $key, $want );
+			}
+		}
+		$colours = isset( $_POST['colour'] ) && is_array( $_POST['colour'] ) ? array_map( 'sanitize_key', wp_unslash( $_POST['colour'] ) ) : array(); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce checked by the caller.
+		foreach ( self::logo_lines() as $key => $line ) {
+			if ( isset( $colours[ $key ] ) ) {
+				WC()->cart->cart_contents[ $key ][ self::DESIGN ]           = self::design( $line );
+				WC()->cart->cart_contents[ $key ][ self::DESIGN ]['colour'] = isset( self::PRINT_HEX[ $colours[ $key ] ] ) ? $colours[ $key ] : '';
 			}
 		}
 		WC()->cart->set_session();
@@ -832,11 +991,15 @@ final class Reklamo_Cart {
 		}
 		$order_lines = array();
 		foreach ( $lines as $key => $line ) {
+			$design        = self::design( $line );
+			$is_text       = '' !== $design['text'];
 			$order_lines[] = array(
 				'product' => $line['data'],
 				'qty'     => max( 1, (int) $line['quantity'] ),
-				'token'   => $assigned[ $key ]['file']->token,
-				'note'    => $assigned[ $key ]['note'],
+				'token'   => $is_text ? '' : $assigned[ $key ]['file']->token,
+				'note'    => trim( ( $is_text ? '' : $assigned[ $key ]['note'] ) . "\n" . $design['note'] ),
+				'text'    => $design['text'],
+				'colour'  => $design['colour'],
 			);
 		}
 		$order = Reklamo_Request::create_order( $order_lines, $values, 'reklamo_cart' );

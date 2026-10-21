@@ -42,7 +42,7 @@ async function logoInCart( page, fixture, note = 'E2E: лого в център�
 
 /** The request page for one product puts it in the cart; the logo is uploaded there. */
 async function addFromRequestPage( page, paket, fixture = '', note = undefined ) {
-	await page.goto( `/kachi-logo/?paket=${ paket }` );
+	await page.goto( `/kachi-logo/?paket=${ paket }&logo=1` );
 	await page.getByRole( 'button', { name: /Добави в количката/ } ).click();
 	await page.locator( '[data-rk-added]' ).getByRole( 'link', { name: 'Към количката' } ).click();
 	await page.waitForURL( /\/koshnitsa\/$/ );
@@ -53,10 +53,13 @@ async function addFromRequestPage( page, paket, fixture = '', note = undefined )
 
 test( 'customer places a request with a logo and no payment', async ( { page } ) => {
 	// The request page for one product (the header button leads here) adds it to the cart.
+	// The inscription is the default; ?logo=1 opens the logo tab.
 	await page.goto( '/kachi-logo/?paket=biznes-komplekt-magnet' );
-	await expect( page.locator( 'h1' ) ).toHaveText( 'Качи лого и визуализирай' );
-	await expect( page.locator( '.package-summary__name' ) ).toHaveText( 'Бизнес комплект Magnet' );
-	await expect( page.locator( '.rq-nopay' ) ).toContainText( 'не се извършва плащане' );
+	await expect( page.locator( 'input[name="rk_mode"][value="text"]' ) ).toBeChecked();
+	await page.goto( '/kachi-logo/?paket=biznes-komplekt-magnet&logo=1' );
+	await expect( page.locator( 'h1' ) ).toHaveText( 'Създайте продукт с вашето лого или надпис' );
+	await expect( page.locator( '[data-rk-product-select] option:checked' ) ).toHaveText( 'Бизнес комплект Magnet' );
+	await expect( page.locator( '.rq-nopay:visible' ) ).toContainText( 'не се извършва плащане' );
 	await page.getByRole( 'button', { name: /Добави в количката/ } ).click();
 	await page.locator( '[data-rk-added]' ).getByRole( 'link', { name: 'Към количката' } ).click();
 	await page.waitForURL( /\/koshnitsa\/$/ );

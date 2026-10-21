@@ -1,7 +1,8 @@
 <?php
 /**
- * The band under the catalogue grids: other quantities get a tailored offer by email, next to
- * three reasons to ask.
+ * The band under the catalogue grids: other quantities get a tailored offer, next to three
+ * reasons to ask. The button opens the inquiry dialog (Reklamo_Inquiry); without JavaScript it
+ * stays a mailto link, and the address with „Копирай“ sits under it either way.
  *
  * @package Reklamo
  */
@@ -23,7 +24,7 @@ $reklamo_reasons = array(
 		</div>
 	</div>
 	<div class="bulk-offer__action">
-		<a class="btn bulk-offer__cta" href="<?php echo esc_url( reklamo_offer_mailto(), array( 'mailto', 'http', 'https' ) ); ?>">
+		<a class="btn bulk-offer__cta"<?php echo class_exists( 'Reklamo_Inquiry' ) ? ' data-inquiry-open' : ''; ?> href="<?php echo esc_url( reklamo_offer_mailto(), array( 'mailto', 'http', 'https' ) ); ?>">
 			<?php esc_html_e( 'Send an inquiry', 'reklamo' ); ?>
 			<?php echo reklamo_icon( 'chevron-r', 16 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?>
 		</a>
@@ -41,3 +42,4 @@ $reklamo_reasons = array(
 		<?php endforeach; ?>
 	</ul>
 </aside>
+<?php reklamo_inquiry_dialog(); ?>

@@ -209,3 +209,38 @@ test( 'the address opens Google Maps, in the footer and on Контакти', as
 		await expect( link ).toHaveAttribute( 'target', '_blank' );
 	}
 } );
+
+test( 'on a phone „Добави свой надпис“ is one tap away: in the bar and at the top of the menu', async ( { page } ) => {
+	await page.setViewportSize( { width: 390, height: 844 } );
+	await page.goto( '/' );
+	const bar = page.locator( '.site-header__cta' );
+	await expect( bar ).toBeVisible();
+	await expect( bar ).toHaveAccessibleName( 'Добави свой надпис' );
+	await expect( bar ).toHaveAttribute( 'href', /\/kachi-logo\/$/ );
+	expect( await page.evaluate( () => document.documentElement.scrollWidth - innerWidth ) ).toBe( 0 );
+	await page.locator( '[data-nav-toggle]' ).click();
+	await expect( page.locator( '.primary-nav__cta' ) ).toBeVisible();
+	await expect( page.locator( '.primary-nav__cta' ) ).toHaveText( 'Добави свой надпис' );
+	// On a desktop the bar shows the text and the menu has no second button.
+	await page.setViewportSize( { width: 1440, height: 900 } );
+	await expect( page.locator( '.site-header__cta-text' ) ).toBeVisible();
+	await expect( page.locator( '.primary-nav__cta' ) ).toBeHidden();
+} );
+
+test( 'on a phone a bar at the bottom leads to „Добави свой надпис“, except on that page and in the cart', async ( { page } ) => {
+	await page.setViewportSize( { width: 390, height: 844 } );
+	for ( const url of [ '/', '/promo-paketi/', '/product/biznes-komplekt-magnet/' ] ) {
+		await page.goto( url );
+		await expect( page.locator( '.mobile-cta' ), url ).toBeVisible();
+		await expect( page.locator( '.mobile-cta' ) ).toHaveText( 'Добави свой надпис' );
+	}
+	await page.locator( '[data-nav-toggle]' ).click();
+	await expect( page.locator( '.mobile-cta' ) ).toBeHidden();
+	for ( const url of [ '/kachi-logo/', '/koshnitsa/' ] ) {
+		await page.goto( url );
+		await expect( page.locator( '.mobile-cta' ), url ).toHaveCount( 0 );
+	}
+	await page.setViewportSize( { width: 1024, height: 800 } );
+	await page.goto( '/' );
+	await expect( page.locator( '.mobile-cta' ) ).toBeHidden();
+} );
