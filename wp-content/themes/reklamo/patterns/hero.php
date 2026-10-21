@@ -18,10 +18,10 @@ defined( 'ABSPATH' ) || exit;
 <!-- wp:column {"verticalAlignment":"center","width":"50%"} -->
 <div class="wp-block-column is-vertically-aligned-center" style="flex-basis:50%">
 <!-- wp:paragraph {"className":"eyebrow"} -->
-<p class="eyebrow">Промо пакети с вашето лого</p>
+<p class="eyebrow">Промо продукти и пакети с вашето лого</p>
 <!-- /wp:paragraph -->
 <!-- wp:heading {"level":1} -->
-<h1 class="wp-block-heading">Избери пакет.<br>Изпрати логото.<br><span class="gold">Ние правим останалото.</span></h1>
+<h1 class="wp-block-heading">Избери продукт.<br>Лого или надпис.<br><span class="gold">Ние правим останалото.</span></h1>
 <!-- /wp:heading -->
 <!-- wp:html -->
 <div class="hero__rule"></div>
@@ -32,7 +32,7 @@ defined( 'ABSPATH' ) || exit;
 <!-- wp:buttons -->
 <div class="wp-block-buttons">
 <!-- wp:button -->
-<div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="/promo-paketi/">Разгледай пакетите</a></div>
+<div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="/produkti/">Разгледай продуктите</a></div>
 <!-- /wp:button -->
 <!-- wp:button {"className":"is-style-outline"} -->
 <div class="wp-block-button is-style-outline"><a class="wp-block-button__link wp-element-button" href="/kak-raboti/">Как работи?</a></div>

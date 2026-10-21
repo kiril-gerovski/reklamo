@@ -1206,6 +1206,21 @@ if ( $p && ( "" === trim( $p->post_content ) || str_contains( $p->post_content, 
 }
 '
 
+# 2026-10-21: the hero spoke of packages only; each seeded piece is swapped while it is still the old one.
+wp eval '
+$id   = (int) get_option( "page_on_front" );
+$p    = get_post( $id );
+$swap = array(
+	"<p class=\"eyebrow\">Промо пакети с вашето лого</p>" => "<p class=\"eyebrow\">Промо продукти и пакети с вашето лого</p>",
+	"<h1 class=\"wp-block-heading\">Избери пакет.<br>Изпрати логото.<br>" => "<h1 class=\"wp-block-heading\">Избери продукт.<br>Лого или надпис.<br>",
+	"href=\"/promo-paketi/\">Разгледай пакетите</a>" => "href=\"/produkti/\">Разгледай продуктите</a>",
+);
+if ( $p ) {
+	$c = str_replace( array_keys( $swap ), array_values( $swap ), $p->post_content, $n );
+	if ( $n ) { wp_update_post( wp_slash( array( "ID" => $id, "post_content" => $c ) ) ); echo "  homepage hero: products and inscriptions ($n)\n"; }
+}
+'
+
 # 2026-10-21: the quick-start band („Започни своята поръчка“) left the homepage; the request page and
 # „Добави свой надпис“ took its place. Only the section holding the seeded form is removed.
 wp eval '
