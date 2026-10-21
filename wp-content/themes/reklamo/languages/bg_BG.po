@@ -879,6 +879,7 @@ msgstr "Напишете надпис или се свържете с нас з�
 msgid "Contact us for help"
 msgstr "Свържете се с нас за съдействие"
 
+#: footer.php:104
 #: footer.php:106
 #: header.php:25
 #: header.php:41

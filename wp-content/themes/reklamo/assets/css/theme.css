@@ -539,6 +539,7 @@ a.steps__link:focus-visible .steps__icon { box-shadow: var(--focus), 0 0 0 1px v
 .rk-mode__option span { display: block; padding: .65rem 1rem; border-radius: 999px; text-align: center; font: 600 .75rem/1.2 var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--graphite); transition: background var(--fast), color var(--fast); }
 .rk-mode__option input:checked + span { background: var(--white); color: var(--ink); box-shadow: 0 2px 8px -3px rgba(26, 26, 26, .25); }
 .rk-mode__option input:focus-visible + span { box-shadow: var(--focus); }
+@media (max-width: 480px) { .rk-mode__option span { padding: .6rem .4rem; font-size: .66rem; letter-spacing: .04em; white-space: nowrap; } }
 .rk-design__attrs { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: 1rem; }
 .rk-design__attrs:empty { display: none; }
 .rk-design__price { margin: -.25rem 0 0; font: 600 1rem/1.3 var(--sans); color: var(--gold-dark); }
@@ -1046,15 +1047,18 @@ html { scroll-behavior: smooth; }
 .shop-empty p { margin: 0; color: var(--graphite); line-height: 1.6; }
 .shop-empty strong { display: block; margin-bottom: .35rem; font: 500 1.35rem/1.25 var(--serif); color: var(--ink); }
 
-/* ---------- phone: a bar to „Добави свой надпис“, fixed to the bottom ---------- */
+/* ---------- phone: a round „Добави свой надпис“, fixed bottom left (replaces the bar icon there) ---------- */
 .mobile-cta { display: none; }
 @media (max-width: 767px) {
-	.mobile-cta { position: fixed; z-index: 40; left: .75rem; right: .75rem; bottom: calc(.75rem + env(safe-area-inset-bottom)); display: flex; align-items: center; justify-content: center; gap: .6rem; padding: .9rem 1.1rem; border-radius: 999px; background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%); color: var(--white); font: 600 .78rem/1.2 var(--sans); letter-spacing: .1em; text-transform: uppercase; text-decoration: none; box-shadow: 0 12px 28px -10px rgba(110, 78, 20, .75); animation: fade-up var(--base) var(--ease) both; }
-	.mobile-cta:hover, .mobile-cta:focus-visible { color: var(--white); background: var(--gold-dark); }
+	.site-header .site-header__cta { display: none; }
+	.mobile-cta { position: fixed; z-index: 40; left: 1rem; bottom: calc(1rem + env(safe-area-inset-bottom)); display: grid; place-items: center; width: 86px; height: 86px; border-radius: 50%; background: linear-gradient(150deg, #cfa253 0%, var(--gold) 50%, #8f6a1f 100%); color: #fffaf0; text-align: center; text-decoration: none; box-shadow: 0 14px 30px -12px rgba(110, 78, 20, .7); animation: fade-up var(--base) var(--ease) both; transition: transform var(--fast) var(--ease); }
+	.mobile-cta::after { content: ""; position: absolute; inset: 4px; border: 1px solid rgba(255, 255, 255, .65); border-radius: 50%; pointer-events: none; }
+	.mobile-cta:active { transform: scale(.96); }
+	.mobile-cta:hover, .mobile-cta:focus-visible { color: #fffaf0; }
 	.mobile-cta:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
-	.mobile-cta .icon { flex: none; }
-	.mobile-cta .icon-chevron-r { margin-left: auto; }
-	.mobile-cta span { margin-right: auto; }
-	body:has(.mobile-cta) .site-footer { padding-bottom: calc(5rem + env(safe-area-inset-bottom)); }
+	.mobile-cta__label { display: grid; gap: .18rem; font: 500 .5rem/1 var(--sans); letter-spacing: .24em; text-transform: uppercase; }
+	.mobile-cta__label span { padding-left: .24em; }
+	.mobile-cta__label span:nth-child(2) { padding-left: 0; font: italic 400 1rem/1 var(--serif); letter-spacing: .01em; text-transform: none; }
+	body:has(.mobile-cta) .site-footer { padding-bottom: calc(7rem + env(safe-area-inset-bottom)); }
 	body:has(.primary-nav.is-open) .mobile-cta, body:has(dialog[open]) .mobile-cta { display: none; }
 }

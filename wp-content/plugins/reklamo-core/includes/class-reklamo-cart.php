@@ -290,6 +290,11 @@ final class Reklamo_Cart {
 			wc_add_notice( __( 'Please write the inscription, or choose "I have a logo".', 'reklamo-core' ), 'error' );
 			return false;
 		}
+		$picked = wc_get_product( $product_id );
+		if ( $design && 'text' === $design['mode'] && $picked && Reklamo_Product::is_package( $picked ) ) {
+			wc_add_notice( __( 'Packages are not printed with an inscription: choose a product, or "I have a logo".', 'reklamo-core' ), 'error' );
+			return false;
+		}
 		if ( $design && mb_strlen( $design['text'] ) > 150 ) {
 			wc_add_notice( __( 'The inscription is too long (maximum 150 characters).', 'reklamo-core' ), 'error' );
 			return false;

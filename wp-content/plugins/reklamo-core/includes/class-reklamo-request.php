@@ -185,8 +185,10 @@ final class Reklamo_Request {
 		$uid    = wp_unique_id( 'rk-design' );
 		$picked = isset( $_POST['reklamo_nonce'], $_POST['add-to-cart'] ) ? absint( $_POST['add-to-cart'] ) : ( $product ? $product->get_id() : 0 ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- redisplay only.
 		// phpcs:disable WordPress.Security.NonceVerification -- which tab opens, and the values again after a refused add.
-		$again  = isset( $_POST['reklamo_nonce'], $_POST['rk_mode'] );
-		$mode   = $again ? ( 'text' === sanitize_key( wp_unslash( $_POST['rk_mode'] ) ) ? 'text' : 'logo' ) : ( isset( $_GET['logo'] ) ? 'logo' : 'text' );
+		$again = isset( $_POST['reklamo_nonce'], $_POST['rk_mode'] );
+		$mode  = $again ? ( 'text' === sanitize_key( wp_unslash( $_POST['rk_mode'] ) ) ? 'text' : 'logo' ) : ( isset( $_GET['logo'] ) ? 'logo' : 'text' );
+		// A package chosen by the link opens with the logo: it takes no inscription.
+		$mode   = ! $again && $product && Reklamo_Product::is_package( $product ) ? 'logo' : $mode;
 		$text   = $again && isset( $_POST['rk_text'] ) ? sanitize_textarea_field( wp_unslash( $_POST['rk_text'] ) ) : '';
 		$note   = $again && isset( $_POST['rk_note'] ) ? sanitize_text_field( wp_unslash( $_POST['rk_note'] ) ) : '';
 		$colour = $again && isset( $_POST['rk_colour'] ) ? sanitize_key( wp_unslash( $_POST['rk_colour'] ) ) : 'black';
@@ -222,7 +224,8 @@ final class Reklamo_Request {
 				<select id="<?php echo esc_attr( $uid ); ?>-product" name="add-to-cart" required data-rk-product-select>
 					<option value=""><?php esc_html_e( 'Choose a product…', 'reklamo-core' ); ?></option>
 					<?php foreach ( self::packages() as $p ) : ?>
-						<option value="<?php echo esc_attr( (string) $p->get_id() ); ?>" <?php selected( $picked, $p->get_id() ); ?>><?php echo esc_html( $p->get_name() ); ?></option>
+						<?php $is_package = Reklamo_Product::is_package( $p ); ?>
+						<option value="<?php echo esc_attr( (string) $p->get_id() ); ?>"<?php echo $is_package ? ' data-package' : ''; ?><?php echo $is_package && 'text' === $mode ? ' hidden disabled' : ''; ?> <?php selected( $picked, $p->get_id() ); ?>><?php echo esc_html( $p->get_name() ); ?></option>
 					<?php endforeach; ?>
 				</select>
 			</div>

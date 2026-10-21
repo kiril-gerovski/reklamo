@@ -33,6 +33,9 @@ final class Reklamo_Product {
 	/** A promotion: percent off every variation, written as WooCommerce's own sale price. */
 	const PROMO_META = '_reklamo_promo_pct';
 
+	/** The Пакети category (the theme's REKLAMO_PACKAGES_CAT): a package is not printed with an inscription. */
+	const PACKAGES_CAT = 'paketi';
+
 	/** The promotion's last day (Y-m-d), optional; WooCommerce ends the sale itself. */
 	const PROMO_UNTIL_META = '_reklamo_promo_until';
 
@@ -171,6 +174,10 @@ final class Reklamo_Product {
 	 * Sold by the piece, with a quantity chosen by the customer from a minimum — as opposed to a
 	 * package or a calendar tier, which is one fixed set (a package may still come in colours).
 	 */
+	public static function is_package( WC_Product $product ): bool {
+		return has_term( self::PACKAGES_CAT, 'product_cat', $product->get_parent_id() ? $product->get_parent_id() : $product->get_id() );
+	}
+
 	public static function by_the_piece( WC_Product $product ): bool {
 		return self::min_qty( $product ) > 1;
 	}

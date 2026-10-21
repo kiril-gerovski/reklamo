@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-21T11:29:13+00:00\n"
+"POT-Creation-Date: 2026-10-21T17:52:10+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: reklamo-core\n"
@@ -40,7 +40,7 @@ msgstr ""
 
 #: includes/class-reklamo-admin-image.php:27
 #: includes/class-reklamo-admin-image.php:55
-#: includes/class-reklamo-cart.php:735
+#: includes/class-reklamo-cart.php:740
 msgid "Remove"
 msgstr ""
 
@@ -143,16 +143,16 @@ msgid "%1$d over the free corrections — %2$s € each, unless they fixed our o
 msgstr ""
 
 #: includes/class-reklamo-admin-order.php:207
-#: includes/class-reklamo-cart.php:428
-#: includes/class-reklamo-request.php:476
+#: includes/class-reklamo-cart.php:433
+#: includes/class-reklamo-request.php:479
 msgid "Inscription"
 msgstr ""
 
 #: includes/class-reklamo-admin-order.php:211
-#: includes/class-reklamo-cart.php:434
-#: includes/class-reklamo-cart.php:712
-#: includes/class-reklamo-request.php:245
-#: includes/class-reklamo-request.php:480
+#: includes/class-reklamo-cart.php:439
+#: includes/class-reklamo-cart.php:717
+#: includes/class-reklamo-request.php:248
+#: includes/class-reklamo-request.php:483
 msgid "Print colour"
 msgstr ""
 
@@ -165,10 +165,10 @@ msgid "No logo attached to this product."
 msgstr ""
 
 #: includes/class-reklamo-admin-order.php:222
-#: includes/class-reklamo-cart.php:454
-#: includes/class-reklamo-cart.php:1026
+#: includes/class-reklamo-cart.php:459
+#: includes/class-reklamo-cart.php:1031
 #: includes/class-reklamo-items.php:114
-#: includes/class-reklamo-request.php:488
+#: includes/class-reklamo-request.php:491
 #: templates/tracking.php:244
 msgid "Note to designer"
 msgstr ""
@@ -653,7 +653,7 @@ msgstr ""
 
 #: includes/class-reklamo-approval.php:493
 #: includes/class-reklamo-inquiry.php:46
-#: includes/class-reklamo-request.php:418
+#: includes/class-reklamo-request.php:421
 msgid "Please enter your name."
 msgstr ""
 
@@ -682,8 +682,8 @@ msgid "Customer updated invoice and delivery details."
 msgstr ""
 
 #: includes/class-reklamo-cart.php:187
-#: includes/class-reklamo-cart.php:691
-#: includes/class-reklamo-cart.php:695
+#: includes/class-reklamo-cart.php:696
+#: includes/class-reklamo-cart.php:700
 #: includes/class-reklamo-inquiry.php:80
 msgid "Quantity"
 msgstr ""
@@ -703,21 +703,21 @@ msgid "Minimum quantity: %d pieces"
 msgstr ""
 
 #: includes/class-reklamo-cart.php:202
-#: includes/class-reklamo-cart.php:743
+#: includes/class-reklamo-cart.php:748
 #: templates/tracking.php:317
 msgid "Total"
 msgstr ""
 
 #: includes/class-reklamo-cart.php:202
-#: includes/class-reklamo-cart.php:743
-#: includes/class-reklamo-request.php:200
+#: includes/class-reklamo-cart.php:748
+#: includes/class-reklamo-request.php:202
 #: templates/tracking.php:317
 msgid "incl. VAT"
 msgstr ""
 
 #: includes/class-reklamo-cart.php:205
 #: includes/class-reklamo-request.php:116
-#: includes/class-reklamo-request.php:262
+#: includes/class-reklamo-request.php:265
 msgid "Add to cart"
 msgstr ""
 
@@ -737,282 +737,286 @@ msgstr ""
 msgid "Please write the inscription, or choose \"I have a logo\"."
 msgstr ""
 
-#: includes/class-reklamo-cart.php:294
+#: includes/class-reklamo-cart.php:295
+msgid "Packages are not printed with an inscription: choose a product, or \"I have a logo\"."
+msgstr ""
+
+#: includes/class-reklamo-cart.php:299
 msgid "The inscription is too long (maximum 150 characters)."
 msgstr ""
 
 #. translators: %s: error message
-#: includes/class-reklamo-cart.php:352
+#: includes/class-reklamo-cart.php:357
 #, php-format
 msgid "The logo was not uploaded (%s). The product is in the cart; upload the logo there."
 msgstr ""
 
 #. translators: %s: product name
-#: includes/class-reklamo-cart.php:403
+#: includes/class-reklamo-cart.php:408
 #, php-format
 msgid "„%s“ is in your cart"
 msgstr ""
 
-#: includes/class-reklamo-cart.php:406
+#: includes/class-reklamo-cart.php:411
 msgid "Add more products, or go to the cart to upload your logos and notes to the designer."
 msgstr ""
 
-#: includes/class-reklamo-cart.php:408
+#: includes/class-reklamo-cart.php:413
 msgid "Go to the cart"
 msgstr ""
 
-#: includes/class-reklamo-cart.php:409
-#: includes/class-reklamo-cart.php:744
+#: includes/class-reklamo-cart.php:414
+#: includes/class-reklamo-cart.php:749
 msgid "Continue shopping"
 msgstr ""
 
-#: includes/class-reklamo-cart.php:440
+#: includes/class-reklamo-cart.php:445
 msgid "Instructions"
 msgstr ""
 
-#: includes/class-reklamo-cart.php:449
-#: includes/class-reklamo-cart.php:726
-#: includes/class-reklamo-cart.php:1061
+#: includes/class-reklamo-cart.php:454
+#: includes/class-reklamo-cart.php:731
+#: includes/class-reklamo-cart.php:1066
 #: templates/tracking.php:234
 msgid "Logo"
 msgstr ""
 
-#: includes/class-reklamo-cart.php:482
+#: includes/class-reklamo-cart.php:487
 msgid "Black"
 msgstr ""
 
-#: includes/class-reklamo-cart.php:483
+#: includes/class-reklamo-cart.php:488
 msgid "White"
 msgstr ""
 
-#: includes/class-reklamo-cart.php:484
+#: includes/class-reklamo-cart.php:489
 msgid "Silver"
 msgstr ""
 
-#: includes/class-reklamo-cart.php:485
+#: includes/class-reklamo-cart.php:490
 msgid "Gold"
 msgstr ""
 
 #. translators: %s: product name
-#: includes/class-reklamo-cart.php:589
+#: includes/class-reklamo-cart.php:594
 #, php-format
 msgid "%s: it is marked under more than one logo — leave it under one."
 msgstr ""
 
 #. translators: %s: product name
-#: includes/class-reklamo-cart.php:592
+#: includes/class-reklamo-cart.php:597
 #, php-format
 msgid "%s: no logo is marked for this product."
 msgstr ""
 
 #. translators: %s: product name
-#: includes/class-reklamo-cart.php:595
+#: includes/class-reklamo-cart.php:600
 #, php-format
 msgid "%s: its logo is not uploaded yet."
 msgstr ""
 
-#: includes/class-reklamo-cart.php:636
+#: includes/class-reklamo-cart.php:641
 msgid "The cart is empty now."
 msgstr ""
 
-#: includes/class-reklamo-cart.php:648
+#: includes/class-reklamo-cart.php:653
 msgid "Your cart is empty. Add the products and packages you want; then, here, you upload your logo and a note to the designer for each of them."
 msgstr ""
 
-#: includes/class-reklamo-cart.php:649
+#: includes/class-reklamo-cart.php:654
 msgid "Browse the packages"
 msgstr ""
 
-#: includes/class-reklamo-cart.php:653
+#: includes/class-reklamo-cart.php:658
 msgid "Logos and notes"
 msgstr ""
 
-#: includes/class-reklamo-cart.php:654
+#: includes/class-reklamo-cart.php:659
 msgid "Your details and sending"
 msgstr ""
 
 #. translators: %s: product name
-#: includes/class-reklamo-cart.php:658
+#: includes/class-reklamo-cart.php:663
 #, php-format
 msgid "%s: not marked under any logo."
 msgstr ""
 
 #. translators: 1: product name, 2: logo title such as "Logo 2"
-#: includes/class-reklamo-cart.php:659
+#: includes/class-reklamo-cart.php:664
 #, php-format
 msgid "%1$s: the file of %2$s is not uploaded yet."
 msgstr ""
 
-#: includes/class-reklamo-cart.php:661
+#: includes/class-reklamo-cart.php:666
 msgid "Website"
 msgstr ""
 
 #. translators: %s: what comes free with the product
-#: includes/class-reklamo-cart.php:680
+#: includes/class-reklamo-cart.php:685
 #, php-format
 msgid "+ Gift: %s"
 msgstr ""
 
 #. translators: %s: price per piece
-#: includes/class-reklamo-cart.php:700
+#: includes/class-reklamo-cart.php:705
 #, php-format
 msgid "%s per piece"
 msgstr ""
 
 #. translators: %d: minimum quantity
-#: includes/class-reklamo-cart.php:703
+#: includes/class-reklamo-cart.php:708
 #, php-format
 msgid "minimum %d"
 msgstr ""
 
-#: includes/class-reklamo-cart.php:714
+#: includes/class-reklamo-cart.php:719
 msgid "The designer decides"
 msgstr ""
 
-#: includes/class-reklamo-cart.php:722
+#: includes/class-reklamo-cart.php:727
 msgid "Logo chosen ✓"
 msgstr ""
 
-#: includes/class-reklamo-cart.php:724
+#: includes/class-reklamo-cart.php:729
 msgid "Inscription instead of a logo ✓"
 msgstr ""
 
-#: includes/class-reklamo-cart.php:728
+#: includes/class-reklamo-cart.php:733
 msgid "Note"
 msgstr ""
 
-#: includes/class-reklamo-cart.php:731
+#: includes/class-reklamo-cart.php:736
 msgid "Needs a logo — mark it under a logo below."
 msgstr ""
 
-#: includes/class-reklamo-cart.php:745
+#: includes/class-reklamo-cart.php:750
 msgid "Remove every product, logo and note from the cart?"
 msgstr ""
 
-#: includes/class-reklamo-cart.php:745
+#: includes/class-reklamo-cart.php:750
 msgid "Empty the cart"
 msgstr ""
 
-#: includes/class-reklamo-cart.php:750
-#: includes/class-reklamo-cart.php:805
+#: includes/class-reklamo-cart.php:755
+#: includes/class-reklamo-cart.php:810
 msgid "Continue to your details"
 msgstr ""
 
-#: includes/class-reklamo-cart.php:753
+#: includes/class-reklamo-cart.php:758
 msgid "Logos and notes to the designer"
 msgstr ""
 
-#: includes/class-reklamo-cart.php:754
+#: includes/class-reklamo-cart.php:759
 msgid "Upload a logo, write what the designer should do with it, and mark the products it is for. Different products need a different logo? Add another one."
 msgstr ""
 
 #. translators: %d: logo number
-#: includes/class-reklamo-cart.php:767
+#: includes/class-reklamo-cart.php:772
 #, php-format
 msgid "Logo %d"
 msgstr ""
 
-#: includes/class-reklamo-cart.php:770
+#: includes/class-reklamo-cart.php:775
 msgid "Upload a file for this logo — the products marked below have no logo yet."
 msgstr ""
 
-#: includes/class-reklamo-cart.php:772
+#: includes/class-reklamo-cart.php:777
 msgid "File"
 msgstr ""
 
-#: includes/class-reklamo-cart.php:774
+#: includes/class-reklamo-cart.php:779
 msgid "Replace the logo"
 msgstr ""
 
-#: includes/class-reklamo-cart.php:774
+#: includes/class-reklamo-cart.php:779
 msgid "Upload the logo"
 msgstr ""
 
-#: includes/class-reklamo-cart.php:776
+#: includes/class-reklamo-cart.php:781
 msgid "Note to the designer"
 msgstr ""
 
-#: includes/class-reklamo-cart.php:776
-#: includes/class-reklamo-request.php:257
+#: includes/class-reklamo-cart.php:781
+#: includes/class-reklamo-request.php:260
 msgid "(optional)"
 msgstr ""
 
-#: includes/class-reklamo-cart.php:777
+#: includes/class-reklamo-cart.php:782
 msgid "Example: gold logo, centered on the front cover of the notebook and engraved on the pen."
 msgstr ""
 
-#: includes/class-reklamo-cart.php:781
+#: includes/class-reklamo-cart.php:786
 msgid "For these products:"
 msgstr ""
 
-#: includes/class-reklamo-cart.php:792
+#: includes/class-reklamo-cart.php:797
 msgid "Every product already has a logo. Untick one under another logo to move it here."
 msgstr ""
 
-#: includes/class-reklamo-cart.php:795
+#: includes/class-reklamo-cart.php:800
 msgid "Remove this logo"
 msgstr ""
 
-#: includes/class-reklamo-cart.php:801
+#: includes/class-reklamo-cart.php:806
 msgid "Add another logo"
 msgstr ""
 
-#: includes/class-reklamo-cart.php:802
+#: includes/class-reklamo-cart.php:807
 msgid "Save changes"
 msgstr ""
 
-#: includes/class-reklamo-cart.php:806
+#: includes/class-reklamo-cart.php:811
 msgid "Every product needs a logo before you can continue."
 msgstr ""
 
-#: includes/class-reklamo-cart.php:809
+#: includes/class-reklamo-cart.php:814
 msgid "Back to logos and notes"
 msgstr ""
 
-#: includes/class-reklamo-cart.php:810
+#: includes/class-reklamo-cart.php:815
 msgid "Your details"
 msgstr ""
 
-#: includes/class-reklamo-cart.php:813
+#: includes/class-reklamo-cart.php:818
 msgid "Send and request the mockups"
 msgstr ""
 
-#: includes/class-reklamo-cart.php:814
+#: includes/class-reklamo-cart.php:819
 msgid "Fill in your name, email and phone and tick both boxes above to send the request."
 msgstr ""
 
-#: includes/class-reklamo-cart.php:815
+#: includes/class-reklamo-cart.php:820
 msgid "No payment is taken at this stage. Each product gets its own mockup; we ask for the deposit once you have approved them all."
 msgstr ""
 
 #. translators: 1: product name, 2: minimum quantity
-#: includes/class-reklamo-cart.php:862
-#: includes/class-reklamo-product.php:198
+#: includes/class-reklamo-cart.php:867
+#: includes/class-reklamo-product.php:205
 #, php-format
 msgid "%1$s: the minimum quantity is %2$d pieces."
 msgstr ""
 
 #. translators: 1: logo number, 2: character limit
-#: includes/class-reklamo-cart.php:886
+#: includes/class-reklamo-cart.php:891
 #, php-format
 msgid "Logo %1$d: the note is too long (maximum %2$d characters)."
 msgstr ""
 
 #. translators: 1: logo number, 2: error message
-#: includes/class-reklamo-cart.php:899
+#: includes/class-reklamo-cart.php:904
 #, php-format
 msgid "Logo %1$d: %2$s"
 msgstr ""
 
-#: includes/class-reklamo-cart.php:927
+#: includes/class-reklamo-cart.php:932
 msgid "The form has expired. Please try again."
 msgstr ""
 
-#: includes/class-reklamo-cart.php:986
+#: includes/class-reklamo-cart.php:991
 msgid "Your cart is empty."
 msgstr ""
 
-#: includes/class-reklamo-cart.php:1007
+#: includes/class-reklamo-cart.php:1012
 msgid "The request could not be saved. Please try again or contact us."
 msgstr ""
 
@@ -1284,19 +1288,19 @@ msgid "Your request has been received. No payment is taken at this stage — our
 msgstr ""
 
 #: includes/class-reklamo-inquiry.php:49
-#: includes/class-reklamo-request.php:421
+#: includes/class-reklamo-request.php:424
 msgid "Please enter a valid email address."
 msgstr ""
 
 #. translators: %s: email domain
 #: includes/class-reklamo-inquiry.php:52
-#: includes/class-reklamo-request.php:425
+#: includes/class-reklamo-request.php:428
 #, php-format
 msgid "The email domain \"%s\" does not seem to exist. Please check the address."
 msgstr ""
 
 #: includes/class-reklamo-inquiry.php:55
-#: includes/class-reklamo-request.php:428
+#: includes/class-reklamo-request.php:431
 msgid "Please enter a valid phone number."
 msgstr ""
 
@@ -1337,12 +1341,12 @@ msgid "The page has expired. Please reload it and try again."
 msgstr ""
 
 #: includes/class-reklamo-inquiry.php:93
-#: includes/class-reklamo-request.php:406
+#: includes/class-reklamo-request.php:409
 msgid "Something went wrong. Please try again."
 msgstr ""
 
 #: includes/class-reklamo-inquiry.php:96
-#: includes/class-reklamo-request.php:409
+#: includes/class-reklamo-request.php:412
 msgid "Too many requests from this connection. Please try again in an hour or contact us by email."
 msgstr ""
 
@@ -1518,88 +1522,88 @@ msgstr ""
 msgid "Order %s is still open; its data is kept until it is closed."
 msgstr ""
 
-#: includes/class-reklamo-product.php:137
+#: includes/class-reklamo-product.php:140
 msgid "Gallery for this colour"
 msgstr ""
 
-#: includes/class-reklamo-product.php:138
+#: includes/class-reklamo-product.php:141
 msgid "The other photos of this colour, shown after the variation image above. Empty: the product gallery is shown."
 msgstr ""
 
-#: includes/class-reklamo-product.php:207
-#: includes/class-reklamo-product.php:218
+#: includes/class-reklamo-product.php:214
+#: includes/class-reklamo-product.php:225
 msgid "Swatch colour"
 msgstr ""
 
-#: includes/class-reklamo-product.php:209
-#: includes/class-reklamo-product.php:221
+#: includes/class-reklamo-product.php:216
+#: includes/class-reklamo-product.php:228
 msgid "The circle the customer clicks on the product page."
 msgstr ""
 
-#: includes/class-reklamo-product.php:263
+#: includes/class-reklamo-product.php:270
 msgid "Specifications"
 msgstr ""
 
-#: includes/class-reklamo-product.php:264
+#: includes/class-reklamo-product.php:271
 msgid "Paper, print and finishing. Shown as its own tab on the product page; leave empty to hide the tab."
 msgstr ""
 
-#: includes/class-reklamo-product.php:274
+#: includes/class-reklamo-product.php:281
 msgid "Minimum quantity"
 msgstr ""
 
-#: includes/class-reklamo-product.php:275
+#: includes/class-reklamo-product.php:282
 msgid "For a product sold by the piece: the smallest number a customer can order (e.g. 50). The price above is then the price per piece. Leave 1 for packages and fixed sets."
 msgstr ""
 
-#: includes/class-reklamo-product.php:288
+#: includes/class-reklamo-product.php:295
 msgid "Section background image"
 msgstr ""
 
-#: includes/class-reklamo-product.php:289
+#: includes/class-reklamo-product.php:296
 msgid "Shown behind the tabs on the product page, fading in from the right. Leave empty for a plain section."
 msgstr ""
 
-#: includes/class-reklamo-product.php:296
+#: includes/class-reklamo-product.php:303
 msgid "Promotion (% off)"
 msgstr ""
 
-#: includes/class-reklamo-product.php:297
+#: includes/class-reklamo-product.php:304
 msgid "Every colour and size at this percent less, rounded down to ,99; the card and the page show \"Promotion\" and the old price struck through. Empty = no promotion."
 msgstr ""
 
-#: includes/class-reklamo-product.php:310
+#: includes/class-reklamo-product.php:317
 msgid "Promotion until"
 msgstr ""
 
-#: includes/class-reklamo-product.php:311
+#: includes/class-reklamo-product.php:318
 msgid "The last day of the promotion, included. Empty = until you remove it."
 msgstr ""
 
-#: includes/class-reklamo-product.php:319
-#: includes/class-reklamo-request.php:484
+#: includes/class-reklamo-product.php:326
+#: includes/class-reklamo-request.php:487
 msgid "Gift"
 msgstr ""
 
-#: includes/class-reklamo-product.php:320
+#: includes/class-reklamo-product.php:327
 msgid "What comes free with it, e.g. \"Red mug with your logo\". Shown as \"+ Gift\" on the card and the page, and written on the order line. Empty = no gift."
 msgstr ""
 
-#: includes/class-reklamo-product.php:367
-#: includes/class-reklamo-product.php:370
+#: includes/class-reklamo-product.php:374
+#: includes/class-reklamo-product.php:377
 msgid "Prices by quantity"
 msgstr ""
 
-#: includes/class-reklamo-product.php:367
+#: includes/class-reklamo-product.php:374
 msgid "The colours of this product are priced differently, so each price is set in its own variation (Variations tab)."
 msgstr ""
 
-#: includes/class-reklamo-product.php:370
+#: includes/class-reklamo-product.php:377
 msgid "One price per package size, the same for every colour, VAT included. A size without a price is not offered."
 msgstr ""
 
 #. translators: %s: package size, e.g. "50 бр."
-#: includes/class-reklamo-product.php:377
+#: includes/class-reklamo-product.php:384
 #, php-format
 msgid "Price for %s"
 msgstr ""
@@ -1634,146 +1638,146 @@ msgstr ""
 msgid "You upload your logo in the cart — one per product, or one for all of them. No payment is taken at this stage."
 msgstr ""
 
-#: includes/class-reklamo-request.php:215
+#: includes/class-reklamo-request.php:217
 msgid "What do we print?"
 msgstr ""
 
-#: includes/class-reklamo-request.php:216
-msgid "I have a logo"
-msgstr ""
-
-#: includes/class-reklamo-request.php:217
+#: includes/class-reklamo-request.php:218
 msgid "An inscription"
 msgstr ""
 
-#: includes/class-reklamo-request.php:221
-msgid "Product"
+#: includes/class-reklamo-request.php:219
+msgid "I have a logo"
 msgstr ""
 
 #: includes/class-reklamo-request.php:223
+msgid "Product"
+msgstr ""
+
+#: includes/class-reklamo-request.php:225
 msgid "Choose a product…"
 msgstr ""
 
-#: includes/class-reklamo-request.php:234
+#: includes/class-reklamo-request.php:237
 msgid "Upload your logo"
 msgstr ""
 
-#: includes/class-reklamo-request.php:235
+#: includes/class-reklamo-request.php:238
 msgid "Optional here: you can also upload it later in the cart."
 msgstr ""
 
-#: includes/class-reklamo-request.php:239
+#: includes/class-reklamo-request.php:242
 msgid "Your inscription"
 msgstr ""
 
-#: includes/class-reklamo-request.php:240
+#: includes/class-reklamo-request.php:243
 msgid "e.g. A team with character"
 msgstr ""
 
-#: includes/class-reklamo-request.php:241
+#: includes/class-reklamo-request.php:244
 msgid "We print the text exactly as written."
 msgstr ""
 
-#: includes/class-reklamo-request.php:257
+#: includes/class-reklamo-request.php:260
 msgid "Extra instructions"
 msgstr ""
 
-#: includes/class-reklamo-request.php:258
+#: includes/class-reklamo-request.php:261
 msgid "e.g. a smaller inscription, printed on both sides…"
 msgstr ""
 
-#: includes/class-reklamo-request.php:263
+#: includes/class-reklamo-request.php:266
 msgid "The logo is saved with the chosen product. No payment is taken at this stage."
 msgstr ""
 
-#: includes/class-reklamo-request.php:264
+#: includes/class-reklamo-request.php:267
 msgid "The inscription is saved with the chosen product. No payment is taken at this stage."
 msgstr ""
 
-#: includes/class-reklamo-request.php:285
+#: includes/class-reklamo-request.php:288
 msgid "Name / Company"
 msgstr ""
 
-#: includes/class-reklamo-request.php:285
+#: includes/class-reklamo-request.php:288
 msgid "Your name"
 msgstr ""
 
-#: includes/class-reklamo-request.php:286
+#: includes/class-reklamo-request.php:289
 msgid "Ivan Ivanov"
 msgstr ""
 
-#: includes/class-reklamo-request.php:289
+#: includes/class-reklamo-request.php:292
 #: includes/class-reklamo-settings-page.php:136
 msgid "Contact email"
 msgstr ""
 
-#: includes/class-reklamo-request.php:293
+#: includes/class-reklamo-request.php:296
 msgid "Contact phone"
 msgstr ""
 
-#: includes/class-reklamo-request.php:303
+#: includes/class-reklamo-request.php:306
 msgid "Terms and Conditions"
 msgstr ""
 
-#: includes/class-reklamo-request.php:304
+#: includes/class-reklamo-request.php:307
 msgid "Privacy Policy"
 msgstr ""
 
 #. translators: 1: terms link, 2: privacy policy link
-#: includes/class-reklamo-request.php:306
+#: includes/class-reklamo-request.php:309
 #, php-format
 msgid "I agree to the %1$s and the %2$s."
 msgstr ""
 
-#: includes/class-reklamo-request.php:314
+#: includes/class-reklamo-request.php:317
 msgid "I understand that the products are made to my specification with my logo, so the 14-day right of withdrawal does not apply once production has started (Art. 57(3) of the Consumer Protection Act)."
 msgstr ""
 
-#: includes/class-reklamo-request.php:337
+#: includes/class-reklamo-request.php:340
 msgid "Preparing upload…"
 msgstr ""
 
 #. translators: 1: bytes sent, 2: total bytes
-#: includes/class-reklamo-request.php:339
+#: includes/class-reklamo-request.php:342
 #, php-format
 msgid "Uploading %1$s of %2$s…"
 msgstr ""
 
-#: includes/class-reklamo-request.php:340
+#: includes/class-reklamo-request.php:343
 msgid "Checking the file…"
 msgstr ""
 
 #. translators: %s: file name and size
-#: includes/class-reklamo-request.php:342
+#: includes/class-reklamo-request.php:345
 #, php-format
 msgid "Uploaded: %s"
 msgstr ""
 
-#: includes/class-reklamo-request.php:343
+#: includes/class-reklamo-request.php:346
 msgid "The upload failed."
 msgstr ""
 
-#: includes/class-reklamo-request.php:344
+#: includes/class-reklamo-request.php:347
 msgid "The file will be sent with the form instead."
 msgstr ""
 
 #. translators: %s: size limit
-#: includes/class-reklamo-request.php:346
+#: includes/class-reklamo-request.php:349
 #: includes/class-reklamo-storage.php:136
 #: includes/class-reklamo-upload.php:178
 #, php-format
 msgid "The file must be smaller than %s."
 msgstr ""
 
-#: includes/class-reklamo-request.php:431
+#: includes/class-reklamo-request.php:434
 msgid "Please accept the Terms and Conditions and the Privacy Policy."
 msgstr ""
 
-#: includes/class-reklamo-request.php:434
+#: includes/class-reklamo-request.php:437
 msgid "Please confirm that you understand the right of withdrawal does not apply to products made to your specification."
 msgstr ""
 
-#: includes/class-reklamo-request.php:524
+#: includes/class-reklamo-request.php:527
 msgid "Request submitted from the website form. No payment taken."
 msgstr ""
 

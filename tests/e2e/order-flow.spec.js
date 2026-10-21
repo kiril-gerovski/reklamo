@@ -53,9 +53,11 @@ async function addFromRequestPage( page, paket, fixture = '', note = undefined )
 
 test( 'customer places a request with a logo and no payment', async ( { page } ) => {
 	// The request page for one product (the header button leads here) adds it to the cart.
-	// The inscription is the default; ?logo=1 opens the logo tab.
-	await page.goto( '/kachi-logo/?paket=biznes-komplekt-magnet' );
+	// The inscription is the default, but a package takes a logo only; ?logo=1 opens the logo tab.
+	await page.goto( '/kachi-logo/' );
 	await expect( page.locator( 'input[name="rk_mode"][value="text"]' ) ).toBeChecked();
+	await page.goto( '/kachi-logo/?paket=biznes-komplekt-magnet' );
+	await expect( page.locator( 'input[name="rk_mode"][value="logo"]' ) ).toBeChecked();
 	await page.goto( '/kachi-logo/?paket=biznes-komplekt-magnet&logo=1' );
 	await expect( page.locator( 'h1' ) ).toHaveText( 'Създайте продукт с вашето лого или надпис' );
 	await expect( page.locator( '[data-rk-product-select] option:checked' ) ).toHaveText( 'Бизнес комплект Magnet' );

@@ -101,10 +101,12 @@ $reklamo_social  = array_filter(
 	</div>
 </footer>
 <?php if ( reklamo_show_mobile_cta() ) : ?>
-	<a class="mobile-cta" href="<?php echo esc_url( reklamo_request_url() ); ?>">
-		<?php echo reklamo_icon( 'pen', 20 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?>
-		<span><?php esc_html_e( 'Add your inscription', 'reklamo' ); ?></span>
-		<?php echo reklamo_icon( 'chevron-r', 18 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?>
+	<a class="mobile-cta" href="<?php echo esc_url( reklamo_request_url() ); ?>" aria-label="<?php esc_attr_e( 'Add your inscription', 'reklamo' ); ?>">
+		<span class="mobile-cta__label" aria-hidden="true">
+			<?php foreach ( preg_split( '/\s+/u', __( 'Add your inscription', 'reklamo' ) ) as $reklamo_word ) : ?>
+				<span><?php echo esc_html( $reklamo_word ); ?></span>
+			<?php endforeach; ?>
+		</span>
 	</a>
 <?php endif; ?>
 <?php wp_footer(); ?>

@@ -83,6 +83,13 @@
 		form.dataset.mode = m;
 		form.querySelectorAll( '[data-rk-when]' ).forEach( function ( el ) { el.hidden = el.getAttribute( 'data-rk-when' ) !== m; } );
 		if ( text ) { text.required = 'text' === m; }
+		// Packages take a logo only: out of the list while an inscription is chosen.
+		select.querySelectorAll( 'option[data-package]' ).forEach( function ( o ) { o.hidden = 'text' === m; o.disabled = 'text' === m; } );
+		var current = select.options[ select.selectedIndex ];
+		if ( 'text' === m && current && current.hasAttribute( 'data-package' ) ) {
+			select.value = '';
+			build();
+		}
 	};
 
 	var printLabel = form.querySelector( '[data-rk-print-chosen]' );

@@ -538,14 +538,23 @@ test( 'an inscription instead of a logo, and a print colour for a logo: request 
 	const ctx = await browser.newContext( { locale: 'bg-BG' } );
 	const page = await ctx.newPage();
 	// The request page: product, its colour and quantity from WooCommerce, the inscription and the print colour.
+	// A package opens with the logo: it takes no inscription, and the list then hides the packages.
 	await page.goto( '/kachi-logo/?paket=biznes-komplekt-magnet' );
+	await expect( page.locator( 'input[name="rk_mode"][value="logo"]' ) ).toBeChecked();
+	await page.locator( '.rk-mode__option', { hasText: 'Искам надпис' } ).click();
+	await expect( page.locator( '[data-rk-product-select]' ) ).toHaveValue( '' );
+	await expect( page.locator( '[data-rk-product-select] option[data-package]:not([disabled])' ) ).toHaveCount( 0 );
+	await page.locator( '.rk-mode__option', { hasText: 'Имам лого' } ).click();
+	await expect( page.locator( '[data-rk-product-select] option[data-package]:not([disabled])' ) ).not.toHaveCount( 0 );
+
+	await page.goto( '/kachi-logo/?paket=butilka-matt' );
 	await expect( page.locator( 'h1' ) ).toHaveText( 'Създайте продукт с вашето лого или надпис' );
 	await expect( page.locator( '[data-rk-product-select]' ) ).toHaveValue( /\d+/ );
 	const before = await page.locator( '[data-rk-design-image]' ).getAttribute( 'src' );
 	await expect( page.locator( 'input[name="rk_mode"][value="text"]' ) ).toBeChecked();
 	const form = page.locator( '[data-rk-design]' );
-	await form.getByLabel( 'Цвят', { exact: true } ).selectOption( { label: 'Син' } );
-	await form.getByLabel( 'Количество' ).selectOption( { label: '100 бр.' } );
+	await form.getByLabel( 'Цвят', { exact: true } ).selectOption( { index: 1 } );
+	await form.getByLabel( 'Количество' ).selectOption( { index: 1 } );
 	await expect( page.locator( '[data-rk-design-image]' ) ).not.toHaveAttribute( 'src', before );
 	await expect( page.locator( '[data-rk-price]' ) ).toContainText( '€' );
 	// No text, no cart: the server says so.
@@ -563,11 +572,11 @@ test( 'an inscription instead of a logo, and a print colour for a logo: request 
 
 	// A second product with a logo, from its own page.
 	await addToCart( page, 'komplekt-cork' );
-	const magnet = page.locator( '.rk-cart__item', { hasText: 'Magnet' } );
-	await expect( magnet ).toContainText( 'Надпис: Екип с характер' );
-	await expect( magnet ).toContainText( 'Цвят на печата: Злато' );
-	await expect( magnet ).toContainText( 'Надпис вместо лого' );
-	await expect( magnet.locator( 'select[name^="colour"]' ) ).toHaveCount( 0 );
+	const bottle = page.locator( '.rk-cart__item', { hasText: 'Бутилка Matt' } );
+	await expect( bottle ).toContainText( 'Надпис: Екип с характер' );
+	await expect( bottle ).toContainText( 'Цвят на печата: Злато' );
+	await expect( bottle ).toContainText( 'Надпис вместо лого' );
+	await expect( bottle.locator( 'select[name^="colour"]' ) ).toHaveCount( 0 );
 	// Only the logo product waits for a logo, and gets its own print colour.
 	const logo = page.locator( '.rk-logo' ).first();
 	await expect( logo.locator( '.rk-logo__item' ) ).toHaveCount( 1 );
