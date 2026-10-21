@@ -543,9 +543,9 @@ test( 'an inscription instead of a logo, and a print colour for a logo: request 
 	await expect( page.locator( 'input[name="rk_mode"][value="logo"]' ) ).toBeChecked();
 	await page.locator( '.rk-mode__option', { hasText: 'Искам надпис' } ).click();
 	await expect( page.locator( '[data-rk-product-select]' ) ).toHaveValue( '' );
-	await expect( page.locator( '[data-rk-product-select] option[data-package]:not([disabled])' ) ).toHaveCount( 0 );
+	await expect( page.locator( '[data-rk-product-select] option[data-package]' ) ).toHaveCount( 0 );
 	await page.locator( '.rk-mode__option', { hasText: 'Имам лого' } ).click();
-	await expect( page.locator( '[data-rk-product-select] option[data-package]:not([disabled])' ) ).not.toHaveCount( 0 );
+	await expect( page.locator( '[data-rk-product-select] option[data-package]' ) ).not.toHaveCount( 0 );
 
 	await page.goto( '/kachi-logo/?paket=butilka-matt' );
 	await expect( page.locator( 'h1' ) ).toHaveText( 'Създайте продукт с вашето лого или надпис' );

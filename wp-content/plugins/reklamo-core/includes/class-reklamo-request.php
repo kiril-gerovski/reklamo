@@ -225,7 +225,7 @@ final class Reklamo_Request {
 					<option value=""><?php esc_html_e( 'Choose a product…', 'reklamo-core' ); ?></option>
 					<?php foreach ( self::packages() as $p ) : ?>
 						<?php $is_package = Reklamo_Product::is_package( $p ); ?>
-						<option value="<?php echo esc_attr( (string) $p->get_id() ); ?>"<?php echo $is_package ? ' data-package' : ''; ?><?php echo $is_package && 'text' === $mode ? ' hidden disabled' : ''; ?> <?php selected( $picked, $p->get_id() ); ?>><?php echo esc_html( $p->get_name() ); ?></option>
+						<option value="<?php echo esc_attr( (string) $p->get_id() ); ?>"<?php echo $is_package ? ' data-package' : ''; ?> <?php selected( $picked, $p->get_id() ); ?>><?php echo esc_html( $p->get_name() ); ?></option>
 					<?php endforeach; ?>
 				</select>
 			</div>

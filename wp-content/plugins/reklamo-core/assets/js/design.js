@@ -15,6 +15,7 @@
 	var image = document.querySelector( '[data-rk-design-image]' );
 	var text = form.querySelector( 'textarea[name="rk_text"]' );
 	var placeholder = image ? image.getAttribute( 'src' ) : '';
+	var allOptions = Array.prototype.slice.call( select.options );
 
 	var product = function () {
 		var id = parseInt( select.value, 10 );
@@ -83,10 +84,14 @@
 		form.dataset.mode = m;
 		form.querySelectorAll( '[data-rk-when]' ).forEach( function ( el ) { el.hidden = el.getAttribute( 'data-rk-when' ) !== m; } );
 		if ( text ) { text.required = 'text' === m; }
-		// Packages take a logo only: out of the list while an inscription is chosen.
-		select.querySelectorAll( 'option[data-package]' ).forEach( function ( o ) { o.hidden = 'text' === m; o.disabled = 'text' === m; } );
-		var current = select.options[ select.selectedIndex ];
-		if ( 'text' === m && current && current.hasAttribute( 'data-package' ) ) {
+		// Packages take a logo only: not in the list at all while an inscription is chosen.
+		var keep = select.value;
+		select.innerHTML = '';
+		allOptions.forEach( function ( o ) {
+			if ( 'text' !== m || ! o.hasAttribute( 'data-package' ) ) { select.appendChild( o ); }
+		} );
+		select.value = keep;
+		if ( select.value !== keep ) {
 			select.value = '';
 			build();
 		}
