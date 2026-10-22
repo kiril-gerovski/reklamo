@@ -436,22 +436,27 @@ test( 'package sizes: the owner sets one price per size; choosing a size changes
 	const edit = `/wp-admin/post.php?post=${ id }&action=edit`;
 	// WooCommerce's admin overlay sits over the button for a pointer click; press it in the page.
 	const save = () => Promise.all( [ page.waitForURL( /message=/, { waitUntil: 'commit' } ), page.locator( '#publish' ).evaluate( ( b ) => b.click() ) ] );
+	const tab = () => page.locator( 'a[href="#reklamo_variants_data"]' ).click();
 	await page.goto( edit );
-	const field = page.locator( 'input[name="reklamo_tier_price[150-br]"]' );
+	await tab();
+	const field = page.locator( 'input[name="reklamo_size_price[150-br]"]' );
 	// The client's price for 150 pcs; restored even if a check below fails.
 	const real = '1199,99';
 	await expect( field ).toHaveValue( real );
-	await expect( page.locator( 'input[name="reklamo_tier_price[50-br]"]' ) ).toHaveValue( '409,99' );
+	await expect( page.locator( 'input[name="reklamo_size_price[50-br]"]' ) ).toHaveValue( '409,99' );
 	await field.fill( '1250' );
 	await save();
+	await tab();
 	await expect( field ).toHaveValue( '1250' );
 	try {
 		await checkShop();
 	} finally {
 		await page.goto( edit );
+		await tab();
 		await field.fill( real );
 		await save();
 	}
+	await tab();
 	await expect( field ).toHaveValue( real );
 
 	async function checkShop() {
@@ -469,6 +474,79 @@ test( 'package sizes: the owner sets one price per size; choosing a size changes
 		expect( await slides() ).toEqual( before );
 		await shop.context().close();
 	}
+} );
+
+test( 'colours and quantities: the owner ticks colours with one set of photos each and quantities with one price each; the variations follow', async ( { page, browser } ) => {
+	await adminLogin( page );
+	// Photos already in the Media Library: Magnet's.
+	const images = ( await ( await page.request.get( '/wp-json/wc/store/v1/products?sku=PKG-MAGNET' ) ).json() )[ 0 ].images.map( ( i ) => i.id );
+	const save = () => Promise.all( [ page.waitForURL( /message=/, { waitUntil: 'commit' } ), page.locator( '#publish' ).evaluate( ( b ) => b.click() ) ] );
+	const tab = () => page.locator( 'a[href="#reklamo_variants_data"]' ).click();
+	const panel = page.locator( '#reklamo_variants_data' );
+	const colour = ( slug ) => panel.locator( `input[data-rk-colour][value="${ slug }"]` );
+	const photos = ( slug ) => panel.locator( `input[name="reklamo_colour_photos[${ slug }]"]` );
+
+	await page.goto( '/wp-admin/post-new.php?post_type=product' );
+	await page.fill( '#title', 'Тест Цветове' );
+	await tab();
+	// Every colour of the palette is offered as a circle; a colour's photos open when it is ticked.
+	await expect( panel.locator( '.rk-variants__colour' ) ).toHaveCount( 16 );
+	await expect( panel.locator( '[data-rk-photos="sin"]' ) ).toBeHidden();
+	await colour( 'cherven' ).check();
+	await colour( 'sin' ).check();
+	await expect( panel.locator( '[data-rk-photos="sin"]' ) ).toBeVisible();
+	await photos( 'cherven' ).evaluate( ( el, v ) => { el.value = v; }, `${ images[ 0 ] },${ images[ 1 ] }` );
+	await photos( 'sin' ).evaluate( ( el, v ) => { el.value = v; }, String( images[ 2 ] ) );
+	await expect( panel.locator( '[data-rk-size-price="50-br"]' ) ).toBeDisabled();
+	await panel.locator( 'input[data-rk-size][value="50-br"]' ).check();
+	// Ticking a quantity makes the product variable.
+	await expect( page.locator( '#product-type' ) ).toHaveValue( 'variable' );
+	await panel.locator( '[data-rk-size-price="50-br"]' ).fill( '100' );
+	await panel.locator( 'input[data-rk-size][value="100-br"]' ).check();
+	await panel.locator( '[data-rk-size-price="100-br"]' ).fill( '180,50' );
+	await save();
+	const id = new URL( page.url() ).searchParams.get( 'post' );
+	const edit = `/wp-admin/post.php?post=${ id }&action=edit`;
+	try {
+		await tab();
+		await expect( colour( 'cherven' ) ).toBeChecked();
+		await expect( colour( 'sin' ) ).toBeChecked();
+		await expect( panel.locator( '[data-rk-size-price="100-br"]' ) ).toHaveValue( '180,50' );
+		const product = await ( await page.request.get( `/wp-json/wc/store/v1/products/${ id }` ) ).json();
+		expect( product.variations ).toHaveLength( 4 );
+		// Every quantity of a colour carries that colour's photos.
+		const vars = await page.evaluate( async ( pid ) => ( await ( await fetch( `/wp-json/wc/store/v1/products?type=variation&parent=${ pid }&per_page=20` ) ).json() ).map( ( v ) => [ v.variation, v.images.map( ( i ) => i.id ) ] ), id );
+		for ( const [ name, ids ] of vars ) {
+			expect( ids[ 0 ] ).toBe( name.includes( 'Син' ) ? images[ 2 ] : images[ 0 ] );
+		}
+
+		const shop = await ( await browser.newContext( { locale: 'bg-BG' } ) ).newPage();
+		await shop.goto( product.permalink );
+		await expect( shop.locator( '[data-attribute="attribute_pa_cvyat"] .rk-option__swatch' ) ).toHaveCount( 2 );
+		await expect( shop.locator( '[data-attribute="attribute_pa_kolichestvo"] .rk-option' ) ).toHaveText( [ '50 бр.', '100 бр.' ] );
+		await shop.locator( '.rk-option', { has: shop.locator( 'input[value="100-br"]' ) } ).click();
+		await expect( shop.locator( '[data-rk-badge-price]' ) ).toHaveText( /180,50\s€/ );
+		await shop.context().close();
+
+		// Unticking a colour removes its variations.
+		await page.goto( edit );
+		await tab();
+		await colour( 'sin' ).uncheck();
+		await save();
+		const after = await ( await page.request.get( `/wp-json/wc/store/v1/products/${ id }` ) ).json();
+		expect( after.variations ).toHaveLength( 2 );
+	} finally {
+		await page.goto( edit );
+		await Promise.all( [ page.waitForURL( /trashed=1/, { waitUntil: 'commit' } ), page.locator( '#delete-action a' ).evaluate( ( a ) => a.click() ) ] );
+	}
+} );
+
+test( 'a product card shows its colours as circles', async ( { page } ) => {
+	await page.goto( '/promo-paketi/' );
+	const card = page.locator( 'li.product', { hasText: 'Бизнес комплект Magnet' } );
+	await expect( card.locator( '.package-card__colours li' ) ).not.toHaveCount( 0 );
+	await expect( card.locator( '.package-card__colours li' ).first() ).toHaveAttribute( 'style', /--swatch: #/ );
+	await expect( page.locator( 'li.product', { hasText: 'Комплект Stripe' } ).locator( '.package-card__colours' ) ).toHaveCount( 0 );
 } );
 
 test( 'a promotion and a gift set in the product: labels, struck price, sale price and gift in the cart', async ( { page, browser } ) => {
@@ -528,8 +606,12 @@ test( 'a package priced per colour: no shared price fields, and the size and the
 	const id = ( await ( await page.request.get( '/wp-json/wc/store/v1/products?sku=PKG-MAGNET' ) ).json() )[ 0 ].id;
 	await page.goto( `/wp-admin/post.php?post=${ id }&action=edit` );
 	// One price per size would overwrite the colours' own prices on save, so the editor offers none.
-	await expect( page.locator( 'input[name^="reklamo_tier_price"]' ) ).toHaveCount( 0 );
-	await expect( page.locator( '#general_product_data' ) ).toContainText( 'различни цени' );
+	await expect( page.locator( 'input[name^="reklamo_size_price"]' ) ).toHaveCount( 0 );
+	await expect( page.locator( '#reklamo_variants_data' ) ).toContainText( 'различни цени' );
+	// Saving a product set up before the tab changes nothing: its colours' photos and prices stay.
+	const count = ( await ( await page.request.get( `/wp-json/wc/store/v1/products/${ id }` ) ).json() ).variations.length;
+	await Promise.all( [ page.waitForURL( /message=/, { waitUntil: 'commit' } ), page.locator( '#publish' ).evaluate( ( b ) => b.click() ) ] );
+	expect( ( await ( await page.request.get( `/wp-json/wc/store/v1/products/${ id }` ) ).json() ).variations ).toHaveLength( count );
 
 	const shop = await ( await browser.newContext( { locale: 'bg-BG' } ) ).newPage();
 	await shop.goto( '/product/biznes-komplekt-magnet/' );

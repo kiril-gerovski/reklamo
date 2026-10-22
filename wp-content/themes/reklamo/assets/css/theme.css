@@ -244,7 +244,10 @@ li.product-category img { border-radius: var(--radius); border: 1px solid var(--
 /* Inter's figures sit .12em above the middle of its line box (measured), so the strike follows them. */
 .package-card__was::after { margin-top: calc(-.625px - .12em); }
 .package-card__was .woocommerce-Price-amount { color: inherit; }
-.package-card__foot { display: flex; justify-content: flex-end; margin-top: .6rem; }
+.package-card__foot { display: flex; align-items: center; justify-content: flex-end; gap: .75rem; margin-top: .6rem; }
+ul.products li.product ul.package-card__colours, .package-card .package-card__colours { display: flex; flex-wrap: wrap; gap: .3rem; margin: 0 auto 0 0; padding: 0; list-style: none; }
+.package-card .package-card__colours::before, .package-card .package-card__colours::after { content: none; }
+.package-card .package-card__colours li { margin: 0; width: 16px; height: 16px; border-radius: 50%; background: var(--swatch); box-shadow: inset 0 0 0 1px rgba(26, 26, 26, .18); }
 .package-card__vat { font: 500 .56rem/1 var(--sans); letter-spacing: .04em; opacity: .85; }
 .package-card .package-card__more { display: inline-flex; align-items: center; gap: .3rem; padding: .6rem .9rem .6rem 1.05rem; font-size: .66rem; white-space: nowrap; background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%); border-color: transparent; color: var(--white); }
 .package-card .package-card__more:hover { background: var(--gold-dark); color: var(--white); }

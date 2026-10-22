@@ -170,16 +170,6 @@ msgctxt "Pattern description"
 msgid "Section heading, \"view all\" link and the four package cards (WooCommerce products)."
 msgstr "Заглавие на секция, връзка „виж всички“ и четирите карти с пакети (WooCommerce продукти)."
 
-#: patterns/quick-start.php
-msgctxt "Pattern title"
-msgid "Quick start — send your logo"
-msgstr "Бърз старт — изпрати логото си"
-
-#: patterns/quick-start.php
-msgctxt "Pattern description"
-msgid "Compact request form (name, email, note, logo, package) with intro."
-msgstr "Компактна форма за заявка (име, имейл, бележка, лого, пакет) с увод."
-
 #: patterns/steps.php
 msgctxt "Pattern title"
 msgid "How the order works — 6 steps"
@@ -575,16 +565,16 @@ msgid "All packages"
 msgstr "Всички пакети"
 
 #. translators: %d: number of pieces in the package
-#: woocommerce/content-product.php:46
+#: woocommerce/content-product.php:47
 #, php-format
 msgid "%d pcs."
 msgstr "%d бр."
 
-#: woocommerce/content-product.php:69
+#: woocommerce/content-product.php:77
 msgid "View more"
 msgstr "Виж повече"
 
-#: woocommerce/content-product.php:55
+#: woocommerce/content-product.php:56
 msgid "incl. VAT"
 msgstr "с ДДС"
 
@@ -629,12 +619,12 @@ msgstr[0] "%d продукт"
 msgstr[1] "%d продукта"
 
 #. translators: %d: minimum quantity
-#: woocommerce/content-product.php:44
+#: woocommerce/content-product.php:45
 #, php-format
 msgid "from %d pcs."
 msgstr "от %d бр."
 
-#: woocommerce/content-product.php:55
+#: woocommerce/content-product.php:56
 msgid "per piece"
 msgstr "за брой"
 
@@ -674,7 +664,7 @@ msgid "Homepage hero with headline, lead, two buttons, four features and a produ
 msgstr "Начален екран със заглавие, въведение, два бутона, четири предимства и снимка на продукт със значка с цената."
 
 #. translators: %s: what comes free with the product
-#: woocommerce/content-product.php:65
+#: woocommerce/content-product.php:66
 #, php-format
 msgid "Gift: %s"
 msgstr "Подарък: %s"
@@ -885,3 +875,7 @@ msgstr "Свържете се с нас за съдействие"
 #: header.php:41
 msgid "Add your inscription"
 msgstr "Добави свой надпис"
+
+#: woocommerce/content-product.php:70
+msgid "Colours"
+msgstr "Цветове"

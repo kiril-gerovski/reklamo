@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-21T17:35:13+00:00\n"
+"POT-Creation-Date: 2026-10-22T17:31:54+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: reklamo\n"
@@ -219,16 +219,6 @@ msgstr ""
 #: patterns/packages.php
 msgctxt "Pattern description"
 msgid "Section heading, \"view all\" link and the four package cards (WooCommerce products)."
-msgstr ""
-
-#: patterns/quick-start.php
-msgctxt "Pattern title"
-msgid "Quick start — send your logo"
-msgstr ""
-
-#: patterns/quick-start.php
-msgctxt "Pattern description"
-msgid "Compact request form (name, email, note, logo, package) with intro."
 msgstr ""
 
 #: patterns/steps.php
@@ -633,32 +623,36 @@ msgid "Contact us for help"
 msgstr ""
 
 #. translators: %d: minimum quantity
-#: woocommerce/content-product.php:44
+#: woocommerce/content-product.php:45
 #, php-format
 msgid "from %d pcs."
 msgstr ""
 
 #. translators: %d: number of pieces in the package
-#: woocommerce/content-product.php:46
+#: woocommerce/content-product.php:47
 #, php-format
 msgid "%d pcs."
 msgstr ""
 
-#: woocommerce/content-product.php:55
+#: woocommerce/content-product.php:56
 msgid "per piece"
 msgstr ""
 
-#: woocommerce/content-product.php:55
+#: woocommerce/content-product.php:56
 msgid "incl. VAT"
 msgstr ""
 
 #. translators: %s: what comes free with the product
-#: woocommerce/content-product.php:65
+#: woocommerce/content-product.php:66
 #, php-format
 msgid "Gift: %s"
 msgstr ""
 
-#: woocommerce/content-product.php:69
+#: woocommerce/content-product.php:70
+msgid "Colours"
+msgstr ""
+
+#: woocommerce/content-product.php:77
 msgid "View more"
 msgstr ""
 

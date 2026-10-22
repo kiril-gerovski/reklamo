@@ -27,7 +27,8 @@ $reklamo_price   = wc_price( $product->is_type( 'variable' ) ? (float) $product-
 $reklamo_sale    = $product->is_on_sale();
 $reklamo_regular = $reklamo_sale ? wc_price( $product->is_type( 'variable' ) ? (float) $product->get_variation_regular_price( 'min', true ) : (float) $product->get_regular_price() ) : '';
 remove_filter( 'woocommerce_price_trim_zeros', '__return_true' );
-$reklamo_gift = class_exists( 'Reklamo_Product' ) ? Reklamo_Product::gift( $product ) : '';
+$reklamo_gift    = class_exists( 'Reklamo_Product' ) ? Reklamo_Product::gift( $product ) : '';
+$reklamo_colours = class_exists( 'Reklamo_Product' ) ? Reklamo_Product::colours( $product ) : array();
 ?>
 <li <?php wc_product_class( 'card package-card', $product ); ?>>
 	<a class="package-card__media" href="<?php echo esc_url( $reklamo_url ); ?>" tabindex="-1" aria-hidden="true">
@@ -65,6 +66,13 @@ $reklamo_gift = class_exists( 'Reklamo_Product' ) ? Reklamo_Product::gift( $prod
 			<p class="package-card__gift"><?php echo reklamo_icon( 'gift', 18 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?><span><?php echo esc_html( sprintf( /* translators: %s: what comes free with the product */ __( 'Gift: %s', 'reklamo' ), $reklamo_gift ) ); ?></span></p>
 		<?php endif; ?>
 		<div class="package-card__foot">
+			<?php if ( $reklamo_colours ) : ?>
+				<ul class="package-card__colours" aria-label="<?php esc_attr_e( 'Colours', 'reklamo' ); ?>">
+					<?php foreach ( $reklamo_colours as $reklamo_name => $reklamo_hex ) : ?>
+						<li style="--swatch: <?php echo esc_attr( $reklamo_hex ); ?>" title="<?php echo esc_attr( $reklamo_name ); ?>"><span class="screen-reader-text"><?php echo esc_html( $reklamo_name ); ?></span></li>
+					<?php endforeach; ?>
+				</ul>
+			<?php endif; ?>
 			<a class="btn package-card__more" href="<?php echo esc_url( $reklamo_url ); ?>">
 				<?php esc_html_e( 'View more', 'reklamo' ); ?>
 				<?php echo reklamo_icon( 'chevron-r', 16 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?>

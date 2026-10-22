@@ -200,6 +200,18 @@ final class Reklamo_Product {
 		return self::min_qty( $product ) > 1;
 	}
 
+	/** @return array<string,string> the product's colours that have a swatch, name => hex, in the shop's order */
+	public static function colours( WC_Product $product ): array {
+		$terms = taxonomy_exists( self::COLOR_TAX ) ? wc_get_product_terms( self::base( $product )->get_id(), self::COLOR_TAX, array( 'fields' => 'all' ) ) : array();
+		$out   = array();
+		foreach ( is_array( $terms ) ? $terms : array() as $term ) {
+			if ( '' !== self::hex( $term->term_id ) ) {
+				$out[ $term->name ] = self::hex( $term->term_id );
+			}
+		}
+		return $out;
+	}
+
 	/** Swatch colour of a colour term, '' when none is set. */
 	public static function hex( int $term_id ): string {
 		$hex = (string) get_term_meta( $term_id, self::HEX_META, true );
@@ -292,7 +304,6 @@ final class Reklamo_Product {
 				'style'       => 'width:100%',
 			)
 		);
-		self::tier_fields();
 		woocommerce_wp_text_input(
 			array(
 				'id'                => self::MIN_META,
@@ -363,77 +374,7 @@ final class Reklamo_Product {
 		return (int) preg_replace( '/\D/', '', $slug );
 	}
 
-	/**
-	 * One price per package size, for every colour: entered here, written into each matching
-	 * variation on save. Shown only for a variable product sold in sizes whose colours cost the
-	 * same; where they differ, saving one price per size would overwrite them, so the editor
-	 * points to the variations instead.
-	 */
-	private static function tier_fields(): void {
-		global $product_object;
-		if ( ! $product_object instanceof WC_Product ) {
-			return;
-		}
-		$tiers = self::tiers( $product_object );
-		if ( ! $tiers ) {
-			return;
-		}
-		$prices  = array();
-		$by_size = array();
-		foreach ( $product_object->get_children() as $child ) {
-			$v    = wc_get_product( $child );
-			$slug = $v ? (string) ( $v->get_variation_attributes()[ 'attribute_' . self::QTY_TAX ] ?? '' ) : '';
-			if ( '' !== $slug && '' !== $v->get_regular_price() ) {
-				$prices[ $slug ] = $prices[ $slug ] ?? $v->get_regular_price();
-				$by_size[ $slug ][ wc_format_decimal( $v->get_regular_price() ) ] = true;
-			}
-		}
-		if ( array_filter( $by_size, static fn( $set ) => count( $set ) > 1 ) ) {
-			echo '<p class="form-field"><strong>' . esc_html__( 'Prices by quantity', 'reklamo-core' ) . '</strong><br><span class="description">' . esc_html__( 'The colours of this product are priced differently, so each price is set in its own variation (Variations tab).', 'reklamo-core' ) . '</span></p>';
-			return;
-		}
-		echo '<p class="form-field"><strong>' . esc_html__( 'Prices by quantity', 'reklamo-core' ) . '</strong><br><span class="description">' . esc_html__( 'One price per package size, the same for every colour, VAT included. A size without a price is not offered.', 'reklamo-core' ) . '</span></p>';
-		foreach ( $tiers as $term ) {
-			woocommerce_wp_text_input(
-				array(
-					'id'        => 'reklamo_tier_price_' . $term->slug,
-					'name'      => 'reklamo_tier_price[' . $term->slug . ']',
-					/* translators: %s: package size, e.g. "50 бр." */
-					'label'     => sprintf( __( 'Price for %s', 'reklamo-core' ), $term->name ) . ' (' . get_woocommerce_currency_symbol() . ')',
-					'value'     => isset( $prices[ $term->slug ] ) ? wc_format_localized_price( $prices[ $term->slug ] ) : '',
-					'data_type' => 'price',
-				)
-			);
-		}
-	}
-
-	/** Write the prices by quantity into the variations of each size, every colour alike. */
-	private static function save_tiers( WC_Product $product ): void {
-		if ( ! isset( $_POST['reklamo_tier_price'] ) || ! is_array( $_POST['reklamo_tier_price'] ) || ! $product->is_type( 'variable' ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- WooCommerce verified the product editor's nonce.
-			return;
-		}
-		$prices = array_map( 'wc_format_decimal', array_map( 'sanitize_text_field', wp_unslash( $_POST['reklamo_tier_price'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
-		foreach ( $product->get_children() as $child ) {
-			$v    = wc_get_product( $child );
-			$slug = $v ? (string) ( $v->get_variation_attributes()[ 'attribute_' . self::QTY_TAX ] ?? '' ) : '';
-			if ( '' === $slug || ! array_key_exists( $slug, $prices ) ) {
-				continue;
-			}
-			$v->set_regular_price( $prices[ $slug ] );
-			$v->save();
-		}
-		// Once, after WooCommerce has saved the product: sync() saves it again, which would land here anew.
-		$sync = static function ( $id ) use ( $product, &$sync ) {
-			if ( (int) $id === $product->get_id() ) {
-				remove_action( 'woocommerce_update_product', $sync );
-				WC_Product_Variable::sync( $id );
-			}
-		};
-		add_action( 'woocommerce_update_product', $sync );
-	}
-
 	public static function save( WC_Product $product ): void {
-		self::save_tiers( $product );
 		$pct   = isset( $_POST[ self::PROMO_META ] ) ? absint( $_POST[ self::PROMO_META ] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$until = isset( $_POST[ self::PROMO_UNTIL_META ] ) ? sanitize_text_field( wp_unslash( $_POST[ self::PROMO_UNTIL_META ] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$gift  = isset( $_POST[ self::GIFT_META ] ) ? sanitize_text_field( wp_unslash( $_POST[ self::GIFT_META ] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
@@ -449,7 +390,7 @@ final class Reklamo_Product {
 				$product->update_meta_data( $key, $value );
 			}
 		}
-		// After the product and its variations are saved: the prices by quantity are in by then.
+		// After the product and its variations are saved (Reklamo_Variants): the prices are in by then.
 		$apply = static function ( $id ) use ( $product, &$apply ) {
 			if ( (int) $id === $product->get_id() ) {
 				remove_action( 'woocommerce_update_product', $apply );

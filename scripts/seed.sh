@@ -1456,13 +1456,18 @@ if [ -z "$color_attr" ]; then
   echo "  attribute Цвят created"
 fi
 n=0
-for c in "cherven:Червен:#b3262e" "chern:Черен:#1f1f1f" "zelen:Зелен:#2f5d46" "sin:Син:#1f2f6b" "byal:Бял:#ffffff"; do
-  slug=${c%%:*}; rest=${c#*:}; name=${rest%%:*}; hex=${rest#*:}
+# The owner's palette (2026-10-22). A swatch is set while it is empty or still the earlier seeded one (old=).
+for c in "byal:Бял:#FFFFFF:#ffffff" "chern:Черен:#000000:#1f1f1f" "cherven:Червен:#E30613:#b3262e" "sin:Син:#0057B8:#1f2f6b" \
+         "tamnosin:Тъмносин:#1B2A4A:" "svetlosin:Светлосин:#6EC1E4:" "zelen:Зелен:#009A44:#2f5d46" "svetlozelen:Светлозелен:#8DC63F:" \
+         "zhalt:Жълт:#FFD100:" "oranzhev:Оранжев:#FF7F00:" "lilav:Лилав:#6A2C91:" "siv:Сив:#8A8D8F:" "kafyav:Кафяв:#6B4226:" \
+         "srebaren:Сребърен:#C0C0C0:" "zlaten:Златен:#C9A227:" "bronzov:Бронзов:#A97142:"; do
+  IFS=: read -r slug name hex old <<< "$c"
   n=$((n + 1))
   term=$(wp term get pa_cvyat "$slug" --by=slug --field=term_id 2>/dev/null || true)
   # The order WooCommerce lists the colours in (term meta "order"), set once with the term.
   [ -n "$term" ] || { term=$(wc product_attribute_term create "$color_attr" --name="$name" --slug="$slug" --porcelain); wp term meta update "$term" order "$n" >/dev/null; }
-  [ -n "$(wp term meta get "$term" reklamo_hex 2>/dev/null || true)" ] || wp term meta update "$term" reklamo_hex "$hex" >/dev/null
+  have=$(wp term meta get "$term" reklamo_hex 2>/dev/null || true)
+  if [ -z "$have" ] || { [ -n "$old" ] && [ "$have" = "$old" ]; }; then wp term meta update "$term" reklamo_hex "$hex" >/dev/null; fi
 done
 
 # A sample product sold by the piece, as in the client's product-page mockup: four colours, a price

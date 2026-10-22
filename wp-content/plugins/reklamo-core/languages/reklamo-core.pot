@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-22T15:29:52+00:00\n"
+"POT-Creation-Date: 2026-10-22T17:31:50+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: reklamo-core\n"
@@ -1013,7 +1013,7 @@ msgstr ""
 
 #. translators: 1: product name, 2: minimum quantity
 #: includes/class-reklamo-cart.php:977
-#: includes/class-reklamo-product.php:223
+#: includes/class-reklamo-product.php:235
 #, php-format
 msgid "%1$s: the minimum quantity is %2$d pieces."
 msgstr ""
@@ -1552,82 +1552,63 @@ msgstr ""
 msgid "The other photos of this colour, shown after the variation image above. Empty: the product gallery is shown."
 msgstr ""
 
-#: includes/class-reklamo-product.php:232
-#: includes/class-reklamo-product.php:243
+#: includes/class-reklamo-product.php:244
+#: includes/class-reklamo-product.php:255
 msgid "Swatch colour"
 msgstr ""
 
-#: includes/class-reklamo-product.php:234
 #: includes/class-reklamo-product.php:246
+#: includes/class-reklamo-product.php:258
 msgid "The circle the customer clicks on the product page."
 msgstr ""
 
-#: includes/class-reklamo-product.php:288
+#: includes/class-reklamo-product.php:300
 msgid "Specifications"
 msgstr ""
 
-#: includes/class-reklamo-product.php:289
+#: includes/class-reklamo-product.php:301
 msgid "Paper, print and finishing. Shown as its own tab on the product page; leave empty to hide the tab."
 msgstr ""
 
-#: includes/class-reklamo-product.php:299
+#: includes/class-reklamo-product.php:310
 msgid "Minimum quantity"
 msgstr ""
 
-#: includes/class-reklamo-product.php:300
+#: includes/class-reklamo-product.php:311
 msgid "For a product sold by the piece: the smallest number a customer can order (e.g. 50). The price above is then the price per piece. Leave 1 for packages and fixed sets."
 msgstr ""
 
-#: includes/class-reklamo-product.php:313
+#: includes/class-reklamo-product.php:324
 msgid "Section background image"
 msgstr ""
 
-#: includes/class-reklamo-product.php:314
+#: includes/class-reklamo-product.php:325
 msgid "Shown behind the tabs on the product page, fading in from the right. Leave empty for a plain section."
 msgstr ""
 
-#: includes/class-reklamo-product.php:321
+#: includes/class-reklamo-product.php:332
 msgid "Promotion (% off)"
 msgstr ""
 
-#: includes/class-reklamo-product.php:322
+#: includes/class-reklamo-product.php:333
 msgid "Every colour and size at this percent less, rounded down to ,99; the card and the page show \"Promotion\" and the old price struck through. Empty = no promotion."
 msgstr ""
 
-#: includes/class-reklamo-product.php:335
+#: includes/class-reklamo-product.php:346
 msgid "Promotion until"
 msgstr ""
 
-#: includes/class-reklamo-product.php:336
+#: includes/class-reklamo-product.php:347
 msgid "The last day of the promotion, included. Empty = until you remove it."
 msgstr ""
 
-#: includes/class-reklamo-product.php:344
+#: includes/class-reklamo-product.php:355
 #: includes/class-reklamo-request.php:488
 msgid "Gift"
 msgstr ""
 
-#: includes/class-reklamo-product.php:345
+#: includes/class-reklamo-product.php:356
 msgid "What comes free with it, e.g. \"Red mug with your logo\". Shown as \"+ Gift\" on the card and the page, and written on the order line. Empty = no gift."
-msgstr ""
-
-#: includes/class-reklamo-product.php:392
-#: includes/class-reklamo-product.php:395
-msgid "Prices by quantity"
-msgstr ""
-
-#: includes/class-reklamo-product.php:392
-msgid "The colours of this product are priced differently, so each price is set in its own variation (Variations tab)."
-msgstr ""
-
-#: includes/class-reklamo-product.php:395
-msgid "One price per package size, the same for every colour, VAT included. A size without a price is not offered."
-msgstr ""
-
-#. translators: %s: package size, e.g. "50 бр."
-#: includes/class-reklamo-product.php:402
-#, php-format
-msgid "Price for %s"
 msgstr ""
 
 #. translators: 1: mockup revision, 2: product name
@@ -2274,6 +2255,67 @@ msgstr ""
 msgid "Part %d of the upload is missing. Please try again."
 msgstr ""
 
+#: includes/class-reklamo-variants.php:29
+msgid "Colours and quantities"
+msgstr ""
+
+#: includes/class-reklamo-variants.php:144
+msgid "Colours"
+msgstr ""
+
+#: includes/class-reklamo-variants.php:145
+msgid "Tick the colours the product comes in: the customer sees each as a circle. Upload the photos of each colour once, the first is the main one; every quantity of that colour shows them. No colour ticked: one product with its own photos."
+msgstr ""
+
+#. translators: %s: colour name
+#: includes/class-reklamo-variants.php:163
+#, php-format
+msgid "Photos: %s"
+msgstr ""
+
+#: includes/class-reklamo-variants.php:166
+msgid "The first photo is the main one. Empty: the product image is shown."
+msgstr ""
+
+#. translators: %s: link to Products → Attributes → Цвят
+#: includes/class-reklamo-variants.php:170
+#, php-format
+msgid "A colour that is missing is added in %s, with the colour of its circle."
+msgstr ""
+
+#. translators: %s: link to Products → Attributes → Цвят
+#: includes/class-reklamo-variants.php:170
+msgid "Products → Attributes → Colour"
+msgstr ""
+
+#: includes/class-reklamo-variants.php:173
+msgid "Quantities and prices"
+msgstr ""
+
+#: includes/class-reklamo-variants.php:175
+msgid "The colours of this product are priced differently, so each price is set in its own variation (Variations tab). Here you choose which quantities are offered; a new one takes the price of the same quantity in another colour."
+msgstr ""
+
+#: includes/class-reklamo-variants.php:177
+msgid "Tick the quantities the product is sold in and give each its price, VAT included; every colour costs the same."
+msgstr ""
+
+#. translators: %s: quantity, e.g. "50 бр."
+#: includes/class-reklamo-variants.php:188
+#, php-format
+msgid "Price for %s"
+msgstr ""
+
+#: includes/class-reklamo-variants.php:229
+msgid "Colours and quantities: tick at least one quantity, with its price. Nothing was changed there."
+msgstr ""
+
+#. translators: %s: quantity, e.g. "50 бр."
+#: includes/class-reklamo-variants.php:240
+#, php-format
+msgid "Colours and quantities: %s has no price, so it is not offered."
+msgstr ""
+
 #: includes/emails/class-reklamo-email-admin-approved.php:17
 msgid "Mockup approved — admin (Reklamo)"
 msgstr ""
@@ -2635,7 +2677,7 @@ msgstr ""
 msgid "Placeholders: {order_number}, {order_date}, {customer_first_name}, {site_title}, {deposit_amount}, {balance_amount}, {order_total}, {deposit_pct}, {revision}"
 msgstr ""
 
-#: reklamo-core.php:90
+#: reklamo-core.php:91
 msgid "Reklamo Core needs WooCommerce to be active."
 msgstr ""
 
