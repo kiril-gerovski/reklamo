@@ -184,7 +184,7 @@ final class Reklamo_Admin_Order {
 			<?php foreach ( Reklamo_Items::products( $order ) as $item_id => $item ) : ?>
 				<?php
 				$state   = Reklamo_Items::state( $item );
-				$logo    = Reklamo_Items::logo( $item );
+				$logos   = Reklamo_Items::logos( $item );
 				$note    = Reklamo_Items::note( $item );
 				$mockups = Reklamo_Items::mockups( $order->get_id(), $item_id );
 				$current = Reklamo_Items::revision( $item );
@@ -210,10 +210,12 @@ final class Reklamo_Admin_Order {
 					<?php if ( '' !== $print ) : ?>
 						<p style="margin:.2em 0"><strong><?php esc_html_e( 'Print colour', 'reklamo-core' ); ?>:</strong> <?php echo esc_html( Reklamo_Cart::print_colours()[ $print ] ?? $print ); ?></p>
 					<?php endif; ?>
-					<p style="margin:.2em 0"<?php echo '' !== $inscription && ! $logo ? ' hidden' : ''; ?>>
-						<strong><?php esc_html_e( 'Customer logo', 'reklamo-core' ); ?>:</strong>
-						<?php if ( $logo ) : ?>
-							<a href="<?php echo esc_url( Reklamo_Storage::download_url( (int) $logo->id ) ); ?>"><?php echo esc_html( Reklamo_Storage::describe( $logo ) ); ?></a>
+					<p style="margin:.2em 0"<?php echo '' !== $inscription && ! $logos ? ' hidden' : ''; ?>>
+						<strong><?php echo esc_html( count( $logos ) > 1 ? __( 'Customer logos', 'reklamo-core' ) : __( 'Customer logo', 'reklamo-core' ) ); ?>:</strong>
+						<?php if ( $logos ) : ?>
+							<?php foreach ( $logos as $i => $logo ) : ?>
+								<?php echo $i ? ', ' : ''; ?><a href="<?php echo esc_url( Reklamo_Storage::download_url( (int) $logo->id ) ); ?>"><?php echo esc_html( Reklamo_Storage::describe( $logo ) ); ?></a>
+							<?php endforeach; ?>
 						<?php else : ?>
 							<span class="description"><?php esc_html_e( 'No logo attached to this product.', 'reklamo-core' ); ?></span>
 						<?php endif; ?>

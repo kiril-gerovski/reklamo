@@ -444,7 +444,7 @@ final class Reklamo_Request {
 	 * customer and consent, the no-payment gateway, the files claimed to their lines and
 	 * the initial status (which sends the "request received" emails).
 	 *
-	 * @param array  $lines       Each: product (WC_Product, a variation for a colour), qty, token (logo file token), note.
+	 * @param array  $lines       Each: product (WC_Product, a variation for a colour), qty, token (logo file token) or tokens (a package's logos), note.
 	 * @param array  $values      Contact values.
 	 * @param string $created_via Origin recorded on the order.
 	 * @return WC_Order|null Null when the order could not be saved; no file is lost then.
@@ -470,8 +470,9 @@ final class Reklamo_Request {
 				if ( ! $item ) {
 					continue;
 				}
-				if ( '' !== $line['token'] ) {
-					$item->add_meta_data( Reklamo_Cart::META_FILE, $line['token'], true );
+				$tokens = array_filter( (array) ( $line['tokens'] ?? array( $line['token'] ?? '' ) ), 'strlen' );
+				foreach ( $tokens as $token ) {
+					$item->add_meta_data( Reklamo_Cart::META_FILE, $token );
 				}
 				$item->add_meta_data( Reklamo_Items::META_STATE, Reklamo_Items::WAITING, true );
 				if ( '' !== ( $line['text'] ?? '' ) ) {
@@ -491,8 +492,8 @@ final class Reklamo_Request {
 					$item->add_meta_data( __( 'Note to designer', 'reklamo-core' ), $line['note'], true );
 				}
 				$item->save();
-				if ( '' !== $line['token'] ) {
-					$claims[ (int) $item_id ] = $line['token'];
+				foreach ( $tokens as $token ) {
+					$claims[ $token ] ??= (int) $item_id;
 				}
 			}
 
@@ -518,8 +519,8 @@ final class Reklamo_Request {
 		}
 
 		// One logo for all products is one file: it belongs to the first of them, the others point to it.
-		foreach ( array_unique( $claims ) as $item_id => $token ) {
-			Reklamo_Storage::claim( $token, $order->get_id(), $item_id );
+		foreach ( $claims as $token => $item_id ) {
+			Reklamo_Storage::claim( (string) $token, $order->get_id(), $item_id );
 		}
 		self::bump_rate_limit();
 

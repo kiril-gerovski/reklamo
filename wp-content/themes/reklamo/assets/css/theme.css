@@ -422,6 +422,12 @@ a.steps__link:focus-visible .steps__icon { box-shadow: var(--focus), 0 0 0 1px v
 .rk-logo__item:has(input:checked) { border-color: var(--gold); background: var(--gold-soft); }
 .rk-logo__item input { margin: 0; accent-color: var(--gold); }
 .rk-logo__item[hidden] { display: none; }
+.rk-logo__group { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; flex-basis: 100%; padding: .7rem .85rem .85rem; border: 1px solid var(--line); border-radius: 12px; background: var(--white); }
+.rk-logo__group--package { border-color: var(--gold); border-left-width: 4px; background: color-mix(in srgb, var(--gold-soft) 45%, var(--white)); }
+.rk-logo__group[hidden], .rk-logo[hidden] { display: none; }
+.rk-logo__group-name { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; flex-basis: 100%; margin: 0 0 .1rem; font-size: .875rem; font-weight: 600; color: var(--ink); }
+.rk-logo__tag { padding: .15rem .55rem; border-radius: 999px; background: var(--ink); color: var(--white); font-size: .625rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; }
+.rk-logo__group--package .rk-logo__tag { background: var(--gold); }
 .rk-logo__none { flex-basis: 100%; margin: 0; font-size: .8125rem; color: var(--graphite); }
 .rk-logo__none[hidden] { display: none; }
 .rk-required { color: var(--red); }

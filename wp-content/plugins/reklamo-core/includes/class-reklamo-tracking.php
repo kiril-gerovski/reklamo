@@ -282,7 +282,7 @@ final class Reklamo_Tracking {
 				'state'       => $state,
 				'revision'    => $revision,
 				'note'        => Reklamo_Items::note( $item ),
-				'logo'        => Reklamo_Items::logo( $item ),
+				'logos'       => Reklamo_Items::logos( $item ),
 				'mockups'     => $mockups,
 				// The mockup awaiting a decision, shown with its buttons.
 				'pending'     => Reklamo_Items::SENT === $state && $mockups && $mockups[0]['revision'] === $revision ? $mockups[0] : null,

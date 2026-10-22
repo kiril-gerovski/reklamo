@@ -3,9 +3,10 @@
  * The cart: a customer collects products and packages and sends them as ONE request. They go
  * in with a plain "Add to cart". In the cart, step 1: the customer uploads one or more logos,
  * each with an optional note to the designer, and marks the products each one is for; nobody gets to
- * step 2 (details, consents, send) until every product has a logo. Sending the cart creates
- * the order directly (no checkout, no payment): one line per product, each line carrying its
- * logo, so every product gets its own mockup and approval (Reklamo_Items).
+ * step 2 (details, consents, send) until every product has a logo. A package is marked item by
+ * item (its contents list), so each item may take its own logo. Sending the cart creates the order
+ * directly (no checkout, no payment): one line per product, each line carrying its logos, so
+ * every product gets its own mockup and approval (Reklamo_Items).
  *
  * WooCommerce's cart session holds the products; the logo stays an unclaimed upload until
  * the request is sent, and Reklamo_Cleanup removes it if the cart is abandoned.
@@ -364,7 +365,7 @@ final class Reklamo_Cart {
 		$logos[ substr( md5( wp_rand() . microtime() ), 0, 8 ) ] = array(
 			'token' => $token,
 			'note'  => '',
-			'items' => array( $cart_item_key ),
+			'items' => array_keys( self::units( array( $cart_item_key => WC()->cart->get_cart_item( $cart_item_key ) ) ) ),
 		);
 		self::save_logos( $logos );
 	}
@@ -533,13 +534,13 @@ final class Reklamo_Cart {
 
 	/**
 	 * The customer's logos, kept in the session: each a file, a note for the designer, and
-	 * the cart lines it is for. Lines no longer in the cart drop out.
+	 * the units (see units()) it is for. Lines no longer in the cart drop out.
 	 *
 	 * @return array<string,array{token:string,note:string,items:string[]}>
 	 */
 	private static function logos(): array {
 		$logos = WC()->session ? (array) WC()->session->get( self::LOGOS, array() ) : array();
-		$keys  = array_keys( self::logo_lines() );
+		$keys  = array_keys( self::units( self::logo_lines() ) );
 		foreach ( $logos as $id => $logo ) {
 			$logos[ $id ] = array(
 				'token' => (string) ( $logo['token'] ?? '' ),
@@ -555,50 +556,139 @@ final class Reklamo_Cart {
 	}
 
 	/**
-	 * What each cart line ends up with: the first logo marked for it.
+	 * What takes a logo: a product line as a whole, a package line item by item ("cart key:index"),
+	 * so each item of a package may carry its own logo. A package without a contents list counts as one.
 	 *
-	 * @return array<string,array{id:string,file:?object,note:string}> cart key => its logo, for the lines that have one
+	 * @return array<string,array{line:string,label:string}> unit => its cart line and, for a package item, its title
 	 */
-	private static function assignments( array $logos ): array {
+	private static function units( array $lines ): array {
 		$out = array();
-		foreach ( $logos as $id => $logo ) {
-			foreach ( $logo['items'] as $key ) {
-				if ( ! isset( $out[ $key ] ) ) {
-					$out[ $key ] = array(
-						'id'   => (string) $id,
-						'file' => self::logo_by_token( $logo['token'] ),
-						'note' => trim( $logo['note'] ),
-					);
-				}
+		foreach ( $lines as $key => $line ) {
+			$items = isset( $line['data'] ) && Reklamo_Product::is_package( $line['data'] ) ? Reklamo_Product::contents( $line['data'] ) : array();
+			if ( ! $items ) {
+				$out[ $key ] = array(
+					'line'  => (string) $key,
+					'label' => '',
+				);
+			}
+			foreach ( $items as $i => $title ) {
+				$out[ $key . ':' . $i ] = array(
+					'line'  => (string) $key,
+					'label' => $title,
+				);
 			}
 		}
 		return $out;
 	}
 
 	/**
-	 * Every product needs a logo before the next step, unless it carries an inscription; the note is optional.
+	 * The units as the logo lists show them: each package with its items, then the separate products together.
 	 *
-	 * @return string[] what is missing, one line per product
+	 * @return array<int,array{package:bool,name:string,units:array<string,string>}> units as unit => label
 	 */
-	private static function missing( array $lines, array $assigned, array $logos = array() ): array {
-		$missing = array();
-		$marks   = array_count_values( array_merge( array(), ...array_values( array_map( static fn( $l ) => $l['items'], $logos ) ) ) );
-		foreach ( $lines as $key => $line ) {
-			if ( self::is_text_line( $line ) ) {
+	private static function groups( array $lines, array $units ): array {
+		$packages = array();
+		$products = array();
+		foreach ( $units as $unit => $u ) {
+			if ( '' === $u['label'] ) {
+				$products[ $unit ] = $lines[ $u['line'] ]['data']->get_name();
 				continue;
 			}
-			$name = $line['data']->get_name();
-			$a    = $assigned[ $key ] ?? null;
-			if ( ( $marks[ $key ] ?? 0 ) > 1 ) {
-				/* translators: %s: product name */
-				$missing[] = sprintf( __( '%s: it is marked under more than one logo — leave it under one.', 'reklamo-core' ), $name );
-			} elseif ( ! $a ) {
-				/* translators: %s: product name */
-				$missing[] = sprintf( __( '%s: no logo is marked for this product.', 'reklamo-core' ), $name );
-			} elseif ( ! $a['file'] ) {
-				/* translators: %s: product name */
-				$missing[] = sprintf( __( '%s: its logo is not uploaded yet.', 'reklamo-core' ), $name );
+			$packages[ $u['line'] ]                 ??= array(
+				'package' => true,
+				'name'    => $lines[ $u['line'] ]['data']->get_name(),
+				'units'   => array(),
+			);
+			$packages[ $u['line'] ]['units'][ $unit ] = $u['label'];
+		}
+		$groups = array_values( $packages );
+		if ( $products ) {
+			$groups[] = array(
+				'package' => false,
+				'name'    => '',
+				'units'   => $products,
+			);
+		}
+		return $groups;
+	}
+
+	/**
+	 * The logos marked for each unit; more than one is an error the customer has to fix.
+	 *
+	 * @return array<string,array<int,array{id:string,file:?object,note:string}>> unit => its logos
+	 */
+	private static function assignments( array $logos ): array {
+		$out = array();
+		foreach ( $logos as $id => $logo ) {
+			foreach ( $logo['items'] as $unit ) {
+				$out[ $unit ][] = array(
+					'id'   => (string) $id,
+					'file' => self::logo_by_token( $logo['token'] ),
+					'note' => trim( $logo['note'] ),
+				);
 			}
+		}
+		return $out;
+	}
+
+	/**
+	 * The logos on one cart line, each with the package items it covers.
+	 *
+	 * @return array<string,array{file:?object,note:string,labels:string[]}> logo id => logo
+	 */
+	private static function line_logos( string $key, array $units, array $assigned ): array {
+		$out = array();
+		foreach ( $units as $unit => $u ) {
+			if ( $u['line'] !== $key || empty( $assigned[ $unit ] ) ) {
+				continue;
+			}
+			$a                 = $assigned[ $unit ][0];
+			$out[ $a['id'] ] ??= array(
+				'file'   => $a['file'],
+				'note'   => $a['note'],
+				'labels' => array(),
+			);
+			if ( '' !== $u['label'] ) {
+				$out[ $a['id'] ]['labels'][] = $u['label'];
+			}
+		}
+		return $out;
+	}
+
+	/**
+	 * Every product, and every item of a package, needs exactly one logo before the next step,
+	 * unless the line carries an inscription; the note is optional.
+	 *
+	 * @return string[] what is missing, one line per product or package item
+	 */
+	private static function missing( array $lines, array $assigned ): array {
+		$missing = array();
+		$lines   = array_filter( $lines, static fn( $line ) => ! self::is_text_line( $line ) );
+		$units   = self::units( $lines );
+		foreach ( $lines as $key => $line ) {
+			$mine  = array_filter( $units, static fn( $u ) => $u['line'] === $key );
+			$short = array();
+			$full  = array();
+			foreach ( $mine as $unit => $u ) {
+				$a = $assigned[ $unit ] ?? array();
+				if ( count( $a ) > 1 ) {
+					/* translators: %s: product name */
+					$msg = __( '%s: it is marked under more than one logo — leave it under one.', 'reklamo-core' );
+				} elseif ( ! $a ) {
+					/* translators: %s: product name */
+					$msg = __( '%s: no logo is marked for this product.', 'reklamo-core' );
+				} elseif ( ! $a[0]['file'] ) {
+					/* translators: %s: product name */
+					$msg = __( '%s: its logo is not uploaded yet.', 'reklamo-core' );
+				} else {
+					continue;
+				}
+				$short[] = sprintf( $msg, $line['data']->get_name() );
+				$full[]  = sprintf( $msg, $line['data']->get_name() . ( '' !== $u['label'] ? ' — ' . $u['label'] : '' ) );
+			}
+			// The whole package with the same problem is named once.
+			$same    = count( $short ) === count( $mine ) && 1 === count( array_unique( $short ) );
+			$missing = array_merge( $missing, $same ? array( $short[0] ) : $full );
 		}
 		return $missing;
 	}
@@ -613,9 +703,11 @@ final class Reklamo_Cart {
 		$values   = $state['values'] ?? array();
 		$lines    = self::lines();
 		$for_logo = self::logo_lines();
+		$units    = self::units( $for_logo );
+		$groups   = self::groups( $for_logo, $units );
 		$logos    = self::logos();
 		$assigned = self::assignments( $logos );
-		$missing  = self::missing( $lines, $assigned, $logos );
+		$missing  = self::missing( $lines, $assigned );
 		$step     = $lines && ! $missing ? self::step() : 'logos';
 		$max      = (int) Reklamo_Settings::get( 'note_max', '300' );
 		if ( ! $logos ) {
@@ -624,7 +716,7 @@ final class Reklamo_Cart {
 				'new' => array(
 					'token' => '',
 					'note'  => '',
-					'items' => array_keys( $for_logo ),
+					'items' => array_keys( $units ),
 				),
 			);
 		}
@@ -669,12 +761,13 @@ final class Reklamo_Cart {
 						<?php foreach ( $lines as $key => $line ) : ?>
 							<?php
 							$product = $line['data'];
-							$a       = $assigned[ $key ] ?? null;
 							$design  = self::design( $line );
 							$is_text = '' !== $design['text'];
-							$ok      = $is_text || ( $a && $a['file'] );
+							$mine    = array_filter( $units, static fn( $u ) => $u['line'] === $key );
+							$ok      = $is_text || ! self::missing( array( $key => $line ), $assigned );
+							$on_line = self::line_logos( $key, $units, $assigned );
 							?>
-							<li class="rk-cart__item<?php echo $ok ? ' is-ready' : ''; ?>" data-cart-item="<?php echo esc_attr( $key ); ?>"<?php echo $is_text ? ' data-cart-text' : ''; ?>>
+							<li class="rk-cart__item<?php echo $ok ? ' is-ready' : ''; ?>" data-cart-item="<?php echo esc_attr( $key ); ?>"<?php echo $is_text ? ' data-cart-text' : ''; ?> data-cart-units="<?php echo esc_attr( (string) wp_json_encode( array_map( static fn( $unit, $u ) => array( $unit, $u['label'] ), array_keys( $mine ), $mine ) ) ); ?>">
 								<a class="rk-cart__thumb" href="<?php echo esc_url( $product->get_permalink() ); ?>"><?php echo $product->get_image( 'woocommerce_thumbnail' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- WooCommerce escapes. ?></a>
 								<div class="rk-cart__body">
 									<div class="rk-cart__head">
@@ -728,9 +821,14 @@ final class Reklamo_Cart {
 										<?php if ( $is_text ) : ?>
 											<?php esc_html_e( 'Inscription instead of a logo ✓', 'reklamo-core' ); ?>
 										<?php elseif ( $ok ) : ?>
-											<?php esc_html_e( 'Logo', 'reklamo-core' ); ?>: <strong data-cart-logo><?php echo esc_html( Reklamo_Storage::describe( $a['file'] ) ); ?></strong>
-											<?php if ( '' !== $a['note'] ) : ?>
-												<br><?php esc_html_e( 'Note', 'reklamo-core' ); ?>: <span data-cart-note><?php echo esc_html( $a['note'] ); ?></span>
+											<?php
+											$several = count( $on_line ) > 1;
+											$names   = array_map( static fn( $l ) => $several ? $l['file']->orig_name . ' – ' . implode( ', ', $l['labels'] ) : Reklamo_Storage::describe( $l['file'] ), $on_line );
+											$notes   = array_filter( array_column( $on_line, 'note' ), 'strlen' );
+											?>
+											<?php echo esc_html( $several ? __( 'Logos', 'reklamo-core' ) : __( 'Logo', 'reklamo-core' ) ); ?>: <strong data-cart-logo><?php echo esc_html( implode( '; ', $names ) ); ?></strong>
+											<?php if ( $notes ) : ?>
+												<br><?php esc_html_e( 'Note', 'reklamo-core' ); ?>: <span data-cart-note><?php echo esc_html( implode( ' · ', $notes ) ); ?></span>
 											<?php endif; ?>
 										<?php else : ?>
 											<?php esc_html_e( 'Needs a logo — mark it under a logo below.', 'reklamo-core' ); ?>
@@ -757,6 +855,9 @@ final class Reklamo_Cart {
 					<?php elseif ( 'logos' === $step ) : ?>
 						<h2 class="rk-cart__title"><?php esc_html_e( 'Logos and notes to the designer', 'reklamo-core' ); ?></h2>
 						<p class="rk-cart__hint"><?php esc_html_e( 'Upload a logo, write what the designer should do with it, and mark the products it is for. Different products need a different logo? Add another one.', 'reklamo-core' ); ?></p>
+						<?php if ( array_filter( $units, static fn( $u ) => '' !== $u['label'] ) ) : ?>
+							<p class="rk-cart__hint" data-rk-package-hint><?php esc_html_e( 'In a package, every item can carry its own logo: add another logo and tick there the items it is for.', 'reklamo-core' ); ?></p>
+						<?php endif; ?>
 						<div class="rk-logos">
 							<?php $n = 0; ?>
 							<?php foreach ( $logos as $id => $logo ) : ?>
@@ -764,8 +865,13 @@ final class Reklamo_Cart {
 								++$n;
 								$file = self::logo_by_token( $logo['token'] );
 								$uid  = 'rk-logo-' . sanitize_key( (string) $id );
+								// What is marked under another logo is left out here; unticking it there brings it back.
+								$elsewhere = array_merge( array(), ...array_values( array_map( static fn( $l ) => $l['items'], array_diff_key( $logos, array( $id => 1 ) ) ) ) );
+								$free      = array_filter( array_keys( $units ), static fn( $unit ) => in_array( $unit, $logo['items'], true ) || ! in_array( $unit, $elsewhere, true ) );
+								// A used logo left with nothing to mark steps aside until something frees up.
+								$idle = ! $free && ( $file || '' !== $logo['note'] );
 								?>
-								<fieldset class="rk-logo" data-logo="<?php echo esc_attr( (string) $id ); ?>">
+								<fieldset class="rk-logo" data-logo="<?php echo esc_attr( (string) $id ); ?>"<?php echo $idle ? ' hidden' : ''; ?>>
 									<legend class="rk-logo__title">
 										<?php
 										/* translators: %d: logo number */
@@ -784,15 +890,19 @@ final class Reklamo_Cart {
 									</div>
 									<div class="rk-logo__items">
 										<p class="rk-logo__label"><?php esc_html_e( 'For these products:', 'reklamo-core' ); ?></p>
-										<?php foreach ( $for_logo as $key => $line ) : ?>
-											<?php
-											// A product already marked under another logo is left out here; unticking it there brings it back.
-											$taken = ! in_array( $key, $logo['items'], true ) && in_array( $key, array_merge( array(), ...array_values( array_map( static fn( $l ) => $l['items'], array_diff_key( $logos, array( $id => 1 ) ) ) ) ), true );
-											?>
-											<label class="rk-logo__item"<?php echo $taken ? ' hidden' : ''; ?>>
-												<input type="checkbox" name="logos[<?php echo esc_attr( (string) $id ); ?>][items][]" value="<?php echo esc_attr( $key ); ?>" <?php checked( in_array( $key, $logo['items'], true ) ); ?>>
-												<span><?php echo esc_html( $line['data']->get_name() ); ?></span>
-											</label>
+										<?php foreach ( $groups as $group ) : ?>
+											<div class="rk-logo__group<?php echo $group['package'] ? ' rk-logo__group--package' : ''; ?>" data-rk-group<?php echo array_intersect( array_keys( $group['units'] ), $free ) ? '' : ' hidden'; ?>>
+												<p class="rk-logo__group-name">
+													<span class="rk-logo__tag"><?php echo esc_html( $group['package'] ? __( 'Package', 'reklamo-core' ) : __( 'Separate products', 'reklamo-core' ) ); ?></span>
+													<?php echo esc_html( $group['name'] ); ?>
+												</p>
+												<?php foreach ( $group['units'] as $unit => $label ) : ?>
+													<label class="rk-logo__item"<?php echo in_array( $unit, $free, true ) ? '' : ' hidden'; ?>>
+														<input type="checkbox" name="logos[<?php echo esc_attr( (string) $id ); ?>][items][]" value="<?php echo esc_attr( $unit ); ?>" <?php checked( in_array( $unit, $logo['items'], true ) ); ?>>
+														<span><?php echo esc_html( $label ); ?></span>
+													</label>
+												<?php endforeach; ?>
+											</div>
 										<?php endforeach; ?>
 										<p class="rk-logo__none" data-rk-none hidden><?php esc_html_e( 'Every product already has a logo. Untick one under another logo to move it here.', 'reklamo-core' ); ?></p>
 									</div>
@@ -852,7 +962,7 @@ final class Reklamo_Cart {
 		// phpcs:enable WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput
 		$errors = array();
 		$max    = (int) Reklamo_Settings::get( 'note_max', '300' );
-		$keys   = array_keys( self::lines() );
+		$keys   = array_keys( self::units( self::logo_lines() ) );
 		$logos  = self::logos();
 		$n      = 0;
 		$qtys   = isset( $_POST['qty'] ) && is_array( $_POST['qty'] ) ? wp_unslash( $_POST['qty'] ) : array(); // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- nonce checked by the caller; cast to int below.
@@ -970,7 +1080,7 @@ final class Reklamo_Cart {
 				);
 				self::save_logos( $logos );
 			} elseif ( 'continue' === $action ) {
-				$errors = array_merge( $errors, self::missing( self::lines(), self::assignments( self::logos() ), self::logos() ) );
+				$errors = array_merge( $errors, self::missing( self::lines(), self::assignments( self::logos() ) ) );
 				if ( ! $errors ) {
 					WC()->session->set( self::STEP, 'details' );
 				}
@@ -985,7 +1095,7 @@ final class Reklamo_Cart {
 		// Send: the logos are checked again — the cart may have changed in another tab.
 		$lines    = self::lines();
 		$assigned = self::assignments( self::logos() );
-		$missing  = self::missing( $lines, $assigned, self::logos() );
+		$missing  = self::missing( $lines, $assigned );
 		if ( $missing || ! $lines ) {
 			WC()->session->set( self::STEP, 'logos' );
 			Reklamo_Request::fail( $missing ? $missing : array( __( 'Your cart is empty.', 'reklamo-core' ) ), $values, $back );
@@ -994,15 +1104,22 @@ final class Reklamo_Cart {
 		if ( $errors ) {
 			Reklamo_Request::fail( $errors, $values, $back );
 		}
+		$units       = self::units( self::logo_lines() );
 		$order_lines = array();
 		foreach ( $lines as $key => $line ) {
-			$design        = self::design( $line );
-			$is_text       = '' !== $design['text'];
+			$design  = self::design( $line );
+			$on_line = self::is_text_line( $line ) ? array() : self::line_logos( (string) $key, $units, $assigned );
+			$notes   = array();
+			foreach ( $on_line as $logo ) {
+				// Several logos on a package: each says which file goes on which items.
+				$head    = count( $on_line ) > 1 ? $logo['file']->orig_name . ' – ' . implode( ', ', $logo['labels'] ) : '';
+				$notes[] = implode( ': ', array_filter( array( $head, $logo['note'] ), 'strlen' ) );
+			}
 			$order_lines[] = array(
 				'product' => $line['data'],
 				'qty'     => max( 1, (int) $line['quantity'] ),
-				'token'   => $is_text ? '' : $assigned[ $key ]['file']->token,
-				'note'    => trim( ( $is_text ? '' : $assigned[ $key ]['note'] ) . "\n" . $design['note'] ),
+				'tokens'  => array_values( array_map( static fn( $logo ) => $logo['file']->token, $on_line ) ),
+				'note'    => trim( implode( "\n", array_filter( $notes, 'strlen' ) ) . "\n" . $design['note'] ),
 				'text'    => $design['text'],
 				'colour'  => $design['colour'],
 			);
@@ -1039,9 +1156,10 @@ final class Reklamo_Cart {
 			return;
 		}
 		foreach ( $order->get_items() as $item_id => $item ) {
-			$token = (string) $item->get_meta( self::META_FILE );
-			if ( $token ) {
-				Reklamo_Storage::claim( $token, $order->get_id(), (int) $item_id );
+			foreach ( $item->get_meta( self::META_FILE, false ) as $meta ) {
+				if ( '' !== (string) $meta->value ) {
+					Reklamo_Storage::claim( (string) $meta->value, $order->get_id(), (int) $item_id );
+				}
 			}
 		}
 	}
@@ -1056,16 +1174,13 @@ final class Reklamo_Cart {
 		if ( ! is_admin() || ! $item instanceof WC_Order_Item_Product ) {
 			return;
 		}
-		$token = (string) $item->get_meta( self::META_FILE );
-		$file  = $token ? Reklamo_Storage::by_token( $token ) : null;
-		if ( ! $file ) {
-			return;
+		foreach ( Reklamo_Items::logos( $item ) as $file ) {
+			printf(
+				'<div class="reklamo-item-file"><strong>%s:</strong> <a href="%s">%s</a></div>',
+				esc_html__( 'Logo', 'reklamo-core' ),
+				esc_url( Reklamo_Storage::download_url( (int) $file->id ) ),
+				esc_html( Reklamo_Storage::describe( $file ) )
+			);
 		}
-		printf(
-			'<div class="reklamo-item-file"><strong>%s:</strong> <a href="%s">%s</a></div>',
-			esc_html__( 'Logo', 'reklamo-core' ),
-			esc_url( Reklamo_Storage::download_url( (int) $file->id ) ),
-			esc_html( Reklamo_Storage::describe( $file ) )
-		);
 	}
 }

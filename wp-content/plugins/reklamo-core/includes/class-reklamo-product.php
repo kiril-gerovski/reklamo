@@ -85,6 +85,24 @@ final class Reklamo_Product {
 		return trim( (string) self::base( $product )->get_meta( self::GIFT_META ) );
 	}
 
+	/**
+	 * What a package holds: the titles of its short description's list, such as "50 бр. Тефтери".
+	 * The theme reads the same list for the product page (reklamo_package_items()).
+	 *
+	 * @return string[]
+	 */
+	public static function contents( WC_Product $product ): array {
+		preg_match_all( '~<li\b[^>]*>(.*?)</li>~is', self::base( $product )->get_short_description(), $m );
+		$out = array();
+		foreach ( $m[1] as $inner ) {
+			$title = trim( wp_strip_all_tags( preg_split( '~<br\s*/?>|\R~iu', trim( $inner ), 2 )[0] ) );
+			if ( '' !== $title ) {
+				$out[] = $title;
+			}
+		}
+		return $out;
+	}
+
 	/** Write the promotion into every variation's sale price, or take ours away again. */
 	public static function apply_promo( int $product_id ): void {
 		$product = wc_get_product( $product_id );

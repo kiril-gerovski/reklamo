@@ -114,9 +114,16 @@ final class Reklamo_Items {
 		return '' !== $note ? $note : (string) $item->get_meta( __( 'Note to designer', 'reklamo-core' ) );
 	}
 
-	public static function logo( WC_Order_Item_Product $item ): ?object {
-		$token = (string) $item->get_meta( Reklamo_Cart::META_FILE );
-		return '' !== $token ? Reklamo_Storage::by_token( $token ) : null;
+	/** @return object[] the line's logo files: one, or several for a package */
+	public static function logos( WC_Order_Item_Product $item ): array {
+		$files = array();
+		foreach ( $item->get_meta( Reklamo_Cart::META_FILE, false ) as $meta ) {
+			$file = '' !== (string) $meta->value ? Reklamo_Storage::by_token( (string) $meta->value ) : null;
+			if ( $file ) {
+				$files[] = $file;
+			}
+		}
+		return $files;
 	}
 
 	/** @return object[] the item's mockups, oldest first */

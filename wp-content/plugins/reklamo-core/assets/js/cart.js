@@ -1,6 +1,6 @@
 /**
  * Cart, step 1: shows live which products have a logo (the note is optional), and keeps
- * "Continue" disabled until every product has one. Step 2: "Send" waits for name, email, phone and both consents.
+ * "Continue" disabled until every product has one; a package needs one for every item it holds. Step 2: "Send" waits for name, email, phone and both consents.
  * The server checks all of it again on submit.
  */
 ( function () {
@@ -42,7 +42,7 @@
 		return !! ( token && token.value );
 	}
 
-	// A product ticked under one logo leaves the other logos' lists.
+	// A product or package item ticked under one logo leaves the other logos' lists.
 	function hideTaken() {
 		var sets = form.querySelectorAll( '.rk-logo' );
 		sets.forEach( function ( set ) {
@@ -56,8 +56,14 @@
 				label.hidden = taken && ! box.checked;
 				shown += label.hidden ? 0 : 1;
 			} );
+			set.querySelectorAll( '[data-rk-group]' ).forEach( function ( group ) {
+				group.hidden = ! group.querySelector( '.rk-logo__item:not([hidden])' );
+			} );
 			var none = set.querySelector( '[data-rk-none]' );
 			if ( none ) { none.hidden = shown > 0; }
+			// A used logo left with nothing to mark steps aside until something frees up.
+			var note = set.querySelector( 'textarea' );
+			set.hidden = ! shown && ( hasFile( set ) || !! ( note && note.value.trim() ) );
 		} );
 	}
 
@@ -76,21 +82,30 @@
 			if ( warn ) { warn.hidden = ! missing; }
 		} );
 		form.querySelectorAll( '[data-cart-item]' ).forEach( function ( item ) {
-			var key = item.getAttribute( 'data-cart-item' ), marks = 0, ok = false, reason = '';
 			if ( item.hasAttribute( 'data-cart-text' ) ) { return; }
-			var name = ( item.querySelector( '.rk-cart__name' ) || item ).textContent.trim();
-			form.querySelectorAll( '.rk-logo' ).forEach( function ( set ) {
-				var box = set.querySelector( 'input[type="checkbox"][value="' + key + '"]' );
-				if ( box && box.checked ) {
-					marks++;
-					var title = ( set.querySelector( '.rk-logo__title' ) || set ).textContent.trim();
-					ok = hasFile( set );
-					reason = ok ? '' : fmt( form.dataset.msgNofile, name, title );
+			var product = ( item.querySelector( '.rk-cart__name' ) || item ).textContent.trim(), ok = true;
+			var units = JSON.parse( item.getAttribute( 'data-cart-units' ) || '[]' ), short = [], full = [];
+			// Each unit: [ checkbox value, package item title or '' for a whole product ].
+			units.forEach( function ( unit ) {
+				var marks = 0, tpl = '', title = '';
+				form.querySelectorAll( '.rk-logo' ).forEach( function ( set ) {
+					var box = set.querySelector( 'input[type="checkbox"][value="' + unit[ 0 ] + '"]' );
+					if ( box && box.checked ) {
+						marks++;
+						title = ( set.querySelector( '.rk-logo__title' ) || set ).textContent.trim();
+						tpl = hasFile( set ) ? '' : form.dataset.msgNofile;
+					}
+				} );
+				if ( ! marks ) { tpl = form.dataset.msgUnmarked; }
+				ok = ok && ! tpl && 1 === marks;
+				if ( tpl ) {
+					short.push( fmt( tpl, product, title ) );
+					full.push( fmt( tpl, unit[ 1 ] ? product + ' — ' + unit[ 1 ] : product, title ) );
 				}
 			} );
-			if ( ! marks ) { reason = fmt( form.dataset.msgUnmarked, name ); }
-			ok = ok && 1 === marks;
-			if ( ! ok && reason ) { reasons.push( reason ); }
+			// The whole package with the same problem is named once.
+			var same = short.length === units.length && short.every( function ( r ) { return r === short[ 0 ]; } );
+			reasons = reasons.concat( same && short.length ? [ short[ 0 ] ] : full );
 			item.classList.toggle( 'is-ready', ok );
 			var status = item.querySelector( '[data-cart-status].is-missing' );
 			if ( status ) {

@@ -29,7 +29,7 @@ async function addToCart( page, slug ) {
 	await page.waitForURL( /\/koshnitsa\/$/ );
 }
 
-/** A logo set in cart step 1: file, note, and exactly the products named. */
+/** A logo set in cart step 1: file, note, and exactly the products named (a package: all its items). */
 async function fillLogo( logo, fixture, note, products ) {
 	if ( fixture ) {
 		await logo.locator( 'input[type="file"]' ).setInputFiles( `${ FIXTURES }/${ fixture }` );
@@ -37,10 +37,15 @@ async function fillLogo( logo, fixture, note, products ) {
 	}
 	await logo.locator( 'textarea' ).fill( note );
 	for ( const box of await logo.locator( '.rk-logo__item:visible' ).all() ) {
-		const label = ( await box.textContent() ) || '';
+		const label = await box.evaluate( ( el ) => ( el.closest( '[data-rk-group]' )?.querySelector( '.rk-logo__group-name' )?.textContent || '' ) + ' ' + el.textContent );
 		const wanted = products.some( ( p ) => label.includes( p ) );
 		await box.locator( 'input' ).setChecked( wanted );
 	}
+}
+
+/** The checkbox of a package item under a logo. */
+function itemBox( logo, product, item ) {
+	return logo.locator( '[data-rk-group]', { hasText: product } ).locator( '.rk-logo__item', { hasText: item } ).locator( 'input' );
 }
 
 async function subjectCount( needle ) {
@@ -68,51 +73,65 @@ test( 'products go into the cart with a plain button; the checkout is not used',
 	await expect( page ).toHaveURL( /\/koshnitsa\/$/ );
 } );
 
-test( 'logos with notes are marked for products; a marked product leaves the next logo\'s list', async () => {
+test( 'logos with notes are marked for products item by item; a marked item leaves the next logo\'s list', async () => {
 	const page = shopper;
 	await page.goto( '/koshnitsa/' );
 	const items = page.locator( '.rk-cart__item' );
 	await items.nth( 2 ).getByRole( 'button', { name: 'Премахни' } ).click();
 	await expect( items ).toHaveCount( 2 );
+	await expect( page.locator( '[data-rk-package-hint]' ) ).toBeVisible();
 
-	// Logo 1 starts marked for everything; give it to the first product only.
-	await fillLogo( page.locator( '.rk-logo' ).first(), 'logo.pdf', 'A: златно лого на корицата.', [ 'Бизнес комплект Magnet' ] );
+	// Logo 1 starts marked for everything; give it to the first package only. A package lists its items.
+	const first = page.locator( '.rk-logo' ).first();
+	await expect( first.locator( '[data-rk-group]', { hasText: 'Бизнес комплект Magnet' } ).locator( '.rk-logo__item' ) ).toHaveText( [ /50 бр\. Тефтери/, /50 бр\. Метални химикалки/ ] );
+	await fillLogo( first, 'logo.pdf', 'A: златно лого на корицата.', [ 'Бизнес комплект Magnet' ] );
 	await expect( items.nth( 0 ) ).toHaveClass( /is-ready/ );
 	await expect( page.locator( '[data-rk-continue]' ) ).toBeDisabled();
-	// The page says exactly what is missing, product by product.
+	// The page says exactly what is missing, item by item.
 	await expect( page.locator( '[data-rk-blocked] li' ) ).toHaveText( [ 'Комплект Cork – чаша, тефтер и химикалка - 50 бр.: не е маркиран при нито едно лого.' ] );
 	await page.getByRole( 'button', { name: /Добави още едно лого/ } ).click();
 	const pending = page.locator( '.rk-logo' ).nth( 1 );
 	await pending.locator( 'textarea' ).fill( 'Без файл засега' );
-	await pending.locator( '.rk-logo__item', { hasText: 'Комплект Cork' } ).locator( 'input' ).check();
+	await itemBox( pending, 'Комплект Cork', 'Чаши' ).check();
 	await expect( pending.locator( '[data-rk-nofile]' ) ).toBeVisible();
-	await expect( page.locator( '[data-rk-blocked] li' ) ).toHaveText( [ 'Комплект Cork – чаша, тефтер и химикалка - 50 бр.: файлът на „Лого 2“ още не е качен.' ] );
+	// Part of a package is named item by item.
+	await expect( page.locator( '[data-rk-blocked] li' ) ).toHaveText( [
+		'Комплект Cork – чаша, тефтер и химикалка - 50 бр. — 50 бр. Чаши: файлът на „Лого 2“ още не е качен.',
+		'Комплект Cork – чаша, тефтер и химикалка - 50 бр. — 50 бр. Тефтери: не е маркиран при нито едно лого.',
+		'Комплект Cork – чаша, тефтер и химикалка - 50 бр. — 50 бр. Химикалки: не е маркиран при нито едно лого.',
+	] );
 	await pending.getByRole( 'button', { name: 'Премахни това лого' } ).click();
 	await page.getByRole( 'button', { name: /Добави още едно лого/ } ).click();
 	await expect( page.locator( '.rk-logo' ) ).toHaveCount( 2 );
-	await expect( page.locator( '.rk-logo' ).first().locator( 'textarea' ) ).toHaveValue( 'A: златно лого на корицата.' );
+	await expect( first.locator( 'textarea' ) ).toHaveValue( 'A: златно лого на корицата.' );
 
-	// Logo 2 lists only what is still without a logo: the first product has left its list.
+	// Logo 2 lists only what is still without a logo: the first package has left its list.
 	const second = page.locator( '.rk-logo' ).nth( 1 );
-	await expect( second.locator( '.rk-logo__item:visible' ) ).toHaveText( [ /Комплект Cork/ ] );
+	await expect( second.locator( '[data-rk-group]:visible' ) ).toHaveCount( 1 );
+	await expect( second.locator( '[data-rk-group]:visible' ) ).toContainText( 'Комплект Cork' );
 	await fillLogo( second, 'logo.png', 'B: златно лого на чашата и химикалката.', [ 'Комплект Cork' ] );
-	// Unticking a product under logo 1 brings it back to logo 2's list.
-	await page.locator( '.rk-logo' ).first().locator( '.rk-logo__item', { hasText: 'Бизнес комплект Magnet' } ).locator( 'input' ).uncheck();
-	await expect( second.locator( '.rk-logo__item:visible' ) ).toHaveCount( 2 );
+	// Unticking an item under logo 1 brings it back to logo 2's list.
+	await itemBox( first, 'Бизнес комплект Magnet', 'Тефтери' ).uncheck();
+	await expect( second.locator( '[data-rk-group]', { hasText: 'Бизнес комплект Magnet' } ).locator( '.rk-logo__item:visible' ) ).toHaveText( [ /Тефтери/ ] );
 	await expect( page.locator( '[data-rk-continue]' ) ).toBeDisabled();
-	await page.locator( '.rk-logo' ).first().locator( '.rk-logo__item', { hasText: 'Бизнес комплект Magnet' } ).locator( 'input' ).check();
-	await expect( second.locator( '.rk-logo__item:visible' ) ).toHaveCount( 1 );
-	// The server refuses a product under two logos on its own, whatever the page shows.
-	await second.locator( '.rk-logo__item', { hasText: 'Бизнес комплект Magnet' } ).locator( 'input' ).evaluate( ( el ) => { el.checked = true; } );
+	await itemBox( first, 'Бизнес комплект Magnet', 'Тефтери' ).check();
+	await expect( second.locator( '[data-rk-group]', { hasText: 'Бизнес комплект Magnet' } ) ).toBeHidden();
+	// The server refuses an item under two logos on its own, whatever the page shows.
+	await itemBox( second, 'Бизнес комплект Magnet', 'Тефтери' ).evaluate( ( el ) => { el.checked = true; } );
 	await page.locator( '[data-rk-continue]' ).evaluate( ( b ) => { b.disabled = false; } );
 	await page.locator( '[data-rk-continue]' ).click();
-	await expect( page.locator( '.rq-errors' ) ).toContainText( 'Бизнес комплект Magnet - Червен, 50 бр.: маркиран е при повече от едно лого' );
-	await page.locator( '.rk-logo' ).nth( 1 ).locator( '.rk-logo__item', { hasText: 'Бизнес комплект Magnet' } ).locator( 'input' ).evaluate( ( el ) => { el.checked = false; el.dispatchEvent( new Event( 'change', { bubbles: true } ) ); } );
+	await expect( page.locator( '.rq-errors' ) ).toContainText( 'Бизнес комплект Magnet - Червен, 50 бр. — 50 бр. Тефтери: маркиран е при повече от едно лого' );
+	await itemBox( page.locator( '.rk-logo' ).nth( 1 ), 'Бизнес комплект Magnet', 'Тефтери' ).evaluate( ( el ) => { el.checked = false; el.dispatchEvent( new Event( 'change', { bubbles: true } ) ); } );
 
+	// One package, two logos: the pens of the Magnet set take logo 2.
+	await itemBox( first, 'Бизнес комплект Magnet', 'Метални химикалки' ).uncheck();
+	await itemBox( second, 'Бизнес комплект Magnet', 'Метални химикалки' ).check();
+	await expect( items.nth( 0 ) ).toHaveClass( /is-ready/ );
 	await expect( page.locator( '[data-rk-continue]' ) ).toBeEnabled();
 	await page.locator( '[data-rk-continue]' ).click();
 	await expect( page.locator( '.rk-cart' ) ).toHaveAttribute( 'data-step', 'details' );
-	await expect( items.nth( 0 ).locator( '[data-cart-logo]' ) ).toContainText( 'logo.pdf' );
+	await expect( items.nth( 0 ) ).toContainText( 'Логота:' );
+	await expect( items.nth( 0 ).locator( '[data-cart-logo]' ) ).toHaveText( 'logo.pdf – 50 бр. Тефтери; logo.png – 50 бр. Метални химикалки' );
 	await expect( items.nth( 1 ).locator( '[data-cart-logo]' ) ).toContainText( 'logo.png' );
 	await expect( items.nth( 1 ).locator( '[data-cart-note]' ) ).toContainText( 'химикалката' );
 } );
@@ -154,6 +173,9 @@ test( 'sending the cart creates one order with a line, a logo and a note per pro
 	await expect( products ).toHaveCount( 2 );
 	await expect( products.nth( 0 ) ).toContainText( 'Бизнес комплект Magnet' );
 	await expect( products.nth( 0 ) ).toContainText( 'logo.pdf' );
+	await expect( products.nth( 0 ) ).toContainText( 'logo.png' );
+	await expect( products.nth( 0 ) ).toContainText( 'logo.pdf – 50 бр. Тефтери: A: златно лого на корицата.' );
+	await expect( products.nth( 0 ) ).toContainText( 'logo.png – 50 бр. Метални химикалки: B: златно лого' );
 	await expect( products.nth( 1 ) ).toContainText( 'Комплект Cork' );
 	await expect( products.nth( 1 ) ).toContainText( 'химикалката' );
 
@@ -168,7 +190,9 @@ test( 'the designer sends both mockups at once: one email, a link per product', 
 	await page.goto( `/wp-admin/admin.php?page=wc-orders&action=edit&id=${ orderId }` );
 	const blocks = page.locator( '#reklamo_mockup .reklamo-item' );
 	await expect( blocks ).toHaveCount( 2 );
+	await expect( blocks.nth( 0 ) ).toContainText( 'Логота на клиента' );
 	await expect( blocks.nth( 0 ) ).toContainText( 'logo.pdf' );
+	await expect( blocks.nth( 0 ) ).toContainText( 'logo.png' );
 	await expect( blocks.nth( 1 ) ).toContainText( 'logo.png' );
 	await expect( blocks.nth( 1 ) ).toContainText( 'химикалката' );
 
@@ -579,7 +603,8 @@ test( 'an inscription instead of a logo, and a print colour for a logo: request 
 	await expect( bottle.locator( 'select[name^="colour"]' ) ).toHaveCount( 0 );
 	// Only the logo product waits for a logo, and gets its own print colour.
 	const logo = page.locator( '.rk-logo' ).first();
-	await expect( logo.locator( '.rk-logo__item' ) ).toHaveCount( 1 );
+	await expect( logo.locator( '[data-rk-group]' ) ).toHaveCount( 1 );
+	await expect( logo.locator( '.rk-logo__item' ) ).toHaveCount( 3 );
 	await page.locator( '.rk-cart__item', { hasText: 'Cork' } ).locator( 'select[name^="colour"]' ).selectOption( { label: 'Сребро' } );
 	await fillLogo( logo, 'logo.pdf', '', [ 'Cork' ] );
 	await page.locator( '[data-rk-continue]' ).click();
@@ -627,6 +652,20 @@ test( 'a logo uploaded on the request page arrives in the cart with its product,
 	await expect( page.locator( '.rk-cart__item', { hasText: 'Magnet' } ) ).not.toHaveClass( /is-ready/ );
 	await expect( page.locator( '.rk-cart__item', { hasText: 'Cork' } ) ).toHaveClass( /is-ready/ );
 	await page.getByRole( 'button', { name: /Добави още едно лого/ } ).click();
-	await expect( page.locator( '.rk-logo' ).nth( 1 ).locator( '.rk-logo__item:visible' ) ).toHaveText( [ /Magnet/ ] );
+	await expect( page.locator( '.rk-logo' ).nth( 1 ).locator( '[data-rk-group]:visible' ) ).toHaveCount( 1 );
+	await expect( page.locator( '.rk-logo' ).nth( 1 ).locator( '[data-rk-group]:visible' ) ).toContainText( 'Magnet' );
+	// A logo with a file but nothing left to mark steps aside, and comes back when something frees up.
+	const spare = page.locator( '.rk-logo' ).nth( 1 );
+	await spare.locator( 'input[type="file"]' ).setInputFiles( `${ FIXTURES }/logo.pdf` );
+	await expect( spare.locator( '.rq-progress.is-done' ) ).toContainText( 'logo.pdf' );
+	await itemBox( spare, 'Magnet', 'Тефтери' ).uncheck();
+	await itemBox( spare, 'Magnet', 'Метални химикалки' ).uncheck();
+	await itemBox( page.locator( '.rk-logo' ).first(), 'Magnet', 'Тефтери' ).check();
+	await itemBox( page.locator( '.rk-logo' ).first(), 'Magnet', 'Метални химикалки' ).check();
+	await expect( spare ).toBeHidden();
+	await expect( page.locator( '[data-rk-continue]' ) ).toBeEnabled();
+	await itemBox( page.locator( '.rk-logo' ).first(), 'Magnet', 'Метални химикалки' ).uncheck();
+	await expect( spare ).toBeVisible();
+	await expect( page.locator( '.rk-logo' ).first().locator( '.rk-logo__tag' ).first() ).toHaveText( 'Пакет' );
 	await ctx.close();
 } );

@@ -230,13 +230,16 @@ $multi    = ( $counts['total'] ?? 0 ) > 1;
 					<span class="pill <?php echo esc_attr( $badge[0] ); ?>"><?php echo esc_html( $badge[1] ); ?></span>
 				</div>
 				<p class="muted">
-					<?php if ( $p['logo'] ) : ?>
-						<?php esc_html_e( 'Logo', 'reklamo-core' ); ?>:
-						<?php if ( '' !== (string) $p['logo']->path ) : ?>
-							<a href="<?php echo esc_url( $file_url( (int) $p['logo']->id ) ); ?>"><?php echo esc_html( Reklamo_Storage::describe( $p['logo'] ) ); ?></a>
-						<?php else : ?>
-							<?php echo esc_html( Reklamo_Storage::describe( $p['logo'] ) ); ?>
-						<?php endif; ?>
+					<?php if ( $p['logos'] ) : ?>
+						<?php echo esc_html( count( $p['logos'] ) > 1 ? __( 'Logos', 'reklamo-core' ) : __( 'Logo', 'reklamo-core' ) ); ?>:
+						<?php foreach ( $p['logos'] as $i => $logo ) : ?>
+							<?php echo $i ? ', ' : ''; ?>
+							<?php if ( '' !== (string) $logo->path ) : ?>
+								<a href="<?php echo esc_url( $file_url( (int) $logo->id ) ); ?>"><?php echo esc_html( Reklamo_Storage::describe( $logo ) ); ?></a>
+							<?php else : ?>
+								<?php echo esc_html( Reklamo_Storage::describe( $logo ) ); ?>
+							<?php endif; ?>
+						<?php endforeach; ?>
 					<?php else : ?>
 						<?php esc_html_e( 'No file on record.', 'reklamo-core' ); ?>
 					<?php endif; ?>
