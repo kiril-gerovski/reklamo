@@ -560,9 +560,14 @@ test( 'a promotion and a gift set in the product: labels, struck price, sale pri
 		await page.fill( '#_reklamo_gift', '' );
 		await save();
 	};
+	// The photo with the gift: any image in the Media Library, here Cork's.
+	const giftPhoto = ( await ( await page.request.get( '/wp-json/wc/store/v1/products?sku=PKG-CORK' ) ).json() )[ 0 ].images[ 0 ];
+	const stripe = ( await ( await page.request.get( '/wp-json/wc/store/v1/products?sku=PKG-STRIPE' ) ).json() )[ 0 ].images[ 0 ];
+	const file = ( src ) => src.replace( /^.*\/|(-\d+x\d+)?\.\w+$/g, '' );
 	await page.goto( edit );
 	await page.fill( '#_reklamo_promo_pct', '15' );
-	await page.fill( '#_reklamo_gift', 'Черна чаша с Вашето лого' );
+	await page.fill( '#_reklamo_gift', 'Запалка Satin Black' );
+	await page.locator( 'input[name="_reklamo_gift_image"]' ).evaluate( ( el, v ) => { el.value = v; }, String( giftPhoto.id ) );
 	await save();
 	await expect( page.locator( '#_reklamo_promo_pct' ) ).toHaveValue( '15' );
 	// Whatever happens below, the product must not stay on promotion for the other tests.
@@ -571,8 +576,11 @@ test( 'a promotion and a gift set in the product: labels, struck price, sale pri
 	} finally {
 		await clear();
 	}
+	// No gift, no gift photo: the product's own photo is back, and the photo is not kept for later.
+	await expect( page.locator( 'input[name="_reklamo_gift_image"]' ) ).toHaveValue( '' );
 	await page.goto( '/promo-paketi/' );
 	const after = page.locator( 'li.product', { hasText: 'Комплект Stripe' } );
+	await expect( after.locator( '.package-card__media img' ) ).toHaveAttribute( 'src', new RegExp( file( stripe.src ) ) );
 	await expect( after.locator( '.badge' ) ).toHaveCount( 0 );
 	await expect( after.locator( '.package-card__amount' ) ).toContainText( '409,99' );
 
@@ -583,20 +591,26 @@ test( 'a promotion and a gift set in the product: labels, struck price, sale pri
 		await expect( card.locator( '.badge' ) ).toHaveText( [ 'Промоция', '+ Подарък' ] );
 		await expect( card.locator( '.package-card__was' ) ).toContainText( '409,99' );
 		await expect( card.locator( '.package-card__amount' ) ).toContainText( '347,99' ); // 409,99 − 15 % → ,99
-		await expect( card.locator( '.package-card__gift' ) ).toContainText( 'Подарък: Черна чаша с Вашето лого' );
+		await expect( card.locator( '.package-card__gift' ) ).toContainText( 'Подарък: Запалка Satin Black' );
+		// While there is a gift its photo is the main one, on the card and on the page.
+		await expect( card.locator( '.package-card__media img' ) ).toHaveAttribute( 'src', new RegExp( file( giftPhoto.src ) ) );
 
 		await shop.goto( '/product/komplekt-stripe/' );
+		const slides = shop.locator( '.woocommerce-product-gallery__image img' );
+		await expect( slides.first() ).toHaveAttribute( 'src', new RegExp( file( giftPhoto.src ) ) );
+		// The product's own main photo is still there, second.
+		await expect( slides.nth( 1 ) ).toHaveAttribute( 'src', new RegExp( file( stripe.src ) ) );
 		await expect( shop.locator( '[data-rk-badge-regular]' ) ).toHaveText( /409,99/ );
 		await expect( shop.locator( '[data-rk-badge-price]' ) ).toHaveText( /347,99/ );
 		await shop.locator( '.rk-option', { has: shop.locator( 'input[value="150-br"]' ) } ).click();
 		await expect( shop.locator( '[data-rk-badge-regular]' ) ).toHaveText( /1\s199,99/ );
 		await expect( shop.locator( '[data-rk-badge-price]' ) ).toHaveText( /1\s019,99/ );
-		await expect( shop.locator( '.product-gift' ) ).toContainText( 'Черна чаша с Вашето лого' );
+		await expect( shop.locator( '.product-gift' ) ).toContainText( 'Запалка Satin Black' );
 		await shop.locator( 'form.rq-form--product' ).getByRole( 'button', { name: 'Добави в количката' } ).click();
 		await shop.locator( '[data-rk-added]' ).getByRole( 'link', { name: 'Към количката' } ).click();
 		await shop.waitForURL( /\/koshnitsa\/$/ );
 		await expect( shop.locator( '.rk-cart__price' ) ).toHaveText( /1\s019,99/ );
-		await expect( shop.locator( '.rk-cart__gift' ) ).toContainText( 'Черна чаша с Вашето лого' );
+		await expect( shop.locator( '.rk-cart__gift' ) ).toContainText( 'Запалка Satin Black' );
 		await shop.context().close();
 	}
 } );
@@ -659,7 +673,10 @@ test( 'an inscription instead of a logo, and a print colour for a logo: request 
 	const before = await page.locator( '[data-rk-design-image]' ).getAttribute( 'src' );
 	await expect( page.locator( 'input[name="rk_mode"][value="text"]' ) ).toBeChecked();
 	const form = page.locator( '[data-rk-design]' );
-	await form.getByLabel( 'Цвят', { exact: true } ).selectOption( { index: 1 } );
+	// Another colour than the one shown: the photo follows.
+	const colour = form.getByLabel( 'Цвят', { exact: true } );
+	const current = await colour.inputValue();
+	await colour.selectOption( await colour.locator( 'option' ).evaluateAll( ( os, cur ) => os.map( ( o ) => o.value ).find( ( v ) => v && v !== cur ), current ) );
 	await form.getByLabel( 'Количество' ).selectOption( { index: 1 } );
 	await expect( page.locator( '[data-rk-design-image]' ) ).not.toHaveAttribute( 'src', before );
 	await expect( page.locator( '[data-rk-price]' ) ).toContainText( '€' );

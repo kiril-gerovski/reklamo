@@ -1962,11 +1962,11 @@ msgstr "Отказ от правото на отказ (стоки по спец
 msgid "Order %s is still open; its data is kept until it is closed."
 msgstr "Поръчка %s е още активна; данните ѝ се пазят до приключването ѝ."
 
-#: includes/class-reklamo-product.php:300
+#: includes/class-reklamo-product.php:331
 msgid "Specifications"
 msgstr "Спецификации"
 
-#: includes/class-reklamo-product.php:301
+#: includes/class-reklamo-product.php:332
 msgid "Paper, print and finishing. Shown as its own tab on the product page; leave empty to hide the tab."
 msgstr "Хартия, печат и довършителни работи. Показва се като отделен таб на страницата на продукта; оставете празно, за да скриете таба."
 
@@ -1988,11 +1988,11 @@ msgstr "Премахни"
 msgid "Shown in the \"Need help?\" box on product pages. Without a photo the box shows an icon."
 msgstr "Показва се в карето „Нуждаете се от помощ?“ на страниците на продуктите. Без снимка карето показва икона."
 
-#: includes/class-reklamo-product.php:324
+#: includes/class-reklamo-product.php:355
 msgid "Section background image"
 msgstr "Фонова снимка на секцията"
 
-#: includes/class-reklamo-product.php:325
+#: includes/class-reklamo-product.php:356
 msgid "Shown behind the tabs on the product page, fading in from the right. Leave empty for a plain section."
 msgstr "Показва се зад табовете на страницата на продукта, с преливане отдясно. Оставете празно за секция без снимка."
 
@@ -2454,26 +2454,26 @@ msgstr "минимум %d"
 
 #. translators: 1: product name, 2: minimum quantity
 #: includes/class-reklamo-cart.php:977
-#: includes/class-reklamo-product.php:235
+#: includes/class-reklamo-product.php:266
 #, php-format
 msgid "%1$s: the minimum quantity is %2$d pieces."
 msgstr "%1$s: минималното количество е %2$d броя."
 
-#: includes/class-reklamo-product.php:244
-#: includes/class-reklamo-product.php:255
+#: includes/class-reklamo-product.php:275
+#: includes/class-reklamo-product.php:286
 msgid "Swatch colour"
 msgstr "Цвят на кръгчето"
 
-#: includes/class-reklamo-product.php:246
-#: includes/class-reklamo-product.php:258
+#: includes/class-reklamo-product.php:277
+#: includes/class-reklamo-product.php:289
 msgid "The circle the customer clicks on the product page."
 msgstr "Кръгчето, което клиентът избира на страницата на продукта."
 
-#: includes/class-reklamo-product.php:310
+#: includes/class-reklamo-product.php:341
 msgid "Minimum quantity"
 msgstr "Минимално количество"
 
-#: includes/class-reklamo-product.php:311
+#: includes/class-reklamo-product.php:342
 msgid "For a product sold by the piece: the smallest number a customer can order (e.g. 50). The price above is then the price per piece. Leave 1 for packages and fixed sets."
 msgstr "За продукт, който се продава на брой: най-малкото количество, което клиентът може да поръча (напр. 50). Тогава цената горе е цена за брой. Оставете 1 за пакети и готови комплекти."
 
@@ -2481,16 +2481,16 @@ msgstr "За продукт, който се продава на брой: на�
 msgid "Choose images"
 msgstr "Избери снимки"
 
-#: includes/class-reklamo-product.php:158
+#: includes/class-reklamo-product.php:189
 msgid "Gallery for this colour"
 msgstr "Галерия за този цвят"
 
-#: includes/class-reklamo-product.php:159
+#: includes/class-reklamo-product.php:190
 msgid "The other photos of this colour, shown after the variation image above. Empty: the product gallery is shown."
 msgstr "Останалите снимки на този цвят, показвани след снимката на вариацията по-горе. Ако е празно, се показва галерията на продукта."
 
 #. translators: %s: quantity, e.g. "50 бр."
-#: includes/class-reklamo-variants.php:188
+#: includes/class-reklamo-variants.php:196
 #, php-format
 msgid "Price for %s"
 msgstr "Цена за %s"
@@ -2655,30 +2655,26 @@ msgstr "Автомат (име или адрес)"
 msgid "+ Gift: %s"
 msgstr "+ Подарък: %s"
 
-#: includes/class-reklamo-product.php:332
+#: includes/class-reklamo-product.php:363
 msgid "Promotion (% off)"
 msgstr "Промоция (% отстъпка)"
 
-#: includes/class-reklamo-product.php:333
+#: includes/class-reklamo-product.php:364
 msgid "Every colour and size at this percent less, rounded down to ,99; the card and the page show \"Promotion\" and the old price struck through. Empty = no promotion."
 msgstr "Всички цветове и количества с толкова процента по-евтино, закръглено надолу до ,99; картата и страницата показват „Промоция“ и старата цена зачеркната. Празно = без промоция."
 
-#: includes/class-reklamo-product.php:346
+#: includes/class-reklamo-product.php:377
 msgid "Promotion until"
 msgstr "Промоция до"
 
-#: includes/class-reklamo-product.php:347
+#: includes/class-reklamo-product.php:378
 msgid "The last day of the promotion, included. Empty = until you remove it."
 msgstr "Последният ден на промоцията, включително. Празно = докато не я махнете."
 
-#: includes/class-reklamo-product.php:355
+#: includes/class-reklamo-product.php:386
 #: includes/class-reklamo-request.php:488
 msgid "Gift"
 msgstr "Подарък"
-
-#: includes/class-reklamo-product.php:356
-msgid "What comes free with it, e.g. \"Red mug with your logo\". Shown as \"+ Gift\" on the card and the page, and written on the order line. Empty = no gift."
-msgstr "Какво получава клиентът безплатно, напр. „Червена чаша с Вашето лого“. Показва се като „+ Подарък“ на картата и страницата и се записва в реда на поръчката. Празно = без подарък."
 
 #. translators: %s: street address
 #: includes/class-reklamo-settings.php:112
@@ -3110,53 +3106,65 @@ msgstr "Отделни продукти"
 msgid "Colours and quantities"
 msgstr "Цветове и количества"
 
-#: includes/class-reklamo-variants.php:144
+#: includes/class-reklamo-variants.php:152
 msgid "Colours"
 msgstr "Цветове"
 
-#: includes/class-reklamo-variants.php:145
+#: includes/class-reklamo-variants.php:153
 msgid "Tick the colours the product comes in: the customer sees each as a circle. Upload the photos of each colour once, the first is the main one; every quantity of that colour shows them. No colour ticked: one product with its own photos."
 msgstr "Отметнете цветовете, в които се предлага продуктът: клиентът вижда всеки като кръгче. Качете снимките на всеки цвят веднъж, първата е основната; всяко количество в този цвят ги показва. Без отметнат цвят: един продукт със собствените си снимки."
 
 #. translators: %s: colour name
-#: includes/class-reklamo-variants.php:163
+#: includes/class-reklamo-variants.php:171
 #, php-format
 msgid "Photos: %s"
 msgstr "Снимки: %s"
 
-#: includes/class-reklamo-variants.php:166
+#: includes/class-reklamo-variants.php:174
 msgid "The first photo is the main one. Empty: the product image is shown."
 msgstr "Първата снимка е основната. Без снимки: показва се изображението на продукта."
 
 #. translators: %s: link to Products → Attributes → Цвят
-#: includes/class-reklamo-variants.php:170
+#: includes/class-reklamo-variants.php:178
 #, php-format
 msgid "A colour that is missing is added in %s, with the colour of its circle."
 msgstr "Липсващ цвят се добавя в %s, заедно с цвета на кръгчето."
 
 #. translators: %s: link to Products → Attributes → Цвят
-#: includes/class-reklamo-variants.php:170
+#: includes/class-reklamo-variants.php:178
 msgid "Products → Attributes → Colour"
 msgstr "Продукти → Атрибути → Цвят"
 
-#: includes/class-reklamo-variants.php:173
+#: includes/class-reklamo-variants.php:181
 msgid "Quantities and prices"
 msgstr "Количества и цени"
 
-#: includes/class-reklamo-variants.php:175
+#: includes/class-reklamo-variants.php:183
 msgid "The colours of this product are priced differently, so each price is set in its own variation (Variations tab). Here you choose which quantities are offered; a new one takes the price of the same quantity in another colour."
 msgstr "Цветовете на този продукт са с различни цени, затова всяка цена се задава във вариацията ѝ (раздел „Вариации“). Тук избирате кои количества се предлагат; ново количество взема цената на същото количество в друг цвят."
 
-#: includes/class-reklamo-variants.php:177
+#: includes/class-reklamo-variants.php:185
 msgid "Tick the quantities the product is sold in and give each its price, VAT included; every colour costs the same."
 msgstr "Отметнете количествата, в които се продава продуктът, и задайте цена на всяко, с ДДС; всички цветове са на една цена."
 
-#: includes/class-reklamo-variants.php:229
+#: includes/class-reklamo-variants.php:237
 msgid "Colours and quantities: tick at least one quantity, with its price. Nothing was changed there."
 msgstr "Цветове и количества: отметнете поне едно количество с цена. Там нищо не е променено."
 
 #. translators: %s: quantity, e.g. "50 бр."
-#: includes/class-reklamo-variants.php:240
+#: includes/class-reklamo-variants.php:248
 #, php-format
 msgid "Colours and quantities: %s has no price, so it is not offered."
 msgstr "Цветове и количества: %s няма цена, затова не се предлага."
+
+#: includes/class-reklamo-product.php:387
+msgid "What comes free with it, our own promotional gift, e.g. \"Satin Black lighter\". Shown as \"+ Gift\" on the card and the page, and written on the order line. Empty = no gift."
+msgstr "Какво получава клиентът безплатно — наш рекламен подарък, напр. „Запалка Satin Black“. Показва се като „+ Подарък“ в картата и на страницата и се записва в поръчката. Празно = без подарък."
+
+#: includes/class-reklamo-product.php:395
+msgid "Photo with the gift"
+msgstr "Снимка с подаръка"
+
+#: includes/class-reklamo-product.php:396
+msgid "The product together with the gift. While there is a gift it is the main photo everywhere on the site, and the usual main photo moves to second place; emptying the gift above removes it."
+msgstr "Продуктът заедно с подаръка. Докато има подарък, тя е основната снимка навсякъде в сайта, а обичайната основна снимка минава на второ място; изтриването на подаръка по-горе я премахва."

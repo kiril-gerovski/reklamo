@@ -44,6 +44,8 @@
 
 	var shown = null;
 	var productGallery = form.getAttribute( 'data-gallery' ) || '';
+	// While there is a gift the page opens on its photo; a colour's photos come once a colour is picked.
+	var keepFirst = form.hasAttribute( 'data-rk-gift-photo' );
 
 	// Swap the gallery's slides for the colour's own (or back to the product's) and start
 	// WooCommerce's gallery script on the new markup.
@@ -75,7 +77,7 @@
 			if ( hidden ) { hidden.value = v ? v.id : ''; }
 			if ( v ) {
 				price = v.price;
-				showGallery( v.gallery );
+				if ( ! keepFirst ) { showGallery( v.gallery ); }
 				var badge = document.querySelector( '[data-rk-badge-price]' );
 				if ( badge ) { badge.textContent = money( price ).replace( decimals + '00', '' ); }
 				// On promotion the old price stands struck through above the new one.
@@ -112,7 +114,10 @@
 			if ( ( parseInt( qty.value, 10 ) || 0 ) < min ) { qty.value = String( min ); update(); }
 		} );
 	}
-	form.addEventListener( 'change', update );
+	form.addEventListener( 'change', function ( e ) {
+		if ( /^attribute_/.test( e.target.name || '' ) && 'attribute_pa_kolichestvo' !== e.target.name ) { keepFirst = false; }
+		update();
+	} );
 	form.addEventListener( 'input', update );
 	update();
 } )();

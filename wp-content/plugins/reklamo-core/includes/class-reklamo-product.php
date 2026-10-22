@@ -45,6 +45,9 @@ final class Reklamo_Product {
 	/** What comes free with the product, as the owner words it. */
 	const GIFT_META = '_reklamo_gift';
 
+	/** A photo of the product with its gift: the main photo while the gift is on. */
+	const GIFT_IMAGE_META = '_reklamo_gift_image';
+
 	public static function init(): void {
 		add_action( 'woocommerce_product_options_general_product_data', array( __CLASS__, 'field' ) );
 		add_action( 'woocommerce_admin_process_product_object', array( __CLASS__, 'save' ) );
@@ -56,6 +59,9 @@ final class Reklamo_Product {
 		add_action( 'edited_' . self::COLOR_TAX, array( __CLASS__, 'hex_save' ) );
 		add_action( 'woocommerce_product_after_variable_attributes', array( __CLASS__, 'variation_gallery_field' ), 10, 3 );
 		add_action( 'woocommerce_save_product_variation', array( __CLASS__, 'variation_gallery_save' ), 10, 2 );
+		// View context only: the editor keeps the product's own image.
+		add_filter( 'woocommerce_product_get_image_id', array( __CLASS__, 'gift_image' ), 10, 2 );
+		add_filter( 'woocommerce_product_get_gallery_image_ids', array( __CLASS__, 'gift_gallery' ), 10, 2 );
 	}
 
 	/**
@@ -83,6 +89,31 @@ final class Reklamo_Product {
 
 	public static function gift( WC_Product $product ): string {
 		return trim( (string) self::base( $product )->get_meta( self::GIFT_META ) );
+	}
+
+	/** The photo with the gift, 0 when there is no gift or no such photo. */
+	public static function gift_photo( WC_Product $product ): int {
+		$id = absint( self::base( $product )->get_meta( self::GIFT_IMAGE_META ) );
+		return '' !== self::gift( $product ) && $id && wp_attachment_is_image( $id ) ? $id : 0;
+	}
+
+	/**
+	 * @param int|string $image_id The product's own image.
+	 * @param WC_Product $product  The product.
+	 */
+	public static function gift_image( $image_id, $product ) {
+		return $product instanceof WC_Product && self::gift_photo( $product ) ? self::gift_photo( $product ) : $image_id;
+	}
+
+	/**
+	 * The product's own main photo stays in the gallery, right after the gift photo.
+	 *
+	 * @param int[]      $ids     Gallery image IDs.
+	 * @param WC_Product $product The product.
+	 */
+	public static function gift_gallery( $ids, $product ) {
+		$own = $product instanceof WC_Product && self::gift_photo( $product ) ? (int) $product->get_image_id( 'edit' ) : 0;
+		return $own && ! in_array( $own, array_map( 'intval', (array) $ids ), true ) ? array_merge( array( $own ), (array) $ids ) : $ids;
 	}
 
 	/**
@@ -353,10 +384,18 @@ final class Reklamo_Product {
 			array(
 				'id'          => self::GIFT_META,
 				'label'       => __( 'Gift', 'reklamo-core' ),
-				'description' => __( 'What comes free with it, e.g. "Red mug with your logo". Shown as "+ Gift" on the card and the page, and written on the order line. Empty = no gift.', 'reklamo-core' ),
+				'description' => __( 'What comes free with it, our own promotional gift, e.g. "Satin Black lighter". Shown as "+ Gift" on the card and the page, and written on the order line. Empty = no gift.', 'reklamo-core' ),
 				'desc_tip'    => true,
 			)
 		);
+		global $product_object;
+		$gift_image = $product_object instanceof WC_Product ? absint( $product_object->get_meta( self::GIFT_IMAGE_META ) ) : 0;
+		?>
+		<fieldset class="form-field">
+			<legend><?php esc_html_e( 'Photo with the gift', 'reklamo-core' ); ?></legend>
+			<?php Reklamo_Admin_Image::render( self::GIFT_IMAGE_META, $gift_image, __( 'The product together with the gift. While there is a gift it is the main photo everywhere on the site, and the usual main photo moves to second place; emptying the gift above removes it.', 'reklamo-core' ) ); ?>
+		</fieldset>
+		<?php
 		echo '</div>';
 	}
 
@@ -382,6 +421,8 @@ final class Reklamo_Product {
 			self::PROMO_META       => $pct >= 1 && $pct <= 90 ? $pct : '',
 			self::PROMO_UNTIL_META => preg_match( '/^\d{4}-\d{2}-\d{2}$/', $until ) ? $until : '',
 			self::GIFT_META        => $gift,
+			// The photo goes with the gift.
+			self::GIFT_IMAGE_META  => '' !== $gift && isset( $_POST[ self::GIFT_IMAGE_META ] ) ? absint( $_POST[ self::GIFT_IMAGE_META ] ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		);
 		foreach ( $keep as $key => $value ) {
 			if ( '' === $value ) {

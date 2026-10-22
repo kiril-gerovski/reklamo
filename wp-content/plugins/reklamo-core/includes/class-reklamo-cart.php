@@ -138,7 +138,7 @@ final class Reklamo_Cart {
 		<form class="rq-form rq-form--product cart<?php echo $piece ? ' is-piece' : ''; ?>" method="post" action="<?php echo esc_url( $product->get_permalink() ); ?>" data-rk-product
 			data-variations="<?php echo esc_attr( (string) wp_json_encode( $vars ) ); ?>"
 			data-price="<?php echo esc_attr( (string) $price ); ?>"
-			data-gallery="<?php echo esc_attr( $vars ? self::gallery_html( $product ) : '' ); ?>"
+			data-gallery="<?php echo esc_attr( $vars ? self::gallery_html( $product ) : '' ); ?>"<?php echo Reklamo_Product::gift_photo( $product ) ? ' data-rk-gift-photo' : ''; ?>
 			data-currency="<?php echo esc_attr( html_entity_decode( get_woocommerce_currency_symbol(), ENT_QUOTES, 'UTF-8' ) ); ?>"
 			data-thousand-sep="<?php echo esc_attr( wc_get_price_thousand_separator() ); ?>" data-decimal-sep="<?php echo esc_attr( wc_get_price_decimal_separator() ); ?>">
 			<?php wp_nonce_field( self::NONCE, 'reklamo_nonce' ); ?>
