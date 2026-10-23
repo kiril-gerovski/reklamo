@@ -384,13 +384,19 @@ test( 'Бутилка Matt is one product in two colours, each with its own phot
 	await expect( page.locator( '[data-rk-badge-price]' ) ).toHaveText( /1\s549,99\s€/ );
 } );
 
-test( 'the second batch is in its categories: lighters, pens and Trio under Технологии', async ( { page } ) => {
-	for ( const [ cat, names ] of [ [ 'zapalki', [ 'Запалка Chrome', 'Запалка Spark' ] ], [ 'himikalki', [ 'Метална химикалка Slim', 'Метална химикалка Soft' ] ], [ 'tehnologii', [ 'Комплект Trio' ] ] ] ) {
+test( 'the second batch is in its categories: lighters and pens; Trio under Технологии on Промо пакети only', async ( { page } ) => {
+	for ( const [ cat, names ] of [ [ 'zapalki', [ 'Запалка Chrome', 'Запалка Spark' ] ], [ 'himikalki', [ 'Метална химикалка Slim', 'Метална химикалка Soft' ] ] ] ) {
 		await page.goto( `/product-category/${ cat }/` );
 		for ( const name of names ) {
 			await expect( page.locator( 'li.product', { hasText: name } ) ).toHaveCount( 1 );
 		}
 	}
+	// A package stays on Промо пакети, found there by its chip; the category page lists single products.
+	await page.goto( '/promo-paketi/?kategoria=tehnologii' );
+	await expect( page.locator( 'li.product', { hasText: 'Комплект Trio' } ) ).toHaveCount( 1 );
+	await page.goto( '/product-category/tefteri/' );
+	await expect( page.locator( 'li.product.product_cat-paketi' ) ).toHaveCount( 0 );
+	await expect( page.locator( 'li.product' ) ).not.toHaveCount( 0 );
 } );
 
 test( 'Корпоративни подаръци lists what is ticked into it, like Промо пакети, and invites an offer while empty', async ( { page, browser } ) => {

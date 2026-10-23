@@ -184,9 +184,30 @@ add_action(
 );
 
 /**
+ * A product category page (Тефтери, Химикалки…) lists single products: the packages filed there
+ * too, for the chips on Промо пакети, stay on Промо пакети.
+ */
+add_action(
+	'pre_get_posts',
+	static function ( WP_Query $query ): void {
+		if ( is_admin() || ! $query->is_main_query() || ! function_exists( 'is_product_category' ) || ! is_product_category() || is_product_category( array( REKLAMO_PACKAGES_CAT, REKLAMO_GIFTS_CAT ) ) ) {
+			return;
+		}
+		$tax   = (array) $query->get( 'tax_query' );
+		$tax[] = array(
+			'taxonomy' => 'product_cat',
+			'field'    => 'slug',
+			'terms'    => REKLAMO_PACKAGES_CAT,
+			'operator' => 'NOT IN',
+		);
+		$query->set( 'tax_query', $tax );
+	}
+);
+
+/**
  * The chips: product categories in the order of the ПРОДУКТИ menu, never a collection (Пакети,
  * Корпоративни подаръци) itself. For 'packages' and 'gifts' only the categories something in that
- * collection is in; for 'products' every category with products.
+ * collection is in; for 'products' every category with single products in it.
  *
  * @param string $context 'packages', 'gifts' or 'products'.
  * @return WP_Term[]
@@ -207,12 +228,23 @@ function reklamo_shop_chips( string $context ): array {
 		);
 		$terms = $ids ? wp_get_object_terms( $ids, 'product_cat' ) : array();
 	} else {
-		$terms = get_terms(
+		$ids   = get_posts(
 			array(
-				'taxonomy'   => 'product_cat',
-				'hide_empty' => true,
+				'post_type'      => 'product',
+				'post_status'    => 'publish',
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
+				'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- a few dozen products.
+					array(
+						'taxonomy' => 'product_cat',
+						'field'    => 'slug',
+						'terms'    => REKLAMO_PACKAGES_CAT,
+						'operator' => 'NOT IN',
+					),
+				),
 			)
 		);
+		$terms = $ids ? wp_get_object_terms( $ids, 'product_cat' ) : array();
 	}
 	if ( ! is_array( $terms ) ) {
 		return array();

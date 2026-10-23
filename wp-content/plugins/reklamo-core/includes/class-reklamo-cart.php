@@ -156,11 +156,15 @@ final class Reklamo_Cart {
 				$values  = array_values( array_filter( $values, static fn( $v ) => (bool) array_filter( $vars, static fn( $x ) => in_array( (string) ( $x['attrs'][ $name ] ?? '' ), array( '', (string) $v ), true ) ) ) );
 				$default = (string) ( $defaults[ sanitize_title( $attribute ) ] ?? '' );
 				$first   = '' === $default || ! in_array( $default, $values, true );
+				$slug_of = static fn( $o ) => $o instanceof WP_Term ? $o->slug : (string) $o;
+				// The product's default comes first, so the chosen option starts its row.
+				$list = $terms ? $terms : $values;
+				$list = array_merge( array_filter( $list, static fn( $o ) => $slug_of( $o ) === $default ), array_filter( $list, static fn( $o ) => $slug_of( $o ) !== $default ) );
 				?>
 				<fieldset class="rk-options" data-attribute="<?php echo esc_attr( $name ); ?>">
 					<legend class="rk-options__label"><?php echo esc_html( wc_attribute_label( $attribute, $product ) ); ?>: <span data-rk-chosen></span></legend>
 					<div class="rk-options__list">
-						<?php foreach ( $terms ? $terms : $values as $option ) : ?>
+						<?php foreach ( $list as $option ) : ?>
 							<?php
 							$slug  = $option instanceof WP_Term ? $option->slug : (string) $option;
 							$label = $option instanceof WP_Term ? $option->name : (string) $option;

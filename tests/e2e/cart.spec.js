@@ -667,6 +667,26 @@ test( 'an inscription instead of a logo, and a print colour for a logo: request 
 	await page.locator( '.rk-mode__option', { hasText: 'Имам лого' } ).click();
 	await expect( page.locator( '[data-rk-product-select] option[data-package]' ) ).not.toHaveCount( 0 );
 
+	// The product list shows a photo and a price for each product; choosing one sets the form's product.
+	await page.goto( '/kachi-logo/' );
+	const picker = page.locator( '.rk-picker' );
+	await expect( picker.locator( '.rk-picker__button' ) ).toContainText( 'Изберете продукт' );
+	await picker.locator( '.rk-picker__button' ).click();
+	const choices = picker.locator( '[role="option"]' );
+	await expect( choices ).toHaveCount( await page.locator( '[data-rk-product-select] option[value]:not([value=""])' ).count() );
+	await expect( choices.first().locator( '.rk-picker__thumb img' ) ).toHaveAttribute( 'src', /\.(webp|png|jpe?g)$/ );
+	await expect( choices.first() ).toContainText( 'от ' );
+	const pick = choices.filter( { hasText: 'Бутилка Matt' } );
+	await pick.click();
+	await expect( picker.locator( '[role="listbox"]' ) ).toBeHidden();
+	await expect( page.locator( '[data-rk-product-select] option:checked' ) ).toHaveText( 'Бутилка Matt' );
+	await expect( picker.locator( '.rk-picker__button' ) ).toContainText( 'Бутилка Matt' );
+	// The keyboard works as in a select.
+	await picker.locator( '.rk-picker__button' ).press( 'ArrowDown' );
+	await expect( picker.locator( '[role="listbox"]' ) ).toBeFocused();
+	await page.keyboard.press( 'Escape' );
+	await expect( picker.locator( '.rk-picker__button' ) ).toBeFocused();
+
 	await page.goto( '/kachi-logo/?paket=butilka-matt' );
 	await expect( page.locator( 'h1' ) ).toHaveText( 'Създайте продукт с вашето лого или надпис' );
 	await expect( page.locator( '[data-rk-product-select]' ) ).toHaveValue( /\d+/ );
@@ -674,10 +694,11 @@ test( 'an inscription instead of a logo, and a print colour for a logo: request 
 	await expect( page.locator( 'input[name="rk_mode"][value="text"]' ) ).toBeChecked();
 	const form = page.locator( '[data-rk-design]' );
 	// Another colour than the one shown: the photo follows.
-	const colour = form.getByLabel( 'Цвят', { exact: true } );
-	const current = await colour.inputValue();
-	await colour.selectOption( await colour.locator( 'option' ).evaluateAll( ( os, cur ) => os.map( ( o ) => o.value ).find( ( v ) => v && v !== cur ), current ) );
-	await form.getByLabel( 'Количество' ).selectOption( { index: 1 } );
+	// Colour and quantity are chips, as on the product page: a colour circle and a quantity pill.
+	await expect( form.locator( '[data-attribute="attribute_pa_cvyat"] .rk-option__swatch' ) ).not.toHaveCount( 0 );
+	await form.locator( '[data-attribute="attribute_pa_cvyat"] .rk-option:has(input:not(:checked))' ).first().click();
+	await form.locator( '[data-attribute="attribute_pa_kolichestvo"] .rk-option' ).nth( 1 ).click();
+	await expect( form.locator( '[data-attribute="attribute_pa_kolichestvo"] [data-rk-chosen]' ) ).toHaveText( await form.locator( '[data-attribute="attribute_pa_kolichestvo"] .rk-option' ).nth( 1 ).textContent() );
 	await expect( page.locator( '[data-rk-design-image]' ) ).not.toHaveAttribute( 'src', before );
 	await expect( page.locator( '[data-rk-price]' ) ).toContainText( '€' );
 	// No text, no cart: the server says so.

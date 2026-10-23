@@ -110,7 +110,7 @@ msgstr "Лого"
 #: includes/class-reklamo-cart.php:460
 #: includes/class-reklamo-cart.php:1148
 #: includes/class-reklamo-items.php:114
-#: includes/class-reklamo-request.php:492
+#: includes/class-reklamo-request.php:494
 #: templates/tracking.php:247
 msgid "Note to designer"
 msgstr "Бележка към дизайнера"
@@ -242,7 +242,7 @@ msgid "The file is empty."
 msgstr "Файлът е празен."
 
 #. translators: %s: size limit
-#: includes/class-reklamo-request.php:349
+#: includes/class-reklamo-request.php:351
 #: includes/class-reklamo-storage.php:136
 #: includes/class-reklamo-upload.php:178
 #, php-format
@@ -405,8 +405,10 @@ msgstr "Заявявам корекции"
 msgid "If the button does not work, copy this link into your browser:"
 msgstr "Ако бутонът не работи, копирайте тази връзка в браузъра си:"
 
+#. translators: %s: lowest price
 #: includes/class-reklamo-cart.php:896
 #: includes/class-reklamo-request.php:103
+#: includes/class-reklamo-request.php:226
 msgid "Package"
 msgstr "Пакет"
 
@@ -414,37 +416,37 @@ msgstr "Пакет"
 msgid "Choose a package…"
 msgstr "Изберете пакет…"
 
-#: includes/class-reklamo-request.php:288
+#: includes/class-reklamo-request.php:290
 msgid "Name / Company"
 msgstr "Име / Фирма"
 
-#: includes/class-reklamo-request.php:288
+#: includes/class-reklamo-request.php:290
 msgid "Your name"
 msgstr "Вашето име"
 
-#: includes/class-reklamo-request.php:289
+#: includes/class-reklamo-request.php:291
 msgid "Ivan Ivanov"
 msgstr "Иван Иванов"
 
-#: includes/class-reklamo-request.php:292
+#: includes/class-reklamo-request.php:294
 #: includes/class-reklamo-settings-page.php:136
 msgid "Contact email"
 msgstr "Имейл за контакт"
 
-#: includes/class-reklamo-request.php:296
+#: includes/class-reklamo-request.php:298
 msgid "Contact phone"
 msgstr "Телефон за контакт"
 
-#: includes/class-reklamo-request.php:306
+#: includes/class-reklamo-request.php:308
 msgid "Terms and Conditions"
 msgstr "Общите условия"
 
-#: includes/class-reklamo-request.php:307
+#: includes/class-reklamo-request.php:309
 msgid "Privacy Policy"
 msgstr "Политиката за поверителност"
 
 #. translators: 1: terms link, 2: privacy policy link
-#: includes/class-reklamo-request.php:309
+#: includes/class-reklamo-request.php:311
 #, php-format
 msgid "I agree to the %1$s and the %2$s."
 msgstr "Съгласявам се с %1$s и %2$s."
@@ -454,12 +456,12 @@ msgid "The form has expired. Please try again."
 msgstr "Формата е изтекла. Моля, опитайте отново."
 
 #: includes/class-reklamo-inquiry.php:93
-#: includes/class-reklamo-request.php:409
+#: includes/class-reklamo-request.php:411
 msgid "Something went wrong. Please try again."
 msgstr "Нещо се обърка. Моля, опитайте отново."
 
 #: includes/class-reklamo-inquiry.php:96
-#: includes/class-reklamo-request.php:412
+#: includes/class-reklamo-request.php:414
 msgid "Too many requests from this connection. Please try again in an hour or contact us by email."
 msgstr "Твърде много заявки от тази връзка. Моля, опитайте отново след час или ни пишете по имейл."
 
@@ -469,21 +471,21 @@ msgstr "Моля, изберете пакет."
 
 #: includes/class-reklamo-approval.php:493
 #: includes/class-reklamo-inquiry.php:46
-#: includes/class-reklamo-request.php:421
+#: includes/class-reklamo-request.php:423
 msgid "Please enter your name."
 msgstr "Моля, въведете името си."
 
 #: includes/class-reklamo-inquiry.php:49
-#: includes/class-reklamo-request.php:424
+#: includes/class-reklamo-request.php:426
 msgid "Please enter a valid email address."
 msgstr "Моля, въведете валиден имейл адрес."
 
 #: includes/class-reklamo-inquiry.php:55
-#: includes/class-reklamo-request.php:431
+#: includes/class-reklamo-request.php:433
 msgid "Please enter a valid phone number."
 msgstr "Моля, въведете валиден телефонен номер."
 
-#: includes/class-reklamo-request.php:434
+#: includes/class-reklamo-request.php:436
 msgid "Please accept the Terms and Conditions and the Privacy Policy."
 msgstr "Моля, приемете Общите условия и Политиката за поверителност."
 
@@ -491,7 +493,7 @@ msgstr "Моля, приемете Общите условия и Политик
 msgid "The request could not be saved. Please try again or contact us."
 msgstr "Заявката не можа да бъде записана. Моля, опитайте отново или се свържете с нас."
 
-#: includes/class-reklamo-request.php:528
+#: includes/class-reklamo-request.php:530
 msgid "Request submitted from the website form. No payment taken."
 msgstr "Заявка, подадена от формата на сайта. Не е извършено плащане."
 
@@ -1182,31 +1184,31 @@ msgstr "Изпраща тестови заявки с нарастващ раз�
 msgid "Run probe"
 msgstr "Стартирай теста"
 
-#: includes/class-reklamo-request.php:340
+#: includes/class-reklamo-request.php:342
 msgid "Preparing upload…"
 msgstr "Подготовка на качването…"
 
 #. translators: 1: bytes sent, 2: total bytes
-#: includes/class-reklamo-request.php:342
+#: includes/class-reklamo-request.php:344
 #, php-format
 msgid "Uploading %1$s of %2$s…"
 msgstr "Качване на %1$s от %2$s…"
 
-#: includes/class-reklamo-request.php:343
+#: includes/class-reklamo-request.php:345
 msgid "Checking the file…"
 msgstr "Проверка на файла…"
 
 #. translators: %s: file name and size
-#: includes/class-reklamo-request.php:345
+#: includes/class-reklamo-request.php:347
 #, php-format
 msgid "Uploaded: %s"
 msgstr "Качено: %s"
 
-#: includes/class-reklamo-request.php:346
+#: includes/class-reklamo-request.php:348
 msgid "The upload failed."
 msgstr "Качването не успя."
 
-#: includes/class-reklamo-request.php:347
+#: includes/class-reklamo-request.php:349
 msgid "The file will be sent with the form instead."
 msgstr "Файлът ще бъде изпратен с формата вместо това."
 
@@ -1598,7 +1600,7 @@ msgstr "Общо"
 
 #: includes/class-reklamo-cart.php:203
 #: includes/class-reklamo-cart.php:846
-#: includes/class-reklamo-request.php:202
+#: includes/class-reklamo-request.php:203
 #: templates/tracking.php:320
 msgid "incl. VAT"
 msgstr "с ДДС"
@@ -1708,7 +1710,7 @@ msgstr "Уебсайт"
 
 #. translators: %s: email domain
 #: includes/class-reklamo-inquiry.php:52
-#: includes/class-reklamo-request.php:428
+#: includes/class-reklamo-request.php:430
 #, php-format
 msgid "The email domain \"%s\" does not seem to exist. Please check the address."
 msgstr "Домейнът на имейла „%s“ изглежда не съществува. Моля, проверете адреса."
@@ -1916,11 +1918,11 @@ msgstr "Анонимизиране на поръчките след (месец�
 msgid "This many months after a completed or cancelled order closed, its name, address, contact details, notes and links are removed; totals and dates stay for accounting. 0 = never. Must not be shorter than the file period."
 msgstr "Толкова месеца след приключване или отказ на поръчка се премахват име, адрес, данни за контакт, бележки и връзки; сумите и датите остават за счетоводството. 0 = никога. Не може да е по-кратък от срока за файловете."
 
-#: includes/class-reklamo-request.php:317
+#: includes/class-reklamo-request.php:319
 msgid "I understand that the products are made to my specification with my logo, so the 14-day right of withdrawal does not apply once production has started (Art. 57(3) of the Consumer Protection Act)."
 msgstr "Разбирам, че продуктите се изработват по моя спецификация с моето лого и след започване на производството не се прилага 14-дневното право на отказ (чл. 57, т. 3 от Закона за защита на потребителите)."
 
-#: includes/class-reklamo-request.php:437
+#: includes/class-reklamo-request.php:439
 msgid "Please confirm that you understand the right of withdrawal does not apply to products made to your specification."
 msgstr "Моля, потвърдете, че разбирате, че правото на отказ не се прилага за продукти, изработени по Ваша спецификация."
 
@@ -2098,7 +2100,7 @@ msgstr "Клиентът заяви корекции по визуализаци
 
 #: includes/class-reklamo-cart.php:206
 #: includes/class-reklamo-request.php:116
-#: includes/class-reklamo-request.php:265
+#: includes/class-reklamo-request.php:267
 msgid "Add to cart"
 msgstr "Добави в количката"
 
@@ -2672,7 +2674,7 @@ msgid "The last day of the promotion, included. Empty = until you remove it."
 msgstr "Последният ден на промоцията, включително. Празно = докато не я махнете."
 
 #: includes/class-reklamo-product.php:386
-#: includes/class-reklamo-request.php:488
+#: includes/class-reklamo-request.php:490
 msgid "Gift"
 msgstr "Подарък"
 
@@ -2869,7 +2871,7 @@ msgid "Needs a logo — mark it under a logo below."
 msgstr "Нужно е лого — отбележете продукта под някое лого по-долу."
 
 #: includes/class-reklamo-cart.php:887
-#: includes/class-reklamo-request.php:260
+#: includes/class-reklamo-request.php:262
 msgid "(optional)"
 msgstr "(по желание)"
 
@@ -2971,15 +2973,15 @@ msgstr "Изпраща се до посетителя след формата з
 
 #: includes/class-reklamo-admin-order.php:207
 #: includes/class-reklamo-cart.php:434
-#: includes/class-reklamo-request.php:480
+#: includes/class-reklamo-request.php:482
 msgid "Inscription"
 msgstr "Надпис"
 
 #: includes/class-reklamo-admin-order.php:211
 #: includes/class-reklamo-cart.php:440
 #: includes/class-reklamo-cart.php:810
-#: includes/class-reklamo-request.php:248
-#: includes/class-reklamo-request.php:484
+#: includes/class-reklamo-request.php:250
+#: includes/class-reklamo-request.php:486
 msgid "Print colour"
 msgstr "Цвят на печата"
 
@@ -3015,47 +3017,48 @@ msgstr "По преценка на дизайнера"
 msgid "Inscription instead of a logo ✓"
 msgstr "Надпис вместо лого ✓"
 
-#: includes/class-reklamo-request.php:217
+#: includes/class-reklamo-request.php:218
 msgid "What do we print?"
 msgstr "Какво да отпечатаме?"
 
-#: includes/class-reklamo-request.php:219
+#: includes/class-reklamo-request.php:220
 msgid "I have a logo"
 msgstr "Имам лого"
 
-#: includes/class-reklamo-request.php:218
+#: includes/class-reklamo-request.php:219
 msgid "An inscription"
 msgstr "Искам надпис"
 
-#: includes/class-reklamo-request.php:223
+#: includes/class-reklamo-request.php:224
 msgid "Product"
 msgstr "Продукт"
 
-#: includes/class-reklamo-request.php:225
+#. translators: %s: lowest price
+#: includes/class-reklamo-request.php:227
 msgid "Choose a product…"
 msgstr "Изберете продукт…"
 
-#: includes/class-reklamo-request.php:242
+#: includes/class-reklamo-request.php:244
 msgid "Your inscription"
 msgstr "Вашият надпис"
 
-#: includes/class-reklamo-request.php:243
+#: includes/class-reklamo-request.php:245
 msgid "e.g. A team with character"
 msgstr "напр. Екип с характер"
 
-#: includes/class-reklamo-request.php:244
+#: includes/class-reklamo-request.php:246
 msgid "We print the text exactly as written."
 msgstr "Ще отпечатаме текста точно както е въведен."
 
-#: includes/class-reklamo-request.php:260
+#: includes/class-reklamo-request.php:262
 msgid "Extra instructions"
 msgstr "Допълнителни указания"
 
-#: includes/class-reklamo-request.php:261
+#: includes/class-reklamo-request.php:263
 msgid "e.g. a smaller inscription, printed on both sides…"
 msgstr "напр. по-малък надпис, печат от двете страни…"
 
-#: includes/class-reklamo-request.php:267
+#: includes/class-reklamo-request.php:269
 msgid "The inscription is saved with the chosen product. No payment is taken at this stage."
 msgstr "Надписът се запазва към избрания продукт. На този етап не се извършва плащане."
 
@@ -3069,15 +3072,15 @@ msgstr "Моля, напишете надписа или изберете „И�
 msgid "The logo was not uploaded (%s). The product is in the cart; upload the logo there."
 msgstr "Логото не беше качено (%s). Продуктът е в количката — качете логото там."
 
-#: includes/class-reklamo-request.php:237
+#: includes/class-reklamo-request.php:239
 msgid "Upload your logo"
 msgstr "Качете логото си"
 
-#: includes/class-reklamo-request.php:238
+#: includes/class-reklamo-request.php:240
 msgid "Optional here: you can also upload it later in the cart."
 msgstr "По желание тук — можете да го качите и по-късно в количката."
 
-#: includes/class-reklamo-request.php:266
+#: includes/class-reklamo-request.php:268
 msgid "The logo is saved with the chosen product. No payment is taken at this stage."
 msgstr "Логото се запазва към избрания продукт. На този етап не се извършва плащане."
 
@@ -3168,3 +3171,9 @@ msgstr "Снимка с подаръка"
 #: includes/class-reklamo-product.php:396
 msgid "The product together with the gift. While there is a gift it is the main photo everywhere on the site, and the usual main photo moves to second place; emptying the gift above removes it."
 msgstr "Продуктът заедно с подаръка. Докато има подарък, тя е основната снимка навсякъде в сайта, а обичайната основна снимка минава на второ място; изтриването на подаръка по-горе я премахва."
+
+#. translators: %s: lowest price
+#: includes/class-reklamo-request.php:226
+#, php-format
+msgid "from %s"
+msgstr "от %s"

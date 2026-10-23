@@ -120,7 +120,7 @@ test( 'on a phone the submenu is an accordion inside the burger menu', async ( {
 	await context.close();
 } );
 
-test( 'the Продукти page lists every product with "all products" and the category chips', async ( { page } ) => {
+test( 'the Продукти page lists every single product with "all products" and the category chips; packages stay on Промо пакети', async ( { page } ) => {
 	await page.goto( '/produkti/' );
 	await expect( page.locator( 'h1' ) ).toHaveText( 'Продукти' );
 
@@ -133,10 +133,11 @@ test( 'the Продукти page lists every product with "all products" and the
 	expect( names.every( ( n ) => CATEGORIES.includes( n ) ) ).toBe( true );
 	expect( names ).toEqual( CATEGORIES.filter( ( c ) => names.includes( c ) ) );
 
-	// Packages and single products together.
+	// Single products only: the packages are on Промо пакети.
 	const cards = page.locator( 'li.product' );
-	await expect( cards.filter( { hasText: 'Бизнес комплект Magnet' } ) ).toHaveCount( 1 );
 	await expect( cards.filter( { hasText: 'Календар Mono' } ) ).toHaveCount( 1 );
+	await expect( cards.filter( { hasText: 'Бизнес комплект Magnet' } ) ).toHaveCount( 0 );
+	await expect( page.locator( 'li.product.product_cat-paketi' ) ).toHaveCount( 0 );
 
 	await chips.filter( { hasText: 'Календари' } ).click();
 	await expect( page ).toHaveURL( /\/product-category\/kalendari\/$/ );

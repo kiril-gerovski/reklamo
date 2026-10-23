@@ -155,6 +155,7 @@ final class Reklamo_Request {
 							$opts[] = array(
 								'value' => $slug,
 								'label' => $o instanceof WP_Term ? $o->name : $slug,
+								'hex'   => $o instanceof WP_Term ? Reklamo_Product::hex( $o->term_id ) : '',
 							);
 						}
 					}
@@ -169,6 +170,7 @@ final class Reklamo_Request {
 			$out[] = array(
 				'id'    => $p->get_id(),
 				'image' => (string) wp_get_attachment_image_url( (int) $p->get_image_id(), 'woocommerce_single' ),
+				'thumb' => (string) wp_get_attachment_image_url( (int) $p->get_image_id(), 'woocommerce_gallery_thumbnail' ),
 				'price' => wp_strip_all_tags( wc_price( (float) wc_get_price_to_display( $p ) ) ),
 				'attrs' => $attrs,
 				'vars'  => $vars,
@@ -221,7 +223,8 @@ final class Reklamo_Request {
 
 			<div class="rq-field">
 				<label for="<?php echo esc_attr( $uid ); ?>-product"><?php esc_html_e( 'Product', 'reklamo-core' ); ?> <span class="rk-required" aria-hidden="true">*</span></label>
-				<select id="<?php echo esc_attr( $uid ); ?>-product" name="add-to-cart" required data-rk-product-select>
+				<select id="<?php echo esc_attr( $uid ); ?>-product" name="add-to-cart" required data-rk-product-select
+					data-from="<?php echo esc_attr( /* translators: %s: lowest price */ __( 'from %s', 'reklamo-core' ) ); ?>" data-package-label="<?php esc_attr_e( 'Package', 'reklamo-core' ); ?>">
 					<option value=""><?php esc_html_e( 'Choose a product…', 'reklamo-core' ); ?></option>
 					<?php foreach ( self::packages() as $p ) : ?>
 						<?php $is_package = Reklamo_Product::is_package( $p ); ?>

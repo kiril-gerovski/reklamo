@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-22T18:16:18+00:00\n"
+"POT-Creation-Date: 2026-10-23T17:05:53+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: reklamo-core\n"
@@ -144,15 +144,15 @@ msgstr ""
 
 #: includes/class-reklamo-admin-order.php:207
 #: includes/class-reklamo-cart.php:434
-#: includes/class-reklamo-request.php:480
+#: includes/class-reklamo-request.php:482
 msgid "Inscription"
 msgstr ""
 
 #: includes/class-reklamo-admin-order.php:211
 #: includes/class-reklamo-cart.php:440
 #: includes/class-reklamo-cart.php:810
-#: includes/class-reklamo-request.php:248
-#: includes/class-reklamo-request.php:484
+#: includes/class-reklamo-request.php:250
+#: includes/class-reklamo-request.php:486
 msgid "Print colour"
 msgstr ""
 
@@ -172,7 +172,7 @@ msgstr ""
 #: includes/class-reklamo-cart.php:460
 #: includes/class-reklamo-cart.php:1148
 #: includes/class-reklamo-items.php:114
-#: includes/class-reklamo-request.php:492
+#: includes/class-reklamo-request.php:494
 #: templates/tracking.php:247
 msgid "Note to designer"
 msgstr ""
@@ -657,7 +657,7 @@ msgstr ""
 
 #: includes/class-reklamo-approval.php:493
 #: includes/class-reklamo-inquiry.php:46
-#: includes/class-reklamo-request.php:421
+#: includes/class-reklamo-request.php:423
 msgid "Please enter your name."
 msgstr ""
 
@@ -714,14 +714,14 @@ msgstr ""
 
 #: includes/class-reklamo-cart.php:203
 #: includes/class-reklamo-cart.php:846
-#: includes/class-reklamo-request.php:202
+#: includes/class-reklamo-request.php:203
 #: templates/tracking.php:320
 msgid "incl. VAT"
 msgstr ""
 
 #: includes/class-reklamo-cart.php:206
 #: includes/class-reklamo-request.php:116
-#: includes/class-reklamo-request.php:265
+#: includes/class-reklamo-request.php:267
 msgid "Add to cart"
 msgstr ""
 
@@ -950,7 +950,7 @@ msgid "Note to the designer"
 msgstr ""
 
 #: includes/class-reklamo-cart.php:887
-#: includes/class-reklamo-request.php:260
+#: includes/class-reklamo-request.php:262
 msgid "(optional)"
 msgstr ""
 
@@ -962,8 +962,10 @@ msgstr ""
 msgid "For these products:"
 msgstr ""
 
+#. translators: %s: lowest price
 #: includes/class-reklamo-cart.php:896
 #: includes/class-reklamo-request.php:103
+#: includes/class-reklamo-request.php:226
 msgid "Package"
 msgstr ""
 
@@ -1310,19 +1312,19 @@ msgid "Your request has been received. No payment is taken at this stage — our
 msgstr ""
 
 #: includes/class-reklamo-inquiry.php:49
-#: includes/class-reklamo-request.php:424
+#: includes/class-reklamo-request.php:426
 msgid "Please enter a valid email address."
 msgstr ""
 
 #. translators: %s: email domain
 #: includes/class-reklamo-inquiry.php:52
-#: includes/class-reklamo-request.php:428
+#: includes/class-reklamo-request.php:430
 #, php-format
 msgid "The email domain \"%s\" does not seem to exist. Please check the address."
 msgstr ""
 
 #: includes/class-reklamo-inquiry.php:55
-#: includes/class-reklamo-request.php:431
+#: includes/class-reklamo-request.php:433
 msgid "Please enter a valid phone number."
 msgstr ""
 
@@ -1363,12 +1365,12 @@ msgid "The page has expired. Please reload it and try again."
 msgstr ""
 
 #: includes/class-reklamo-inquiry.php:93
-#: includes/class-reklamo-request.php:409
+#: includes/class-reklamo-request.php:411
 msgid "Something went wrong. Please try again."
 msgstr ""
 
 #: includes/class-reklamo-inquiry.php:96
-#: includes/class-reklamo-request.php:412
+#: includes/class-reklamo-request.php:414
 msgid "Too many requests from this connection. Please try again in an hour or contact us by email."
 msgstr ""
 
@@ -1603,7 +1605,7 @@ msgid "The last day of the promotion, included. Empty = until you remove it."
 msgstr ""
 
 #: includes/class-reklamo-product.php:386
-#: includes/class-reklamo-request.php:488
+#: includes/class-reklamo-request.php:490
 msgid "Gift"
 msgstr ""
 
@@ -1645,146 +1647,153 @@ msgstr ""
 msgid "You upload your logo in the cart — one per product, or one for all of them. No payment is taken at this stage."
 msgstr ""
 
-#: includes/class-reklamo-request.php:217
+#: includes/class-reklamo-request.php:218
 msgid "What do we print?"
 msgstr ""
 
-#: includes/class-reklamo-request.php:218
+#: includes/class-reklamo-request.php:219
 msgid "An inscription"
 msgstr ""
 
-#: includes/class-reklamo-request.php:219
+#: includes/class-reklamo-request.php:220
 msgid "I have a logo"
 msgstr ""
 
-#: includes/class-reklamo-request.php:223
+#: includes/class-reklamo-request.php:224
 msgid "Product"
 msgstr ""
 
-#: includes/class-reklamo-request.php:225
+#. translators: %s: lowest price
+#: includes/class-reklamo-request.php:226
+#, php-format
+msgid "from %s"
+msgstr ""
+
+#. translators: %s: lowest price
+#: includes/class-reklamo-request.php:227
 msgid "Choose a product…"
 msgstr ""
 
-#: includes/class-reklamo-request.php:237
+#: includes/class-reklamo-request.php:239
 msgid "Upload your logo"
 msgstr ""
 
-#: includes/class-reklamo-request.php:238
+#: includes/class-reklamo-request.php:240
 msgid "Optional here: you can also upload it later in the cart."
 msgstr ""
 
-#: includes/class-reklamo-request.php:242
+#: includes/class-reklamo-request.php:244
 msgid "Your inscription"
 msgstr ""
 
-#: includes/class-reklamo-request.php:243
+#: includes/class-reklamo-request.php:245
 msgid "e.g. A team with character"
 msgstr ""
 
-#: includes/class-reklamo-request.php:244
+#: includes/class-reklamo-request.php:246
 msgid "We print the text exactly as written."
 msgstr ""
 
-#: includes/class-reklamo-request.php:260
+#: includes/class-reklamo-request.php:262
 msgid "Extra instructions"
 msgstr ""
 
-#: includes/class-reklamo-request.php:261
+#: includes/class-reklamo-request.php:263
 msgid "e.g. a smaller inscription, printed on both sides…"
 msgstr ""
 
-#: includes/class-reklamo-request.php:266
+#: includes/class-reklamo-request.php:268
 msgid "The logo is saved with the chosen product. No payment is taken at this stage."
 msgstr ""
 
-#: includes/class-reklamo-request.php:267
+#: includes/class-reklamo-request.php:269
 msgid "The inscription is saved with the chosen product. No payment is taken at this stage."
 msgstr ""
 
-#: includes/class-reklamo-request.php:288
+#: includes/class-reklamo-request.php:290
 msgid "Name / Company"
 msgstr ""
 
-#: includes/class-reklamo-request.php:288
+#: includes/class-reklamo-request.php:290
 msgid "Your name"
 msgstr ""
 
-#: includes/class-reklamo-request.php:289
+#: includes/class-reklamo-request.php:291
 msgid "Ivan Ivanov"
 msgstr ""
 
-#: includes/class-reklamo-request.php:292
+#: includes/class-reklamo-request.php:294
 #: includes/class-reklamo-settings-page.php:136
 msgid "Contact email"
 msgstr ""
 
-#: includes/class-reklamo-request.php:296
+#: includes/class-reklamo-request.php:298
 msgid "Contact phone"
 msgstr ""
 
-#: includes/class-reklamo-request.php:306
+#: includes/class-reklamo-request.php:308
 msgid "Terms and Conditions"
 msgstr ""
 
-#: includes/class-reklamo-request.php:307
+#: includes/class-reklamo-request.php:309
 msgid "Privacy Policy"
 msgstr ""
 
 #. translators: 1: terms link, 2: privacy policy link
-#: includes/class-reklamo-request.php:309
+#: includes/class-reklamo-request.php:311
 #, php-format
 msgid "I agree to the %1$s and the %2$s."
 msgstr ""
 
-#: includes/class-reklamo-request.php:317
+#: includes/class-reklamo-request.php:319
 msgid "I understand that the products are made to my specification with my logo, so the 14-day right of withdrawal does not apply once production has started (Art. 57(3) of the Consumer Protection Act)."
 msgstr ""
 
-#: includes/class-reklamo-request.php:340
+#: includes/class-reklamo-request.php:342
 msgid "Preparing upload…"
 msgstr ""
 
 #. translators: 1: bytes sent, 2: total bytes
-#: includes/class-reklamo-request.php:342
+#: includes/class-reklamo-request.php:344
 #, php-format
 msgid "Uploading %1$s of %2$s…"
 msgstr ""
 
-#: includes/class-reklamo-request.php:343
+#: includes/class-reklamo-request.php:345
 msgid "Checking the file…"
 msgstr ""
 
 #. translators: %s: file name and size
-#: includes/class-reklamo-request.php:345
+#: includes/class-reklamo-request.php:347
 #, php-format
 msgid "Uploaded: %s"
 msgstr ""
 
-#: includes/class-reklamo-request.php:346
+#: includes/class-reklamo-request.php:348
 msgid "The upload failed."
 msgstr ""
 
-#: includes/class-reklamo-request.php:347
+#: includes/class-reklamo-request.php:349
 msgid "The file will be sent with the form instead."
 msgstr ""
 
 #. translators: %s: size limit
-#: includes/class-reklamo-request.php:349
+#: includes/class-reklamo-request.php:351
 #: includes/class-reklamo-storage.php:136
 #: includes/class-reklamo-upload.php:178
 #, php-format
 msgid "The file must be smaller than %s."
 msgstr ""
 
-#: includes/class-reklamo-request.php:434
+#: includes/class-reklamo-request.php:436
 msgid "Please accept the Terms and Conditions and the Privacy Policy."
 msgstr ""
 
-#: includes/class-reklamo-request.php:437
+#: includes/class-reklamo-request.php:439
 msgid "Please confirm that you understand the right of withdrawal does not apply to products made to your specification."
 msgstr ""
 
-#: includes/class-reklamo-request.php:528
+#: includes/class-reklamo-request.php:530
 msgid "Request submitted from the website form. No payment taken."
 msgstr ""
 

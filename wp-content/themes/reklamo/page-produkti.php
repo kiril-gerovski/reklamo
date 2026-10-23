@@ -1,6 +1,6 @@
 <?php
 /**
- * Продукти: every product, packages and single products alike, under the catalogue band. Its
+ * Продукти: every single product under the catalogue band; the packages stay on Промо пакети. Its
  * chips open the category pages; sorting works as on Промо пакети.
  *
  * @package Reklamo
@@ -27,7 +27,8 @@ $reklamo_sort = reklamo_catalogue_sort();
 
 	echo do_shortcode( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- WooCommerce's own loop markup.
 		sprintf(
-			'[products limit="48" columns="4" orderby="%s" order="%s"]',
+			'[products limit="48" columns="4" category="%s" cat_operator="NOT IN" orderby="%s" order="%s"]',
+			esc_attr( REKLAMO_PACKAGES_CAT ),
 			esc_attr( $reklamo_sort['orderby'] ),
 			esc_attr( $reklamo_sort['order'] )
 		)

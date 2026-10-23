@@ -320,6 +320,29 @@ a.steps__link:focus-visible .steps__icon { box-shadow: var(--focus), 0 0 0 1px v
 .rq-field input[type="text"], .rq-field input[type="email"], .rq-field input[type="tel"], .rq-field select, .rq-field textarea { transition: border-color var(--fast), box-shadow var(--fast); }
 .rq-field input:focus, .rq-field select:focus, .rq-field textarea:focus { outline: none; border-color: var(--gold); box-shadow: var(--focus); }
 .rq-field--consent input:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+/* Request page: the product list with a photo per product (design.js); the select stays beneath it. */
+.rk-picker { position: relative; }
+.rq-field select.rk-picker__native { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); border: 0; }
+.rk-picker__button { display: flex; align-items: center; gap: .75rem; width: 100%; padding: .45rem .9rem .45rem .45rem; border: 1px solid var(--line); border-radius: 6px; background: var(--white); color: var(--ink); font: inherit; text-align: left; cursor: pointer; transition: border-color var(--fast), box-shadow var(--fast); }
+.rk-picker__button:hover { border-color: var(--gold); }
+.rk-picker__button:focus-visible, .rk-picker__button[aria-expanded="true"] { outline: none; border-color: var(--gold); box-shadow: var(--focus); }
+.rk-picker__button.is-invalid { border-color: var(--red); }
+.rk-picker__button.is-empty .rk-picker__thumb { background: var(--paper); }
+.rk-picker__button.is-empty .rk-picker__name { color: var(--muted); }
+.rk-picker__thumb { flex: none; display: block; width: 44px; height: 44px; border-radius: 5px; overflow: hidden; background: var(--paper); }
+.rk-picker__thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.rk-picker__text { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.rk-picker__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rk-picker__meta { font-size: .75rem; color: var(--gold-dark); }
+.rk-picker__chev { flex: none; width: 9px; height: 9px; margin: -4px 4px 0 0; border-right: 1.5px solid var(--graphite); border-bottom: 1.5px solid var(--graphite); transform: rotate(45deg); transition: transform var(--fast); }
+.rk-picker__button[aria-expanded="true"] .rk-picker__chev { transform: rotate(-135deg); margin-top: 4px; }
+.rk-picker__list { position: absolute; z-index: 20; left: 0; right: 0; top: calc(100% + 6px); max-height: min(24rem, 60vh); overflow-y: auto; margin: 0; padding: .35rem; list-style: none; border: 1px solid var(--line); border-radius: 8px; background: var(--white); box-shadow: 0 18px 40px -18px rgba(26, 26, 26, .35); }
+.rk-picker__list[hidden] { display: none; }
+.rk-picker__list:focus { outline: none; }
+.rk-picker__option { display: flex; align-items: center; gap: .75rem; padding: .4rem .55rem .4rem .4rem; border-radius: 6px; cursor: pointer; }
+.rk-picker__option:hover, .rk-picker__option.is-active { background: var(--paper); }
+.rk-picker__option[aria-selected="true"] { background: var(--gold-soft); }
+.rk-picker__option[aria-selected="true"] .rk-picker__name { font-weight: 600; }
 .rq-field--note { position: relative; }
 .rq-counter { position: absolute; right: .75rem; bottom: .55rem; font-size: .6875rem; color: var(--muted); }
 .rq-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: 1rem; }
@@ -509,7 +532,13 @@ a.steps__link:focus-visible .steps__icon { box-shadow: var(--focus), 0 0 0 1px v
 .rk-mode__option input:checked + span { background: var(--white); color: var(--ink); box-shadow: 0 2px 8px -3px rgba(26, 26, 26, .25); }
 .rk-mode__option input:focus-visible + span { box-shadow: var(--focus); }
 @media (max-width: 480px) { .rk-mode__option span { padding: .6rem .4rem; font-size: .66rem; letter-spacing: .04em; white-space: nowrap; } }
-.rk-design__attrs { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: 1rem; }
+.rk-design__attrs { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 1rem 2.25rem; }
+.rk-design__attrs .rk-options { flex: 0 1 auto; }
+/* On the request page the chips' labels read like its other labels: „Цвят на печата: Черно“. */
+.rk-design__attrs .rk-options__label { font: 400 .75rem/1.3 var(--sans); letter-spacing: 0; text-transform: none; color: var(--graphite); }
+.rk-design__attrs .rk-options__label [data-rk-chosen] { font-weight: 600; color: var(--ink); letter-spacing: 0; }
+.rk-design__attrs .rk-options[data-attribute="attribute_pa_kolichestvo"] .rk-options__list { display: flex; flex-wrap: wrap; gap: .4rem; }
+.rk-design__attrs .rk-options[data-attribute="attribute_pa_kolichestvo"] .rk-option__text { padding: .45rem .9rem; min-width: 4.5rem; }
 .rk-design__attrs:empty { display: none; }
 .rk-design__price { margin: -.25rem 0 0; font: 600 1rem/1.3 var(--sans); color: var(--gold-dark); }
 .rk-design__hint { margin: .35rem 0 0; font-size: .75rem; color: var(--muted); }
@@ -530,6 +559,11 @@ a.steps__link:focus-visible .steps__icon { box-shadow: var(--focus), 0 0 0 1px v
 .design-preview__row small { font-size: .75rem; color: var(--graphite); }
 .design-preview__icon { flex: none; color: var(--gold); }
 .design-preview__help { justify-self: stretch; justify-content: center; line-height: 1.35; text-align: center; }
+/* Side by side, the help button sits level with „Добави в количката“: at the bottom, above the line under that button. */
+@media (min-width: 901px) {
+	.request-page__grid .design-preview { display: flex; flex-direction: column; height: 100%; }
+	.request-page__grid .design-preview__help { margin: auto 0 calc(.75rem * 2.65); padding-block: 1.1rem; line-height: 1.3; }
+}
 .request-page__form { padding: 1.75rem; }
 .request-page__side { display: flex; flex-direction: column; gap: 1rem; }
 .next-steps { padding: 1.5rem; }
