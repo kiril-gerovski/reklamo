@@ -205,6 +205,53 @@ add_action(
 );
 
 /**
+ * The categories that hold at least one published single product (not a package), with their parents.
+ *
+ * @return int[] term IDs
+ */
+function reklamo_categories_with_products(): array {
+	static $ids = null;
+	if ( null === $ids ) {
+		$products = get_posts(
+			array(
+				'post_type'      => 'product',
+				'post_status'    => 'publish',
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
+				'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- a few dozen products.
+					array(
+						'taxonomy' => 'product_cat',
+						'field'    => 'slug',
+						'terms'    => REKLAMO_PACKAGES_CAT,
+						'operator' => 'NOT IN',
+					),
+				),
+			)
+		);
+		$ids      = array();
+		foreach ( $products ? wp_get_object_terms( $products, 'product_cat' ) : array() as $term ) {
+			$ids = array_merge( $ids, array( (int) $term->term_id ), array_map( 'intval', get_ancestors( $term->term_id, 'product_cat', 'taxonomy' ) ) );
+		}
+		$ids = array_values( array_unique( $ids ) );
+	}
+	return $ids;
+}
+
+/**
+ * The menu leaves out a product category with no single product in it yet (packages stay on Промо
+ * пакети); it comes back by itself once one is added. The category and its menu item stay in the dashboard.
+ */
+add_filter(
+	'wp_nav_menu_objects',
+	static function ( array $items ): array {
+		if ( is_admin() ) {
+			return $items;
+		}
+		return array_filter( $items, static fn( $item ) => 'product_cat' !== ( $item->object ?? '' ) || in_array( (int) $item->object_id, reklamo_categories_with_products(), true ) );
+	}
+);
+
+/**
  * The chips: product categories in the order of the ПРОДУКТИ menu, never a collection (Пакети,
  * Корпоративни подаръци) itself. For 'packages' and 'gifts' only the categories something in that
  * collection is in; for 'products' every category with single products in it.
@@ -228,23 +275,14 @@ function reklamo_shop_chips( string $context ): array {
 		);
 		$terms = $ids ? wp_get_object_terms( $ids, 'product_cat' ) : array();
 	} else {
-		$ids   = get_posts(
+		$ids   = reklamo_categories_with_products();
+		$terms = $ids ? get_terms(
 			array(
-				'post_type'      => 'product',
-				'post_status'    => 'publish',
-				'posts_per_page' => -1,
-				'fields'         => 'ids',
-				'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- a few dozen products.
-					array(
-						'taxonomy' => 'product_cat',
-						'field'    => 'slug',
-						'terms'    => REKLAMO_PACKAGES_CAT,
-						'operator' => 'NOT IN',
-					),
-				),
+				'taxonomy'   => 'product_cat',
+				'include'    => $ids,
+				'hide_empty' => false,
 			)
-		);
-		$terms = $ids ? wp_get_object_terms( $ids, 'product_cat' ) : array();
+		) : array();
 	}
 	if ( ! is_array( $terms ) ) {
 		return array();

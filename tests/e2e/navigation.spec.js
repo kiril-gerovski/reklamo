@@ -1,7 +1,8 @@
 // @ts-check
 // The header the client's redesign asked for: the brand lockup as an image, and a ПРОДУКТИ
-// item that drops down the nine product categories on hover, on keyboard and on touch.
+// item that drops down the product categories on hover, on keyboard and on touch.
 const { test, expect, devices } = require( '@playwright/test' );
+const { adminLogin } = require( './helpers' );
 
 const CATEGORIES = [
 	'Календари',
@@ -14,6 +15,9 @@ const CATEGORIES = [
 	'Технологии',
 	'Офис артикули',
 ];
+// The menu shows a category once it holds a single product; the seeded Текстил, Технологии and
+// Офис артикули hold none yet (Технологии only the Trio package).
+const SHOWN = CATEGORIES.filter( ( c ) => ! [ 'Текстил', 'Технологии', 'Офис артикули' ].includes( c ) );
 
 test( 'header and footer show the brand lockup, not drawn text', async ( { page } ) => {
 	await page.goto( '/' );
@@ -29,7 +33,7 @@ test( 'header and footer show the brand lockup, not drawn text', async ( { page 
 	await expect( page.locator( 'link[rel="icon"]' ).first() ).toHaveAttribute( 'href', /\S/ );
 } );
 
-test( 'ПРОДУКТИ drops down the nine categories on hover', async ( { page } ) => {
+test( 'ПРОДУКТИ drops down the categories that hold products on hover', async ( { page } ) => {
 	await page.goto( '/' );
 
 	const parent = page.locator( '.primary-menu > li.menu-item-has-children' );
@@ -41,7 +45,7 @@ test( 'ПРОДУКТИ drops down the nine categories on hover', async ( { page
 
 	await parent.locator( '> a' ).hover();
 	await expect( sub ).toBeVisible();
-	await expect( sub.locator( 'a' ) ).toHaveText( CATEGORIES );
+	await expect( sub.locator( 'a' ) ).toHaveText( SHOWN );
 
 	// Every entry leads somewhere real.
 	const href = await sub.locator( 'a' ).first().getAttribute( 'href' );
@@ -115,7 +119,7 @@ test( 'on a phone the submenu is an accordion inside the burger menu', async ( {
 	await page.click( '[data-nav-toggle]' );
 	await page.click( '.sub-toggle' );
 	await expect( sub ).toBeVisible();
-	await expect( sub.locator( 'a' ) ).toHaveCount( CATEGORIES.length );
+	await expect( sub.locator( 'a' ) ).toHaveCount( SHOWN.length );
 
 	await context.close();
 } );
@@ -236,4 +240,30 @@ test( 'on a phone a round button at the bottom left leads to „Добави с�
 	await page.setViewportSize( { width: 1024, height: 800 } );
 	await page.goto( '/' );
 	await expect( page.locator( '.mobile-cta' ) ).toBeHidden();
+} );
+
+test( 'an empty category joins the menu by itself once a product is filed in it, and leaves again', async ( { page, browser } ) => {
+	await adminLogin( page );
+	const id = ( await ( await page.request.get( '/wp-json/wc/store/v1/products?sku=TEF-002' ) ).json() )[ 0 ].id;
+	const save = () => Promise.all( [ page.waitForURL( /message=/, { waitUntil: 'commit' } ), page.locator( '#publish' ).evaluate( ( b ) => b.click() ) ] );
+	const file = async ( on ) => {
+		await page.goto( `/wp-admin/post.php?post=${ id }&action=edit` );
+		await page.locator( '#product_catchecklist label', { hasText: 'Текстил' } ).locator( 'input' ).setChecked( on );
+		await save();
+	};
+	const menu = async () => {
+		const shop = await ( await browser.newContext( { locale: 'bg-BG' } ) ).newPage();
+		await shop.goto( '/' );
+		const names = ( await shop.locator( '.primary-menu > li.menu-item-has-children .sub-menu a' ).allTextContents() ).map( ( t ) => t.trim() );
+		await shop.context().close();
+		return names;
+	};
+	expect( await menu() ).not.toContain( 'Текстил' );
+	await file( true );
+	try {
+		expect( await menu() ).toContain( 'Текстил' );
+	} finally {
+		await file( false );
+	}
+	expect( await menu() ).not.toContain( 'Текстил' );
 } );
