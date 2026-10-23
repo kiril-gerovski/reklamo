@@ -29,11 +29,11 @@ defined( 'ABSPATH' ) || exit;
 			<?php wp_nonce_field( Reklamo_Inquiry::NONCE, '_inq_nonce', false ); ?>
 			<div class="rq-hp" aria-hidden="true" style="position:absolute;left:-9999px"><label><?php esc_html_e( 'Website', 'reklamo' ); ?> <input type="text" name="rq_website" tabindex="-1" autocomplete="off"></label></div>
 			<div class="inquiry__grid">
-				<div class="rq-field"><label for="inq-name"><?php esc_html_e( 'Name / Company', 'reklamo' ); ?></label><input type="text" id="inq-name" name="inq_name" required autocomplete="name"></div>
-				<div class="rq-field"><label for="inq-email"><?php esc_html_e( 'Email', 'reklamo' ); ?></label><input type="email" id="inq-email" name="inq_email" required autocomplete="email" placeholder="office@company.bg"></div>
-				<div class="rq-field"><label for="inq-phone"><?php esc_html_e( 'Phone', 'reklamo' ); ?></label><input type="tel" id="inq-phone" name="inq_phone" required autocomplete="tel" placeholder="0888 123 456"></div>
-				<div class="rq-field"><label for="inq-product"><?php esc_html_e( 'Product or package', 'reklamo' ); ?></label><input type="text" id="inq-product" name="inq_product" required list="inq-products"></div>
-				<div class="rq-field"><label for="inq-quantity"><?php esc_html_e( 'Quantity', 'reklamo' ); ?></label><input type="text" id="inq-quantity" name="inq_quantity" required placeholder="<?php esc_attr_e( 'e.g. 300 pcs.', 'reklamo' ); ?>"></div>
+				<div class="rq-field"><label for="inq-name"><?php esc_html_e( 'Name / Company', 'reklamo' ); ?> <span class="rk-required" aria-hidden="true">*</span></label><input type="text" id="inq-name" name="inq_name" required autocomplete="name"></div>
+				<div class="rq-field"><label for="inq-email"><?php esc_html_e( 'Email', 'reklamo' ); ?> <span class="rk-required" aria-hidden="true">*</span></label><input type="email" id="inq-email" name="inq_email" required autocomplete="email" placeholder="office@company.bg"></div>
+				<div class="rq-field"><label for="inq-phone"><?php esc_html_e( 'Phone', 'reklamo' ); ?> <span class="rk-required" aria-hidden="true">*</span></label><input type="tel" id="inq-phone" name="inq_phone" required autocomplete="tel" placeholder="0888 123 456"></div>
+				<div class="rq-field"><label for="inq-product"><?php esc_html_e( 'Product or package', 'reklamo' ); ?> <span class="rk-required" aria-hidden="true">*</span></label><input type="text" id="inq-product" name="inq_product" required list="inq-products"></div>
+				<div class="rq-field"><label for="inq-quantity"><?php esc_html_e( 'Quantity', 'reklamo' ); ?> <span class="rk-required" aria-hidden="true">*</span></label><input type="text" id="inq-quantity" name="inq_quantity" required placeholder="<?php esc_attr_e( 'e.g. 300 pcs.', 'reklamo' ); ?>"></div>
 				<div class="rq-field"><label for="inq-date"><?php esc_html_e( 'Wanted by', 'reklamo' ); ?> <span class="rk-optional"><?php esc_html_e( '(optional)', 'reklamo' ); ?></span></label><input type="text" id="inq-date" name="inq_date" placeholder="<?php esc_attr_e( 'e.g. by 15 December', 'reklamo' ); ?>"></div>
 			</div>
 			<datalist id="inq-products">
@@ -56,6 +56,7 @@ defined( 'ABSPATH' ) || exit;
 			</div>
 			<ul class="rq-errors inquiry__errors" data-inquiry-errors hidden></ul>
 			<button type="submit" class="btn btn--primary inquiry__send" data-inquiry-send data-busy="<?php esc_attr_e( 'Sending…', 'reklamo' ); ?>"><?php esc_html_e( 'Send the inquiry', 'reklamo' ); ?></button>
+			<p class="inquiry__blocked" data-inquiry-blocked hidden><?php esc_html_e( 'Fill in the fields marked * and tick the consent to send the inquiry.', 'reklamo' ); ?></p>
 			<div class="inquiry__done" data-inquiry-done hidden>
 				<p class="rk-added__icon" aria-hidden="true">✓</p>
 				<h2 class="inquiry__title"><?php esc_html_e( 'Thank you — your inquiry is on its way', 'reklamo' ); ?></h2>

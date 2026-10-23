@@ -701,9 +701,13 @@ test( 'an inscription instead of a logo, and a print colour for a logo: request 
 	await expect( form.locator( '[data-attribute="attribute_pa_kolichestvo"] [data-rk-chosen]' ) ).toHaveText( await form.locator( '[data-attribute="attribute_pa_kolichestvo"] .rk-option' ).nth( 1 ).textContent() );
 	await expect( page.locator( '[data-rk-design-image]' ) ).not.toHaveAttribute( 'src', before );
 	await expect( page.locator( '[data-rk-price]' ) ).toContainText( '€' );
-	// No text, no cart: the server says so.
+	// No text, no cart: the button waits for it, and the server says so on its own.
+	const add = page.getByRole( 'button', { name: /Добави в количката/ } );
+	await expect( add ).toBeDisabled();
+	await expect( page.locator( '[data-rk-add-blocked]' ) ).toContainText( 'напишете надписа' );
 	await page.locator( 'textarea[name="rk_text"]' ).evaluate( ( t ) => { t.required = false; } );
-	await page.getByRole( 'button', { name: /Добави в количката/ } ).click();
+	await add.evaluate( ( b ) => { b.disabled = false; } );
+	await add.click();
 	await expect( page.locator( '[data-rk-design] .rq-errors' ) ).toContainText( 'напишете надписа' );
 	await expect( page.locator( 'input[name="rk_mode"][value="text"]' ) ).toBeChecked();
 	await page.fill( 'textarea[name="rk_text"]', 'Екип с характер' );

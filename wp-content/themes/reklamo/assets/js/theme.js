@@ -147,7 +147,19 @@
 		var ierrors = inquiry.querySelector( '[data-inquiry-errors]' );
 		var isend = inquiry.querySelector( '[data-inquiry-send]' );
 		var idone = inquiry.querySelector( '[data-inquiry-done]' );
+		var iblocked = inquiry.querySelector( '[data-inquiry-blocked]' );
 		var sendLabel = isend.textContent;
+		// "Send" waits for every required field (a valid email) and the consent; the server checks them again.
+		var icheck = function () {
+			var ok = Array.prototype.every.call( iform.querySelectorAll( '[required]' ), function ( el ) {
+				return 'checkbox' === el.type ? el.checked : '' !== el.value.trim() && el.checkValidity();
+			} );
+			isend.disabled = ! ok;
+			if ( iblocked ) { iblocked.hidden = ok; }
+		};
+		iform.addEventListener( 'input', icheck );
+		iform.addEventListener( 'change', icheck );
+		icheck();
 		var showErrors = function ( list ) {
 			ierrors.innerHTML = '';
 			list.forEach( function ( text ) { var li = document.createElement( 'li' ); li.textContent = text; ierrors.appendChild( li ); } );
@@ -179,7 +191,7 @@
 					}
 				} )
 				.catch( function () { showErrors( [ iform.dataset.failed || 'Error' ] ); } )
-				.then( function () { isend.disabled = false; isend.textContent = sendLabel; } );
+				.then( function () { isend.textContent = sendLabel; icheck(); } );
 		} );
 	}
 

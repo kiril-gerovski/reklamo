@@ -246,7 +246,7 @@ msgstr "с включено брандиране"
 msgid "Need help?"
 msgstr "Нуждаете се от помощ?"
 
-#: functions.php:426
+#: functions.php:496
 msgid "Most popular"
 msgstr "Най-популярен"
 
@@ -503,11 +503,11 @@ msgstr "Доставка и срокове"
 msgid "Frequently asked questions"
 msgstr "Често задавани въпроси"
 
-#: functions.php:457
+#: functions.php:527
 msgid "View the package"
 msgstr "Виж пакета"
 
-#: functions.php:313
+#: functions.php:383
 msgid "Specifications"
 msgstr "Спецификации"
 
@@ -650,11 +650,11 @@ msgstr "Важно:"
 msgid "The mockup shown is a guide and not a 100% exact image of the final product. Slight differences in colour, size and logo position are possible, depending on the material, the printing technique and the screen settings. Before production you will receive a final mockup for approval."
 msgstr "Показаната визуализация е ориентировъчна и не представлява 100% точно изображение на крайния продукт. Възможни са минимални разлики в цветовете, размера и позиционирането на логото в зависимост от материала, използваната технология за печат и настройките на екрана. Преди производство ще получите финална визуализация за одобрение."
 
-#: functions.php:412
+#: functions.php:482
 msgid "Promotion"
 msgstr "Промоция"
 
-#: functions.php:419
+#: functions.php:489
 msgid "+ Gift"
 msgstr "+ Подарък"
 
@@ -735,7 +735,7 @@ msgid "The inquiry could not be sent. Please write to us by email."
 msgstr "Запитването не можа да бъде изпратено. Моля, пишете ни по имейл."
 
 #: template-parts/inquiry-dialog.php:25
-#: template-parts/inquiry-dialog.php:63
+#: template-parts/inquiry-dialog.php:64
 msgid "Close"
 msgstr "Затвори"
 
@@ -806,11 +806,11 @@ msgstr "Изпраща се…"
 msgid "Send the inquiry"
 msgstr "Изпрати запитването"
 
-#: template-parts/inquiry-dialog.php:61
+#: template-parts/inquiry-dialog.php:62
 msgid "Thank you — your inquiry is on its way"
 msgstr "Благодарим — запитването Ви е изпратено"
 
-#: template-parts/inquiry-dialog.php:62
+#: template-parts/inquiry-dialog.php:63
 msgid "We will reply within one business day. A copy is in your inbox."
 msgstr "Ще Ви отговорим до един работен ден. Копие е изпратено на имейла Ви."
 
@@ -879,3 +879,7 @@ msgstr "Добави свой надпис"
 #: woocommerce/content-product.php:70
 msgid "Colours"
 msgstr "Цветове"
+
+#: template-parts/inquiry-dialog.php:59
+msgid "Fill in the fields marked * and tick the consent to send the inquiry."
+msgstr "Попълнете полетата със * и отметнете съгласието, за да изпратите запитването."

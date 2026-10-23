@@ -201,7 +201,7 @@ final class Reklamo_Request {
 		self::enqueue_uploader();
 		ob_start();
 		?>
-		<form class="rq-form rq-form--full rk-design" method="post" enctype="multipart/form-data" action="<?php echo esc_url( self::current_url() ); ?>" data-rk-design data-mode="<?php echo esc_attr( $mode ); ?>" data-vat="<?php esc_attr_e( 'incl. VAT', 'reklamo-core' ); ?>"
+		<form class="rq-form rq-form--full rk-design" method="post" enctype="multipart/form-data" action="<?php echo esc_url( self::current_url() ); ?>" data-rk-design data-mode="<?php echo esc_attr( $mode ); ?>" data-msg-required="<?php esc_attr_e( 'Please fill in this field.', 'reklamo-core' ); ?>" data-vat="<?php esc_attr_e( 'incl. VAT', 'reklamo-core' ); ?>"
 			data-catalogue="<?php echo esc_attr( (string) wp_json_encode( self::catalogue() ) ); ?>">
 			<?php wp_nonce_field( Reklamo_Cart::NONCE, 'reklamo_nonce' ); ?>
 			<?php if ( isset( $_POST['reklamo_nonce'] ) && function_exists( 'wc_get_notices' ) && wc_notice_count( 'error' ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Missing -- redisplay only. ?>
@@ -265,7 +265,11 @@ final class Reklamo_Request {
 			</div>
 
 			<div class="rq-submit">
-				<button type="submit" class="rq-button"><?php esc_html_e( 'Add to cart', 'reklamo-core' ); ?> <span aria-hidden="true">→</span></button>
+				<button type="submit" class="rq-button" data-rk-add><?php esc_html_e( 'Add to cart', 'reklamo-core' ); ?> <span aria-hidden="true">→</span></button>
+				<p class="rk-design__blocked" data-rk-add-blocked hidden>
+					<span data-rk-when="text"<?php echo 'text' === $mode ? '' : ' hidden'; ?>><?php esc_html_e( 'Choose a product and write the inscription to add it to the cart.', 'reklamo-core' ); ?></span>
+					<span data-rk-when="logo"<?php echo 'logo' === $mode ? '' : ' hidden'; ?>><?php esc_html_e( 'Choose a product to add it to the cart.', 'reklamo-core' ); ?></span>
+				</p>
 				<p class="rq-nopay" data-rk-when="logo"<?php echo 'logo' === $mode ? '' : ' hidden'; ?>><?php esc_html_e( 'The logo is saved with the chosen product. No payment is taken at this stage.', 'reklamo-core' ); ?></p>
 				<p class="rq-nopay" data-rk-when="text"<?php echo 'text' === $mode ? '' : ' hidden'; ?>><?php esc_html_e( 'The inscription is saved with the chosen product. No payment is taken at this stage.', 'reklamo-core' ); ?></p>
 			</div>

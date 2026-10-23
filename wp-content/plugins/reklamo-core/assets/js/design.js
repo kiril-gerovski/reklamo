@@ -280,6 +280,22 @@
 		refresh();
 	};
 
+	// "Add to cart" waits for a product and, with an inscription, the text; the server checks them again.
+	var add = form.querySelector( '[data-rk-add]' );
+	var addBlocked = form.querySelector( '[data-rk-add-blocked]' );
+	var checkAdd = function () {
+		var ok = !! select.value && ( 'text' !== form.dataset.mode || ( text && '' !== text.value.trim() ) );
+		if ( add ) { add.disabled = ! ok; }
+		if ( addBlocked ) { addBlocked.hidden = ok; }
+	};
+	form.addEventListener( 'input', checkAdd );
+	form.addEventListener( 'change', checkAdd );
+	// The browser words its own "fill in this field" in its own language: ours is the page's.
+	form.addEventListener( 'invalid', function ( e ) {
+		if ( form.dataset.msgRequired && e.target.validity && e.target.validity.valueMissing ) { e.target.setCustomValidity( form.dataset.msgRequired ); }
+	}, true );
+	form.addEventListener( 'input', function ( e ) { if ( e.target.setCustomValidity ) { e.target.setCustomValidity( '' ); } }, true );
+
 	var printLabel = form.querySelector( '[data-rk-print-chosen]' );
 	form.querySelectorAll( 'input[name="rk_colour"]' ).forEach( function ( r ) {
 		r.addEventListener( 'change', function () { if ( printLabel ) { printLabel.textContent = r.dataset.label; } } );
@@ -289,4 +305,5 @@
 	mode();
 	build();
 	refresh();
+	checkAdd();
 } )();

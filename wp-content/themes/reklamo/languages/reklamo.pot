@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-22T17:31:54+00:00\n"
+"POT-Creation-Date: 2026-10-23T19:42:20+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: reklamo\n"
@@ -127,23 +127,23 @@ msgstr ""
 msgid "Inquiry for a tailored offer"
 msgstr ""
 
-#: functions.php:313
+#: functions.php:383
 msgid "Specifications"
 msgstr ""
 
-#: functions.php:412
+#: functions.php:482
 msgid "Promotion"
 msgstr ""
 
-#: functions.php:419
+#: functions.php:489
 msgid "+ Gift"
 msgstr ""
 
-#: functions.php:426
+#: functions.php:496
 msgid "Most popular"
 msgstr ""
 
-#: functions.php:457
+#: functions.php:527
 msgid "View the package"
 msgstr ""
 
@@ -346,7 +346,7 @@ msgid "The inquiry could not be sent. Please write to us by email."
 msgstr ""
 
 #: template-parts/inquiry-dialog.php:25
-#: template-parts/inquiry-dialog.php:63
+#: template-parts/inquiry-dialog.php:64
 msgid "Close"
 msgstr ""
 
@@ -417,11 +417,15 @@ msgstr ""
 msgid "Send the inquiry"
 msgstr ""
 
-#: template-parts/inquiry-dialog.php:61
-msgid "Thank you — your inquiry is on its way"
+#: template-parts/inquiry-dialog.php:59
+msgid "Fill in the fields marked * and tick the consent to send the inquiry."
 msgstr ""
 
 #: template-parts/inquiry-dialog.php:62
+msgid "Thank you — your inquiry is on its way"
+msgstr ""
+
+#: template-parts/inquiry-dialog.php:63
 msgid "We will reply within one business day. A copy is in your inbox."
 msgstr ""
 

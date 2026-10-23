@@ -309,26 +309,42 @@ test( '„Изпрати запитване“ opens the inquiry form; the shop 
 	await expect( dialog ).toBeVisible();
 	await expect( dialog.locator( 'h2' ).first() ).toHaveText( 'Запитване за индивидуална оферта' );
 
-	// Empty: the server lists what is missing, the dialog stays open.
-	await dialog.getByRole( 'button', { name: 'Изпрати запитването' } ).click();
+	// Empty: "Send" waits for the fields marked * and the consent.
+	const send = dialog.getByRole( 'button', { name: 'Изпрати запитването' } );
+	await expect( send ).toBeDisabled();
+	await expect( dialog.locator( '[data-inquiry-blocked]' ) ).toBeVisible();
+	// The button is a convenience: the server lists what is missing on its own, and the dialog stays open.
+	await send.evaluate( ( b ) => { b.disabled = false; } );
+	await send.click();
 	await expect( dialog.locator( '[data-inquiry-errors]' ) ).toContainText( 'Моля, посочете количество.' );
 	await expect( dialog.locator( '[data-inquiry-errors]' ) ).toContainText( 'съгласете' );
+	await expect( send ).toBeDisabled();
 
 	const who = `Е2Е Запитване ${ Date.now() }`;
 	await dialog.getByLabel( 'Име / фирма' ).fill( who );
-	await dialog.getByLabel( 'Имейл' ).fill( 'inquiry@example.com' );
+	await dialog.getByLabel( 'Имейл' ).fill( 'inquiry@' );
 	await dialog.getByLabel( 'Телефон' ).fill( '0888 123 456' );
 	await dialog.getByLabel( 'Продукт или пакет' ).fill( 'Бизнес комплект Magnet' );
 	await dialog.getByLabel( 'Количество' ).fill( '300 бр.' );
 	await dialog.getByLabel( /Съобщение/ ).fill( 'Синьо лого, моля.' );
 	await dialog.locator( 'input[name="inq_consent"]' ).check();
-	await dialog.getByRole( 'button', { name: 'Изпрати запитването' } ).click();
+	// An email that is not one yet keeps it off.
+	await expect( send ).toBeDisabled();
+	await dialog.getByLabel( 'Имейл' ).fill( 'inquiry@example.com' );
+	await expect( send ).toBeEnabled();
+	await expect( dialog.locator( '[data-inquiry-blocked]' ) ).toBeHidden();
+	await send.click();
 	await expect( dialog.locator( '[data-inquiry-done]' ) ).toContainText( 'запитването Ви е изпратено' );
 
-	// Mailpit indexes a message a moment after accepting it.
+	// Mailpit indexes a message a moment after accepting it; older runs' emails with the same subject stay there,
+	// so wait for this run's, the one that carries this run's name.
 	const arrived = async ( needle ) => {
-		await expect.poll( () => mailpitFind( needle ).then( () => true, () => false ), { timeout: 10_000 } ).toBe( true );
-		return mailpitFind( needle );
+		let found = null;
+		await expect.poll( async () => {
+			found = await mailpitFind( needle ).catch( () => null );
+			return !! found && ( found.subject.includes( who ) || found.text.includes( who ) );
+		}, { timeout: 10_000 } ).toBe( true );
+		return found;
 	};
 	const shop = await arrived( `Запитване за оферта от ${ who }` );
 	expect( shop.all ).toContain( 'dev@reklamo.local' );

@@ -367,6 +367,9 @@ a.steps__link:focus-visible .steps__icon { box-shadow: var(--focus), 0 0 0 1px v
 .rq-submit { text-align: center; }
 .rq-submit .rq-button { width: 100%; padding-block: 1.1rem; }
 .rq-nopay { font-size: .75rem; color: var(--graphite); margin: .75rem 0 0; }
+.rk-design .rq-button:disabled { opacity: .45; cursor: not-allowed; }
+.rk-design__blocked { margin: .6rem 0 0; font-size: .75rem; color: var(--graphite); }
+.rk-design__blocked [hidden] { display: none; }
 .rq-nopay::before { content: "✓ "; color: var(--gold); }
 .rq-errors { background: #fbeef0; border: 1px solid #efc4c8; color: var(--red); border-radius: 6px; padding: .75rem 1rem; font-size: .8125rem; animation: fade-up var(--base) var(--ease); }
 .rq-errors ul { margin: 0; padding-left: 1.1rem; }
@@ -690,6 +693,8 @@ html { scroll-behavior: smooth; }
 .inquiry .rq-field { margin: 0; }
 .inquiry__errors { margin: 0; padding-left: 2rem; }
 .inquiry__send { justify-self: start; }
+.inquiry__send:disabled { opacity: .45; cursor: not-allowed; }
+.inquiry__blocked { margin: -.4rem 0 0; font-size: .75rem; color: var(--graphite); }
 .inquiry__done { display: grid; justify-items: center; gap: .6rem; padding: 1rem 0 .5rem; text-align: center; }
 .inquiry__done[hidden], .inquiry__errors[hidden] { display: none; }
 @media (max-width: 560px) { .inquiry__grid { grid-template-columns: minmax(0, 1fr); } .inquiry__box { padding: 1.75rem 1.25rem 1.25rem; } .inquiry__send { justify-self: stretch; } }
