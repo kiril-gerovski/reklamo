@@ -32,6 +32,10 @@ defined( 'ABSPATH' ) || exit;
 	.error { color: #a3222b; margin: .5rem 0; }
 	.ok { color: #2f7a3b; }
 	.muted { color: #555; font-size: .875rem; }
+	.f.req::after { content: " *"; color: #a3222b; }
+	.blocked { margin-top: .5rem; }
+	input[type="text"]:user-invalid, input[type="tel"]:user-invalid { border-color: #a3222b; }
+	button:disabled { opacity: .45; cursor: not-allowed; transform: none; box-shadow: none; }
 	details { margin-top: 1rem; }
 	details > summary { cursor: pointer; color: #555; transition: color .15s; }
 	details > summary:hover { color: #9a7020; }

@@ -469,7 +469,7 @@ msgstr "Твърде много заявки от тази връзка. Мол�
 msgid "Please choose a package."
 msgstr "Моля, изберете пакет."
 
-#: includes/class-reklamo-approval.php:493
+#: includes/class-reklamo-approval.php:490
 #: includes/class-reklamo-inquiry.php:46
 #: includes/class-reklamo-request.php:428
 msgid "Please enter your name."
@@ -660,7 +660,6 @@ msgid "VAT no."
 msgstr "ДДС №"
 
 #: includes/class-reklamo-admin-order.php:328
-#: templates/approval.php:212
 #: templates/emails/reklamo-generic.php:63
 msgid "Responsible person (МОЛ)"
 msgstr "МОЛ"
@@ -742,19 +741,15 @@ msgstr "ЕИК трябва да е 9 или 13 цифри."
 msgid "The VAT number should look like BG123456789."
 msgstr "ДДС номерът трябва да изглежда като BG123456789."
 
-#: includes/class-reklamo-approval.php:490
-msgid "Please enter the responsible person (МОЛ)."
-msgstr "Моля, въведете МОЛ."
-
-#: includes/class-reklamo-approval.php:498
+#: includes/class-reklamo-approval.php:495
 msgid "Please fill in phone and delivery address."
 msgstr "Моля, попълнете телефон и адрес за доставка."
 
-#: includes/class-reklamo-approval.php:548
+#: includes/class-reklamo-approval.php:545
 msgid "Customer submitted invoice and delivery details."
 msgstr "Клиентът подаде данни за фактура и доставка."
 
-#: includes/class-reklamo-approval.php:548
+#: includes/class-reklamo-approval.php:545
 msgid "Customer updated invoice and delivery details."
 msgstr "Клиентът обнови данните за фактура и доставка."
 
@@ -1042,7 +1037,7 @@ msgstr "Обнови данните"
 msgid "Save details"
 msgstr "Запази данните"
 
-#: templates/approval.php:237
+#: templates/approval.php:238
 msgid "Prices include VAT. The invoice is issued from these details; the order number is your payment reference."
 msgstr "Цените са с включен ДДС. Фактурата се издава по тези данни; номерът на поръчката е Вашето основание за плащане."
 
@@ -1872,11 +1867,11 @@ msgstr "Одобрихте я — благодарим. Страницата н�
 msgid "The order number is your payment reference. We confirm the deposit manually on working days and let you know by email."
 msgstr "Номерът на поръчката е основанието за плащане. Потвърждаваме плащането ръчно в работни дни и Ви уведомяваме по имейл."
 
-#: templates/approval.php:274
+#: templates/approval.php:293
 msgid "Back to your order page"
 msgstr "Обратно към страницата на поръчката"
 
-#: templates/approval.php:274
+#: templates/approval.php:293
 msgid "progress, mockups and payments"
 msgstr "напредък, визуализации и плащания"
 
@@ -2631,15 +2626,15 @@ msgstr "До офис на куриер"
 msgid "To a parcel locker"
 msgstr "До автомат"
 
-#: includes/class-reklamo-approval.php:503
+#: includes/class-reklamo-approval.php:500
 msgid "Please choose the courier whose office or parcel locker the parcel goes to."
 msgstr "Моля, изберете куриера, до чийто офис или автомат да бъде изпратена пратката."
 
-#: includes/class-reklamo-approval.php:506
+#: includes/class-reklamo-approval.php:503
 msgid "BoxNow delivers to parcel lockers only."
 msgstr "BoxNow доставя само до автомати."
 
-#: includes/class-reklamo-approval.php:509
+#: includes/class-reklamo-approval.php:506
 msgid "Please enter the company address for the invoice."
 msgstr "Моля, въведете адреса на фирмата за фактурата."
 
@@ -3189,3 +3184,11 @@ msgstr "Изберете продукт и напишете надписа, за
 #: includes/class-reklamo-request.php:271
 msgid "Choose a product to add it to the cart."
 msgstr "Изберете продукт, за да го добавите в количката."
+
+#: templates/approval.php:212
+msgid "Responsible person (МОЛ, optional)"
+msgstr "МОЛ (по желание)"
+
+#: templates/approval.php:236
+msgid "Fill in every field marked * to save your details."
+msgstr "Попълнете всички полета със *, за да запазите данните."

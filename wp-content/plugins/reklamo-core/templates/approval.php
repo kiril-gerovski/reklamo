@@ -207,9 +207,9 @@ $view_url = add_query_arg(
 				<div class="grid">
 					<div class="full only-person"><label class="f"><?php esc_html_e( 'Full name', 'reklamo-core' ); ?></label><input type="text" name="d_name" autocomplete="name" value="<?php echo esc_attr( $details['name'] ?? '' ); ?>"></div>
 					<div class="full only-company"><label class="f"><?php esc_html_e( 'Company name', 'reklamo-core' ); ?></label><input type="text" name="d_company" autocomplete="organization" value="<?php echo esc_attr( $details['company'] ?? '' ); ?>"></div>
-					<div class="only-company"><label class="f"><?php esc_html_e( 'Company ID (ЕИК)', 'reklamo-core' ); ?></label><input type="text" name="d_eik" inputmode="numeric" value="<?php echo esc_attr( $details['eik'] ?? '' ); ?>"></div>
-					<div class="only-company"><label class="f"><?php esc_html_e( 'VAT no. (optional)', 'reklamo-core' ); ?></label><input type="text" name="d_vat" placeholder="BG123456789" value="<?php echo esc_attr( $details['vat'] ?? '' ); ?>"></div>
-					<div class="full only-company"><label class="f"><?php esc_html_e( 'Responsible person (МОЛ)', 'reklamo-core' ); ?></label><input type="text" name="d_mol" value="<?php echo esc_attr( $details['mol'] ?? '' ); ?>"></div>
+					<div class="only-company"><label class="f"><?php esc_html_e( 'Company ID (ЕИК)', 'reklamo-core' ); ?></label><input type="text" name="d_eik" inputmode="numeric" pattern="\d{9}(\d{4})?" value="<?php echo esc_attr( $details['eik'] ?? '' ); ?>"></div>
+					<div class="only-company"><label class="f"><?php esc_html_e( 'VAT no. (optional)', 'reklamo-core' ); ?></label><input type="text" name="d_vat" placeholder="BG123456789" pattern="[Bb][Gg]( ?\d){9,10}" value="<?php echo esc_attr( $details['vat'] ?? '' ); ?>"></div>
+					<div class="full only-company"><label class="f"><?php esc_html_e( 'Responsible person (МОЛ, optional)', 'reklamo-core' ); ?></label><input type="text" name="d_mol" value="<?php echo esc_attr( $details['mol'] ?? '' ); ?>"></div>
 					<div class="full"><label class="f"><?php esc_html_e( 'Phone', 'reklamo-core' ); ?></label><input type="tel" name="d_phone" autocomplete="tel" value="<?php echo esc_attr( $details['phone'] ?? '' ); ?>" required></div>
 					<div class="full"><span class="f"><?php esc_html_e( 'Delivery', 'reklamo-core' ); ?></span>
 						<div class="seg seg--delivery">
@@ -232,7 +232,8 @@ $view_url = add_query_arg(
 					<div class="full only-company only-elsewhere"><label class="f"><?php esc_html_e( 'Company address (for the invoice)', 'reklamo-core' ); ?></label><input type="text" name="d_billing_address" value="<?php echo esc_attr( $details['billing_address'] ?? '' ); ?>"></div>
 					<div class="full"><label class="f"><?php esc_html_e( 'Delivery note (optional)', 'reklamo-core' ); ?></label><input type="text" name="d_note" value="<?php echo esc_attr( $details['note'] ?? '' ); ?>"></div>
 				</div>
-				<div class="actions"><button type="submit"><?php echo $saved ? esc_html__( 'Update details', 'reklamo-core' ) : esc_html__( 'Save details', 'reklamo-core' ); ?></button></div>
+				<div class="actions"><button type="submit" data-save><?php echo $saved ? esc_html__( 'Update details', 'reklamo-core' ) : esc_html__( 'Save details', 'reklamo-core' ); ?></button></div>
+				<p class="muted blocked" data-save-blocked hidden><?php esc_html_e( 'Fill in every field marked * to save your details.', 'reklamo-core' ); ?></p>
 			</form>
 			<p class="muted"><?php esc_html_e( 'Prices include VAT. The invoice is issued from these details; the order number is your payment reference.', 'reklamo-core' ); ?></p>
 			<script>
@@ -247,6 +248,8 @@ $view_url = add_query_arg(
 					var where = picked ? picked.value : 'address';
 					form.querySelectorAll( '.only-company' ).forEach( function ( el ) { el.hidden = ! company || ( el.classList.contains( 'only-elsewhere' ) && 'address' === where ); } );
 					form.querySelectorAll( '.only-person' ).forEach( function ( el ) { el.hidden = company; } );
+					form.querySelector( 'input[name="d_name"]' ).required = ! company;
+					form.querySelectorAll( 'input[name="d_company"], input[name="d_eik"]' ).forEach( function ( i ) { i.required = company; } );
 					// Delivery: the address field names what goes in it; the postcode only for an address.
 					var label = form.querySelector( '[data-label-address]' );
 					if ( label ) { label.textContent = label.getAttribute( 'data-label-' + where ); }
@@ -264,8 +267,24 @@ $view_url = add_query_arg(
 						if ( 'address' !== where && '' === courier.value ) { courier.selectedIndex = -1; }
 					}
 				}
-				form.addEventListener( 'change', function ( e ) { if ( 'd_customer_type' === e.target.name || 'd_delivery_type' === e.target.name ) { sync(); } } );
+				// Save waits until every required field that is showing holds a valid value.
+				function check() {
+					var ok = true;
+					form.querySelectorAll( 'input[name^="d_"], select[name^="d_"]' ).forEach( function ( el ) {
+						var shown = ! el.closest( '[hidden]' );
+						var label = el.parentNode.querySelector( '.f' );
+						if ( label ) { label.classList.toggle( 'req', el.required ); }
+						if ( ! shown ) { return; }
+						if ( el.required && '' === el.value.trim() ) { ok = false; }
+						if ( ! el.checkValidity() ) { ok = false; }
+					} );
+					form.querySelector( '[data-save]' ).disabled = ! ok;
+					form.querySelector( '[data-save-blocked]' ).hidden = ok;
+				}
+				form.addEventListener( 'change', function ( e ) { if ( 'd_customer_type' === e.target.name || 'd_delivery_type' === e.target.name ) { sync(); } check(); } );
+				form.addEventListener( 'input', check );
 				sync();
+				check();
 			} )();
 			</script>
 		<?php endif; ?>

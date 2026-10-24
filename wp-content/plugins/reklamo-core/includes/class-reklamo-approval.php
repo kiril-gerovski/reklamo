@@ -486,9 +486,6 @@ final class Reklamo_Approval {
 			if ( '' !== $in['vat'] && ! preg_match( '/^BG\d{9,10}$/i', str_replace( ' ', '', $in['vat'] ) ) ) {
 				$errors[] = __( 'The VAT number should look like BG123456789.', 'reklamo-core' );
 			}
-			if ( '' === $in['mol'] ) {
-				$errors[] = __( 'Please enter the responsible person (МОЛ).', 'reklamo-core' );
-			}
 		} elseif ( '' === $in['name'] ) {
 			$errors[] = __( 'Please enter your name.', 'reklamo-core' );
 		}

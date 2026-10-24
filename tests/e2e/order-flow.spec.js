@@ -388,21 +388,28 @@ test( 'deposit email arrived; customer fills invoice and delivery details', asyn
 	await page.locator( '.seg label', { hasText: 'Фирма' } ).click();
 	await expect( page.locator( 'input[name="d_name"]' ) ).toBeHidden();
 	await expect( page.locator( 'input[name="d_eik"]' ) ).toBeVisible();
+	// Save waits for the required fields; МОЛ is optional.
+	const save = page.locator( 'form button[type="submit"]' );
+	await page.fill( 'input[name="d_company"]', '' );
+	await expect( save ).toBeDisabled();
+	await expect( page.locator( '[data-save-blocked]' ) ).toBeVisible();
 	await page.fill( 'input[name="d_company"]', 'Ноубъл ЕООД' );
 	await page.fill( 'input[name="d_eik"]', '123456789' );
 	await page.fill( 'input[name="d_vat"]', 'BG123456789' );
-	await page.fill( 'input[name="d_mol"]', 'Иван Иванов' );
 	await page.fill( 'input[name="d_phone"]', '+359 88 000 0000' );
 	await page.fill( 'input[name="d_address_1"]', 'ул. Тестова 1' );
 	await page.fill( 'input[name="d_city"]', 'София' );
 	await page.fill( 'input[name="d_postcode"]', '1000' );
+	await expect( save ).toBeEnabled();
+	await expect( page.locator( '[data-save-blocked]' ) ).toBeHidden();
 	await page.click( 'form button[type="submit"]' );
 	await expect( page.locator( '.notice.ok' ) ).toContainText( 'Получихме данните Ви' );
 	await expect( page.locator( '.next h2' ) ).toHaveText( 'Плащане' );
 
-	// Bad ЕИК is refused, good values are kept.
+	// A bad ЕИК keeps the button off, and the server refuses it anyway, keeping the good values.
 	await page.fill( 'input[name="d_eik"]', '12' );
-	await page.click( 'form button[type="submit"]' );
+	await expect( save ).toBeDisabled();
+	await page.locator( 'form' ).evaluate( ( f ) => f.submit() );
 	await expect( page.locator( '.notice.err' ) ).toContainText( 'ЕИК' );
 	await expect( page.locator( 'input[name="d_company"]' ) ).toHaveValue( 'Ноубъл ЕООД' );
 
