@@ -283,10 +283,17 @@
 	// "Add to cart" waits for a product and, with an inscription, the text; the server checks them again.
 	var add = form.querySelector( '[data-rk-add]' );
 	var addBlocked = form.querySelector( '[data-rk-add-blocked]' );
+	// The page's help button sits level with "Add to cart": it is told how much of the form lies below it.
+	var grid = form.closest( '.request-page__grid' );
+	var level = function () {
+		if ( grid && add ) { grid.style.setProperty( '--rk-below-add', Math.max( 0, form.getBoundingClientRect().bottom - add.getBoundingClientRect().bottom ) + 'px' ); }
+	};
+	window.addEventListener( 'resize', level );
 	var checkAdd = function () {
 		var ok = !! select.value && ( 'text' !== form.dataset.mode || ( text && '' !== text.value.trim() ) );
 		if ( add ) { add.disabled = ! ok; }
 		if ( addBlocked ) { addBlocked.hidden = ok; }
+		level();
 	};
 	form.addEventListener( 'input', checkAdd );
 	form.addEventListener( 'change', checkAdd );
