@@ -27,6 +27,12 @@ final class Reklamo_Reminders {
 		add_action( self::HOOK_FINAL, array( __CLASS__, 'remind_final' ), 10, 1 );
 		add_action( self::HOOK_STALE, array( __CLASS__, 'alert_stale' ), 10, 2 );
 		add_action( self::HOOK_EXPIRE, array( 'Reklamo_Payment_Deadline', 'expire' ), 10, 1 );
+		add_filter( 'action_scheduler_retention_period', array( __CLASS__, 'retention' ) );
+	}
+
+	/** Finished actions are kept a week, not WooCommerce's month. */
+	public static function retention(): int {
+		return WEEK_IN_SECONDS;
 	}
 
 	private static function available(): bool {
