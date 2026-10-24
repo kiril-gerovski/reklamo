@@ -25,13 +25,17 @@ $reklamo_sort = reklamo_catalogue_sort();
 		)
 	);
 
+	// Default sorting follows the ПРОДУКТИ menu, category by category; the other sortings are WooCommerce's.
+	$reklamo_ids = 'menu_order' === $reklamo_sort['orderby'] ? reklamo_products_in_menu_order() : array();
 	echo do_shortcode( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- WooCommerce's own loop markup.
-		sprintf(
-			'[products limit="48" columns="4" category="%s" cat_operator="NOT IN" orderby="%s" order="%s"]',
-			esc_attr( REKLAMO_PACKAGES_CAT ),
-			esc_attr( $reklamo_sort['orderby'] ),
-			esc_attr( $reklamo_sort['order'] )
-		)
+		$reklamo_ids
+			? sprintf( '[products limit="48" columns="4" ids="%s" orderby="post__in"]', esc_attr( implode( ',', $reklamo_ids ) ) )
+			: sprintf(
+				'[products limit="48" columns="4" category="%s" cat_operator="NOT IN" orderby="%s" order="%s"]',
+				esc_attr( REKLAMO_PACKAGES_CAT ),
+				esc_attr( $reklamo_sort['orderby'] ),
+				esc_attr( $reklamo_sort['order'] )
+			)
 	);
 	get_template_part( 'template-parts/bulk-offer' );
 	?>

@@ -143,6 +143,13 @@ test( 'the Продукти page lists every single product with "all products" 
 	await expect( cards.filter( { hasText: 'Бизнес комплект Magnet' } ) ).toHaveCount( 0 );
 	await expect( page.locator( 'li.product.product_cat-paketi' ) ).toHaveCount( 0 );
 
+	// By default the products follow the menu, category by category; a chosen sorting still applies.
+	const slugs = { kalendari: 'Календари', tefteri: 'Тефтери', himikalki: 'Химикалки', 'butilki-i-chashi': 'Бутилки и чаши', zapalki: 'Запалки', chanti: 'Чанти' };
+	const places = await cards.evaluateAll( ( lis, map ) => lis.map( ( li ) => Object.keys( map ).find( ( k ) => li.classList.contains( `product_cat-${ k }` ) ) ), slugs );
+	const at = places.map( ( k ) => CATEGORIES.indexOf( slugs[ k ] ) );
+	expect( at.every( ( v, i ) => i === 0 || v >= at[ i - 1 ] ) ).toBe( true );
+	expect( new Set( at ).size ).toBeGreaterThan( 1 );
+
 	await chips.filter( { hasText: 'Календари' } ).click();
 	await expect( page ).toHaveURL( /\/product-category\/kalendari\/$/ );
 	await expect( page.locator( '.shop-chip.is-active' ) ).toHaveText( /Календари/i );

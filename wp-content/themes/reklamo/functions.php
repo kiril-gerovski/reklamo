@@ -288,14 +288,58 @@ function reklamo_shop_chips( string $context ): array {
 		return array();
 	}
 	$terms = array_filter( $terms, static fn( $t ) => ! in_array( $t->slug, array( REKLAMO_PACKAGES_CAT, REKLAMO_GIFTS_CAT ), true ) );
+	$order = reklamo_menu_category_order();
+	usort( $terms, static fn( $a, $b ) => ( $order[ $a->term_id ] ?? 99 ) <=> ( $order[ $b->term_id ] ?? 99 ) );
+	return $terms;
+}
+
+/** @return array<int,int> category term ID => its place in the ПРОДУКТИ menu */
+function reklamo_menu_category_order(): array {
 	$order = array();
 	foreach ( (array) wp_get_nav_menu_items( 'Главно меню' ) as $item ) {
 		if ( 'product_cat' === ( $item->object ?? '' ) ) {
 			$order[ (int) $item->object_id ] = count( $order );
 		}
 	}
-	usort( $terms, static fn( $a, $b ) => ( $order[ $a->term_id ] ?? 99 ) <=> ( $order[ $b->term_id ] ?? 99 ) );
-	return $terms;
+	return $order;
+}
+
+/**
+ * Продукти's default order: the single products by category, in the order of the ПРОДУКТИ menu;
+ * within a category, the order set in the dashboard (Products → Sorting), then by name.
+ *
+ * @return int[] product IDs
+ */
+function reklamo_products_in_menu_order(): array {
+	$order = reklamo_menu_category_order();
+	$ids   = get_posts(
+		array(
+			'post_type'      => 'product',
+			'post_status'    => 'publish',
+			'posts_per_page' => -1,
+			'fields'         => 'ids',
+			'orderby'        => array(
+				'menu_order' => 'ASC',
+				'title'      => 'ASC',
+			),
+			'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- a few dozen products.
+				array(
+					'taxonomy' => 'product_cat',
+					'field'    => 'slug',
+					'terms'    => REKLAMO_PACKAGES_CAT,
+					'operator' => 'NOT IN',
+				),
+			),
+		)
+	);
+	$place = array();
+	foreach ( $ids as $n => $id ) {
+		$cats         = wp_get_post_terms( $id, 'product_cat', array( 'fields' => 'ids' ) );
+		$at           = array_map( static fn( $c ) => $order[ (int) $c ] ?? 99, is_array( $cats ) ? $cats : array() );
+		$place[ $id ] = array( $at ? min( $at ) : 99, $n );
+	}
+	usort( $ids, static fn( $a, $b ) => $place[ $a ] <=> $place[ $b ] );
+	return $ids;
 }
 
 /**
