@@ -627,11 +627,17 @@ test( 'an unpaid order is reminded at 48 h and cancelled at 72 h; a late payment
 	await page.goto( ( request.text.match( /https?:\/\/\S+moyata-porachka\/\?s=[A-Za-z0-9]+&k=[A-Za-z0-9_-]+/ ) || [ link ] )[ 0 ] );
 	await expect( page.locator( '.deadline' ) ).toContainText( 'Моля, платете до' );
 
-	// Hour 48: the reminder. Hour 72: the order cancels itself and both sides hear of it.
-	wp( 'eval', `do_action( 'reklamo_remind_deposit', ${ bigOrderId } );` );
+	// Hour 48: the reminder, run as Action Scheduler would. Hour 72: the order cancels itself and both sides hear of it.
+	const remindId = wp( 'eval', `echo current( as_get_scheduled_actions( array( 'hook' => 'reklamo_remind_deposit', 'args' => array( ${ bigOrderId } ), 'status' => 'pending' ), 'ids' ) );` );
+	wp( 'action-scheduler', 'action', 'run', remindId );
 	const reminder = await mailpitFind( `Напомняне: Одобрено — плащане и данни за поръчка ${ bigOrderId }` );
 	expect( reminder.text ).toContain( `Срокът за плащане по поръчка ${ bigOrderId } изтече на` );
 	expect( reminder.text ).toContain( 'все още не сме получили превода Ви' );
+	// The audit log answers "why": what was planned, what ran and by whom, what was emailed.
+	const log = wp( 'eval', `foreach ( glob( WP_CONTENT_DIR . '/uploads/wc-logs/reklamo-*.log' ) as $f ) { echo file_get_contents( $f ); }` );
+	expect( log ).toContain( `Поръчка ${ bigOrderId } · Насрочено напомняне за плащане (reklamo_remind_deposit) за` );
+	expect( log ).toContain( `[автоматично: напомняне за плащане (reklamo_remind_deposit)] Поръчка ${ bigOrderId } · Изпълнено напомняне за плащане (reklamo_remind_deposit); поръчката тогава беше „Одобрена — чака плащане“.` );
+	expect( log ).toContain( `Изпратен имейл до big@example.com: „Напомняне: Одобрено — плащане и данни за поръчка ${ bigOrderId }` );
 	wp( 'eval', `do_action( 'reklamo_payment_expire', ${ bigOrderId } );` );
 	const cancelled = await mailpitFind( `Поръчка ${ bigOrderId } е отказана` );
 	expect( cancelled.to ).toBe( 'big@example.com' );

@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-24T09:30:28+00:00\n"
+"POT-Creation-Date: 2026-10-24T10:36:34+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: reklamo-core\n"
@@ -1039,6 +1039,12 @@ msgstr ""
 msgid "The request could not be saved. Please try again or contact us."
 msgstr ""
 
+#. translators: 1: unfinished uploads, 2: unclaimed uploads, 3: orders whose files were deleted, 4: orders anonymised
+#: includes/class-reklamo-cleanup.php:45
+#, php-format
+msgid "Cleanup: %1$d unfinished uploads and %2$d unclaimed files deleted; files of %3$d closed orders deleted; %4$d orders anonymised."
+msgstr ""
+
 #. translators: %s: email address
 #: includes/class-reklamo-diagnostics.php:34
 #, php-format
@@ -1381,6 +1387,98 @@ msgid_plural "Included: the first mockup and %1$d free corrections. Each further
 msgstr[0] ""
 msgstr[1] ""
 
+#. translators: %d: order number
+#: includes/class-reklamo-log.php:47
+#, php-format
+msgid "Order %d"
+msgstr ""
+
+#. translators: %s: scheduled action hook
+#: includes/class-reklamo-log.php:56
+#, php-format
+msgid "automatic: %s"
+msgstr ""
+
+#: includes/class-reklamo-log.php:59
+msgid "automatic: WP-Cron"
+msgstr ""
+
+#: includes/class-reklamo-log.php:68
+msgid "customer or visitor"
+msgstr ""
+
+#: includes/class-reklamo-log.php:74
+msgid "mockup approval reminder"
+msgstr ""
+
+#: includes/class-reklamo-log.php:75
+msgid "payment reminder"
+msgstr ""
+
+#: includes/class-reklamo-log.php:76
+msgid "final payment reminder"
+msgstr ""
+
+#: includes/class-reklamo-log.php:77
+msgid "alert to the shop that the customer is silent"
+msgstr ""
+
+#: includes/class-reklamo-log.php:78
+msgid "automatic cancellation for non-payment"
+msgstr ""
+
+#: includes/class-reklamo-log.php:79
+msgid "file and data cleanup"
+msgstr ""
+
+#. translators: 1: recipients, 2: subject
+#: includes/class-reklamo-log.php:100
+#, php-format
+msgid "Email sent to %1$s: „%2$s“"
+msgstr ""
+
+#. translators: %d: number of attachments
+#: includes/class-reklamo-log.php:102
+#, php-format
+msgid "(%d attachment)"
+msgid_plural "(%d attachments)"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: 1: recipients, 2: subject, 3: error message
+#: includes/class-reklamo-log.php:108
+#, php-format
+msgid "Email to %1$s NOT sent: „%2$s“ — %3$s"
+msgstr ""
+
+#: includes/class-reklamo-log.php:122
+msgid "Note to the customer:"
+msgstr ""
+
+#. translators: 1: action hook, 2: order status when it ran
+#: includes/class-reklamo-log.php:154
+#, php-format
+msgid "Ran %1$s; the order was „%2$s“ at the time."
+msgstr ""
+
+#. translators: 1: action hook, 2: error message
+#: includes/class-reklamo-log.php:166
+#, php-format
+msgid "Scheduled action %1$s FAILED: %2$s"
+msgstr ""
+
+#. translators: 1: action hook, 2: date and time
+#: includes/class-reklamo-log.php:174
+#, php-format
+msgid "Scheduled %1$s for %2$s."
+msgstr ""
+
+#. translators: 1: option name, 2: old value, 3: new value
+#: includes/class-reklamo-log.php:187
+#, php-format
+msgid "Setting %1$s changed from „%2$s“ to „%3$s“."
+msgstr ""
+
 #: includes/class-reklamo-mail.php:84
 msgid "the mail server rejected the message"
 msgstr ""
@@ -1616,21 +1714,27 @@ msgstr ""
 msgid "The product together with the gift. While there is a gift it is the main photo everywhere on the site, and the usual main photo moves to second place; emptying the gift above removes it."
 msgstr ""
 
+#. translators: %s: action hooks
+#: includes/class-reklamo-reminders.php:139
+#, php-format
+msgid "Cancelled the pending %s."
+msgstr ""
+
 #. translators: 1: mockup revision, 2: product name
-#: includes/class-reklamo-reminders.php:157
+#: includes/class-reklamo-reminders.php:175
 #, php-format
 msgid "Reminder sent: mockup #%1$d of %2$s still awaits approval."
 msgstr ""
 
-#: includes/class-reklamo-reminders.php:169
+#: includes/class-reklamo-reminders.php:187
 msgid "Reminder sent: deposit still unpaid."
 msgstr ""
 
-#: includes/class-reklamo-reminders.php:180
+#: includes/class-reklamo-reminders.php:198
 msgid "Reminder sent: final payment still outstanding."
 msgstr ""
 
-#: includes/class-reklamo-reminders.php:191
+#: includes/class-reklamo-reminders.php:209
 msgid "Shop alerted: the customer has not responded to any reminder."
 msgstr ""
 
@@ -2701,7 +2805,7 @@ msgstr ""
 msgid "Placeholders: {order_number}, {order_date}, {customer_first_name}, {site_title}, {deposit_amount}, {balance_amount}, {order_total}, {deposit_pct}, {revision}"
 msgstr ""
 
-#: reklamo-core.php:91
+#: reklamo-core.php:92
 msgid "Reklamo Core needs WooCommerce to be active."
 msgstr ""
 

@@ -35,6 +35,12 @@ final class Reklamo_Reminders {
 		return WEEK_IN_SECONDS;
 	}
 
+	/** as_schedule_single_action(), written to the audit log. */
+	private static function plan( int $time, string $hook, array $args, string $group ): void {
+		as_schedule_single_action( $time, $hook, $args, $group );
+		Reklamo_Log::planned( $hook, $time, (int) ( $args[0] ?? 0 ) );
+	}
+
 	private static function available(): bool {
 		return function_exists( 'as_schedule_single_action' ) && function_exists( 'as_unschedule_all_actions' );
 	}
@@ -71,7 +77,7 @@ final class Reklamo_Reminders {
 				$sent = $sent ? $sent : time();
 				foreach ( $days as $day ) {
 					if ( $sent + $day * DAY_IN_SECONDS > time() ) {
-						as_schedule_single_action( $sent + $day * DAY_IN_SECONDS, self::HOOK_APPROVAL, array( $order_id, $item_id, Reklamo_Items::revision( $item ) ), self::GROUP );
+						self::plan( $sent + $day * DAY_IN_SECONDS, self::HOOK_APPROVAL, array( $order_id, $item_id, Reklamo_Items::revision( $item ) ), self::GROUP );
 					}
 				}
 			}
@@ -80,10 +86,10 @@ final class Reklamo_Reminders {
 		$deadline = $order->has_status( Reklamo_Statuses::APPROVED ) && Reklamo_Payment_Deadline::enabled() ? Reklamo_Payment_Deadline::for_order( $order ) : null;
 		if ( $deadline ) {
 			if ( $deadline['remind'] > time() ) {
-				as_schedule_single_action( $deadline['remind'], self::HOOK_DEPOSIT, array( $order_id ), self::GROUP );
+				self::plan( $deadline['remind'], self::HOOK_DEPOSIT, array( $order_id ), self::GROUP );
 			}
 			// No shop alert: the order cancels itself and that email tells the shop.
-			as_schedule_single_action( max( $deadline['cancel'], time() ), self::HOOK_EXPIRE, array( $order_id ), self::GROUP );
+			self::plan( max( $deadline['cancel'], time() ), self::HOOK_EXPIRE, array( $order_id ), self::GROUP );
 			return;
 		}
 
@@ -97,14 +103,14 @@ final class Reklamo_Reminders {
 		}
 		if ( '' !== $hook ) {
 			foreach ( $days as $day ) {
-				as_schedule_single_action( time() + $day * DAY_IN_SECONDS, $hook, array( $order_id ), self::GROUP );
+				self::plan( time() + $day * DAY_IN_SECONDS, $hook, array( $order_id ), self::GROUP );
 			}
 		}
 		// After the last nudge: tell the shop, not the customer again.
 		$stale = (int) Reklamo_Settings::get( 'stale_days', '7' );
 		if ( $stale > 0 ) {
 			$last = $days ? max( $days ) : 0;
-			as_schedule_single_action( time() + ( $last + $stale ) * DAY_IN_SECONDS, self::HOOK_STALE, array( $order_id, $order->get_status() ), self::GROUP );
+			self::plan( time() + ( $last + $stale ) * DAY_IN_SECONDS, self::HOOK_STALE, array( $order_id, $order->get_status() ), self::GROUP );
 		}
 	}
 
@@ -112,6 +118,7 @@ final class Reklamo_Reminders {
 		if ( ! self::available() ) {
 			return;
 		}
+		$cancelled = array();
 		foreach ( as_get_scheduled_actions(
 			array(
 				'group'    => self::GROUP,
@@ -124,7 +131,12 @@ final class Reklamo_Reminders {
 			$args   = $action->get_args();
 			if ( isset( $args[0] ) && (int) $args[0] === $order_id ) {
 				ActionScheduler::store()->cancel_action( $action_id );
+				$cancelled[] = $action->get_hook();
 			}
+		}
+		if ( $cancelled ) {
+			/* translators: %s: action hooks */
+			Reklamo_Log::info( sprintf( __( 'Cancelled the pending %s.', 'reklamo-core' ), Reklamo_Log::jobs( $cancelled ) ), $order_id );
 		}
 	}
 

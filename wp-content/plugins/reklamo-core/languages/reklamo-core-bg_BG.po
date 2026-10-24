@@ -317,7 +317,7 @@ msgstr "Благодарим, {customer_first_name}!"
 msgid "Placeholders: {order_number}, {order_date}, {customer_first_name}, {site_title}"
 msgstr "Заместители: {order_number}, {order_date}, {customer_first_name}, {site_title}"
 
-#: reklamo-core.php:91
+#: reklamo-core.php:92
 msgid "Reklamo Core needs WooCommerce to be active."
 msgstr "Reklamo Core изисква WooCommerce да е активен."
 
@@ -753,7 +753,7 @@ msgstr "Клиентът подаде данни за фактура и дост
 msgid "Customer updated invoice and delivery details."
 msgstr "Клиентът обнови данните за фактура и доставка."
 
-#: includes/class-reklamo-reminders.php:169
+#: includes/class-reklamo-reminders.php:187
 msgid "Reminder sent: deposit still unpaid."
 msgstr "Изпратено напомняне: плащането още не е постъпило."
 
@@ -1691,11 +1691,11 @@ msgstr "използвана"
 msgid "Order"
 msgstr "Поръчка"
 
-#: includes/class-reklamo-reminders.php:180
+#: includes/class-reklamo-reminders.php:198
 msgid "Reminder sent: final payment still outstanding."
 msgstr "Изпратено напомняне: доплащането все още не е получено."
 
-#: includes/class-reklamo-reminders.php:191
+#: includes/class-reklamo-reminders.php:209
 msgid "Shop alerted: the customer has not responded to any reminder."
 msgstr "Магазинът е уведомен: клиентът не е реагирал на нито едно напомняне."
 
@@ -2142,7 +2142,7 @@ msgid "Change request to mockup #%1$d of %2$s"
 msgstr "Заявка за корекции по визуализация №%1$d на %2$s"
 
 #. translators: 1: mockup revision, 2: product name
-#: includes/class-reklamo-reminders.php:157
+#: includes/class-reklamo-reminders.php:175
 #, php-format
 msgid "Reminder sent: mockup #%1$d of %2$s still awaits approval."
 msgstr "Изпратено напомняне: визуализация №%1$d на %2$s все още чака одобрение."
@@ -3192,3 +3192,107 @@ msgstr "МОЛ (по желание)"
 #: templates/approval.php:236
 msgid "Fill in every field marked * to save your details."
 msgstr "Попълнете всички полета със *, за да запазите данните."
+
+#. translators: 1: unfinished uploads, 2: unclaimed uploads, 3: orders whose files were deleted, 4: orders anonymised
+#: includes/class-reklamo-cleanup.php:45
+#, php-format
+msgid "Cleanup: %1$d unfinished uploads and %2$d unclaimed files deleted; files of %3$d closed orders deleted; %4$d orders anonymised."
+msgstr "Почистване: изтрити %1$d недовършени качвания и %2$d непотърсени файла; изтрити файловете на %3$d приключени поръчки; анонимизирани %4$d поръчки."
+
+#. translators: %d: order number
+#: includes/class-reklamo-log.php:47
+#, php-format
+msgid "Order %d"
+msgstr "Поръчка %d"
+
+#. translators: %s: scheduled action hook
+#: includes/class-reklamo-log.php:56
+#, php-format
+msgid "automatic: %s"
+msgstr "автоматично: %s"
+
+#: includes/class-reklamo-log.php:59
+msgid "automatic: WP-Cron"
+msgstr "автоматично: WP-Cron"
+
+#: includes/class-reklamo-log.php:68
+msgid "customer or visitor"
+msgstr "клиент или посетител"
+
+#. translators: 1: recipients, 2: subject
+#: includes/class-reklamo-log.php:100
+#, php-format
+msgid "Email sent to %1$s: „%2$s“"
+msgstr "Изпратен имейл до %1$s: „%2$s“"
+
+#. translators: %d: number of attachments
+#: includes/class-reklamo-log.php:102
+#, php-format
+msgid "(%d attachment)"
+msgid_plural "(%d attachments)"
+msgstr[0] "(%d прикачен файл)"
+msgstr[1] "(%d прикачени файла)"
+
+#. translators: 1: recipients, 2: subject, 3: error message
+#: includes/class-reklamo-log.php:108
+#, php-format
+msgid "Email to %1$s NOT sent: „%2$s“ — %3$s"
+msgstr "Имейлът до %1$s НЕ е изпратен: „%2$s“ — %3$s"
+
+#: includes/class-reklamo-log.php:122
+msgid "Note to the customer:"
+msgstr "Бележка до клиента:"
+
+#. translators: 1: action hook, 2: order status when it ran
+#: includes/class-reklamo-log.php:154
+#, php-format
+msgid "Ran %1$s; the order was „%2$s“ at the time."
+msgstr "Изпълнено %1$s; поръчката тогава беше „%2$s“."
+
+#. translators: 1: action hook, 2: error message
+#: includes/class-reklamo-log.php:166
+#, php-format
+msgid "Scheduled action %1$s FAILED: %2$s"
+msgstr "Планираното действие %1$s СЕ ПРОВАЛИ: %2$s"
+
+#. translators: 1: action hook, 2: date and time
+#: includes/class-reklamo-log.php:174
+#, php-format
+msgid "Scheduled %1$s for %2$s."
+msgstr "Насрочено %1$s за %2$s."
+
+#. translators: 1: option name, 2: old value, 3: new value
+#: includes/class-reklamo-log.php:187
+#, php-format
+msgid "Setting %1$s changed from „%2$s“ to „%3$s“."
+msgstr "Настройката %1$s е сменена от „%2$s“ на „%3$s“."
+
+#. translators: %s: action hooks
+#: includes/class-reklamo-reminders.php:139
+#, php-format
+msgid "Cancelled the pending %s."
+msgstr "Отменени чакащите %s."
+
+#: includes/class-reklamo-log.php:74
+msgid "mockup approval reminder"
+msgstr "напомняне за одобрение на визуализация"
+
+#: includes/class-reklamo-log.php:75
+msgid "payment reminder"
+msgstr "напомняне за плащане"
+
+#: includes/class-reklamo-log.php:76
+msgid "final payment reminder"
+msgstr "напомняне за доплащане"
+
+#: includes/class-reklamo-log.php:77
+msgid "alert to the shop that the customer is silent"
+msgstr "сигнал към магазина, че клиентът не отговаря"
+
+#: includes/class-reklamo-log.php:78
+msgid "automatic cancellation for non-payment"
+msgstr "автоматично анулиране при неплащане"
+
+#: includes/class-reklamo-log.php:79
+msgid "file and data cleanup"
+msgstr "почистване на файлове и данни"

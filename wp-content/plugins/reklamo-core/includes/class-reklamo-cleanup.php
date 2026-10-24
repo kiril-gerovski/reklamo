@@ -34,12 +34,17 @@ final class Reklamo_Cleanup {
 
 	/** @return array{tmp:int, unclaimed:int, retired:int, anonymized:int} */
 	public static function run(): array {
-		return array(
+		$done = array(
 			'tmp'        => self::sweep_tmp(),
 			'unclaimed'  => self::sweep_unclaimed(),
 			'retired'    => self::apply_retention(),
 			'anonymized' => self::apply_anonymization(),
 		);
+		if ( array_filter( $done ) ) {
+			/* translators: 1: unfinished uploads, 2: unclaimed uploads, 3: orders whose files were deleted, 4: orders anonymised */
+			Reklamo_Log::info( sprintf( __( 'Cleanup: %1$d unfinished uploads and %2$d unclaimed files deleted; files of %3$d closed orders deleted; %4$d orders anonymised.', 'reklamo-core' ), $done['tmp'], $done['unclaimed'], $done['retired'], $done['anonymized'] ) );
+		}
+		return $done;
 	}
 
 	/** Everything the plugin holds for an order that WooCommerce is about to delete for good. */
