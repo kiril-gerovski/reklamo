@@ -205,6 +205,7 @@ final class Reklamo_Reminders {
 		if ( ! $order || ! $order->has_status( $status ) ) {
 			return;
 		}
+		Reklamo_News::flag( $order_id, 'stale' );
 		if ( Reklamo_Emails::send_admin_stale( $order ) ) {
 			$order->add_order_note( __( 'Shop alerted: the customer has not responded to any reminder.', 'reklamo-core' ) );
 		}

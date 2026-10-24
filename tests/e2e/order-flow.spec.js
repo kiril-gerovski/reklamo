@@ -201,6 +201,14 @@ test( 'admin sees the logo and sends a mockup', async ( { page } ) => {
 	await page.getByRole( 'button', { name: 'Изпрати на клиента' } ).click();
 	await expect( page.locator( '.notice-success' ) ).toContainText( 'Бизнес комплект Magnet - Червен, 50 бр. (визуализация №1)' );
 	await expect( page.locator( '#order_status' ) ).toHaveValue( 'wc-rq-mockup-sent' );
+	// The mockup shows as a picture; the .ai logo, which a browser cannot draw, as a file tile.
+	const thumb = page.locator( '#reklamo_mockup ol .reklamo-thumb img' ).first();
+	await expect( thumb ).toBeVisible();
+	expect( await thumb.evaluate( ( img ) => img.naturalWidth ) ).toBeGreaterThan( 0 );
+	await expect( page.locator( '#reklamo_mockup .reklamo-thumb--file' ).first() ).toHaveText( 'AI' );
+	// The dropdown offers only the allowed next steps.
+	const offered = await page.locator( '#order_status option' ).evaluateAll( ( os ) => os.map( ( o ) => o.value ) );
+	expect( offered.sort() ).toEqual( [ 'wc-cancelled', 'wc-rq-approved', 'wc-rq-changes', 'wc-rq-mockup-sent' ] );
 
 	const mail = await mailpitFind( `Визуализацията за поръчка ${ orderId }` );
 	const m = mail.text.match( /https?:\/\/\S+odobrenie\/\?s=[A-Za-z0-9]+&k=[A-Za-z0-9_-]+/ );
@@ -281,9 +289,21 @@ test( 'approval link: GET is idempotent, POST approves once, replay is refused',
 	await page.goto( trackUrl );
 	await expect( page.locator( '.badge' ) ).toHaveText( 'Заявени корекции' );
 	await expect( page.locator( '.rev' ).first() ).toContainText( 'по-голямо' );
+	// Logging in lands on the work queue, the new request for changes flagged on its row.
 	await adminLogin( page );
+	await page.goto( '/wp-admin/admin.php?page=wc-orders' );
+	await expect( page.locator( '.subsubsub .current' ) ).toContainText( 'За действие' );
+	const row = page.locator( `tr.order-${ orderId }` );
+	await expect( row ).toHaveClass( /reklamo-is-new/ );
+	await expect( row ).toContainText( 'Клиентът поиска корекции' );
+	await expect( row ).toContainText( 'Направете корекциите и изпратете нова визуализация' );
+	const before = Number( await page.locator( '#adminmenu .reklamo-news-count' ).textContent() );
+	expect( before ).toBeGreaterThan( 0 );
 	await page.goto( `/wp-admin/admin.php?page=wc-orders&action=edit&id=${ orderId }` );
 	await expect( page.locator( '#order_status' ) ).toHaveValue( 'wc-rq-changes' );
+	await expect( page.locator( '#reklamo_mockup .reklamo-next' ) ).toContainText( 'Клиентът поиска корекции' );
+	// Opened is seen: the count drops by this order.
+	await expect( page.locator( '#adminmenu .reklamo-news-count' ) ).toHaveText( String( before - 1 ) );
 	await page.setInputFiles( 'input[name^="reklamo_mockup["]', `${ FIXTURES }/mockup.png` );
 	await page.getByRole( 'button', { name: 'Изпрати на клиента' } ).click();
 	await expect( page.locator( '.notice-success' ) ).toContainText( 'Бизнес комплект Magnet - Червен, 50 бр. (визуализация №2)' );
@@ -312,6 +332,23 @@ test( 'approval link: GET is idempotent, POST approves once, replay is refused',
 	await page.goto( approvalUrl );
 	await expect( page.locator( '.next h2' ) ).toHaveText( 'Тази визуализация вече е обработена' );
 	await expect( page.locator( 'button[name="decision"]' ) ).toHaveCount( 0 );
+} );
+
+test( 'logging in opens the orders that need the shop', async ( { page } ) => {
+	await page.context().clearCookies();
+	await page.goto( '/wp-login.php' );
+	await page.waitForTimeout( 300 );
+	await page.fill( '#user_login', process.env.WP_ADMIN_USER || 'admin' );
+	await page.fill( '#user_pass', process.env.WP_ADMIN_PASS || 'reklamo-dev' );
+	await page.click( '#wp-submit' );
+	await page.waitForURL( /page=wc-orders/ );
+	await expect( page.locator( '.subsubsub .current' ) ).toContainText( 'За действие' );
+	await expect( page.locator( '#toplevel_page_admin-page-wc-orders' ) ).toHaveClass( /current/ );
+	await expect( page.locator( '#adminmenu' ) ).not.toContainText( 'Публикации' );
+	// Products come right after Orders.
+	const top = await page.locator( '#adminmenu > li.menu-top .wp-menu-name' ).allTextContents();
+	const orders = top.findIndex( ( t ) => t.startsWith( 'Поръчки' ) );
+	expect( top[ orders + 1 ] ).toBe( 'Продукти' );
 } );
 
 test( 'approval tells the shop; a mockup re-sent after approval voids the deposit and the details link', async ( { page } ) => {
@@ -495,9 +532,14 @@ test( 'shop moves the order: payment → production → dispatched and completed
 	const url = `/wp-admin/admin.php?page=wc-orders&action=edit&id=${ orderId }`;
 	await page.goto( url );
 	await expect( page.locator( '#order_status' ) ).toHaveValue( 'wc-rq-approved' );
-	await expect( page.locator( '#reklamo_mockup' ) ).toContainText( 'Ноубъл ЕООД' );
+	await expect( page.locator( '#reklamo_details' ) ).toContainText( 'Ноубъл ЕООД' );
+	const copy = await page.locator( '#reklamo_details [data-reklamo-copy]' ).getAttribute( 'data-reklamo-copy' );
+	expect( copy ).toContain( 'Фирма: Ноубъл ЕООД' );
+	expect( copy ).toMatch( /ЕИК: \d{9}/ );
 
-	// The status dropdown refuses an illegal jump.
+	// An illegal jump is not offered, and the server refuses it even when forced in.
+	await expect( page.locator( '#order_status option[value="wc-completed"]' ) ).toHaveCount( 0 );
+	await page.locator( '#order_status' ).evaluate( ( sel ) => sel.add( new Option( 'forced', 'wc-completed' ) ) );
 	await page.selectOption( '#order_status', 'wc-completed' );
 	await page.click( 'button.save_order' );
 	await expect( page.locator( '.reklamo-notice' ) ).toContainText( 'не е валидна следваща стъпка' );

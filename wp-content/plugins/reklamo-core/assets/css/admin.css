@@ -1,0 +1,30 @@
+/* Orders news and the work-queue list (Reklamo_News, Reklamo_Admin_Orders). */
+#wpadminbar #wp-admin-bar-reklamo-news .ab-icon:before { content: "\f16d"; top: 2px; }
+#wpadminbar #wp-admin-bar-reklamo-news.reklamo-news-on > .ab-item { background: #d63638; color: #fff; }
+#wpadminbar #wp-admin-bar-reklamo-news.reklamo-news-on .ab-icon:before { color: #fff; }
+
+.woocommerce_page_wc-orders .column-reklamo_step { width: 30%; }
+.woocommerce_page_wc-orders .column-reklamo_changed { width: 22%; }
+.woocommerce_page_wc-orders .reklamo-next-step { display: block; margin-top: .35em; color: #50575e; }
+.woocommerce_page_wc-orders tr.reklamo-is-new { box-shadow: inset 4px 0 0 #d63638; }
+.woocommerce_page_wc-orders tr.reklamo-is-new .order_number strong { font-weight: 700; }
+.reklamo-news-line { color: #b32d2e; }
+
+.reklamo-next { margin: 0 0 1em; padding: .7em 1em; background: #f0f6fc; border-left: 4px solid #2271b1; font-size: 14px; }
+.reklamo-next mark.order-status { margin-right: .5em; }
+.reklamo-next .reklamo-news-line { display: block; margin-top: .4em; }
+.woocommerce_page_wc-orders .column-reklamo_step mark.order-status { max-width: none; }
+
+.reklamo-file { display: inline-flex; align-items: center; gap: .6em; margin: .2em 1em .2em 0; vertical-align: middle; }
+.reklamo-thumb { display: inline-flex; align-items: center; justify-content: center; flex: none; border: 1px solid #dcdcde; border-radius: 4px; background: #fff; overflow: hidden; }
+.reklamo-thumb--small { width: 64px; height: 64px; }
+.reklamo-thumb--large { width: 140px; height: 100px; }
+.reklamo-thumb img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.reklamo-thumb--file { background: #f0f0f1; color: #50575e; font-weight: 600; font-size: 12px; }
+#reklamo_mockup ol li { margin-bottom: .6em; }
+
+#reklamo_details table.reklamo-details, #reklamo_details .reklamo-details tbody, #reklamo_details .reklamo-details tr, #reklamo_details .reklamo-details th, #reklamo_details .reklamo-details td { display: block; width: 100%; }
+#reklamo_details .reklamo-details tr { margin-bottom: .6em; }
+#reklamo_details .reklamo-details th { padding: 0 0 .15em; font-weight: 600; text-align: left; }
+#reklamo_details .reklamo-details td { padding: 0; }
+#reklamo_details .reklamo-details input[type="text"], #reklamo_details .reklamo-details select { width: 100%; max-width: none; }

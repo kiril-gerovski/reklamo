@@ -32,6 +32,7 @@ final class Reklamo_Admin_Order {
 		add_action( 'admin_post_reklamo_order_action', array( __CLASS__, 'handle_action' ) );
 		add_action( 'admin_post_reklamo_dispatch', array( __CLASS__, 'handle_dispatch' ) );
 		add_action( 'admin_notices', array( __CLASS__, 'notices' ) );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'assets' ) );
 		// After WooCommerce's own order data (40), so a delivery change made here is not overwritten.
 		add_action( 'woocommerce_process_shop_order_meta', array( __CLASS__, 'save_details' ), 50, 2 );
 	}
@@ -79,6 +80,30 @@ final class Reklamo_Admin_Order {
 		}
 	}
 
+	/** The status dropdown offers only the allowed next steps; the copy button. */
+	public static function assets(): void {
+		if ( ! self::is_order_screen() ) {
+			return;
+		}
+		$order   = wc_get_order( absint( $_GET['id'] ?? 0 ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$status  = $order ? $order->get_status() : '';
+		$allowed = isset( Reklamo_Statuses::TRANSITIONS[ $status ] )
+			? array_map( static fn( string $s ): string => 'wc-' . $s, array_merge( array( $status ), Reklamo_Statuses::TRANSITIONS[ $status ] ) )
+			: null;
+		wp_enqueue_script( 'reklamo-admin-order', REKLAMO_URL . 'assets/js/admin-order.js', array(), REKLAMO_VERSION, true );
+		wp_localize_script( 'reklamo-admin-order', 'reklamoOrder', array( 'allowed' => $allowed ) );
+	}
+
+	/** A stored file as a link, with a thumbnail when it is a picture the browser can show. */
+	private static function file_link( object $row, string $size = 'small' ): string {
+		$picture = '' !== (string) $row->path && in_array( $row->ext, array( 'png', 'jpg', 'jpeg' ), true ) && str_starts_with( (string) $row->mime, 'image/' ) && (int) $row->bytes <= 8 * MB_IN_BYTES;
+		$url     = Reklamo_Storage::download_url( (int) $row->id );
+		$thumb   = $picture
+			? sprintf( '<a class="reklamo-thumb reklamo-thumb--%1$s" href="%2$s" target="_blank" rel="noopener"><img src="%2$s" alt="" loading="lazy"></a>', esc_attr( $size ), esc_url( $url . '&view=1' ) )
+			: sprintf( '<span class="reklamo-thumb reklamo-thumb--%1$s reklamo-thumb--file">%2$s</span>', esc_attr( $size ), esc_html( strtoupper( (string) $row->ext ) ) );
+		return sprintf( '<span class="reklamo-file">%1$s<a href="%2$s">%3$s</a></span>', $thumb, esc_url( $url ), esc_html( Reklamo_Storage::describe( $row ) ) );
+	}
+
 	private static function is_order_screen(): bool {
 		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
 		return $screen && function_exists( 'wc_get_page_screen_id' ) && wc_get_page_screen_id( 'shop-order' ) === $screen->id;
@@ -90,6 +115,7 @@ final class Reklamo_Admin_Order {
 			return;
 		}
 		add_meta_box( 'reklamo_mockup', __( 'Mockup & approval', 'reklamo-core' ), array( __CLASS__, 'render' ), wc_get_page_screen_id( 'shop-order' ), 'normal', 'high' );
+		add_meta_box( 'reklamo_details', __( 'Invoice & delivery details', 'reklamo-core' ), array( __CLASS__, 'render_details' ), wc_get_page_screen_id( 'shop-order' ), 'side', 'high' );
 	}
 
 	/** Actions offered per status: slug => [label, next status, confirm text]. */
@@ -144,7 +170,17 @@ final class Reklamo_Admin_Order {
 		$fmt_date = static fn( string $utc ): string => $utc ? wc_format_datetime( new WC_DateTime( $utc . ' UTC' ), 'd.m.Y H:i' ) : '';
 		?>
 		<div class="reklamo-admin">
-			<p><strong><?php esc_html_e( 'Status', 'reklamo-core' ); ?>:</strong> <?php echo esc_html( wc_get_order_status_name( $order->get_status() ) ); ?></p>
+			<?php $next = Reklamo_Admin_Orders::next_step( $order ); ?>
+			<?php $news = Reklamo_News::opened(); ?>
+			<div class="reklamo-next">
+				<mark class="order-status status-<?php echo esc_attr( sanitize_html_class( $order->get_status() ) ); ?>"><span><?php echo esc_html( wc_get_order_status_name( $order->get_status() ) ); ?></span></mark>
+				<?php if ( '' !== $next ) : ?>
+					<strong><?php esc_html_e( 'Next step', 'reklamo-core' ); ?>:</strong> <?php echo esc_html( $next ); ?>
+				<?php endif; ?>
+				<?php if ( $news ) : ?>
+					<strong class="reklamo-news-line">● <?php echo esc_html( Reklamo_News::describe( $news ) ); ?></strong>
+				<?php endif; ?>
+			</div>
 			<?php $deadline = $order->has_status( Reklamo_Statuses::APPROVED ) && Reklamo_Payment_Deadline::enabled() ? Reklamo_Payment_Deadline::for_order( $order ) : null; ?>
 			<?php if ( $deadline ) : ?>
 				<p class="reklamo-deadline">
@@ -213,8 +249,8 @@ final class Reklamo_Admin_Order {
 					<p style="margin:.2em 0"<?php echo '' !== $inscription && ! $logos ? ' hidden' : ''; ?>>
 						<strong><?php echo esc_html( count( $logos ) > 1 ? __( 'Customer logos', 'reklamo-core' ) : __( 'Customer logo', 'reklamo-core' ) ); ?>:</strong>
 						<?php if ( $logos ) : ?>
-							<?php foreach ( $logos as $i => $logo ) : ?>
-								<?php echo $i ? ', ' : ''; ?><a href="<?php echo esc_url( Reklamo_Storage::download_url( (int) $logo->id ) ); ?>"><?php echo esc_html( Reklamo_Storage::describe( $logo ) ); ?></a>
+							<?php foreach ( $logos as $logo ) : ?>
+								<?php echo self::file_link( $logo ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside. ?>
 							<?php endforeach; ?>
 						<?php else : ?>
 							<span class="description"><?php esc_html_e( 'No logo attached to this product.', 'reklamo-core' ); ?></span>
@@ -231,7 +267,7 @@ final class Reklamo_Admin_Order {
 							$comment = (string) ( $comments[ $item_id ][ (int) $m->revision ] ?? '' );
 							?>
 							<li value="<?php echo esc_attr( (string) $m->revision ); ?>">
-								<a href="<?php echo esc_url( Reklamo_Storage::download_url( (int) $m->id ) ); ?>"><?php echo esc_html( Reklamo_Storage::describe( $m ) ); ?></a>
+								<?php echo self::file_link( $m, 'large' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside. ?>
 								<span class="description">
 								<?php
 								if ( $t && $t->used_at ) {
@@ -314,52 +350,6 @@ final class Reklamo_Admin_Order {
 				</p>
 			<?php endif; ?>
 
-			<h4><?php esc_html_e( 'Invoice & delivery details', 'reklamo-core' ); ?></h4>
-			<?php if ( $details['submitted_at'] ) : ?>
-				<?php // Inside the order form, so "Update" saves them (see save_details()). Company and phone are WooCommerce billing fields, edited in their own box. ?>
-				<table class="widefat striped reklamo-details" style="max-width:600px">
-					<tr><th style="width:40%"><?php esc_html_e( 'Type', 'reklamo-core' ); ?></th><td>
-						<select name="reklamo_d_customer_type">
-							<option value="company" <?php selected( 'company', $details['customer_type'] ); ?>><?php esc_html_e( 'Company', 'reklamo-core' ); ?></option>
-							<option value="person" <?php selected( 'person', $details['customer_type'] ); ?>><?php esc_html_e( 'Private person', 'reklamo-core' ); ?></option>
-						</select></td></tr>
-					<tr><th><?php esc_html_e( 'Company ID (ЕИК)', 'reklamo-core' ); ?></th><td><input type="text" name="reklamo_d_eik" value="<?php echo esc_attr( $details['eik'] ); ?>" class="regular-text"></td></tr>
-					<tr><th><?php esc_html_e( 'VAT no.', 'reklamo-core' ); ?></th><td><input type="text" name="reklamo_d_vat" value="<?php echo esc_attr( $details['vat'] ); ?>" class="regular-text"></td></tr>
-					<tr><th><?php esc_html_e( 'Responsible person (МОЛ)', 'reklamo-core' ); ?></th><td><input type="text" name="reklamo_d_mol" value="<?php echo esc_attr( $details['mol'] ); ?>" class="regular-text"></td></tr>
-					<tr><th><?php esc_html_e( 'Delivery note', 'reklamo-core' ); ?></th><td><input type="text" name="reklamo_d_note" value="<?php echo esc_attr( $details['note'] ); ?>" class="regular-text"></td></tr>
-					<tr><th><?php esc_html_e( 'Company', 'reklamo-core' ); ?></th><td><?php echo esc_html( $details['company'] ); ?></td></tr>
-					<tr><th><?php esc_html_e( 'Phone', 'reklamo-core' ); ?></th><td><?php echo esc_html( $details['phone'] ); ?></td></tr>
-					<tr><th><?php esc_html_e( 'Delivery', 'reklamo-core' ); ?></th><td>
-						<select name="reklamo_d_delivery_type">
-							<?php foreach ( Reklamo_Approval::DELIVERY_TYPES as $reklamo_dt ) : ?>
-								<option value="<?php echo esc_attr( $reklamo_dt ); ?>" <?php selected( $reklamo_dt, $details['delivery_type'] ); ?>><?php echo esc_html( Reklamo_Approval::delivery_type_label( $reklamo_dt ) ); ?></option>
-							<?php endforeach; ?>
-						</select></td></tr>
-					<tr><th><?php esc_html_e( 'Courier', 'reklamo-core' ); ?></th><td>
-						<select name="reklamo_d_courier">
-							<option value=""><?php esc_html_e( 'No preference', 'reklamo-core' ); ?></option>
-							<?php foreach ( Reklamo_Approval::COURIERS as $reklamo_ck => $reklamo_cn ) : ?>
-								<option value="<?php echo esc_attr( $reklamo_ck ); ?>" <?php selected( $reklamo_ck, $details['courier'] ); ?>><?php echo esc_html( $reklamo_cn ); ?></option>
-							<?php endforeach; ?>
-						</select></td></tr>
-					<tr><th><?php esc_html_e( 'Address, office or parcel locker', 'reklamo-core' ); ?></th><td><input type="text" name="reklamo_d_address_1" value="<?php echo esc_attr( $details['address_1'] ); ?>" class="regular-text"></td></tr>
-					<tr><th><?php esc_html_e( 'City', 'reklamo-core' ); ?></th><td><input type="text" name="reklamo_d_city" value="<?php echo esc_attr( $details['city'] ); ?>" class="regular-text"></td></tr>
-					<tr><th><?php esc_html_e( 'Postcode', 'reklamo-core' ); ?></th><td><input type="text" name="reklamo_d_postcode" value="<?php echo esc_attr( $details['postcode'] ); ?>" class="small-text"></td></tr>
-					<?php if ( $details['billing_address'] ) : ?>
-						<tr><th><?php esc_html_e( 'Company address (for the invoice)', 'reklamo-core' ); ?></th><td><?php echo esc_html( $details['billing_address'] ); ?></td></tr>
-					<?php endif; ?>
-					<?php
-					foreach ( array( 'delivery_type', 'courier', 'address_1', 'city', 'postcode' ) as $reklamo_f ) {
-						printf( '<input type="hidden" name="reklamo_d_was_%1$s" value="%2$s">', esc_attr( $reklamo_f ), esc_attr( $details[ $reklamo_f ] ) );
-					}
-					?>
-					<tr><th><?php esc_html_e( 'Submitted', 'reklamo-core' ); ?></th><td><?php echo esc_html( $fmt_date( $details['submitted_at'] ) ); ?></td></tr>
-				</table>
-				<p class="description"><?php esc_html_e( 'Saved with the order\'s "Update" button, e.g. when the customer calls to change the delivery. Company name and phone are edited in the Billing box.', 'reklamo-core' ); ?></p>
-			<?php else : ?>
-				<p class="description"><?php esc_html_e( 'Not submitted yet — the customer gets the form after approving the mockup.', 'reklamo-core' ); ?></p>
-			<?php endif; ?>
-
 			<?php
 			// Hidden inputs for both footer forms (wp_nonce_field() would land inside the outer form).
 			printf(
@@ -377,6 +367,87 @@ final class Reklamo_Admin_Order {
 			?>
 		</div>
 		<?php
+	}
+
+	/** @param WC_Order|WP_Post $post_or_order */
+	public static function render_details( $post_or_order ): void {
+		$order = $post_or_order instanceof WC_Order ? $post_or_order : wc_get_order( $post_or_order->ID );
+		if ( ! $order ) {
+			return;
+		}
+		$details  = Reklamo_Approval::details( $order );
+		$fmt_date = static fn( string $utc ): string => $utc ? wc_format_datetime( new WC_DateTime( $utc . ' UTC' ), 'd.m.Y H:i' ) : '';
+		?>
+			<?php if ( $details['submitted_at'] ) : ?>
+				<?php // Inside the order form, so "Update" saves them (see save_details()). Company and phone are WooCommerce billing fields, edited in their own box. ?>
+				<?php $copy = self::invoice_text( $order, $details ); ?>
+				<p><button type="button" class="button" data-reklamo-copy="<?php echo esc_attr( $copy ); ?>" data-done="<?php esc_attr_e( 'Copied', 'reklamo-core' ); ?>"><?php esc_html_e( 'Copy for the invoice', 'reklamo-core' ); ?></button></p>
+				<table class="reklamo-details">
+					<tr><th><?php esc_html_e( 'Type', 'reklamo-core' ); ?></th><td>
+						<select name="reklamo_d_customer_type">
+							<option value="company" <?php selected( 'company', $details['customer_type'] ); ?>><?php esc_html_e( 'Company', 'reklamo-core' ); ?></option>
+							<option value="person" <?php selected( 'person', $details['customer_type'] ); ?>><?php esc_html_e( 'Private person', 'reklamo-core' ); ?></option>
+						</select></td></tr>
+					<tr><th><?php esc_html_e( 'Company ID (ЕИК)', 'reklamo-core' ); ?></th><td><input type="text" name="reklamo_d_eik" value="<?php echo esc_attr( $details['eik'] ); ?>"></td></tr>
+					<tr><th><?php esc_html_e( 'VAT no.', 'reklamo-core' ); ?></th><td><input type="text" name="reklamo_d_vat" value="<?php echo esc_attr( $details['vat'] ); ?>"></td></tr>
+					<tr><th><?php esc_html_e( 'Responsible person (МОЛ)', 'reklamo-core' ); ?></th><td><input type="text" name="reklamo_d_mol" value="<?php echo esc_attr( $details['mol'] ); ?>"></td></tr>
+					<tr><th><?php esc_html_e( 'Delivery note', 'reklamo-core' ); ?></th><td><input type="text" name="reklamo_d_note" value="<?php echo esc_attr( $details['note'] ); ?>"></td></tr>
+					<tr><th><?php esc_html_e( 'Company', 'reklamo-core' ); ?></th><td><?php echo esc_html( $details['company'] ); ?></td></tr>
+					<tr><th><?php esc_html_e( 'Phone', 'reklamo-core' ); ?></th><td><?php echo esc_html( $details['phone'] ); ?></td></tr>
+					<tr><th><?php esc_html_e( 'Delivery', 'reklamo-core' ); ?></th><td>
+						<select name="reklamo_d_delivery_type">
+							<?php foreach ( Reklamo_Approval::DELIVERY_TYPES as $reklamo_dt ) : ?>
+								<option value="<?php echo esc_attr( $reklamo_dt ); ?>" <?php selected( $reklamo_dt, $details['delivery_type'] ); ?>><?php echo esc_html( Reklamo_Approval::delivery_type_label( $reklamo_dt ) ); ?></option>
+							<?php endforeach; ?>
+						</select></td></tr>
+					<tr><th><?php esc_html_e( 'Courier', 'reklamo-core' ); ?></th><td>
+						<select name="reklamo_d_courier">
+							<option value=""><?php esc_html_e( 'No preference', 'reklamo-core' ); ?></option>
+							<?php foreach ( Reklamo_Approval::COURIERS as $reklamo_ck => $reklamo_cn ) : ?>
+								<option value="<?php echo esc_attr( $reklamo_ck ); ?>" <?php selected( $reklamo_ck, $details['courier'] ); ?>><?php echo esc_html( $reklamo_cn ); ?></option>
+							<?php endforeach; ?>
+						</select></td></tr>
+					<tr><th><?php esc_html_e( 'Address, office or parcel locker', 'reklamo-core' ); ?></th><td><input type="text" name="reklamo_d_address_1" value="<?php echo esc_attr( $details['address_1'] ); ?>"></td></tr>
+					<tr><th><?php esc_html_e( 'City', 'reklamo-core' ); ?></th><td><input type="text" name="reklamo_d_city" value="<?php echo esc_attr( $details['city'] ); ?>"></td></tr>
+					<tr><th><?php esc_html_e( 'Postcode', 'reklamo-core' ); ?></th><td><input type="text" name="reklamo_d_postcode" value="<?php echo esc_attr( $details['postcode'] ); ?>"></td></tr>
+					<?php if ( $details['billing_address'] ) : ?>
+						<tr><th><?php esc_html_e( 'Company address (for the invoice)', 'reklamo-core' ); ?></th><td><?php echo esc_html( $details['billing_address'] ); ?></td></tr>
+					<?php endif; ?>
+					<?php
+					foreach ( array( 'delivery_type', 'courier', 'address_1', 'city', 'postcode' ) as $reklamo_f ) {
+						printf( '<input type="hidden" name="reklamo_d_was_%1$s" value="%2$s">', esc_attr( $reklamo_f ), esc_attr( $details[ $reklamo_f ] ) );
+					}
+					?>
+					<tr><th><?php esc_html_e( 'Submitted', 'reklamo-core' ); ?></th><td><?php echo esc_html( $fmt_date( $details['submitted_at'] ) ); ?></td></tr>
+				</table>
+				<p class="description"><?php esc_html_e( 'Saved with the order\'s "Update" button, e.g. when the customer calls to change the delivery. Company name and phone are edited in the Billing box.', 'reklamo-core' ); ?></p>
+			<?php else : ?>
+				<p class="description"><?php esc_html_e( 'Not submitted yet — the customer gets the form after approving the mockup.', 'reklamo-core' ); ?></p>
+			<?php endif; ?>
+		<?php
+	}
+
+	/** The invoice recipient as plain lines, for pasting into the invoicing program. */
+	private static function invoice_text( WC_Order $order, array $d ): string {
+		$address = '' !== $d['billing_address'] ? $d['billing_address'] : trim( $d['address_1'] . ', ' . trim( $d['postcode'] . ' ' . $d['city'] ), ', ' );
+		$lines   = 'person' === $d['customer_type']
+			? array( array( __( 'Name', 'reklamo-core' ), $d['name'] ) )
+			: array(
+				array( __( 'Company', 'reklamo-core' ), $d['company'] ),
+				array( __( 'Company ID (ЕИК)', 'reklamo-core' ), $d['eik'] ),
+				array( __( 'VAT no.', 'reklamo-core' ), $d['vat'] ),
+				array( __( 'Responsible person (МОЛ)', 'reklamo-core' ), $d['mol'] ),
+			);
+		$lines[] = array( __( 'Address', 'reklamo-core' ), $address );
+		$lines[] = array( __( 'Phone', 'reklamo-core' ), $d['phone'] );
+		$lines[] = array( __( 'Email', 'reklamo-core' ), $order->get_billing_email() );
+		$out     = array();
+		foreach ( $lines as $line ) {
+			if ( '' !== trim( (string) $line[1] ) ) {
+				$out[] = $line[0] . ': ' . $line[1];
+			}
+		}
+		return implode( "\n", $out );
 	}
 
 	/** The real form elements live outside the order form so the browser honours them. */

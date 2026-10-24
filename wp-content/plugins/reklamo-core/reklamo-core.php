@@ -47,6 +47,8 @@ require REKLAMO_PATH . 'includes/class-reklamo-approval.php';
 require REKLAMO_PATH . 'includes/class-reklamo-progress.php';
 require REKLAMO_PATH . 'includes/class-reklamo-tracking.php';
 require REKLAMO_PATH . 'includes/class-reklamo-admin-order.php';
+require REKLAMO_PATH . 'includes/class-reklamo-admin-orders.php';
+require REKLAMO_PATH . 'includes/class-reklamo-news.php';
 require REKLAMO_PATH . 'includes/class-reklamo-emails.php';
 require REKLAMO_PATH . 'includes/class-reklamo-settings.php';
 require REKLAMO_PATH . 'includes/class-reklamo-request.php';
@@ -110,6 +112,8 @@ function reklamo_boot(): void {
 	Reklamo_Tracking::init();
 	Reklamo_Privacy::init();
 	Reklamo_Admin_Order::init();
+	Reklamo_Admin_Orders::init();
+	Reklamo_News::init();
 	Reklamo_Emails::init();
 	Reklamo_Settings::init();
 	Reklamo_Request::init();

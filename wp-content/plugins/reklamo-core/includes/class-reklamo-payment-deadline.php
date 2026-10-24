@@ -114,6 +114,7 @@ final class Reklamo_Payment_Deadline {
 			/* translators: %d: hours */
 			sprintf( __( 'Cancelled automatically: the payment did not arrive within %d hours of the approval.', 'reklamo-core' ), self::cancel_hours() )
 		);
+		Reklamo_News::flag( $order_id, 'expired' );
 		// Core's admin "Cancelled order" email only fires from processing/on-hold.
 		$emails = WC()->mailer()->get_emails();
 		if ( isset( $emails['WC_Email_Cancelled_Order'] ) ) {

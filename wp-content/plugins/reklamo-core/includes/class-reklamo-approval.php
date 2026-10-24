@@ -332,9 +332,11 @@ final class Reklamo_Approval {
 			);
 			$order = wc_get_order( $order->get_id() );
 			if ( ! Reklamo_Items::all_approved( $order ) ) {
+				Reklamo_News::flag( $order->get_id(), 'approved' );
 				Reklamo_Items::sync_status( $order );
 				return '';
 			}
+			Reklamo_News::flag( $order->get_id(), 'approved_all' );
 			$deposit = Reklamo_Money::deposit( (float) $order->get_total(), (int) Reklamo_Settings::get( 'deposit_pct', '100' ) );
 			$order->update_meta_data( '_reklamo_approved_at', current_time( 'mysql', true ) );
 			$order->update_meta_data( '_reklamo_deposit_amount', wc_format_decimal( $deposit, 2 ) );
@@ -360,6 +362,7 @@ final class Reklamo_Approval {
 		Reklamo_Items::add_change_request( $order, $item_id, $revision, $message );
 		$order->save();
 		Reklamo_Emails::send_admin_changes( $order, $item, $revision, $message );
+		Reklamo_News::flag( $order->get_id(), 'changes' );
 		Reklamo_Items::sync_status( $order, __( 'Changes requested — back to the designer.', 'reklamo-core' ) );
 		return '';
 	}
@@ -543,6 +546,7 @@ final class Reklamo_Approval {
 		$order->update_meta_data( '_reklamo_details_at', current_time( 'mysql', true ) );
 		$order->save();
 		$order->add_order_note( $first_time ? __( 'Customer submitted invoice and delivery details.', 'reklamo-core' ) : __( 'Customer updated invoice and delivery details.', 'reklamo-core' ) );
+		Reklamo_News::flag( $order->get_id(), $first_time ? 'details' : 'details_updated' );
 		if ( $first_time ) {
 			Reklamo_Emails::send_admin_details( $order );
 		}

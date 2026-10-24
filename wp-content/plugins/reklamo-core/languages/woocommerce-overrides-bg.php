@@ -35,4 +35,14 @@ return array(
 	'New in store'                              => 'Ново в магазина',
 	'Browse store'                              => 'Разгледай магазина',
 	'Return to shop'                            => 'Обратно към магазина',
+	// Order screens in wp-admin.
+	'Move to trash'                             => 'Премести в кошчето',
+	'Add private note'                          => 'Добави бележка',
+	'Public note to customer'                   => 'Бележка до клиента (получава имейл)',
+	'Items Subtotal:'                           => 'Междинна сума:',
+	'All sales channels'                        => 'Всички канали за продажба',
+	'Point of Sale'                             => 'Каса (POS)',
+	'Change status to cancelled'                => 'Смени статуса на „Отказана“',
+	'All methods available'                     => 'Всички методи',
+	'Custom Fields'                             => 'Допълнителни полета',
 );

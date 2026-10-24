@@ -278,7 +278,7 @@ final class Reklamo_Storage {
 		return wp_nonce_url( admin_url( 'admin-post.php?action=reklamo_download&f=' . $file_id ), 'reklamo_dl_' . $file_id );
 	}
 
-	/** Admin-only download of any stored file. */
+	/** Admin-only download of any stored file; `view` shows a picture in the browser instead. */
 	public static function serve_download(): void {
 		$id = isset( $_GET['f'] ) ? absint( $_GET['f'] ) : 0;
 		check_admin_referer( 'reklamo_dl_' . $id );
@@ -289,7 +289,7 @@ final class Reklamo_Storage {
 		if ( ! $row ) {
 			wp_die( esc_html__( 'File not found.', 'reklamo-core' ), 404 );
 		}
-		self::serve_file( $row, false );
+		self::serve_file( $row, ! empty( $_GET['view'] ) );
 	}
 
 	/**
