@@ -54,7 +54,7 @@ the `php` on PATH is the server default and may be older.
 |---|---|---|
 | Enable SSH | my.superhosting.bg → Хостинг акаунти → Настройки → SSH достъп → Активиране | Credentials arrive by email. |
 | Authorise your key | cPanel → SSH Access → Manage SSH Keys → Import → Authorize | Then `ssh -p 1022 <cpanel-user>@<domain>` works. |
-| PHP version | cPanel → PHP Manager by SuperHosting → PHP 8.4 | Same major.minor as `PHP_BIN` in the server `.env` and as the `wordpress:*-php8.5` images in `docker-compose.yml`. `check.sh` compares web and CLI. |
+| PHP version | cPanel → PHP Manager by SuperHosting → PHP 8.5 | Same major.minor as `PHP_BIN` in the server `.env` and as the `wordpress:*-php8.5` images in `docker-compose.yml`. `check.sh` compares web and CLI. |
 | PHP directives | PHP Manager → Change PHP directives | `upload_max_filesize` ≥ 128M, `post_max_size` ≥ same, `max_execution_time` 120, `max_input_time` 300, `memory_limit` 256M. `install.sh` also writes `.user.ini`; `check.sh` shows which values the web server really applies. |
 | Mailbox | cPanel → Email Accounts → `office@reklamo.bg` | WooCommerce sends from it; SMTP authenticates as it. |
 | DNS | nameservers of the account (my.superhosting.bg → Настройки → DNS сървъри; `ns299`/`ns300` for saturn) | Until it propagates the site answers only on the account's IP. `install.sh` records that IP from cPanel as `WP_HOST_IP`, so `check.sh` probes work before DNS. The account IP is not the server hostname's IP. |

@@ -48,7 +48,7 @@ anything that stores customer data.
   pins are floors: the server is raised to them, never lowered. When the live site is ahead,
   because `WP_AUTO_UPDATE_CORE minor` applied a security release, bump the pin here and test.
   Do not downgrade production.
-- **PHP is 8.4 everywhere**: the `wordpress:*-php8.5` images locally, `ea-php85` on the host.
+- **PHP is 8.5 everywhere**: the `wordpress:*-php8.5` images locally, `ea-php85` on the host.
   Change both together or not at all.
 - **Server scripts run through `PHP_BIN` and never assume `wp` exists.** `scripts/lib.sh` runs a
   WP-CLI *phar* (the host's `wp-cli.phar` or our downloaded one) on `PHP_BIN`; launcher scripts
