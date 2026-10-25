@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-23T19:42:20+00:00\n"
+"POT-Creation-Date: 2026-10-25T10:56:04+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: reklamo\n"
@@ -127,23 +127,23 @@ msgstr ""
 msgid "Inquiry for a tailored offer"
 msgstr ""
 
-#: functions.php:383
+#: functions.php:455
 msgid "Specifications"
 msgstr ""
 
-#: functions.php:482
+#: functions.php:554
 msgid "Promotion"
 msgstr ""
 
-#: functions.php:489
+#: functions.php:561
 msgid "+ Gift"
 msgstr ""
 
-#: functions.php:496
+#: functions.php:568
 msgid "Most popular"
 msgstr ""
 
-#: functions.php:527
+#: functions.php:599
 msgid "View the package"
 msgstr ""
 
@@ -626,37 +626,49 @@ msgstr ""
 msgid "Contact us for help"
 msgstr ""
 
-#. translators: %d: minimum quantity
-#: woocommerce/content-product.php:45
+#. translators: 1: what is in the package, e.g. "pens, cables"; 2: its box, e.g. "gift boxes"
+#: woocommerce/content-product.php:37
+#, php-format
+msgid "%1$s in %2$s"
+msgstr ""
+
+#. translators: 1: number or range of packages, e.g. 50–200; 2: what is in each, e.g. "notebooks and pens"
+#: woocommerce/content-product.php:40
+#, php-format
+msgid "%1$s packs of %2$s"
+msgstr ""
+
+#. translators: %d: smallest quantity
+#: woocommerce/content-product.php:75
 #, php-format
 msgid "from %d pcs."
 msgstr ""
 
 #. translators: %d: number of pieces in the package
-#: woocommerce/content-product.php:47
+#: woocommerce/content-product.php:77
 #, php-format
 msgid "%d pcs."
 msgstr ""
 
-#: woocommerce/content-product.php:56
+#: woocommerce/content-product.php:86
 msgid "per piece"
 msgstr ""
 
-#: woocommerce/content-product.php:56
+#: woocommerce/content-product.php:86
 msgid "incl. VAT"
 msgstr ""
 
 #. translators: %s: what comes free with the product
-#: woocommerce/content-product.php:66
+#: woocommerce/content-product.php:96
 #, php-format
 msgid "Gift: %s"
 msgstr ""
 
-#: woocommerce/content-product.php:70
+#: woocommerce/content-product.php:100
 msgid "Colours"
 msgstr ""
 
-#: woocommerce/content-product.php:77
+#: woocommerce/content-product.php:107
 msgid "View more"
 msgstr ""
 

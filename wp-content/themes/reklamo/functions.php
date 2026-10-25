@@ -393,7 +393,7 @@ function reklamo_catalogue_sort(): array {
  * Pieces the card's price is for: the Количество of the cheapest variation, whose price the seal
  * shows, or else the number the first contents item starts with, e.g. "50 бр. …" → 50.
  *
- * @return array{qty:int,from:bool} from: the product comes in more than one quantity.
+ * @return array{qty:int,from:bool,max:int} from: the product comes in more than one quantity, up to max.
  */
 function reklamo_package_quantity( WC_Product $product ): array {
 	if ( $product instanceof WC_Product_Variable && class_exists( 'Reklamo_Product' ) ) {
@@ -411,6 +411,7 @@ function reklamo_package_quantity( WC_Product $product ): array {
 			return array(
 				'qty'  => $sizes[0],
 				'from' => count( array_unique( $sizes ) ) > 1,
+				'max'  => max( $sizes ),
 			);
 		}
 	}
@@ -419,6 +420,7 @@ function reklamo_package_quantity( WC_Product $product ): array {
 	return array(
 		'qty'  => ( $items && preg_match( '~^(\d+)~', $items[0]['title'], $m ) ) ? (int) $m[1] : 0,
 		'from' => false,
+		'max'  => 0,
 	);
 }
 

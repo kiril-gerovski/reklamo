@@ -258,6 +258,7 @@ test( 'Промо пакети filters by category through its chips and shows t
 	const seal = mugs.filter( { hasText: 'Комплект Stripe' } ).locator( '.package-card__seal' );
 	await expect( seal ).toContainText( 'от 50 бр.' );
 	await expect( seal ).toContainText( /409,99\s€/ );
+	await expect( mugs.filter( { hasText: 'Комплект Stripe' } ).locator( '.package-card__body' ) ).toContainText( '50–200 бр. комплекта тефтери, чаши и химикалки' );
 } );
 
 test( 'on a phone the category chips fit the screen and the cards sit two to a row', async ( { page } ) => {
@@ -451,4 +452,10 @@ test( 'Корпоративни подаръци lists what is ticked into it, l
 	await shop.goto( '/korporativni-podaratsi/' );
 	await expect( shop.locator( '.shop-empty' ) ).toBeVisible();
 	await shop.context().close();
+} );
+
+test( 'a package card names its range once and puts the box last', async ( { page } ) => {
+	await page.goto( '/' );
+	const trio = page.locator( 'li.product', { hasText: 'Комплект Trio' } ).locator( '.package-card__body' );
+	await expect( trio ).toContainText( '50–200 бр. комплекта химикалки, кабели за зареждане в подаръчни кутии' );
 } );
