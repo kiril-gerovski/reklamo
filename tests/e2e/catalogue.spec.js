@@ -256,7 +256,7 @@ test( 'Промо пакети filters by category through its chips and shows t
 	await expect( mugs.filter( { hasText: 'Чаша с капак Travel Black' } ) ).toHaveCount( 0 );
 
 	const seal = mugs.filter( { hasText: 'Комплект Stripe' } ).locator( '.package-card__seal' );
-	await expect( seal ).toContainText( '50 бр.' );
+	await expect( seal ).toContainText( 'от 50 бр.' );
 	await expect( seal ).toContainText( /409,99\s€/ );
 } );
 

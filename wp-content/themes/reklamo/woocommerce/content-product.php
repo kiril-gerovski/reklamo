@@ -18,7 +18,8 @@ if ( ! $product instanceof WC_Product || ! $product->is_visible() ) {
 $reklamo_short = reklamo_split_short_description( $product->get_short_description() );
 $reklamo_items = reklamo_package_items( $reklamo_short['list'] );
 $reklamo_piece = class_exists( 'Reklamo_Product' ) && Reklamo_Product::by_the_piece( $product );
-$reklamo_qty   = $reklamo_piece ? Reklamo_Product::min_qty( $product ) : reklamo_package_quantity( $product );
+$reklamo_size  = $reklamo_piece ? array( 'qty' => Reklamo_Product::min_qty( $product ), 'from' => true ) : reklamo_package_quantity( $product );
+$reklamo_qty   = $reklamo_size['qty'];
 $reklamo_line  = $reklamo_items ? implode( ' · ', wp_list_pluck( $reklamo_items, 'title' ) ) : wp_strip_all_tags( $reklamo_short['lead'] );
 $reklamo_url   = $product->get_permalink();
 
@@ -40,8 +41,8 @@ $reklamo_colours = class_exists( 'Reklamo_Product' ) ? Reklamo_Product::colours(
 					<span class="package-card__qty">
 						<?php
 						echo esc_html(
-							$reklamo_piece
-								/* translators: %d: minimum quantity */
+							$reklamo_size['from']
+								/* translators: %d: smallest quantity */
 								? sprintf( __( 'from %d pcs.', 'reklamo' ), $reklamo_qty )
 								/* translators: %d: number of pieces in the package */
 								: sprintf( __( '%d pcs.', 'reklamo' ), $reklamo_qty )

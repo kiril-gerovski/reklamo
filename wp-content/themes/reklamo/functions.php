@@ -389,11 +389,37 @@ function reklamo_catalogue_sort(): array {
 	);
 }
 
-/** Pieces in a package: the number its first contents item starts with, e.g. "50 бр. …" → 50. */
-function reklamo_package_quantity( WC_Product $product ): int {
+/**
+ * Pieces the card's price is for: the Количество of the cheapest variation, whose price the seal
+ * shows, or else the number the first contents item starts with, e.g. "50 бр. …" → 50.
+ *
+ * @return array{qty:int,from:bool} from: the product comes in more than one quantity.
+ */
+function reklamo_package_quantity( WC_Product $product ): array {
+	if ( $product instanceof WC_Product_Variable && class_exists( 'Reklamo_Product' ) ) {
+		$prices = $product->get_variation_prices( true )['price'];
+		asort( $prices );
+		$sizes = array();
+		foreach ( array_keys( $prices ) as $id ) {
+			$variation = wc_get_product( $id );
+			$size      = $variation ? (int) $variation->get_attribute( Reklamo_Product::QTY_TAX ) : 0;
+			if ( $size ) {
+				$sizes[] = $size;
+			}
+		}
+		if ( $sizes ) {
+			return array(
+				'qty'  => $sizes[0],
+				'from' => count( array_unique( $sizes ) ) > 1,
+			);
+		}
+	}
 	$short = reklamo_split_short_description( $product->get_short_description() );
 	$items = reklamo_package_items( $short['list'] );
-	return ( $items && preg_match( '~^(\d+)~', $items[0]['title'], $m ) ) ? (int) $m[1] : 0;
+	return array(
+		'qty'  => ( $items && preg_match( '~^(\d+)~', $items[0]['title'], $m ) ) ? (int) $m[1] : 0,
+		'from' => false,
+	);
 }
 
 // Single product: the template prints title, price, excerpt and the CTA itself, in the design's
