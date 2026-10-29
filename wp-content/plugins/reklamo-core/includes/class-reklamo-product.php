@@ -48,6 +48,12 @@ final class Reklamo_Product {
 	/** A photo of the product with its gift: the main photo while the gift is on. */
 	const GIFT_IMAGE_META = '_reklamo_gift_image';
 
+	/** Per quantity, set in the quantities tab: quantity slug => percent off. Present = the product-wide fields are not used. */
+	const TIER_PROMO_META = '_reklamo_tier_promo';
+
+	/** Per quantity: quantity slug => gift. */
+	const TIER_GIFT_META = '_reklamo_tier_gift';
+
 	/** The product whose photo stands in the homepage hero; one at a time. */
 	const HERO_META = '_reklamo_hero';
 
@@ -76,10 +82,14 @@ final class Reklamo_Product {
 		return max( 0.99, floor( round( $off, 2 ) + 0.01 ) - 0.01 );
 	}
 
-	/** The promotion in force: percent and last day, or 0 when there is none or it is over. */
+	/**
+	 * The promotion in force: percent and last day, or 0 when there is none or it is over. With
+	 * percents per quantity, a variation has its quantity's and the product itself none.
+	 */
 	public static function promo( WC_Product $product ): array {
 		$base  = self::base( $product );
-		$pct   = (int) $base->get_meta( self::PROMO_META );
+		$tiers = self::per_tier( $product, self::TIER_PROMO_META );
+		$pct   = null === $tiers ? (int) $base->get_meta( self::PROMO_META ) : (int) ( $tiers[ self::tier_of( $product ) ] ?? 0 );
 		$until = (string) $base->get_meta( self::PROMO_UNTIL_META );
 		if ( $pct < 1 || $pct > 90 || ( '' !== $until && $until < wp_date( 'Y-m-d' ) ) ) {
 			$pct = 0;
@@ -90,14 +100,67 @@ final class Reklamo_Product {
 		);
 	}
 
+	/**
+	 * What comes free: a variation's is its quantity's; the product's own only when it comes with
+	 * every quantity on offer.
+	 */
 	public static function gift( WC_Product $product ): string {
-		return trim( (string) self::base( $product )->get_meta( self::GIFT_META ) );
+		$tiers = self::per_tier( $product, self::TIER_GIFT_META );
+		if ( null === $tiers ) {
+			return trim( (string) self::base( $product )->get_meta( self::GIFT_META ) );
+		}
+		if ( $product->is_type( 'variation' ) ) {
+			return trim( (string) ( $tiers[ self::tier_of( $product ) ] ?? '' ) );
+		}
+		$gifts = self::gifts( $product );
+		return $gifts && count( $gifts ) === count( self::tiers( $product ) ) && 1 === count( array_unique( $gifts ) ) ? reset( $gifts ) : '';
+	}
+
+	/** @return array<string,string> quantity slug => gift, for the quantities on offer that come with one, in the shop's order */
+	public static function gifts( WC_Product $product ): array {
+		$base  = self::base( $product );
+		$tiers = self::per_tier( $base, self::TIER_GIFT_META );
+		$out   = array();
+		foreach ( self::tiers( $base ) as $term ) {
+			$gift = trim( (string) ( null === $tiers ? $base->get_meta( self::GIFT_META ) : ( $tiers[ $term->slug ] ?? '' ) ) );
+			if ( '' !== $gift ) {
+				$out[ $term->slug ] = $gift;
+			}
+		}
+		return $out;
+	}
+
+	/** Something comes free with the product, in some quantity at least. */
+	public static function has_gift( WC_Product $product ): bool {
+		$base = self::base( $product );
+		return '' !== self::gift( $base ) || (bool) self::gifts( $base );
+	}
+
+	/** For the quantities tab: one quantity's percent off and gift, as saved or as set for all quantities. */
+	public static function tier_settings( WC_Product $product, string $slug ): array {
+		$promos = self::per_tier( $product, self::TIER_PROMO_META );
+		$gifts  = self::per_tier( $product, self::TIER_GIFT_META );
+		return array(
+			'pct'  => (string) ( null === $promos ? $product->get_meta( self::PROMO_META ) : ( $promos[ $slug ] ?? '' ) ),
+			'gift' => (string) ( null === $gifts ? $product->get_meta( self::GIFT_META ) : ( $gifts[ $slug ] ?? '' ) ),
+		);
+	}
+
+	/** @return array<string,mixed>|null the per-quantity map, null for a product set for all quantities at once */
+	private static function per_tier( WC_Product $product, string $key ): ?array {
+		$map = self::base( $product )->get_meta( $key );
+		return is_array( $map ) ? $map : null;
+	}
+
+	/** A variation's quantity slug, '' for anything else. */
+	private static function tier_of( WC_Product $product ): string {
+		return $product->is_type( 'variation' ) ? (string) ( $product->get_attributes()[ self::QTY_TAX ] ?? '' ) : '';
 	}
 
 	/** The photo with the gift, 0 when there is no gift or no such photo. */
 	public static function gift_photo( WC_Product $product ): int {
 		$id = absint( self::base( $product )->get_meta( self::GIFT_IMAGE_META ) );
-		return '' !== self::gift( $product ) && $id && wp_attachment_is_image( $id ) ? $id : 0;
+		return self::has_gift( $product ) && $id && wp_attachment_is_image( $id ) ? $id : 0;
 	}
 
 	/**
@@ -137,20 +200,23 @@ final class Reklamo_Product {
 		return $out;
 	}
 
-	/** Write the promotion into every variation's sale price, or take ours away again. */
+	/** Write the promotion into each variation's sale price, or take ours away again. */
 	public static function apply_promo( int $product_id ): void {
 		$product = wc_get_product( $product_id );
 		if ( ! $product || ! $product->is_type( 'variable' ) ) {
 			return;
 		}
-		$promo   = self::promo( $product );
 		$applied = (bool) $product->get_meta( self::PROMO_APPLIED_META );
-		if ( ! $promo['pct'] && ! $applied ) {
-			return;
-		}
+		$any     = false;
 		foreach ( $product->get_children() as $child ) {
 			$v = wc_get_product( $child );
 			if ( ! $v ) {
+				continue;
+			}
+			$promo = self::promo( $v );
+			$any   = $any || $promo['pct'];
+			// A sale price the owner set by hand stays, unless it is one of ours.
+			if ( ! $promo['pct'] && ! $applied ) {
 				continue;
 			}
 			$regular = (float) $v->get_regular_price();
@@ -165,7 +231,7 @@ final class Reklamo_Product {
 			}
 			$v->save();
 		}
-		if ( $promo['pct'] ) {
+		if ( $any ) {
 			update_post_meta( $product_id, self::PROMO_APPLIED_META, 1 );
 		} else {
 			delete_post_meta( $product_id, self::PROMO_APPLIED_META );
@@ -368,6 +434,7 @@ final class Reklamo_Product {
 			)
 		);
 		echo '</div><div class="options_group">';
+		echo '<p class="form-field" data-rk-tier-note hidden><span class="description">' . esc_html__( 'This product is sold in quantities: the percent off and the gift are set for each quantity in "Colours and quantities".', 'reklamo-core' ) . '</span></p>';
 		woocommerce_wp_text_input(
 			array(
 				'id'                => self::PROMO_META,
@@ -428,12 +495,19 @@ final class Reklamo_Product {
 		$pct   = isset( $_POST[ self::PROMO_META ] ) ? absint( $_POST[ self::PROMO_META ] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$until = isset( $_POST[ self::PROMO_UNTIL_META ] ) ? sanitize_text_field( wp_unslash( $_POST[ self::PROMO_UNTIL_META ] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$gift  = isset( $_POST[ self::GIFT_META ] ) ? sanitize_text_field( wp_unslash( $_POST[ self::GIFT_META ] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
-		$keep  = array(
+		$tiers = self::posted_tiers( $product );
+		if ( null !== $tiers ) {
+			$pct  = 0;
+			$gift = '';
+			$product->update_meta_data( self::TIER_PROMO_META, $tiers['promo'] );
+			$product->update_meta_data( self::TIER_GIFT_META, $tiers['gift'] );
+		}
+		$keep = array(
 			self::PROMO_META       => $pct >= 1 && $pct <= 90 ? $pct : '',
 			self::PROMO_UNTIL_META => preg_match( '/^\d{4}-\d{2}-\d{2}$/', $until ) ? $until : '',
 			self::GIFT_META        => $gift,
 			// The photo goes with the gift.
-			self::GIFT_IMAGE_META  => '' !== $gift && isset( $_POST[ self::GIFT_IMAGE_META ] ) ? absint( $_POST[ self::GIFT_IMAGE_META ] ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			self::GIFT_IMAGE_META  => ( '' !== $gift || ! empty( $tiers['gift'] ) ) && isset( $_POST[ self::GIFT_IMAGE_META ] ) ? absint( $_POST[ self::GIFT_IMAGE_META ] ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		);
 		foreach ( $keep as $key => $value ) {
 			if ( '' === $value ) {
@@ -475,6 +549,36 @@ final class Reklamo_Product {
 		} else {
 			$product->delete_meta_data( self::HERO_META );
 		}
+	}
+
+	/**
+	 * The percent off and the gift of each quantity ticked in the quantities tab, or null when the
+	 * product is not sold in quantities.
+	 *
+	 * @return array{promo:array<string,int>,gift:array<string,string>}|null
+	 */
+	private static function posted_tiers( WC_Product $product ): ?array {
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- WooCommerce verified the product editor's nonce.
+		if ( empty( $_POST['reklamo_variants'] ) || empty( $_POST['reklamo_sizes'] ) || ! $product->is_type( 'variable' ) ) {
+			return null;
+		}
+		$sizes  = array_map( 'sanitize_title', (array) wp_unslash( $_POST['reklamo_sizes'] ) );
+		$promos = isset( $_POST['reklamo_tier_promo'] ) ? array_map( 'absint', (array) wp_unslash( $_POST['reklamo_tier_promo'] ) ) : array();
+		$gifts  = isset( $_POST['reklamo_tier_gift'] ) ? array_map( 'sanitize_text_field', (array) wp_unslash( $_POST['reklamo_tier_gift'] ) ) : array();
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
+		$out = array(
+			'promo' => array(),
+			'gift'  => array(),
+		);
+		foreach ( $sizes as $size ) {
+			if ( ( $promos[ $size ] ?? 0 ) >= 1 && $promos[ $size ] <= 90 ) {
+				$out['promo'][ $size ] = $promos[ $size ];
+			}
+			if ( '' !== trim( $gifts[ $size ] ?? '' ) ) {
+				$out['gift'][ $size ] = trim( $gifts[ $size ] );
+			}
+		}
+		return $out;
 	}
 
 	/** @return int[] products ticked for the homepage, most recently edited first */

@@ -3437,3 +3437,33 @@ msgstr "На главната страница"
 #: includes/class-reklamo-product.php:367
 msgid "Show this product's main photo at the top of the homepage. Only one product at a time: ticking it here unticks the one before."
 msgstr "Основната снимка на продукта се показва най-горе на главната страница. Само един продукт наведнъж: отметката тук маха тази от предишния."
+
+#: includes/class-reklamo-product.php
+msgid "This product is sold in quantities: the percent off and the gift are set for each quantity in \"Colours and quantities\"."
+msgstr "Продуктът се продава в количества: отстъпката и подаръкът се задават за всяко количество в „Цветове и количества“."
+
+#: includes/class-reklamo-variants.php
+msgid "A promotion or a gift can go with some quantities only, or differ from one to another: leave a field empty where there is none. The last day of the promotion and the photo with the gift are in the General tab."
+msgstr "Промоцията и подаръкът могат да са само за някои количества или различни за всяко: където няма, оставете полето празно. Последният ден на промоцията и снимката с подаръка са в таб „Общи“."
+
+#: includes/class-reklamo-variants.php
+msgid "Price"
+msgstr "Цена"
+
+#: includes/class-reklamo-variants.php
+msgid "Promotion, %"
+msgstr "Промоция, %"
+
+#. translators: %s: quantity, e.g. "50 бр."
+#: includes/class-reklamo-variants.php
+msgid "Promotion for %s, percent off"
+msgstr "Промоция за %s, %% отстъпка"
+
+#: includes/class-reklamo-variants.php
+msgid "e.g. Satin Black lighter"
+msgstr "напр. Запалка Satin Black"
+
+#. translators: %s: quantity, e.g. "50 бр."
+#: includes/class-reklamo-variants.php
+msgid "Gift with %s"
+msgstr "Подарък при %s"

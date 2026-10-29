@@ -741,6 +741,7 @@ html { scroll-behavior: smooth; }
 .product-price-badge__was::after { height: 1.25px; margin-top: -.625px; background: #c0392b; }
 .product-price-badge__was[hidden] { display: none; }
 .product-gift { display: flex; align-items: flex-start; gap: .75rem; margin: 1.1rem 0 0; padding: .85rem 1rem; border: 1px solid color-mix(in srgb, #c0392b 25%, var(--line)); border-radius: 12px; background: #fdf3f1; }
+.product-gift[hidden] { display: none; }
 .product-gift .icon { flex: none; color: var(--gold-dark); }
 .product-gift strong { display: block; font: 600 .7rem/1.3 var(--sans); letter-spacing: .1em; text-transform: uppercase; color: #b8321f; margin-bottom: .15rem; }
 .product-gift span { font-size: .875rem; color: var(--ink); }

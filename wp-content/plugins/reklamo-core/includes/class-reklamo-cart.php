@@ -127,6 +127,7 @@ final class Reklamo_Cart {
 					'price'   => (float) wc_get_price_to_display( $v ),
 					'regular' => (float) wc_get_price_to_display( $v, array( 'price' => $v->get_regular_price() ) ),
 					'gallery' => self::gallery_html( $v ),
+					'gift'    => Reklamo_Product::gift( $v ),
 				);
 			}
 		}

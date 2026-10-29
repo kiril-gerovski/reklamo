@@ -895,3 +895,13 @@ msgstr "%1$s бр. комплекта %2$s"
 #, php-format
 msgid "%1$s in %2$s"
 msgstr "%1$s в %2$s"
+
+#. translators: 1: quantities such as "100 и 200", 2: what comes free with them
+#: woocommerce/content-product.php
+msgid "Gift with %1$s pcs.: %2$s"
+msgstr "Подарък при %1$s бр.: %2$s"
+
+#. translators: %s: quantities such as "100 и 200"
+#: woocommerce/content-single-product.php
+msgid "Gift with %s pcs."
+msgstr "Подарък при %s бр."

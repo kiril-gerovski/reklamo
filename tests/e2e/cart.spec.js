@@ -549,6 +549,18 @@ test( 'a product card shows its colours as circles', async ( { page } ) => {
 	await expect( page.locator( 'li.product', { hasText: 'Комплект Stripe' } ).locator( '.package-card__colours' ) ).toHaveCount( 0 );
 } );
 
+// Stripe is sold in quantities, so its promotion and gift are set per quantity; tiers maps a quantity to [percent, gift].
+async function stripeTiers( page, tiers ) {
+	await page.locator( 'a[href="#reklamo_variants_data"]' ).click();
+	for ( const input of await page.locator( 'input[name^="reklamo_tier_"]:enabled' ).all() ) {
+		await input.fill( '' );
+	}
+	for ( const [ slug, [ pct, gift ] ] of Object.entries( tiers ) ) {
+		await page.fill( `input[name="reklamo_tier_promo[${ slug }]"]`, pct );
+		await page.fill( `input[name="reklamo_tier_gift[${ slug }]"]`, gift );
+	}
+}
+
 test( 'a promotion and a gift set in the product: labels, struck price, sale price and gift in the cart', async ( { page, browser } ) => {
 	await adminLogin( page );
 	const id = ( await ( await page.request.get( '/wp-json/wc/store/v1/products?sku=PKG-STRIPE' ) ).json() )[ 0 ].id;
@@ -556,8 +568,7 @@ test( 'a promotion and a gift set in the product: labels, struck price, sale pri
 	const save = () => Promise.all( [ page.waitForURL( /message=/, { waitUntil: 'commit' } ), page.locator( '#publish' ).evaluate( ( b ) => b.click() ) ] );
 	const clear = async () => {
 		await page.goto( edit );
-		await page.fill( '#_reklamo_promo_pct', '' );
-		await page.fill( '#_reklamo_gift', '' );
+		await stripeTiers( page, {} );
 		await save();
 	};
 	// The photo with the gift: any image in the Media Library, here Cork's.
@@ -565,11 +576,14 @@ test( 'a promotion and a gift set in the product: labels, struck price, sale pri
 	const stripe = ( await ( await page.request.get( '/wp-json/wc/store/v1/products?sku=PKG-STRIPE' ) ).json() )[ 0 ].images[ 0 ];
 	const file = ( src ) => src.replace( /^.*\/|(-\d+x\d+)?\.\w+$/g, '' );
 	await page.goto( edit );
-	await page.fill( '#_reklamo_promo_pct', '15' );
-	await page.fill( '#_reklamo_gift', 'Запалка Satin Black' );
+	// With quantities the General tab's product-wide fields give way to the quantities tab.
+	await expect( page.locator( '[data-rk-tier-note]' ) ).toBeVisible();
+	await expect( page.locator( '#_reklamo_promo_pct' ) ).toBeHidden();
+	const every = Object.fromEntries( [ '50-br', '100-br', '150-br', '200-br' ].map( ( slug ) => [ slug, [ '15', 'Запалка Satin Black' ] ] ) );
+	await stripeTiers( page, every );
 	await page.locator( 'input[name="_reklamo_gift_image"]' ).evaluate( ( el, v ) => { el.value = v; }, String( giftPhoto.id ) );
 	await save();
-	await expect( page.locator( '#_reklamo_promo_pct' ) ).toHaveValue( '15' );
+	await expect( page.locator( 'input[name="reklamo_tier_promo[150-br]"]' ) ).toHaveValue( '15' );
 	// Whatever happens below, the product must not stay on promotion for the other tests.
 	try {
 		await checkPromotion();
@@ -613,6 +627,50 @@ test( 'a promotion and a gift set in the product: labels, struck price, sale pri
 		await expect( shop.locator( '.rk-cart__gift' ) ).toContainText( 'Запалка Satin Black' );
 		await shop.context().close();
 	}
+} );
+
+test( 'a promotion and a gift on one quantity only: named on the card, shown with that quantity', async ( { page, browser } ) => {
+	await adminLogin( page );
+	const id = ( await ( await page.request.get( '/wp-json/wc/store/v1/products?sku=PKG-STRIPE' ) ).json() )[ 0 ].id;
+	const edit = `/wp-admin/post.php?post=${ id }&action=edit`;
+	const save = () => Promise.all( [ page.waitForURL( /message=/, { waitUntil: 'commit' } ), page.locator( '#publish' ).evaluate( ( b ) => b.click() ) ] );
+	await page.goto( edit );
+	await stripeTiers( page, { '150-br': [ '15', 'Запалка Satin Black' ] } );
+	await save();
+	try {
+		const shop = await ( await browser.newContext( { locale: 'bg-BG' } ) ).newPage();
+		await shop.goto( '/promo-paketi/' );
+		const card = shop.locator( 'li.product', { hasText: 'Комплект Stripe' } );
+		await expect( card.locator( '.badge' ) ).toHaveText( [ 'Промоция', '+ Подарък' ] );
+		// The card's price is the smallest quantity's, which is not reduced: nothing struck through.
+		await expect( card.locator( '.package-card__was' ) ).toHaveCount( 0 );
+		await expect( card.locator( '.package-card__amount' ) ).toContainText( '409,99' );
+		await expect( card.locator( '.package-card__gift' ) ).toHaveText( 'Подарък при 150 бр.: Запалка Satin Black' );
+
+		await shop.goto( '/product/komplekt-stripe/' );
+		await expect( shop.locator( '[data-rk-badge-regular]' ) ).toBeHidden();
+		await expect( shop.locator( '[data-rk-gift-group]' ) ).toContainText( 'Подарък при 150 бр.' );
+		await expect( shop.locator( '[data-rk-gift-chosen]' ) ).toBeHidden();
+		await shop.locator( '.rk-option', { has: shop.locator( 'input[value="150-br"]' ) } ).click();
+		await expect( shop.locator( '[data-rk-badge-regular]' ) ).toHaveText( /1\s199,99/ );
+		await expect( shop.locator( '[data-rk-badge-price]' ) ).toHaveText( /1\s019,99/ );
+		await expect( shop.locator( '[data-rk-gift-chosen]' ) ).toContainText( 'Запалка Satin Black' );
+		await expect( shop.locator( '[data-rk-gift-group]' ) ).toBeHidden();
+		await shop.locator( 'form.rq-form--product' ).getByRole( 'button', { name: 'Добави в количката' } ).click();
+		await shop.locator( '[data-rk-added]' ).getByRole( 'link', { name: 'Към количката' } ).click();
+		await shop.waitForURL( /\/koshnitsa\/$/ );
+		await expect( shop.locator( '.rk-cart__gift' ) ).toContainText( 'Запалка Satin Black' );
+		await shop.context().close();
+	} finally {
+		await page.goto( edit );
+		await stripeTiers( page, {} );
+		await save();
+	}
+	// Taking the promotion off clears the sale price it wrote.
+	await page.goto( '/product/komplekt-stripe/' );
+	await page.locator( '.rk-option', { has: page.locator( 'input[value="150-br"]' ) } ).click();
+	await expect( page.locator( '[data-rk-badge-price]' ) ).toHaveText( /1\s199,99/ );
+	await expect( page.locator( '.product-gift' ) ).toHaveCount( 0 );
 } );
 
 test( 'a package priced per colour: no shared price fields, and the size and the colour each set the price', async ( { page, browser } ) => {

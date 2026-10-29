@@ -143,9 +143,10 @@ final class Reklamo_Variants {
 				#reklamo_variants_data .rk-variants__photos { margin: 0 0 12px; padding: 10px 12px; border: 1px solid #dcdcde; border-radius: 6px; background: #fff; }
 				#reklamo_variants_data .rk-variants__photos[hidden] { display: none; }
 				#reklamo_variants_data .rk-variants__photos-title { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; padding: 0; font-weight: 600; }
-				#reklamo_variants_data .rk-variants__sizes { display: grid; grid-template-columns: max-content 10em; gap: 6px 14px; align-items: center; }
+				#reklamo_variants_data .rk-variants__sizes { display: grid; grid-template-columns: max-content 8em 6em minmax(10em, 22em); gap: 6px 14px; align-items: center; }
+				#reklamo_variants_data .rk-variants__head { font-weight: 600; color: #50575e; }
 				#reklamo_variants_data .rk-variants__sizes label { display: inline-flex; align-items: center; gap: 6px; float: none; width: auto; margin: 0; }
-				#reklamo_variants_data .rk-variants__sizes input[type="text"] { width: 100%; float: none; margin: 0; }
+				#reklamo_variants_data .rk-variants__sizes input:not([type="checkbox"]) { width: 100%; float: none; margin: 0; }
 			</style>
 			<input type="hidden" name="reklamo_variants" value="1">
 			<div class="options_group rk-variants">
@@ -184,7 +185,12 @@ final class Reklamo_Variants {
 				<?php else : ?>
 					<span class="description"><?php esc_html_e( 'Tick the quantities the product is sold in and give each its price, VAT included; every colour costs the same.', 'reklamo-core' ); ?></span>
 				<?php endif; ?>
+				<span class="description"><?php esc_html_e( 'A promotion or a gift can go with some quantities only, or differ from one to another: leave a field empty where there is none. The last day of the promotion and the photo with the gift are in the General tab.', 'reklamo-core' ); ?></span>
 				<div class="rk-variants__sizes">
+					<span class="rk-variants__head"><?php esc_html_e( 'Quantity', 'reklamo-core' ); ?></span>
+					<span class="rk-variants__head"><?php echo $mixed ? '' : esc_html__( 'Price', 'reklamo-core' ); ?></span>
+					<span class="rk-variants__head"><?php esc_html_e( 'Promotion, %', 'reklamo-core' ); ?></span>
+					<span class="rk-variants__head"><?php esc_html_e( 'Gift', 'reklamo-core' ); ?></span>
 					<?php foreach ( self::terms( Reklamo_Product::QTY_TAX ) as $term ) : ?>
 						<label>
 							<input type="checkbox" name="reklamo_sizes[]" value="<?php echo esc_attr( $term->slug ); ?>" data-rk-size <?php checked( in_array( $term->slug, $sizes, true ) ); ?>>
@@ -195,6 +201,9 @@ final class Reklamo_Variants {
 						<?php else : ?>
 							<input type="text" class="wc_input_price" name="reklamo_size_price[<?php echo esc_attr( $term->slug ); ?>]" value="<?php echo esc_attr( isset( $prices[ $term->slug ] ) ? wc_format_localized_price( $prices[ $term->slug ] ) : '' ); ?>" placeholder="<?php echo esc_attr( get_woocommerce_currency_symbol() ); ?>" aria-label="<?php echo esc_attr( sprintf( /* translators: %s: quantity, e.g. "50 бр." */ __( 'Price for %s', 'reklamo-core' ), $term->name ) ); ?>" data-rk-size-price="<?php echo esc_attr( $term->slug ); ?>">
 						<?php endif; ?>
+						<?php $tier = in_array( $term->slug, $sizes, true ) ? Reklamo_Product::tier_settings( $product, $term->slug ) : array_fill_keys( array( 'pct', 'gift' ), '' ); ?>
+						<input type="number" min="1" max="90" step="1" name="reklamo_tier_promo[<?php echo esc_attr( $term->slug ); ?>]" value="<?php echo esc_attr( $tier['pct'] ); ?>" aria-label="<?php echo esc_attr( sprintf( /* translators: %s: quantity, e.g. "50 бр." */ __( 'Promotion for %s, percent off', 'reklamo-core' ), $term->name ) ); ?>" data-rk-size-field="<?php echo esc_attr( $term->slug ); ?>">
+						<input type="text" name="reklamo_tier_gift[<?php echo esc_attr( $term->slug ); ?>]" value="<?php echo esc_attr( $tier['gift'] ); ?>" placeholder="<?php esc_attr_e( 'e.g. Satin Black lighter', 'reklamo-core' ); ?>" aria-label="<?php echo esc_attr( sprintf( /* translators: %s: quantity, e.g. "50 бр." */ __( 'Gift with %s', 'reklamo-core' ), $term->name ) ); ?>" data-rk-size-field="<?php echo esc_attr( $term->slug ); ?>">
 					<?php endforeach; ?>
 				</div>
 			</div>

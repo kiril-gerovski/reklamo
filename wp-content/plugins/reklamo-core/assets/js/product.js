@@ -87,6 +87,14 @@
 					was.textContent = v.regular > v.price ? money( v.regular ).replace( decimals + '00', '' ) : '';
 				}
 			}
+			// A quantity with its own gift shows it; one without shows which quantities have one.
+			var chosenGift = document.querySelector( '[data-rk-gift-chosen]' );
+			if ( chosenGift ) {
+				var gift = v && v.gift ? v.gift : '';
+				chosenGift.hidden = ! gift;
+				chosenGift.querySelector( '[data-rk-gift-text]' ).textContent = gift;
+				document.querySelectorAll( '[data-rk-gift-group]' ).forEach( function ( el ) { el.hidden = !! gift; } );
+			}
 			// A package size changes the counts in "What does the package include?".
 			var size = form.querySelector( '[data-attribute="attribute_pa_kolichestvo"] input:checked' );
 			if ( size ) {

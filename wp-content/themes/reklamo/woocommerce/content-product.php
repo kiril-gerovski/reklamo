@@ -21,12 +21,16 @@ $reklamo_qty   = $reklamo_size['qty'];
 $reklamo_line  = reklamo_card_line( $product );
 $reklamo_url   = $product->get_permalink();
 
+$reklamo_min = $product->is_type( 'variable' ) ? (float) $product->get_variation_price( 'min', true ) : (float) $product->get_price();
+$reklamo_was = $product->is_type( 'variable' ) ? (float) $product->get_variation_regular_price( 'min', true ) : (float) $product->get_regular_price();
+
 add_filter( 'woocommerce_price_trim_zeros', '__return_true' );
-$reklamo_price   = wc_price( $product->is_type( 'variable' ) ? (float) $product->get_variation_price( 'min', true ) : (float) $product->get_price() );
-$reklamo_sale    = $product->is_on_sale();
-$reklamo_regular = $reklamo_sale ? wc_price( $product->is_type( 'variable' ) ? (float) $product->get_variation_regular_price( 'min', true ) : (float) $product->get_regular_price() ) : '';
+$reklamo_price = wc_price( $reklamo_min );
+// Struck through only when the price shown is itself reduced, not when the promotion is on a larger quantity.
+$reklamo_sale    = $product->is_on_sale() && $reklamo_was > $reklamo_min;
+$reklamo_regular = $reklamo_sale ? wc_price( $reklamo_was ) : '';
 remove_filter( 'woocommerce_price_trim_zeros', '__return_true' );
-$reklamo_gift    = class_exists( 'Reklamo_Product' ) ? Reklamo_Product::gift( $product ) : '';
+$reklamo_gifts   = reklamo_gift_groups( $product );
 $reklamo_colours = class_exists( 'Reklamo_Product' ) ? Reklamo_Product::colours( $product ) : array();
 ?>
 <li <?php wc_product_class( 'card package-card', $product ); ?>>
@@ -61,9 +65,19 @@ $reklamo_colours = class_exists( 'Reklamo_Product' ) ? Reklamo_Product::colours(
 		<?php if ( '' !== $reklamo_line ) : ?>
 			<p class="package-card__contents"><?php echo esc_html( $reklamo_line ); ?></p>
 		<?php endif; ?>
-		<?php if ( '' !== $reklamo_gift ) : ?>
-			<p class="package-card__gift"><?php echo reklamo_icon( 'gift', 18 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?><span><?php echo esc_html( sprintf( /* translators: %s: what comes free with the product */ __( 'Gift: %s', 'reklamo' ), $reklamo_gift ) ); ?></span></p>
-		<?php endif; ?>
+		<?php foreach ( $reklamo_gifts as $reklamo_gift ) : ?>
+			<p class="package-card__gift"><?php echo reklamo_icon( 'gift', 18 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?><span>
+				<?php
+				echo esc_html(
+					'' === $reklamo_gift['counts']
+						/* translators: %s: what comes free with the product */
+						? sprintf( __( 'Gift: %s', 'reklamo' ), $reklamo_gift['gift'] )
+						/* translators: 1: quantities such as "100 и 200", 2: what comes free with them */
+						: sprintf( __( 'Gift with %1$s pcs.: %2$s', 'reklamo' ), $reklamo_gift['counts'], $reklamo_gift['gift'] )
+				);
+				?>
+			</span></p>
+		<?php endforeach; ?>
 		<div class="package-card__foot">
 			<?php if ( $reklamo_colours ) : ?>
 				<ul class="package-card__colours" aria-label="<?php esc_attr_e( 'Colours', 'reklamo' ); ?>">

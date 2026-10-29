@@ -125,7 +125,7 @@ $reklamo_steps = array(
 						<span class="product-price-badge__label"><?php esc_html_e( 'Final price', 'reklamo' ); ?></span>
 						<?php if ( $product->is_type( 'variable' ) ) : ?>
 							<?php // The price of the colour and size chosen in the order card; product.js keeps it current. ?>
-							<?php $reklamo_was = $product->is_on_sale() ? wp_strip_all_tags( wc_price( (float) $product->get_variation_regular_price( 'min', true ) ) ) : ''; ?>
+							<?php $reklamo_was = $product->is_on_sale() && $product->get_variation_regular_price( 'min', true ) > $product->get_variation_price( 'min', true ) ? wp_strip_all_tags( wc_price( (float) $product->get_variation_regular_price( 'min', true ) ) ) : ''; ?>
 							<del class="product-price-badge__was" data-rk-badge-regular<?php echo '' === $reklamo_was ? ' hidden' : ''; ?>><?php echo esc_html( $reklamo_was ); ?></del>
 							<span class="product-price-badge__value"><span class="woocommerce-Price-amount amount" data-rk-badge-price><?php echo wp_kses_post( wp_strip_all_tags( wc_price( (float) $product->get_variation_price( 'min', true ) ) ) ); ?></span><?php echo wp_kses_post( $product->get_price_suffix() ); ?></span>
 						<?php else : ?>
@@ -171,9 +171,27 @@ $reklamo_steps = array(
 								<?php endforeach; ?>
 							</ul>
 						<?php endif; ?>
-						<?php $reklamo_gift = class_exists( 'Reklamo_Product' ) ? Reklamo_Product::gift( $product ) : ''; ?>
-						<?php if ( '' !== $reklamo_gift ) : ?>
-							<p class="product-gift"><?php echo reklamo_icon( 'gift', 22 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?><span><strong><?php esc_html_e( 'Gift with this order', 'reklamo' ); ?></strong><?php echo esc_html( $reklamo_gift ); ?></span></p>
+						<?php $reklamo_gifts = reklamo_gift_groups( $product ); ?>
+						<?php foreach ( $reklamo_gifts as $reklamo_gift ) : ?>
+							<p class="product-gift" data-rk-gift-group>
+								<?php echo reklamo_icon( 'gift', 22 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?>
+								<span>
+									<strong>
+										<?php
+										echo esc_html(
+											'' === $reklamo_gift['counts']
+												? __( 'Gift with this order', 'reklamo' )
+												/* translators: %s: quantities such as "100 и 200" */
+												: sprintf( __( 'Gift with %s pcs.', 'reklamo' ), $reklamo_gift['counts'] )
+										);
+										?>
+									</strong><?php echo esc_html( $reklamo_gift['gift'] ); ?>
+								</span>
+							</p>
+						<?php endforeach; ?>
+						<?php if ( $reklamo_gifts && '' !== $reklamo_gifts[0]['counts'] ) : ?>
+							<?php // The gift of the quantity chosen in the order card; product.js shows it in place of the list above. ?>
+							<p class="product-gift" data-rk-gift-chosen hidden><?php echo reklamo_icon( 'gift', 22 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?><span><strong><?php esc_html_e( 'Gift with this order', 'reklamo' ); ?></strong><span data-rk-gift-text></span></span></p>
 						<?php endif; ?>
 					</div>
 

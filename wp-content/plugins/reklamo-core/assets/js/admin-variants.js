@@ -1,6 +1,7 @@
 /**
  * Product editor, "Colours and quantities": a ticked colour shows its photo picker, a ticked
- * quantity its price, and ticking a quantity makes the product variable.
+ * quantity its price, promotion and gift, and ticking a quantity makes the product variable.
+ * With a quantity ticked the General tab's product-wide promotion and gift give way to these.
  */
 ( function () {
 	'use strict';
@@ -16,10 +17,16 @@
 			}
 		} );
 		panel.querySelectorAll( '[data-rk-size]' ).forEach( ( box ) => {
-			const price = panel.querySelector( '[data-rk-size-price="' + box.value + '"]' );
-			if ( price ) {
-				price.disabled = ! box.checked;
-			}
+			panel.querySelectorAll( '[data-rk-size-price="' + box.value + '"], [data-rk-size-field="' + box.value + '"]' ).forEach( ( field ) => {
+				field.disabled = ! box.checked;
+			} );
+		} );
+		const tiered = !! panel.querySelector( '[data-rk-size]:checked' );
+		document.querySelectorAll( '._reklamo_promo_pct_field, ._reklamo_gift_field' ).forEach( ( row ) => {
+			row.style.display = tiered ? 'none' : '';
+		} );
+		document.querySelectorAll( '[data-rk-tier-note]' ).forEach( ( note ) => {
+			note.hidden = ! tiered;
 		} );
 	}
 	panel.addEventListener( 'change', ( e ) => {

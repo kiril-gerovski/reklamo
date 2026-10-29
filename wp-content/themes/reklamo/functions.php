@@ -619,7 +619,7 @@ function reklamo_product_ribbons( WC_Product $product ): array {
 			'icon'  => '',
 		);
 	}
-	if ( class_exists( 'Reklamo_Product' ) && '' !== Reklamo_Product::gift( $product ) ) {
+	if ( class_exists( 'Reklamo_Product' ) && Reklamo_Product::has_gift( $product ) ) {
 		$out[] = array(
 			'class' => 'badge--gift',
 			'label' => __( '+ Gift', 'reklamo' ),
@@ -631,6 +631,39 @@ function reklamo_product_ribbons( WC_Product $product ): array {
 			'class' => '',
 			'label' => __( 'Most popular', 'reklamo' ),
 			'icon'  => '',
+		);
+	}
+	return $out;
+}
+
+/**
+ * The gift, grouped by what comes free: 'counts' is empty when it comes with every quantity,
+ * otherwise the quantities it comes with ("100 и 200").
+ *
+ * @return array<int,array{counts:string,gift:string}>
+ */
+function reklamo_gift_groups( WC_Product $product ): array {
+	if ( ! class_exists( 'Reklamo_Product' ) ) {
+		return array();
+	}
+	$all = Reklamo_Product::gift( $product );
+	if ( '' !== $all ) {
+		return array(
+			array(
+				'counts' => '',
+				'gift'   => $all,
+			),
+		);
+	}
+	$by = array();
+	foreach ( Reklamo_Product::gifts( $product ) as $slug => $gift ) {
+		$by[ $gift ][] = Reklamo_Product::tier_count( $slug );
+	}
+	$out = array();
+	foreach ( $by as $gift => $counts ) {
+		$out[] = array(
+			'counts' => wp_sprintf( '%l', $counts ),
+			'gift'   => (string) $gift,
 		);
 	}
 	return $out;
