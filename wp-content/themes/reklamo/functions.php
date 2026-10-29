@@ -52,6 +52,9 @@ function reklamo_setup(): void {
 }
 add_action( 'after_setup_theme', 'reklamo_setup' );
 
+// The owner wants plain hyphens; wptexturize would turn " - " back into a dash and quotes into English ones.
+add_filter( 'run_wptexturize', '__return_false' );
+
 /**
  * Front-end assets, versioned by file mtime so edits bust the cache.
  */
