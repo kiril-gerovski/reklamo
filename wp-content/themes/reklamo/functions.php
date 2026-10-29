@@ -54,6 +54,12 @@ add_action( 'after_setup_theme', 'reklamo_setup' );
 
 // The owner wants plain hyphens; wptexturize would turn " - " back into a dash and quotes into English ones.
 add_filter( 'run_wptexturize', '__return_false' );
+add_filter(
+	'woocommerce_format_price_range',
+	static fn( $price, $from, $to ): string => ( is_numeric( $from ) ? wc_price( $from ) : $from ) . ' - ' . ( is_numeric( $to ) ? wc_price( $to ) : $to ),
+	10,
+	3
+);
 
 /**
  * Front-end assets, versioned by file mtime so edits bust the cache.
