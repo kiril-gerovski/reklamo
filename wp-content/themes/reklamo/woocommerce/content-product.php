@@ -15,41 +15,10 @@ if ( ! $product instanceof WC_Product || ! $product->is_visible() ) {
 	return;
 }
 
-$reklamo_short = reklamo_split_short_description( $product->get_short_description() );
-$reklamo_items = reklamo_package_items( $reklamo_short['list'] );
 $reklamo_piece = class_exists( 'Reklamo_Product' ) && Reklamo_Product::by_the_piece( $product );
-$reklamo_size  = $reklamo_piece ? array( 'qty' => Reklamo_Product::min_qty( $product ), 'from' => true, 'max' => 0 ) : reklamo_package_quantity( $product );
+$reklamo_size  = reklamo_card_size( $product );
 $reklamo_qty   = $reklamo_size['qty'];
-$reklamo_range = $reklamo_size['max'] > $reklamo_qty ? $reklamo_qty . '–' . $reklamo_size['max'] : '';
-$reklamo_count = '' !== $reklamo_range ? $reklamo_range : (string) $reklamo_qty;
-if ( $reklamo_items && class_exists( 'Reklamo_Product' ) && Reklamo_Product::is_package( $product ) ) {
-	$reklamo_names = array(
-		'in'  => array(),
-		'box' => array(),
-	);
-	foreach ( $reklamo_items as $reklamo_item ) {
-		$reklamo_name = (string) preg_replace( '~^\d+\s*(бр\.|броя)?\s*~u', '', $reklamo_item['title'] );
-		$reklamo_name = mb_strtolower( mb_substr( $reklamo_name, 0, 1 ) ) . mb_substr( $reklamo_name, 1 );
-		$reklamo_names[ 'gift' === $reklamo_item['icon'] ? 'box' : 'in' ][] = $reklamo_name;
-	}
-	$reklamo_line = $reklamo_names['in'] && $reklamo_names['box']
-		/* translators: 1: what is in the package, e.g. "pens, cables"; 2: its box, e.g. "gift boxes" */
-		? sprintf( __( '%1$s in %2$s', 'reklamo' ), implode( ', ', $reklamo_names['in'] ), wp_sprintf( '%l', $reklamo_names['box'] ) )
-		: wp_sprintf( '%l', array_merge( $reklamo_names['in'], $reklamo_names['box'] ) );
-	/* translators: 1: number or range of packages, e.g. 50–200; 2: what is in each, e.g. "notebooks and pens" */
-	$reklamo_line = $reklamo_qty ? sprintf( __( '%1$s packs of %2$s', 'reklamo' ), $reklamo_count, $reklamo_line ) : $reklamo_line;
-} elseif ( $reklamo_items ) {
-	$reklamo_line = implode(
-		' · ',
-		array_map(
-			// Like the product page, which sets every count to the chosen size: here the sizes on offer.
-			static fn( array $item ): string => $item['counted'] && '' !== $reklamo_range ? preg_replace( '~^\d+~', $reklamo_range, $item['title'] ) : $item['title'],
-			$reklamo_items
-		)
-	);
-} else {
-	$reklamo_line = wp_strip_all_tags( $reklamo_short['lead'] );
-}
+$reklamo_line  = reklamo_card_line( $product );
 $reklamo_url   = $product->get_permalink();
 
 add_filter( 'woocommerce_price_trim_zeros', '__return_true' );

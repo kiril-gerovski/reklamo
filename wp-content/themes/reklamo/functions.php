@@ -465,6 +465,61 @@ function reklamo_product_tabs( array $tabs ): array {
 add_filter( 'woocommerce_product_tabs', 'reklamo_product_tabs' );
 
 /**
+ * Pieces for a card's seal: the minimum for a product sold by the piece, else the cheapest variation's.
+ *
+ * @return array{qty:int,from:bool,max:int}
+ */
+function reklamo_card_size( WC_Product $product ): array {
+	if ( class_exists( 'Reklamo_Product' ) && Reklamo_Product::by_the_piece( $product ) ) {
+		return array(
+			'qty'  => Reklamo_Product::min_qty( $product ),
+			'from' => true,
+			'max'  => 0,
+		);
+	}
+	return reklamo_package_quantity( $product );
+}
+
+/** What a product card says under the name: its contents with the range of sizes on offer. */
+function reklamo_card_line( WC_Product $product ): string {
+	$short = reklamo_split_short_description( $product->get_short_description() );
+	$items = reklamo_package_items( $short['list'] );
+	$size  = reklamo_card_size( $product );
+	$qty   = $size['qty'];
+	$range = $size['max'] > $qty ? $qty . '–' . $size['max'] : '';
+	$count = '' !== $range ? $range : (string) $qty;
+	if ( $items && class_exists( 'Reklamo_Product' ) && Reklamo_Product::is_package( $product ) ) {
+		$names = array(
+			'in'  => array(),
+			'box' => array(),
+		);
+		foreach ( $items as $item ) {
+			$name = (string) preg_replace( '~^\d+\s*(бр\.|броя)?\s*~u', '', $item['title'] );
+			$name = mb_strtolower( mb_substr( $name, 0, 1 ) ) . mb_substr( $name, 1 );
+			$names[ 'gift' === $item['icon'] ? 'box' : 'in' ][] = $name;
+		}
+		$line = $names['in'] && $names['box']
+			/* translators: 1: what is in the package, e.g. "pens, cables"; 2: its box, e.g. "gift boxes" */
+			? sprintf( __( '%1$s in %2$s', 'reklamo' ), implode( ', ', $names['in'] ), wp_sprintf( '%l', $names['box'] ) )
+			: wp_sprintf( '%l', array_merge( $names['in'], $names['box'] ) );
+		/* translators: 1: number or range of packages, e.g. 50–200; 2: what is in each, e.g. "notebooks and pens" */
+		$line = $qty ? sprintf( __( '%1$s packs of %2$s', 'reklamo' ), $count, $line ) : $line;
+	} elseif ( $items ) {
+		$line = implode(
+			' · ',
+			array_map(
+				// Like the product page, which sets every count to the chosen size: here the sizes on offer.
+				static fn( array $item ): string => $item['counted'] && '' !== $range ? preg_replace( '~^\d+~', $range, $item['title'] ) : $item['title'],
+				$items
+			)
+		);
+	} else {
+		$line = wp_strip_all_tags( $short['lead'] );
+	}
+	return $line;
+}
+
+/**
  * A short description is a lead paragraph plus the list of what is in the package; the design
  * shows them in two different places.
  *
@@ -614,13 +669,15 @@ add_shortcode(
 
 /**
  * The homepage hero's product: its photo and a badge with a short name, the contents and the
- * lowest price. Name and lines may be given (title="…" items="…|…"); otherwise they come from
- * the product. The price always does, so it follows the owner's edits in Products.
+ * lowest price. The product is the one ticked "On the homepage" in Products; without one, the
+ * sku="…" given here, then the first "Most popular" product. Name and lines may be given for
+ * the sku's product (title="…" items="…|…"); otherwise they come from the product, as its card
+ * shows them. The price always does, so it follows the owner's edits in Products.
  */
 add_shortcode(
 	'reklamo_hero_product',
 	static function ( $atts ): string {
-		$atts    = shortcode_atts(
+		$atts = shortcode_atts(
 			array(
 				'sku'   => '',
 				'title' => '',
@@ -629,15 +686,37 @@ add_shortcode(
 			$atts,
 			'reklamo_hero_product'
 		);
-		$product = function_exists( 'wc_get_product' ) ? wc_get_product( wc_get_product_id_by_sku( $atts['sku'] ) ) : null;
+		if ( ! function_exists( 'wc_get_product' ) ) {
+			return '';
+		}
+		$product = class_exists( 'Reklamo_Product' ) ? Reklamo_Product::hero() : null;
+		if ( $product ) {
+			$atts['title'] = '';
+			$atts['items'] = '';
+		} else {
+			$product = wc_get_product( wc_get_product_id_by_sku( $atts['sku'] ) );
+		}
 		if ( ! $product || 'publish' !== $product->get_status() ) {
+			$atts['title'] = '';
+			$atts['items'] = '';
+
+			$featured = wc_get_products(
+				array(
+					'status'   => 'publish',
+					'featured' => true,
+					'limit'    => 1,
+				)
+			);
+			$product  = $featured ? $featured[0] : null;
+		}
+		if ( ! $product ) {
 			return '';
 		}
 		add_filter( 'woocommerce_price_trim_zeros', '__return_true' );
 		$price = wc_price( $product->is_type( 'variable' ) ? (float) $product->get_variation_price( 'min', true ) : (float) $product->get_price() );
 		remove_filter( 'woocommerce_price_trim_zeros', '__return_true' );
 		$title = '' !== $atts['title'] ? $atts['title'] : $product->get_name();
-		$items = '' !== $atts['items'] ? array_map( 'trim', explode( '|', $atts['items'] ) ) : array_column( reklamo_package_items( $product->get_short_description() ), 'title' );
+		$items = '' !== $atts['items'] ? array_map( 'trim', explode( '|', $atts['items'] ) ) : array_filter( array( reklamo_card_line( $product ) ) );
 		$image = $product->get_image(
 			'large',
 			array(

@@ -48,6 +48,9 @@ final class Reklamo_Product {
 	/** A photo of the product with its gift: the main photo while the gift is on. */
 	const GIFT_IMAGE_META = '_reklamo_gift_image';
 
+	/** The product whose photo stands in the homepage hero; one at a time. */
+	const HERO_META = '_reklamo_hero';
+
 	public static function init(): void {
 		add_action( 'woocommerce_product_options_general_product_data', array( __CLASS__, 'field' ) );
 		add_action( 'woocommerce_admin_process_product_object', array( __CLASS__, 'save' ) );
@@ -357,6 +360,14 @@ final class Reklamo_Product {
 		</fieldset>
 		<?php
 		echo '</div><div class="options_group">';
+		woocommerce_wp_checkbox(
+			array(
+				'id'          => self::HERO_META,
+				'label'       => __( 'On the homepage', 'reklamo-core' ),
+				'description' => __( 'Show this product\'s main photo at the top of the homepage. Only one product at a time: ticking it here unticks the one before.', 'reklamo-core' ),
+			)
+		);
+		echo '</div><div class="options_group">';
 		woocommerce_wp_text_input(
 			array(
 				'id'                => self::PROMO_META,
@@ -454,5 +465,43 @@ final class Reklamo_Product {
 		} else {
 			$product->delete_meta_data( self::IMAGE_META );
 		}
+		if ( ! empty( $_POST[ self::HERO_META ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			foreach ( self::hero_ids() as $id ) {
+				if ( $id !== $product->get_id() ) {
+					delete_post_meta( $id, self::HERO_META );
+				}
+			}
+			$product->update_meta_data( self::HERO_META, 'yes' );
+		} else {
+			$product->delete_meta_data( self::HERO_META );
+		}
+	}
+
+	/** @return int[] products ticked for the homepage, most recently edited first */
+	private static function hero_ids(): array {
+		return array_map(
+			'intval',
+			get_posts(
+				array(
+					'post_type'   => 'product',
+					'post_status' => 'any',
+					'numberposts' => -1,
+					'fields'      => 'ids',
+					'orderby'     => 'modified',
+					'meta_key'    => self::HERO_META, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+				)
+			)
+		);
+	}
+
+	/** The published product ticked for the homepage hero, or null. */
+	public static function hero(): ?WC_Product {
+		foreach ( self::hero_ids() as $id ) {
+			$product = wc_get_product( $id );
+			if ( $product && 'publish' === $product->get_status() ) {
+				return $product;
+			}
+		}
+		return null;
 	}
 }

@@ -372,6 +372,37 @@ test( 'the homepage hero shows the Magnet package: its photo, the badge and its 
 	expect( ( await badge.locator( 'strong' ).innerText() ).replace( /\s/g, '' ) ).toBe( ( await card.innerText() ).replace( /\s/g, '' ) );
 } );
 
+test( 'a product ticked "On the homepage" takes the hero, one at a time; with none the hero falls back to Magnet', async ( { page } ) => {
+	await adminLogin( page );
+	const idOf = async ( sku ) => ( await ( await page.request.get( `/wp-json/wc/store/v1/products?sku=${ sku }` ) ).json() )[ 0 ].id;
+	const stripe = await idOf( 'PKG-STRIPE' );
+	const notebook = await idOf( 'TEF-002' );
+	const save = () => Promise.all( [ page.waitForURL( /message=/, { waitUntil: 'commit' } ), page.locator( '#publish' ).evaluate( ( b ) => b.click() ) ] );
+	const tick = async ( id, on ) => {
+		await page.goto( `/wp-admin/post.php?post=${ id }&action=edit` );
+		await page.locator( '#_reklamo_hero' ).setChecked( on );
+		await save();
+	};
+	try {
+		await tick( stripe, true );
+		await page.goto( '/' );
+		await expect( page.locator( '.hero__badge .eyebrow' ) ).toHaveText( /Комплект Stripe/ );
+		await expect( page.locator( '.hero__badge' ) ).toContainText( '50–200 бр. комплекта тефтери, чаши и химикалки' );
+		await expect( page.locator( '.hero__photo' ) ).toHaveAttribute( 'href', /komplekt-stripe/ );
+
+		await tick( notebook, true );
+		await page.goto( '/' );
+		await expect( page.locator( '.hero__badge .eyebrow' ) ).toHaveText( /Тефтер Vintage Black/ );
+		await page.goto( `/wp-admin/post.php?post=${ stripe }&action=edit` );
+		await expect( page.locator( '#_reklamo_hero' ) ).not.toBeChecked();
+	} finally {
+		await tick( notebook, false );
+		await tick( stripe, false );
+	}
+	await page.goto( '/' );
+	await expect( page.locator( '.hero__badge .eyebrow' ) ).toHaveText( 'Metal Business Pack' );
+} );
+
 test( 'the two hero buttons are the same size, side by side on a laptop and stacked on a phone', async ( { page } ) => {
 	const boxes = async () => page.locator( '.hero .wp-block-button__link' ).evaluateAll( ( links ) => links.map( ( a ) => {
 		const r = a.getBoundingClientRect();
