@@ -183,6 +183,8 @@ Do not raise them to "make a test pass".
 
 WooCommerce's own Bulgarian pack has gaps; customer-facing ones are filled from `wp-content/plugins/reklamo-core/languages/woocommerce-overrides-bg.php` (applied only when WooCommerce has no translation). Add a line there when a new English string shows up on the storefront.
 
+Slugs made from Bulgarian names are written in Latin letters on save (`Reklamo_I18n::latin_slug()`: „Термо чаша Camp“ → `termo-chasha-camp`); an old Cyrillic address redirects to the new one.
+
 Source strings in the theme and plugin are English, wrapped in `__( '…', 'reklamo' )`. Bulgarian
 lives in `wp-content/themes/reklamo/languages/bg_BG.po and wp-content/plugins/reklamo-core/languages/reklamo-core-bg_BG.po (the plugin uses its own text domain `reklamo-core`; plugin files are named {domain}-{locale})`. After editing a `.po`:
 

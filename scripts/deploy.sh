@@ -21,7 +21,7 @@ fi
 : "${DEPLOY_REPO:=$(git remote get-url origin 2>/dev/null || true)}"
 
 remote() { ssh -t -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "$@"; }
-quoted() { printf '%q ' "$@"; }
+quoted() { [ $# -eq 0 ] || printf '%q ' "$@"; }
 
 cmd=${1:-}; shift || true
 case "$cmd" in

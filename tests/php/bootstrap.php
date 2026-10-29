@@ -8,6 +8,7 @@ $plugin = dirname( __DIR__, 2 ) . '/wp-content/plugins/reklamo-core/includes/';
 require $plugin . 'class-reklamo-token.php';
 require $plugin . 'class-reklamo-money.php';
 require $plugin . 'class-reklamo-product.php'; // promo_price() is pure; the rest needs WooCommerce.
+require $plugin . 'class-reklamo-i18n.php'; // transliterate() is pure.
 require $plugin . 'class-reklamo-filetypes.php';
 require $plugin . 'class-reklamo-svg.php';
 require $plugin . 'class-reklamo-statuses.php';

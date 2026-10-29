@@ -22,6 +22,56 @@ final class Reklamo_I18n {
 		add_filter( 'ngettext_woocommerce', array( __CLASS__, 'fill_gap_plural' ), 10, 4 );
 		// The admin "New order" email carries a WooCommerce mobile-app advert; the shop owner does not need it.
 		add_action( 'woocommerce_email', array( __CLASS__, 'drop_mobile_promo' ) );
+		// Before WordPress's own sanitize_title_with_dashes (10), which would percent-encode the Cyrillic.
+		add_filter( 'sanitize_title', array( __CLASS__, 'latin_slug' ), 9, 3 );
+	}
+
+	/** Bulgarian letters in the official streamlined transliteration (Закон за транслитерацията). */
+	const LATIN = array(
+		'а' => 'a',
+		'б' => 'b',
+		'в' => 'v',
+		'г' => 'g',
+		'д' => 'd',
+		'е' => 'e',
+		'ж' => 'zh',
+		'з' => 'z',
+		'и' => 'i',
+		'й' => 'y',
+		'к' => 'k',
+		'л' => 'l',
+		'м' => 'm',
+		'н' => 'n',
+		'о' => 'o',
+		'п' => 'p',
+		'р' => 'r',
+		'с' => 's',
+		'т' => 't',
+		'у' => 'u',
+		'ф' => 'f',
+		'х' => 'h',
+		'ц' => 'ts',
+		'ч' => 'ch',
+		'ш' => 'sh',
+		'щ' => 'sht',
+		'ъ' => 'a',
+		'ь' => 'y',
+		'ю' => 'yu',
+		'я' => 'ya',
+	);
+
+	/** Pure: Bulgarian Cyrillic in Latin letters, lower case ("Термо чаша" → "termo chasha"). */
+	public static function transliterate( string $text ): string {
+		return strtr( mb_strtolower( $text, 'UTF-8' ), self::LATIN );
+	}
+
+	/**
+	 * A slug made from a Bulgarian name is spelled in Latin letters, so a product's address reads
+	 * /product/termo-chasha-camp/ instead of percent-encoded Cyrillic. Only when saving: lookups
+	 * of an existing Cyrillic slug, and WordPress's redirect from an old one, keep working.
+	 */
+	public static function latin_slug( $title, $raw = '', $context = 'display' ) {
+		return 'save' === $context && is_string( $title ) && preg_match( '/\p{Cyrillic}/u', $title ) ? self::transliterate( $title ) : $title;
 	}
 
 	private static function map(): array {
