@@ -55,7 +55,7 @@ Checked on this VM, not assumed:
 
 Current upstream (both newer than my training data — checked live):
 
-- **WordPress 7.1** "Mary Lou" (19 Aug 2026); WP 7.0 shipped the admin redesign in May 2026. **7.1.1** reached the live host by minor auto-update the night after the first deploy; `versions.env` follows it. Docker Hub publishes only the `7.1` tag, which tracks the point releases with a delay, so `setup.sh` raises the bind-mounted core to the pin itself.
+- **WordPress 7.1** "Mary Lou" (19 Aug 2026); WP 7.0 shipped the admin redesign in May 2026. **7.1.1** reached the live host by minor auto-update the night after the first deploy; `versions.env` follows it. **7.1.4** arrived the same way and was pinned on 2026-10-29 after a full e2e run on it. Docker Hub publishes only the `7.1` tag, which tracks the point releases with a delay, so `setup.sh` raises the bind-mounted core to the pin itself.
 - **WooCommerce 11.1.1**, requires WP ≥ 7.0, PHP ≥ 7.4.
 
 Three external facts that shape the build:
