@@ -3444,7 +3444,7 @@ msgstr "Продуктът се продава в количества: отст
 
 #: includes/class-reklamo-variants.php
 msgid "A promotion or a gift can go with some quantities only, or differ from one to another: leave a field empty where there is none. The last day of the promotion and the photo with the gift are in the General tab."
-msgstr "Промоцията и подаръкът могат да са само за някои количества или различни за всяко: където няма, оставете полето празно. Последният ден на промоцията и снимката с подаръка са в таб „Общи“."
+msgstr "Промоцията и подаръкът могат да са само за някои количества или различни за всяко: където няма, оставете полето празно. Последният ден на промоцията и снимката с подаръка са в таба „Основни“."
 
 #: includes/class-reklamo-variants.php
 msgid "Price"
