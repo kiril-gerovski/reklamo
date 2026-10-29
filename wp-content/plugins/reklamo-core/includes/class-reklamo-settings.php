@@ -45,7 +45,7 @@ final class Reklamo_Settings {
 		'reklamo_privacy_email'    => '',
 		'reklamo_free_corrections' => '2',
 		'reklamo_correction_fee'   => '15',
-		'reklamo_production_days'  => '5–10',
+		'reklamo_production_days'  => '5-10',
 		'reklamo_free_shipping'    => '400',
 	);
 

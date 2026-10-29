@@ -105,7 +105,7 @@ final class Reklamo_Diagnostics {
 			__( 'Effective single-POST limit (PHP)', 'reklamo-core' ) => size_format( min( self::bytes( ini_get( 'upload_max_filesize' ) ), self::bytes( ini_get( 'post_max_size' ) ) ) ),
 			__( 'Chunk size used by the uploader', 'reklamo-core' ) => size_format( Reklamo_Upload::CHUNK ),
 			__( 'Configured maximum file size', 'reklamo-core' ) => size_format( Reklamo_Storage::max_bytes() ),
-			__( 'Private storage directory', 'reklamo-core' ) => $dir . ( is_writable( $dir ) ? '' : ' — ' . __( 'NOT WRITABLE', 'reklamo-core' ) ), // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable -- diagnostics of our own directory.
+			__( 'Private storage directory', 'reklamo-core' ) => $dir . ( is_writable( $dir ) ? '' : ' - ' . __( 'NOT WRITABLE', 'reklamo-core' ) ), // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable -- diagnostics of our own directory.
 			__( 'Free disk space', 'reklamo-core' )  => false !== $free ? size_format( $free ) : '?',
 			__( 'Stored files', 'reklamo-core' )     => sprintf( '%d (%s)', (int) $stats->n, size_format( (int) $stats->b ) ),
 			__( 'Unfinished chunk sessions', 'reklamo-core' ) => (string) $tmp,

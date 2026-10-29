@@ -151,7 +151,7 @@ final class Reklamo_Log {
 			$order = self::order_of( $action );
 			self::info(
 				/* translators: 1: action hook, 2: order status when it ran */
-				sprintf( __( 'Ran %1$s; the order was „%2$s“ at the time.', 'reklamo-core' ), self::job( $action->get_hook() ), '' !== self::$before ? wc_get_order_status_name( self::$before ) : '—' ),
+				sprintf( __( 'Ran %1$s; the order was „%2$s“ at the time.', 'reklamo-core' ), self::job( $action->get_hook() ), '' !== self::$before ? wc_get_order_status_name( self::$before ) : '-' ),
 				$order ? $order->get_id() : 0
 			);
 		}

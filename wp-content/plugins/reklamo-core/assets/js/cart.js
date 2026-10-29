@@ -100,7 +100,7 @@
 				ok = ok && ! tpl && 1 === marks;
 				if ( tpl ) {
 					short.push( fmt( tpl, product, title ) );
-					full.push( fmt( tpl, unit[ 1 ] ? product + ' — ' + unit[ 1 ] : product, title ) );
+					full.push( fmt( tpl, unit[ 1 ] ? product + ' - ' + unit[ 1 ] : product, title ) );
 				}
 			} );
 			// The whole package with the same problem is named once.

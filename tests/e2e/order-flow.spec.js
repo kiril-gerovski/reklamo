@@ -321,7 +321,7 @@ test( 'approval link: GET is idempotent, POST approves once, replay is refused',
 	// Approval lands on the deposit step (its own signed link): approval done, deposit in progress, bank details.
 	await page.waitForURL( /odobrenie\/\?s=/ );
 	await expect( page.locator( '.next h2' ) ).toHaveText( 'Плащане' );
-	await expect( page.locator( '.badge' ) ).toHaveText( 'Одобрена — чака плащане' );
+	await expect( page.locator( '.badge' ) ).toHaveText( 'Одобрена - чака плащане' );
 	await expect( page.locator( '.steps li.now' ) ).toHaveText( 'Плащане' );
 	await expect( page.locator( '.steps li.done' ) ).toHaveCount( 3 );
 	await expect( page.locator( '.amount' ) ).toContainText( 'Дължима сума' );
@@ -409,7 +409,7 @@ test( 'a cancelled order tells the customer and its links stop acting', async ( 
 } );
 
 test( 'deposit email arrived; customer fills invoice and delivery details', async ( { page } ) => {
-	const mail = await mailpitFind( `Одобрено — плащане и данни за поръчка ${ orderId }` );
+	const mail = await mailpitFind( `Одобрено - плащане и данни за поръчка ${ orderId }` );
 	expect( mail.to ).toBe( 'e2e@example.com' );
 	expect( mail.text ).toContain( 'IBAN' );
 	expect( mail.text ).toContain( `Поръчка ${ orderId }` );
@@ -560,12 +560,12 @@ test( 'shop moves the order: payment → production → dispatched and completed
 	// The dispatch box: courier from the customer's choice, a bad waybill is refused, then waybill and invoice.
 	await expect( page.locator( '#reklamo-courier' ) ).toHaveValue( 'speedy' );
 	await page.fill( '#reklamo-waybill', '600/123' );
-	await page.getByRole( 'button', { name: 'Изпратена — приключи поръчката' } ).click();
+	await page.getByRole( 'button', { name: 'Изпратена - приключи поръчката' } ).click();
 	await expect( page.locator( '.notice-error' ) ).toContainText( 'товарителницата' );
 	await expect( page.locator( '#order_status' ) ).toHaveValue( 'wc-rq-production' );
 	await page.fill( '#reklamo-waybill', '600 123 456 78' );
 	await page.setInputFiles( '#reklamo-invoice', `${ FIXTURES }/logo.pdf` );
-	await page.getByRole( 'button', { name: 'Изпратена — приключи поръчката' } ).click();
+	await page.getByRole( 'button', { name: 'Изпратена - приключи поръчката' } ).click();
 	await expect( page.locator( '#order_status' ) ).toHaveValue( 'wc-completed' );
 	await expect( page.locator( '#woocommerce-order-notes' ) ).toContainText( 'товарителница 600 123 456 78 (Спиди); прикачена фактура logo.pdf' );
 } );
@@ -581,13 +581,13 @@ test( 'order page after completion: full history, all steps done, nothing left t
 	await expect( page.locator( '.rev' ).last() ).toContainText( 'по-голямо' );
 	await expect( page.locator( '.kv:not(.shipment)' ).first() ).toContainText( 'получен' );
 	await expect( page.locator( 'body' ) ).toContainText( 'Ноубъл ЕООД' );
-	await expect( page.locator( '.kv' ).last() ).toContainText( 'До автомат — Спиди: автомат Бизнес парк, София' );
+	await expect( page.locator( '.kv' ).last() ).toContainText( 'До автомат - Спиди: автомат Бизнес парк, София' );
 	await expect( page.locator( 'form.inline-form' ) ).toHaveCount( 0 );
 	// The completed-order email from WooCommerce carries the link too.
 	const done = await mailpitFind( 'Вашата поръчка от' );
 	expect( done.text ).toContain( 'porachka/?s=' );
 	// …and the waybill with its tracking link, and the invoice as an attachment with a readable name.
-	expect( done.text ).toContain( 'Поръчката Ви е изпратена — Спиди, товарителница № 600 123 456 78.' );
+	expect( done.text ).toContain( 'Поръчката Ви е изпратена - Спиди, товарителница № 600 123 456 78.' );
 	expect( done.text ).toContain( 'https://www.speedy.bg/bg/track-shipment?shipmentNumber=60012345678' );
 	expect( done.attachments ).toEqual( [ `Фактура-${ orderId }.pdf` ] );
 	// The order page shows both; the invoice downloads through the page's own guarded link.
@@ -647,7 +647,7 @@ test( 'an unpaid order is reminded at 48 h and cancelled at 72 h; a late payment
 	await page.click( 'button[name="decision"][value="approve"]' );
 	await expect( page.locator( '.next h2' ) ).toHaveText( 'Плащане' );
 
-	const request = await mailpitFind( `Одобрено — плащане и данни за поръчка ${ bigOrderId }` );
+	const request = await mailpitFind( `Одобрено - плащане и данни за поръчка ${ bigOrderId }` );
 	expect( request.text ).toMatch( /Моля, платете до \d\d\.\d\d\.\d{4}, \d\d:\d\d \(в рамките на 48 часа\)/ );
 	expect( request.text ).toContain( 'поръчката се анулира автоматично' );
 	expect( request.text ).toContain( 'изчерпа' );
@@ -672,14 +672,14 @@ test( 'an unpaid order is reminded at 48 h and cancelled at 72 h; a late payment
 	// Hour 48: the reminder, run as Action Scheduler would. Hour 72: the order cancels itself and both sides hear of it.
 	const remindId = wp( 'eval', `echo current( as_get_scheduled_actions( array( 'hook' => 'reklamo_remind_deposit', 'args' => array( ${ bigOrderId } ), 'status' => 'pending' ), 'ids' ) );` );
 	wp( 'action-scheduler', 'action', 'run', remindId );
-	const reminder = await mailpitFind( `Напомняне: Одобрено — плащане и данни за поръчка ${ bigOrderId }` );
+	const reminder = await mailpitFind( `Напомняне: Одобрено - плащане и данни за поръчка ${ bigOrderId }` );
 	expect( reminder.text ).toContain( `Срокът за плащане по поръчка ${ bigOrderId } изтече на` );
 	expect( reminder.text ).toContain( 'все още не сме получили превода Ви' );
 	// The audit log answers "why": what was planned, what ran and by whom, what was emailed.
 	const log = wp( 'eval', `foreach ( glob( WP_CONTENT_DIR . '/uploads/wc-logs/reklamo-*.log' ) as $f ) { echo file_get_contents( $f ); }` );
 	expect( log ).toContain( `Поръчка ${ bigOrderId } · Насрочено напомняне за плащане (reklamo_remind_deposit) за` );
-	expect( log ).toContain( `[автоматично: напомняне за плащане (reklamo_remind_deposit)] Поръчка ${ bigOrderId } · Изпълнено напомняне за плащане (reklamo_remind_deposit); поръчката тогава беше „Одобрена — чака плащане“.` );
-	expect( log ).toContain( `Изпратен имейл до big@example.com: „Напомняне: Одобрено — плащане и данни за поръчка ${ bigOrderId }` );
+	expect( log ).toContain( `[автоматично: напомняне за плащане (reklamo_remind_deposit)] Поръчка ${ bigOrderId } · Изпълнено напомняне за плащане (reklamo_remind_deposit); поръчката тогава беше „Одобрена - чака плащане“.` );
+	expect( log ).toContain( `Изпратен имейл до big@example.com: „Напомняне: Одобрено - плащане и данни за поръчка ${ bigOrderId }` );
 	wp( 'eval', `do_action( 'reklamo_payment_expire', ${ bigOrderId } );` );
 	const cancelled = await mailpitFind( `Поръчка ${ bigOrderId } е отказана` );
 	expect( cancelled.to ).toBe( 'big@example.com' );

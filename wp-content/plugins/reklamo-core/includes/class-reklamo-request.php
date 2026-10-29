@@ -105,7 +105,7 @@ final class Reklamo_Request {
 						<option value=""><?php esc_html_e( 'Choose a package…', 'reklamo-core' ); ?></option>
 						<?php foreach ( self::packages() as $p ) : ?>
 							<option value="<?php echo esc_attr( (string) $p->get_id() ); ?>" <?php selected( $picked, $p->get_id() ); ?>>
-								<?php echo esc_html( $p->get_name() . ' — ' . wp_strip_all_tags( wc_price( (float) $p->get_price() ) ) ); ?>
+								<?php echo esc_html( $p->get_name() . ' - ' . wp_strip_all_tags( wc_price( (float) $p->get_price() ) ) ); ?>
 							</option>
 						<?php endforeach; ?>
 					</select>

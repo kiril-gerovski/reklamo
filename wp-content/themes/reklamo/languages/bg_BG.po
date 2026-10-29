@@ -19,17 +19,17 @@ msgstr "Главно меню"
 
 #: functions.php:46
 msgid "Footer — Navigation"
-msgstr "Футър — Навигация"
+msgstr "Футър - Навигация"
 
 #: functions.php:47
 msgid "Footer — Information"
-msgstr "Футър — Информация"
+msgstr "Футър - Информация"
 
 #. translators: %1$s: year, %2$s: site name
 #: footer.php:98
 #, php-format
 msgid "© %1$s %2$s — All rights reserved."
-msgstr "© %1$s %2$s — Всички права запазени."
+msgstr "© %1$s %2$s - Всички права запазени."
 
 #: index.php:26
 msgid "Nothing found."
@@ -124,7 +124,7 @@ msgstr "https://reklamo.bg"
 #. Description of the theme
 #: style.css
 msgid "Theme built to the approved Reklamo.bg design — promotional packages with your logo. Presentation only; business logic lives in the reklamo-core plugin."
-msgstr "Тема по одобрения дизайн на Reklamo.bg — промо пакети с вашето лого. Само презентация; бизнес логиката е в плъгина reklamo-core."
+msgstr "Тема по одобрения дизайн на Reklamo.bg - промо пакети с вашето лого. Само презентация; бизнес логиката е в плъгина reklamo-core."
 
 #. Author of the theme
 #: style.css
@@ -158,7 +158,7 @@ msgstr "Меню"
 #: patterns/hero.php
 msgctxt "Pattern title"
 msgid "Hero — choose, send, we do the rest"
-msgstr "Начало — избери, изпрати, ние правим останалото"
+msgstr "Начало - избери, изпрати, ние правим останалото"
 
 #: patterns/packages.php
 msgctxt "Pattern title"
@@ -173,7 +173,7 @@ msgstr "Заглавие на секция, връзка „виж всички�
 #: patterns/steps.php
 msgctxt "Pattern title"
 msgid "How the order works — 6 steps"
-msgstr "Как става поръчката — 6 стъпки"
+msgstr "Как става поръчката - 6 стъпки"
 
 #: patterns/steps.php
 msgctxt "Pattern description"
@@ -517,7 +517,7 @@ msgstr "Въпроси и отговори"
 
 #: template-parts/faq.php:47
 msgid "Everything about your order, from the logo to delivery. Cannot find your answer? Write to us and we will reply quickly."
-msgstr "Всичко за поръчката — от логото до доставката. Не намирате отговор? Пишете ни и ще отговорим бързо."
+msgstr "Всичко за поръчката - от логото до доставката. Не намирате отговор? Пишете ни и ще отговорим бързо."
 
 #: template-parts/faq.php:51
 msgid "All questions"
@@ -808,7 +808,7 @@ msgstr "Изпрати запитването"
 
 #: template-parts/inquiry-dialog.php:62
 msgid "Thank you — your inquiry is on its way"
-msgstr "Благодарим — запитването Ви е изпратено"
+msgstr "Благодарим - запитването Ви е изпратено"
 
 #: template-parts/inquiry-dialog.php:63
 msgid "We will reply within one business day. A copy is in your inbox."

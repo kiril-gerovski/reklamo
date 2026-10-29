@@ -207,8 +207,8 @@ final class Reklamo_Privacy {
 					'invoice' => __( 'Invoice', 'reklamo-core' ),
 				)[ $f->kind ] ?? sprintf( /* translators: %d: revision */ __( 'Mockup #%d', 'reklamo-core' ), (int) $f->revision );
 				$data[]  = array(
-					'name'  => '' !== $product ? $label . ' — ' . $product : $label,
-					'value' => sprintf( '%s — %s, %s (%s)', $f->orig_name, strtoupper( $f->ext ), size_format( (int) $f->bytes ), '' === (string) $f->path ? __( 'deleted', 'reklamo-core' ) : $f->created_at ),
+					'name'  => '' !== $product ? $label . ' - ' . $product : $label,
+					'value' => sprintf( '%s - %s, %s (%s)', $f->orig_name, strtoupper( $f->ext ), size_format( (int) $f->bytes ), '' === (string) $f->path ? __( 'deleted', 'reklamo-core' ) : $f->created_at ),
 				);
 				if ( $f->created_ip ) {
 					$data[] = array(
@@ -220,7 +220,7 @@ final class Reklamo_Privacy {
 			foreach ( Reklamo_Approval::for_order( $order_id ) as $t ) {
 				$data[] = array(
 					'name'  => __( 'Emailed link', 'reklamo-core' ),
-					'value' => sprintf( '%s — %s%s', $t->purpose, $t->created_at, $t->used_at ? ', ' . __( 'used', 'reklamo-core' ) . ' ' . $t->used_at : '' ),
+					'value' => sprintf( '%s - %s%s', $t->purpose, $t->created_at, $t->used_at ? ', ' . __( 'used', 'reklamo-core' ) . ' ' . $t->used_at : '' ),
 				);
 			}
 			if ( $data ) {

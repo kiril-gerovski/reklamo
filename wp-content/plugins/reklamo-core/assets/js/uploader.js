@@ -151,7 +151,7 @@
 				if ( verdict ) {
 					input.value = '';
 				} else {
-					text.textContent += ' — ' + cfg.i18n.fallback;
+					text.textContent += ' - ' + cfg.i18n.fallback;
 				}
 			} finally {
 				setBusy( false );

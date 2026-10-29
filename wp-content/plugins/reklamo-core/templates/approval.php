@@ -60,7 +60,7 @@ $view_url = add_query_arg(
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <meta name="referrer" content="no-referrer">
-<title><?php echo esc_html( get_bloginfo( 'name' ) . ' — ' . ( $order ? sprintf( /* translators: %s: order number */ __( 'Order %s', 'reklamo-core' ), $order->get_order_number() ) : __( 'Mockup approval', 'reklamo-core' ) ) ); ?></title>
+<title><?php echo esc_html( get_bloginfo( 'name' ) . ' - ' . ( $order ? sprintf( /* translators: %s: order number */ __( 'Order %s', 'reklamo-core' ), $order->get_order_number() ) : __( 'Mockup approval', 'reklamo-core' ) ) ); ?></title>
 <?php require REKLAMO_PATH . 'templates/customer-style.php'; ?>
 </head>
 <body>

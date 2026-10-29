@@ -457,7 +457,7 @@ final class Reklamo_Cart {
 		$file        = Reklamo_Storage::by_token( $cart_item['reklamo']['file_token'] );
 		$item_data[] = array(
 			'key'     => __( 'Logo', 'reklamo-core' ),
-			'display' => $file ? $file->orig_name : '—',
+			'display' => $file ? $file->orig_name : '-',
 		);
 		if ( ! empty( $cart_item['reklamo']['note'] ) ) {
 			$item_data[] = array(
@@ -688,7 +688,7 @@ final class Reklamo_Cart {
 					continue;
 				}
 				$short[] = sprintf( $msg, $line['data']->get_name() );
-				$full[]  = sprintf( $msg, $line['data']->get_name() . ( '' !== $u['label'] ? ' — ' . $u['label'] : '' ) );
+				$full[]  = sprintf( $msg, $line['data']->get_name() . ( '' !== $u['label'] ? ' - ' . $u['label'] : '' ) );
 			}
 			// The whole package with the same problem is named once.
 			$same    = count( $short ) === count( $mine ) && 1 === count( array_unique( $short ) );
@@ -827,7 +827,7 @@ final class Reklamo_Cart {
 										<?php elseif ( $ok ) : ?>
 											<?php
 											$several = count( $on_line ) > 1;
-											$names   = array_map( static fn( $l ) => $several ? $l['file']->orig_name . ' – ' . implode( ', ', $l['labels'] ) : Reklamo_Storage::describe( $l['file'] ), $on_line );
+											$names   = array_map( static fn( $l ) => $several ? $l['file']->orig_name . ' - ' . implode( ', ', $l['labels'] ) : Reklamo_Storage::describe( $l['file'] ), $on_line );
 											$notes   = array_filter( array_column( $on_line, 'note' ), 'strlen' );
 											?>
 											<?php echo esc_html( $several ? __( 'Logos', 'reklamo-core' ) : __( 'Logo', 'reklamo-core' ) ); ?>: <strong data-cart-logo><?php echo esc_html( implode( '; ', $names ) ); ?></strong>
@@ -1116,7 +1116,7 @@ final class Reklamo_Cart {
 			$notes   = array();
 			foreach ( $on_line as $logo ) {
 				// Several logos on a package: each says which file goes on which items.
-				$head    = count( $on_line ) > 1 ? $logo['file']->orig_name . ' – ' . implode( ', ', $logo['labels'] ) : '';
+				$head    = count( $on_line ) > 1 ? $logo['file']->orig_name . ' - ' . implode( ', ', $logo['labels'] ) : '';
 				$notes[] = implode( ': ', array_filter( array( $head, $logo['note'] ), 'strlen' ) );
 			}
 			$order_lines[] = array(

@@ -158,7 +158,7 @@ test( 'the homepage ends with the FAQ band: one answer open at a time, numbers f
 	await items.nth( 4 ).locator( 'summary' ).click();
 	await expect( items.nth( 4 ) ).toHaveAttribute( 'open', '' );
 	await expect( items.first() ).not.toHaveAttribute( 'open', '' );
-	await expect( items.nth( 4 ) ).toContainText( /\d+–\d+ работни дни/ );
+	await expect( items.nth( 4 ) ).toContainText( /\d+-\d+ работни дни/ );
 	await expect( band ).not.toContainText( 'reklamo_value' );
 } );
 
@@ -258,7 +258,7 @@ test( 'Промо пакети filters by category through its chips and shows t
 	const seal = mugs.filter( { hasText: 'Комплект Stripe' } ).locator( '.package-card__seal' );
 	await expect( seal ).toContainText( 'от 50 бр.' );
 	await expect( seal ).toContainText( /409,99\s€/ );
-	await expect( mugs.filter( { hasText: 'Комплект Stripe' } ).locator( '.package-card__body' ) ).toContainText( '50–200 бр. комплекта тефтери, чаши и химикалки' );
+	await expect( mugs.filter( { hasText: 'Комплект Stripe' } ).locator( '.package-card__body' ) ).toContainText( '50-200 бр. комплекта тефтери, чаши и химикалки' );
 } );
 
 test( 'on a phone the category chips fit the screen and the cards sit two to a row', async ( { page } ) => {
@@ -387,7 +387,7 @@ test( 'a product ticked "On the homepage" takes the hero, one at a time; with no
 		await tick( stripe, true );
 		await page.goto( '/' );
 		await expect( page.locator( '.hero__badge .eyebrow' ) ).toHaveText( /Комплект Stripe/ );
-		await expect( page.locator( '.hero__badge' ) ).toContainText( '50–200 бр. комплекта тефтери, чаши и химикалки' );
+		await expect( page.locator( '.hero__badge' ) ).toContainText( '50-200 бр. комплекта тефтери, чаши и химикалки' );
 		await expect( page.locator( '.hero__photo' ) ).toHaveAttribute( 'href', /komplekt-stripe/ );
 
 		await tick( notebook, true );
@@ -488,5 +488,5 @@ test( 'Корпоративни подаръци lists what is ticked into it, l
 test( 'a package card names its range once and puts the box last', async ( { page } ) => {
 	await page.goto( '/' );
 	const trio = page.locator( 'li.product', { hasText: 'Комплект Trio' } ).locator( '.package-card__body' );
-	await expect( trio ).toContainText( '50–200 бр. комплекта химикалки, кабели за зареждане в подаръчни кутии' );
+	await expect( trio ).toContainText( '50-200 бр. комплекта химикалки, кабели за зареждане в подаръчни кутии' );
 } );

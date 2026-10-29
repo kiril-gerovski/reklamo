@@ -226,7 +226,7 @@ final class Reklamo_Admin_Order {
 				$current = Reklamo_Items::revision( $item );
 				?>
 				<div class="reklamo-item" data-item="<?php echo esc_attr( (string) $item_id ); ?>" style="border-top:1px solid #dcdcde;padding:.4em 0 .8em">
-					<h4 style="margin:.8em 0 .3em"><?php echo esc_html( $item->get_name() ); ?> <span class="description" style="font-weight:400">— <?php echo esc_html( $labels[ $state ] ); ?>
+					<h4 style="margin:.8em 0 .3em"><?php echo esc_html( $item->get_name() ); ?> <span class="description" style="font-weight:400">- <?php echo esc_html( $labels[ $state ] ); ?>
 						<?php
 						$used = Reklamo_Items::corrections( $item );
 						$free = (int) Reklamo_Settings::get( 'free_corrections', '2' );
@@ -330,13 +330,13 @@ final class Reklamo_Admin_Order {
 						<?php
 						if ( $order->get_meta( '_reklamo_deposit_paid_at' ) ) :
 							?>
-							— <?php echo esc_html( sprintf( /* translators: %s: date */ __( 'received %s', 'reklamo-core' ), $fmt_date( $order->get_meta( '_reklamo_deposit_paid_at' ) ) ) ); ?><?php endif; ?>
+							- <?php echo esc_html( sprintf( /* translators: %s: date */ __( 'received %s', 'reklamo-core' ), $fmt_date( $order->get_meta( '_reklamo_deposit_paid_at' ) ) ) ); ?><?php endif; ?>
 					</li>
 					<li><?php echo esc_html( sprintf( /* translators: %s: balance amount */ __( 'Balance: %s', 'reklamo-core' ), wp_strip_all_tags( wc_price( Reklamo_Money::balance( (float) $order->get_total(), $deposit ), array( 'currency' => $order->get_currency() ) ) ) ) ); ?>
 						<?php
 						if ( $order->get_meta( '_reklamo_final_paid_at' ) ) :
 							?>
-							— <?php echo esc_html( sprintf( /* translators: %s: date */ __( 'received %s', 'reklamo-core' ), $fmt_date( $order->get_meta( '_reklamo_final_paid_at' ) ) ) ); ?><?php endif; ?>
+							- <?php echo esc_html( sprintf( /* translators: %s: date */ __( 'received %s', 'reklamo-core' ), $fmt_date( $order->get_meta( '_reklamo_final_paid_at' ) ) ) ); ?><?php endif; ?>
 					</li>
 				</ul>
 			<?php endif; ?>
@@ -499,7 +499,7 @@ final class Reklamo_Admin_Order {
 					<td>
 						<?php $invoice = Reklamo_Dispatch::invoice( $order ); ?>
 						<?php if ( $invoice ) : ?>
-							<a href="<?php echo esc_url( Reklamo_Storage::download_url( (int) $invoice->id ) ); ?>"><?php echo esc_html( $invoice->orig_name ); ?></a> — <?php esc_html_e( 'a new file replaces it', 'reklamo-core' ); ?><br>
+							<a href="<?php echo esc_url( Reklamo_Storage::download_url( (int) $invoice->id ) ); ?>"><?php echo esc_html( $invoice->orig_name ); ?></a> - <?php esc_html_e( 'a new file replaces it', 'reklamo-core' ); ?><br>
 						<?php endif; ?>
 						<input type="file" id="reklamo-invoice" name="invoice" accept=".pdf,.png,.jpg,.jpeg" form="<?php echo esc_attr( $f ); ?>">
 					</td>

@@ -486,7 +486,7 @@ function reklamo_card_line( WC_Product $product ): string {
 	$items = reklamo_package_items( $short['list'] );
 	$size  = reklamo_card_size( $product );
 	$qty   = $size['qty'];
-	$range = $size['max'] > $qty ? $qty . '–' . $size['max'] : '';
+	$range = $size['max'] > $qty ? $qty . '-' . $size['max'] : '';
 	$count = '' !== $range ? $range : (string) $qty;
 	if ( $items && class_exists( 'Reklamo_Product' ) && Reklamo_Product::is_package( $product ) ) {
 		$names = array(

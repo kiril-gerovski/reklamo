@@ -155,7 +155,7 @@ opt_default reklamo_tagline "Промоционални пакети и бран
 opt_replace reklamo_phone "+359 894 65 58 58" "+359 88 123 4567"
 opt_default reklamo_email "office@reklamo.bg"
 opt_replace reklamo_address "София, ул. Източна тангента 96" "София, България"
-opt_default reklamo_hours "10:00 – 17:00"
+opt_default reklamo_hours "10:00 - 17:00"
 opt_replace reklamo_facebook "https://www.facebook.com/people/Reklamobg/61595198469381/" "https://facebook.com/"
 opt_default reklamo_instagram "https://www.instagram.com/reklamo.bg/"
 # Replaces the earlier seed placeholder only, so an owner's own link is never touched.
@@ -166,7 +166,7 @@ opt_default reklamo_mockup_deadline 24
 opt_replace reklamo_deposit_pct 100 50
 opt_default reklamo_free_corrections 2
 opt_default reklamo_correction_fee 15
-opt_default reklamo_production_days "5–10"
+opt_default reklamo_production_days "5-10"
 opt_default reklamo_free_shipping 400
 opt_default reklamo_note_max 300
 

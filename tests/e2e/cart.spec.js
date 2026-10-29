@@ -96,9 +96,9 @@ test( 'logos with notes are marked for products item by item; a marked item leav
 	await expect( pending.locator( '[data-rk-nofile]' ) ).toBeVisible();
 	// Part of a package is named item by item.
 	await expect( page.locator( '[data-rk-blocked] li' ) ).toHaveText( [
-		'Комплект Cork – чаша, тефтер и химикалка - 50 бр. — 50 бр. Чаши: файлът на „Лого 2“ още не е качен.',
-		'Комплект Cork – чаша, тефтер и химикалка - 50 бр. — 50 бр. Тефтери: не е маркиран при нито едно лого.',
-		'Комплект Cork – чаша, тефтер и химикалка - 50 бр. — 50 бр. Химикалки: не е маркиран при нито едно лого.',
+		'Комплект Cork – чаша, тефтер и химикалка - 50 бр. - 50 бр. Чаши: файлът на „Лого 2“ още не е качен.',
+		'Комплект Cork – чаша, тефтер и химикалка - 50 бр. - 50 бр. Тефтери: не е маркиран при нито едно лого.',
+		'Комплект Cork – чаша, тефтер и химикалка - 50 бр. - 50 бр. Химикалки: не е маркиран при нито едно лого.',
 	] );
 	await pending.getByRole( 'button', { name: 'Премахни това лого' } ).click();
 	await page.getByRole( 'button', { name: /Добави още едно лого/ } ).click();
@@ -120,7 +120,7 @@ test( 'logos with notes are marked for products item by item; a marked item leav
 	await itemBox( second, 'Бизнес комплект Magnet', 'Тефтери' ).evaluate( ( el ) => { el.checked = true; } );
 	await page.locator( '[data-rk-continue]' ).evaluate( ( b ) => { b.disabled = false; } );
 	await page.locator( '[data-rk-continue]' ).click();
-	await expect( page.locator( '.rq-errors' ) ).toContainText( 'Бизнес комплект Magnet - Червен, 50 бр. — 50 бр. Тефтери: маркиран е при повече от едно лого' );
+	await expect( page.locator( '.rq-errors' ) ).toContainText( 'Бизнес комплект Magnet - Червен, 50 бр. - 50 бр. Тефтери: маркиран е при повече от едно лого' );
 	await itemBox( page.locator( '.rk-logo' ).nth( 1 ), 'Бизнес комплект Magnet', 'Тефтери' ).evaluate( ( el ) => { el.checked = false; el.dispatchEvent( new Event( 'change', { bubbles: true } ) ); } );
 
 	// One package, two logos: the pens of the Magnet set take logo 2.
@@ -131,7 +131,7 @@ test( 'logos with notes are marked for products item by item; a marked item leav
 	await page.locator( '[data-rk-continue]' ).click();
 	await expect( page.locator( '.rk-cart' ) ).toHaveAttribute( 'data-step', 'details' );
 	await expect( items.nth( 0 ) ).toContainText( 'Логота:' );
-	await expect( items.nth( 0 ).locator( '[data-cart-logo]' ) ).toHaveText( 'logo.pdf – 50 бр. Тефтери; logo.png – 50 бр. Метални химикалки' );
+	await expect( items.nth( 0 ).locator( '[data-cart-logo]' ) ).toHaveText( 'logo.pdf - 50 бр. Тефтери; logo.png - 50 бр. Метални химикалки' );
 	await expect( items.nth( 1 ).locator( '[data-cart-logo]' ) ).toContainText( 'logo.png' );
 	await expect( items.nth( 1 ).locator( '[data-cart-note]' ) ).toContainText( 'химикалката' );
 } );
@@ -174,8 +174,8 @@ test( 'sending the cart creates one order with a line, a logo and a note per pro
 	await expect( products.nth( 0 ) ).toContainText( 'Бизнес комплект Magnet' );
 	await expect( products.nth( 0 ) ).toContainText( 'logo.pdf' );
 	await expect( products.nth( 0 ) ).toContainText( 'logo.png' );
-	await expect( products.nth( 0 ) ).toContainText( 'logo.pdf – 50 бр. Тефтери: A: златно лого на корицата.' );
-	await expect( products.nth( 0 ) ).toContainText( 'logo.png – 50 бр. Метални химикалки: B: златно лого' );
+	await expect( products.nth( 0 ) ).toContainText( 'logo.pdf - 50 бр. Тефтери: A: златно лого на корицата.' );
+	await expect( products.nth( 0 ) ).toContainText( 'logo.png - 50 бр. Метални химикалки: B: златно лого' );
 	await expect( products.nth( 1 ) ).toContainText( 'Комплект Cork' );
 	await expect( products.nth( 1 ) ).toContainText( 'химикалката' );
 
@@ -263,7 +263,7 @@ test( 'the revised mockup is approved and only then the deposit is asked for', a
 	await page.click( 'button[name="decision"][value="approve"]' );
 	await page.waitForURL( /odobrenie\/\?s=/ );
 	await expect( page.locator( '.next h2' ) ).toHaveText( 'Плащане' );
-	await expect( page.locator( '.badge' ) ).toHaveText( 'Одобрена — чака плащане' );
+	await expect( page.locator( '.badge' ) ).toHaveText( 'Одобрена - чака плащане' );
 	expect( await subjectCount( `плащане и данни за поръчка ${ orderId }` ) ).toBe( 1 );
 } );
 

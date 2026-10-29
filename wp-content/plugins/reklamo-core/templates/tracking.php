@@ -37,7 +37,7 @@ $multi    = ( $counts['total'] ?? 0 ) > 1;
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <meta name="referrer" content="no-referrer">
-<title><?php echo esc_html( get_bloginfo( 'name' ) . ' — ' . ( $order ? sprintf( /* translators: %s: order number */ __( 'Order %s', 'reklamo-core' ), $order->get_order_number() ) : __( 'Your order', 'reklamo-core' ) ) ); ?></title>
+<title><?php echo esc_html( get_bloginfo( 'name' ) . ' - ' . ( $order ? sprintf( /* translators: %s: order number */ __( 'Order %s', 'reklamo-core' ), $order->get_order_number() ) : __( 'Your order', 'reklamo-core' ) ) ); ?></title>
 <?php require REKLAMO_PATH . 'templates/customer-style.php'; ?>
 </head>
 <body>
@@ -178,7 +178,7 @@ $multi    = ( $counts['total'] ?? 0 ) > 1;
 							<dd>
 								<?php echo esc_html( trim( $reklamo_ship['courier_name'] . ' ' . $reklamo_ship['waybill'] ) ); ?>
 								<?php if ( $reklamo_ship['url'] ) : ?>
-									— <a href="<?php echo esc_url( $reklamo_ship['url'] ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'Track the parcel', 'reklamo-core' ); ?></a>
+									- <a href="<?php echo esc_url( $reklamo_ship['url'] ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'Track the parcel', 'reklamo-core' ); ?></a>
 								<?php endif; ?>
 							</dd>
 						<?php endif; ?>
@@ -320,10 +320,10 @@ $multi    = ( $counts['total'] ?? 0 ) > 1;
 			<dt><?php esc_html_e( 'Total', 'reklamo-core' ); ?></dt><dd><?php echo esc_html( $v['total'] ); ?> <span class="muted"><?php esc_html_e( 'incl. VAT', 'reklamo-core' ); ?></span></dd>
 			<?php if ( $v['deposit'] ) : ?>
 				<dt><?php esc_html_e( 'Deposit', 'reklamo-core' ); ?></dt>
-				<dd><?php echo esc_html( $v['deposit'] ); ?> — <?php echo $v['deposit_paid'] ? '<span class="ok">' . esc_html( sprintf( /* translators: %s: date */ __( 'received %s', 'reklamo-core' ), $v['deposit_paid'] ) ) . '</span>' : esc_html__( 'awaiting transfer', 'reklamo-core' ); ?></dd>
+				<dd><?php echo esc_html( $v['deposit'] ); ?> - <?php echo $v['deposit_paid'] ? '<span class="ok">' . esc_html( sprintf( /* translators: %s: date */ __( 'received %s', 'reklamo-core' ), $v['deposit_paid'] ) ) . '</span>' : esc_html__( 'awaiting transfer', 'reklamo-core' ); ?></dd>
 				<?php if ( $v['balance'] ) : ?>
 					<dt><?php esc_html_e( 'Balance', 'reklamo-core' ); ?></dt>
-					<dd><?php echo esc_html( $v['balance'] ); ?> — <?php echo $v['final_paid'] ? '<span class="ok">' . esc_html( sprintf( /* translators: %s: date */ __( 'received %s', 'reklamo-core' ), $v['final_paid'] ) ) . '</span>' : esc_html__( 'due before dispatch', 'reklamo-core' ); ?></dd>
+					<dd><?php echo esc_html( $v['balance'] ); ?> - <?php echo $v['final_paid'] ? '<span class="ok">' . esc_html( sprintf( /* translators: %s: date */ __( 'received %s', 'reklamo-core' ), $v['final_paid'] ) ) . '</span>' : esc_html__( 'due before dispatch', 'reklamo-core' ); ?></dd>
 				<?php endif; ?>
 			<?php else : ?>
 				<dt><?php esc_html_e( 'Deposit', 'reklamo-core' ); ?></dt><dd class="muted"><?php esc_html_e( 'set after you approve the mockup', 'reklamo-core' ); ?></dd>

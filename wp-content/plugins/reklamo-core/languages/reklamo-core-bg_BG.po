@@ -26,7 +26,7 @@ msgstr "https://reklamo.bg"
 #. Description of the plugin
 #: reklamo-core.php
 msgid "Business logic for Reklamo.bg — order statuses, logo uploads, mockups and approvals, emails. The theme is presentation only; everything that touches orders lives here."
-msgstr "Бизнес логика за Reklamo.bg — статуси на поръчки, качване на лога, визуализации и одобрения, имейли. Темата е само презентация; всичко, което засяга поръчки, живее тук."
+msgstr "Бизнес логика за Reklamo.bg - статуси на поръчки, качване на лога, визуализации и одобрения, имейли. Темата е само презентация; всичко, което засяга поръчки, живее тук."
 
 #. Author of the plugin
 #: reklamo-core.php
@@ -44,15 +44,15 @@ msgstr "Лого на клиента"
 #: includes/class-reklamo-admin-order.php:274
 #: includes/class-reklamo-admin-order.php:277
 msgid "— approved"
-msgstr "— одобрена"
+msgstr "- одобрена"
 
 #: includes/class-reklamo-admin-order.php:274
 msgid "— changes requested"
-msgstr "— заявени корекции"
+msgstr "- заявени корекции"
 
 #: includes/class-reklamo-admin-order.php:279
 msgid "— awaiting the customer"
-msgstr "— чака клиента"
+msgstr "- чака клиента"
 
 #. translators: %s: expiry date
 #: includes/class-reklamo-admin-order.php:281
@@ -89,7 +89,7 @@ msgstr "Моля, опишете какви промени желаете."
 
 #: includes/class-reklamo-approval.php:366
 msgid "Changes requested — back to the designer."
-msgstr "Заявени корекции — обратно при дизайнера."
+msgstr "Заявени корекции - обратно при дизайнера."
 
 #: includes/class-reklamo-cart.php:290
 msgid "The form has expired. Please reload the page and try again."
@@ -167,7 +167,7 @@ msgstr "Заявката е получена. Не е извършено пла�
 
 #: includes/class-reklamo-gateway.php:122
 msgid "Your request has been received. No payment is taken at this stage — our designer will send you a mockup for approval within 24 business hours."
-msgstr "Заявката Ви е получена. На този етап не се извършва плащане — нашият дизайнер ще Ви изпрати визуализация за одобрение до 24 работни часа."
+msgstr "Заявката Ви е получена. На този етап не се извършва плащане - нашият дизайнер ще Ви изпрати визуализация за одобрение до 24 работни часа."
 
 #: includes/class-reklamo-statuses.php:53
 #: includes/class-reklamo-tracking.php:295
@@ -180,7 +180,7 @@ msgstr "Изпратена визуализация"
 
 #: includes/class-reklamo-statuses.php:56
 msgid "Approved — awaiting deposit"
-msgstr "Одобрена — чака плащане"
+msgstr "Одобрена - чака плащане"
 
 #. translators: %s: number of orders
 #: includes/class-reklamo-statuses.php:83
@@ -203,8 +203,8 @@ msgstr[1] "Изпратена визуализация <span class=\"count\">(%s
 #, php-format
 msgid "Approved — awaiting deposit <span class=\"count\">(%s)</span>"
 msgid_plural "Approved — awaiting deposit <span class=\"count\">(%s)</span>"
-msgstr[0] "Одобрена — чака плащане <span class=\"count\">(%s)</span>"
-msgstr[1] "Одобрена — чака плащане <span class=\"count\">(%s)</span>"
+msgstr[0] "Одобрена - чака плащане <span class=\"count\">(%s)</span>"
+msgstr[1] "Одобрена - чака плащане <span class=\"count\">(%s)</span>"
 
 #. translators: 1: previous status, 2: new status
 #: includes/class-reklamo-statuses.php:135
@@ -272,7 +272,7 @@ msgstr "Изпраща се на клиента, когато дизайнеръ
 
 #: includes/emails/class-reklamo-email-mockup-sent.php:54
 msgid "Your mockup for order {order_number} is ready — {site_title}"
-msgstr "Визуализацията за поръчка {order_number} е готова — {site_title}"
+msgstr "Визуализацията за поръчка {order_number} е готова - {site_title}"
 
 #: includes/emails/class-reklamo-email-mockup-sent.php:58
 msgid "Your mockup is ready"
@@ -303,7 +303,7 @@ msgstr "Изпраща се на клиента при подаване на з�
 
 #: includes/emails/class-reklamo-email-request-received.php:33
 msgid "We received your request {order_number} — {site_title}"
-msgstr "Получихме Вашата заявка {order_number} — {site_title}"
+msgstr "Получихме Вашата заявка {order_number} - {site_title}"
 
 #: includes/emails/class-reklamo-email-request-received.php:37
 msgid "Thank you, {customer_first_name}!"
@@ -356,11 +356,11 @@ msgstr "Заявихте корекции. Нашият дизайнер раб�
 
 #: templates/approval.php:115
 msgid "Approved — thank you!"
-msgstr "Одобрено — благодарим!"
+msgstr "Одобрено - благодарим!"
 
 #: templates/approval.php:123
 msgid "Thank you — we received your comments"
-msgstr "Благодарим — получихме Вашите коментари"
+msgstr "Благодарим - получихме Вашите коментари"
 
 #: templates/approval.php:124
 msgid "Our designer will prepare a revised mockup and you will get a new email to review it."
@@ -504,7 +504,7 @@ msgstr "Процес"
 
 #: includes/class-reklamo-settings-page.php:116
 msgid "Shown in the footer, the contact blocks and the emails. Edit here once; every page updates."
-msgstr "Показва се във футъра, контактните блокове и имейлите. Редактирайте тук веднъж — всички страници се обновяват."
+msgstr "Показва се във футъра, контактните блокове и имейлите. Редактирайте тук веднъж - всички страници се обновяват."
 
 #: includes/class-reklamo-settings-page.php:120
 #: templates/approval.php:209
@@ -579,17 +579,17 @@ msgstr "Стартирай производство"
 
 #: includes/class-reklamo-admin-order.php:141
 msgid "Ready — request final payment"
-msgstr "Готово — поискай доплащане"
+msgstr "Готово - поискай доплащане"
 
 #. translators: %s: balance amount
 #: includes/class-reklamo-admin-order.php:514
 #, php-format
 msgid "Final payment received (%s) — complete"
-msgstr "Доплащане получено (%s) — приключи"
+msgstr "Доплащане получено (%s) - приключи"
 
 #: includes/class-reklamo-admin-order.php:283
 msgid "— link expired"
-msgstr "— връзката е изтекла"
+msgstr "- връзката е изтекла"
 
 #: includes/class-reklamo-admin-order.php:293
 msgid "Requested changes"
@@ -681,7 +681,7 @@ msgstr "Подадени на"
 
 #: includes/class-reklamo-admin-order.php:425
 msgid "Not submitted yet — the customer gets the form after approving the mockup."
-msgstr "Още не са подадени — клиентът получава формата след одобрение на визуализацията."
+msgstr "Още не са подадени - клиентът получава формата след одобрение на визуализацията."
 
 #: includes/class-reklamo-admin-order.php:537
 #: includes/class-reklamo-admin-order.php:681
@@ -816,7 +816,7 @@ msgstr "В производство"
 
 #: includes/class-reklamo-statuses.php:59
 msgid "Ready — awaiting final payment"
-msgstr "Готово — чака доплащане"
+msgstr "Готово - чака доплащане"
 
 #. translators: %s: number of orders
 #: includes/class-reklamo-statuses.php:87
@@ -847,8 +847,8 @@ msgstr[1] "В производство <span class=\"count\">(%s)</span>"
 #, php-format
 msgid "Ready — awaiting final payment <span class=\"count\">(%s)</span>"
 msgid_plural "Ready — awaiting final payment <span class=\"count\">(%s)</span>"
-msgstr[0] "Готово — чака доплащане <span class=\"count\">(%s)</span>"
-msgstr[1] "Готово — чака доплащане <span class=\"count\">(%s)</span>"
+msgstr[0] "Готово - чака доплащане <span class=\"count\">(%s)</span>"
+msgstr[1] "Готово - чака доплащане <span class=\"count\">(%s)</span>"
 
 #. translators: 1: current status, 2: refused status
 #: includes/class-reklamo-statuses.php:170
@@ -858,7 +858,7 @@ msgstr "Състоянието остава „%1$s“: „%2$s“ не е ва�
 
 #: includes/emails/class-reklamo-email-admin-changes.php:17
 msgid "Changes requested — admin (Reklamo)"
-msgstr "Заявени корекции — админ (Reklamo)"
+msgstr "Заявени корекции - админ (Reklamo)"
 
 #: includes/emails/class-reklamo-email-admin-changes.php:18
 msgid "Sent to the shop when a customer requests changes to a mockup."
@@ -892,7 +892,7 @@ msgstr "Клиентът иска промени"
 
 #: includes/emails/class-reklamo-email-admin-details.php:17
 msgid "Invoice details received — admin (Reklamo)"
-msgstr "Получени данни за фактура — админ (Reklamo)"
+msgstr "Получени данни за фактура - админ (Reklamo)"
 
 #: includes/emails/class-reklamo-email-admin-details.php:18
 msgid "Sent to the shop when the customer submits company, invoice and delivery details after approval."
@@ -908,7 +908,7 @@ msgstr "Получени данни за фактура и доставка"
 
 #: includes/emails/class-reklamo-email-admin-details.php:43
 msgid "Order {order_number} (deposit {deposit_amount}) — the customer filled in the details below. Issue the proforma and watch for the transfer."
-msgstr "Поръчка {order_number} (за плащане {deposit_amount}) — клиентът попълни данните по-долу. Издайте документ за плащане и следете за превода."
+msgstr "Поръчка {order_number} (за плащане {deposit_amount}) - клиентът попълни данните по-долу. Издайте документ за плащане и следете за превода."
 
 #: includes/emails/class-reklamo-email-deposit-request.php:19
 msgid "Deposit request (Reklamo)"
@@ -916,7 +916,7 @@ msgstr "Искане за плащане (Reklamo)"
 
 #: includes/emails/class-reklamo-email-deposit-request.php:25
 msgid "Approved — deposit and details for order {order_number} — {site_title}"
-msgstr "Одобрено — плащане и данни за поръчка {order_number} — {site_title}"
+msgstr "Одобрено - плащане и данни за поръчка {order_number} - {site_title}"
 
 #: includes/emails/class-reklamo-email-deposit-request.php:37
 #: templates/tracking.php:141
@@ -941,7 +941,7 @@ msgstr "Изпраща се, когато поръчката е готова: о
 
 #: includes/emails/class-reklamo-email-final-payment.php:24
 msgid "Your order {order_number} is ready — final payment — {site_title}"
-msgstr "Поръчка {order_number} е готова — доплащане — {site_title}"
+msgstr "Поръчка {order_number} е готова - доплащане - {site_title}"
 
 #: includes/emails/class-reklamo-email-final-payment.php:28
 msgid "Your order is ready!"
@@ -949,7 +949,7 @@ msgstr "Поръчката Ви е готова!"
 
 #: includes/emails/class-reklamo-email-final-payment.php:32
 msgid "Hello {customer_first_name}, your package is produced and ready to ship. Please transfer the remaining {balance_amount} to the account below, quoting the order number, and we dispatch it the same day we see the payment."
-msgstr "Здравейте, {customer_first_name}, пакетът Ви е произведен и готов за изпращане. Моля, преведете остатъка от {balance_amount} по сметката по-долу с основание номера на поръчката — изпращаме в деня, в който видим плащането."
+msgstr "Здравейте, {customer_first_name}, пакетът Ви е произведен и готов за изпращане. Моля, преведете остатъка от {balance_amount} по сметката по-долу с основание номера на поръчката - изпращаме в деня, в който видим плащането."
 
 #: includes/emails/class-reklamo-email-final-payment.php:36
 msgid "The invoice for the full amount accompanies the delivery."
@@ -976,7 +976,7 @@ msgstr "Изпраща се, когато поръчката премине в �
 
 #: includes/emails/class-reklamo-email-production-started.php:22
 msgid "Your order {order_number} is in production — {site_title}"
-msgstr "Поръчка {order_number} е в производство — {site_title}"
+msgstr "Поръчка {order_number} е в производство - {site_title}"
 
 #: includes/emails/class-reklamo-email-production-started.php:26
 msgid "We are producing your order"
@@ -984,7 +984,7 @@ msgstr "Произвеждаме Вашата поръчка"
 
 #: includes/emails/class-reklamo-email-production-started.php:30
 msgid "Hello {customer_first_name}, we received your deposit of {deposit_amount} — thank you. Production of your package has started. We will let you know as soon as it is ready and send the details for the remaining {balance_amount}."
-msgstr "Здравейте, {customer_first_name}, получихме плащането Ви от {deposit_amount} — благодарим. Производството на поръчката Ви започна. Ще Ви уведомим, когато е готова за изпращане."
+msgstr "Здравейте, {customer_first_name}, получихме плащането Ви от {deposit_amount} - благодарим. Производството на поръчката Ви започна. Ще Ви уведомим, когато е готова за изпращане."
 
 #: includes/emails/class-reklamo-email-deposit-received.php:34
 #: includes/emails/class-reklamo-email-production-started.php:34
@@ -1069,11 +1069,11 @@ msgstr "Най-голяма приета единична заявка: %s. Ча
 
 #: includes/class-reklamo-diagnostics.php:75
 msgid "Outside the web root — not reachable by URL."
-msgstr "Извън уеб директорията — недостъпно по URL."
+msgstr "Извън уеб директорията - недостъпно по URL."
 
 #: includes/class-reklamo-diagnostics.php:83
 msgid "PUBLICLY READABLE — the .htaccess deny rule is not in effect on this server. Move REKLAMO_PRIVATE_DIR outside the web root or add a deny rule for the host."
-msgstr "ПУБЛИЧНО ДОСТЪПНО — правилото за отказ в .htaccess не действа на този сървър. Преместете REKLAMO_PRIVATE_DIR извън уеб директорията или добавете правило за отказ при хоста."
+msgstr "ПУБЛИЧНО ДОСТЪПНО - правилото за отказ в .htaccess не действа на този сървър. Преместете REKLAMO_PRIVATE_DIR извън уеб директорията или добавете правило за отказ при хоста."
 
 #. translators: %s: HTTP status
 #: includes/class-reklamo-diagnostics.php:86
@@ -1131,7 +1131,7 @@ msgstr "WP-Cron"
 
 #: includes/class-reklamo-diagnostics.php:113
 msgid "disabled — a real cron job must call wp-cron.php"
-msgstr "изключен — истинска cron задача трябва да извиква wp-cron.php"
+msgstr "изключен - истинска cron задача трябва да извиква wp-cron.php"
 
 #: includes/class-reklamo-diagnostics.php:113
 msgid "enabled (visitor-triggered; fine locally, use a real cron in production)"
@@ -1156,7 +1156,7 @@ msgstr "Разширение DOM (SVG санитайзер)"
 
 #: includes/class-reklamo-diagnostics.php:115
 msgid "MISSING — SVG uploads will be refused"
-msgstr "ЛИПСВА — SVG качвания ще бъдат отхвърляни"
+msgstr "ЛИПСВА - SVG качвания ще бъдат отхвърляни"
 
 #: includes/class-reklamo-diagnostics.php:120
 msgid "Run this on the live host after deployment and again after any hosting change. The probe below posts real request bodies to find the true upload ceiling; php.ini values alone are not the whole story on shared hosting."
@@ -1220,7 +1220,7 @@ msgstr "Файлове на клиенти"
 
 #: includes/class-reklamo-settings-page.php:218
 msgid "Logos are uploaded in small chunks, so the server's PHP upload limit does not apply — only this maximum does. Check WooCommerce → Reklamo diagnostics after deploying."
-msgstr "Логата се качват на малки части, така че PHP лимитът на сървъра не важи — важи само този максимум. След внедряване проверете WooCommerce → Диагностика Reklamo."
+msgstr "Логата се качват на малки части, така че PHP лимитът на сървъра не важи - важи само този максимум. След внедряване проверете WooCommerce → Диагностика Reklamo."
 
 #: includes/class-reklamo-settings-page.php:222
 msgid "Maximum logo file size (MB)"
@@ -1386,7 +1386,7 @@ msgstr "без удостоверяване"
 
 #: includes/class-reklamo-mail.php:140
 msgid "PHP mail() — REKLAMO_SMTP_HOST is not defined in wp-config.php"
-msgstr "PHP mail() — REKLAMO_SMTP_HOST не е зададен в wp-config.php"
+msgstr "PHP mail() - REKLAMO_SMTP_HOST не е зададен в wp-config.php"
 
 #: includes/class-reklamo-admin-order.php:209
 msgid "Customer's order page (in every email they get):"
@@ -1402,7 +1402,7 @@ msgstr "Проследете поръчката си"
 
 #: includes/class-reklamo-tracking.php:109
 msgid "Progress, mockups and payments for this order, any time, without a password. Keep this email."
-msgstr "Напредък, визуализации и плащания по тази поръчка — по всяко време, без парола. Запазете този имейл."
+msgstr "Напредък, визуализации и плащания по тази поръчка - по всяко време, без парола. Запазете този имейл."
 
 #: includes/class-reklamo-tracking.php:297
 msgid "Approval"
@@ -1444,7 +1444,7 @@ msgstr "Заявката Ви е получена. На този етап не �
 
 #: templates/tracking.php:69
 msgid "We have emailed you a confirmation with a link to this page — keep it, it is how you follow the order."
-msgstr "Изпратихме Ви потвърждение по имейл с връзка към тази страница — запазете го, чрез него следите поръчката."
+msgstr "Изпратихме Ви потвърждение по имейл с връзка към тази страница - запазете го, чрез него следите поръчката."
 
 #. translators: %s: date
 #: templates/customer-head.php:23
@@ -1481,7 +1481,7 @@ msgstr "Визуализация №%d очаква Вашето решение"
 
 #: templates/tracking.php:104
 msgid "We received your comments — a revised mockup is on the way"
-msgstr "Получихме коментарите Ви — подготвяме коригирана визуализация"
+msgstr "Получихме коментарите Ви - подготвяме коригирана визуализация"
 
 #: templates/tracking.php:116
 msgid "You will get a new email when it is ready."
@@ -1489,7 +1489,7 @@ msgstr "Ще получите нов имейл, когато е готова."
 
 #: templates/tracking.php:123
 msgid "Approved — the deposit starts production"
-msgstr "Одобрено — плащането стартира производството"
+msgstr "Одобрено - плащането стартира производството"
 
 #: templates/tracking.php:133
 msgid "We still need your invoice and delivery details."
@@ -1501,7 +1501,7 @@ msgstr "Данните Ви за фактура и доставка са пол�
 
 #: templates/tracking.php:148
 msgid "Deposit received — thank you"
-msgstr "Плащането е получено — благодарим"
+msgstr "Плащането е получено - благодарим"
 
 #: templates/tracking.php:149
 msgid "Production is being scheduled. You will get an email when it starts."
@@ -1517,7 +1517,7 @@ msgstr "Ще Ви пишем, когато поръчката е готова з
 
 #: templates/tracking.php:160
 msgid "Ready — final payment before dispatch"
-msgstr "Готова — доплащане преди изпращане"
+msgstr "Готова - доплащане преди изпращане"
 
 #. translators: %s: balance amount
 #: templates/tracking.php:162
@@ -1533,12 +1533,12 @@ msgstr "Изпращаме веднага след постъпване на п�
 #: templates/tracking.php:170
 #, php-format
 msgid "Completed on %s — thank you!"
-msgstr "Завършена на %s — благодарим!"
+msgstr "Завършена на %s - благодарим!"
 
 #. translators: %s: date
 #: templates/tracking.php:170
 msgid "Completed — thank you!"
-msgstr "Завършена — благодарим!"
+msgstr "Завършена - благодарим!"
 
 #. translators: %s: date
 #: templates/tracking.php:171
@@ -1732,11 +1732,11 @@ msgstr "SVG файлове над %s не могат да бъдат прове�
 
 #: includes/emails/class-reklamo-email-admin-approved.php:17
 msgid "Mockup approved — admin (Reklamo)"
-msgstr "Одобрена визуализация — администратор (Reklamo)"
+msgstr "Одобрена визуализация - администратор (Reklamo)"
 
 #: includes/emails/class-reklamo-email-admin-approved.php:36
 msgid "[{site_title}] Mockup approved for order {order_number} — deposit expected"
-msgstr "[{site_title}] Визуализацията е одобрена за поръчка {order_number} — очаква се плащане"
+msgstr "[{site_title}] Визуализацията е одобрена за поръчка {order_number} - очаква се плащане"
 
 #: includes/emails/class-reklamo-email-admin-approved.php:48
 #: includes/emails/class-reklamo-email-admin-stale.php:51
@@ -1745,7 +1745,7 @@ msgstr "Отвори поръчката"
 
 #: includes/emails/class-reklamo-email-admin-stale.php:17
 msgid "Order waiting — admin (Reklamo)"
-msgstr "Чакаща поръчка — администратор (Reklamo)"
+msgstr "Чакаща поръчка - администратор (Reklamo)"
 
 #: includes/emails/class-reklamo-email-admin-stale.php:18
 msgid "Sent to the shop when a customer has not reacted to any reminder (mockup approval, deposit or final payment)."
@@ -1773,7 +1773,7 @@ msgstr "Изпраща се до клиента, когато магазинът
 
 #: includes/emails/class-reklamo-email-cancelled.php:23
 msgid "Order {order_number} has been cancelled — {site_title}"
-msgstr "Поръчка {order_number} е отказана — {site_title}"
+msgstr "Поръчка {order_number} е отказана - {site_title}"
 
 #: includes/emails/class-reklamo-email-cancelled.php:27
 msgid "Your order was cancelled"
@@ -1797,11 +1797,11 @@ msgstr "Изпраща се, когато магазинът отбележи п
 
 #: includes/emails/class-reklamo-email-deposit-received.php:22
 msgid "Deposit received for order {order_number} — {site_title}"
-msgstr "Получено плащане по поръчка {order_number} — {site_title}"
+msgstr "Получено плащане по поръчка {order_number} - {site_title}"
 
 #: includes/emails/class-reklamo-email-deposit-received.php:26
 msgid "Thank you — your deposit is in"
-msgstr "Благодарим — плащането Ви е получено"
+msgstr "Благодарим - плащането Ви е получено"
 
 #: includes/emails/class-reklamo-email-deposit-received.php:30
 msgid "Hello {customer_first_name}, we received your deposit of {deposit_amount} for order {order_number}. Production is being scheduled and you will get an email the moment it starts. The balance of {balance_amount} is due before delivery."
@@ -1839,11 +1839,11 @@ msgstr "Платените от Вас суми са върнати. Свърж�
 
 #: templates/tracking.php:74
 msgid "Thank you — we received your comments. Our designer will prepare a revised mockup and you will get an email when it is ready."
-msgstr "Благодарим — получихме коментарите Ви. Нашият дизайнер ще подготви коригирана визуализация и ще получите имейл, когато е готова."
+msgstr "Благодарим - получихме коментарите Ви. Нашият дизайнер ще подготви коригирана визуализация и ще получите имейл, когато е готова."
 
 #: templates/tracking.php:78
 msgid "This step is no longer open — the page below shows the current state."
-msgstr "Тази стъпка вече не е активна — страницата по-долу показва текущото състояние."
+msgstr "Тази стъпка вече не е активна - страницата по-долу показва текущото състояние."
 
 #: templates/tracking.php:141
 msgid "Update my details"
@@ -1867,7 +1867,7 @@ msgstr "След изпращането на този имейл поръчка�
 
 #: templates/approval.php:107
 msgid "You approved it — thank you. Your order page below shows the next step."
-msgstr "Одобрихте я — благодарим. Страницата на поръчката по-долу показва следващата стъпка."
+msgstr "Одобрихте я - благодарим. Страницата на поръчката по-долу показва следващата стъпка."
 
 #: templates/approval.php:136
 msgid "The order number is your payment reference. We confirm the deposit manually on working days and let you know by email."
@@ -1945,7 +1945,7 @@ msgstr "[премахнато: лични данни]"
 #: includes/class-reklamo-privacy.php:57
 #: includes/class-reklamo-privacy.php:229
 msgid "Reklamo order files, consent and links"
-msgstr "Reklamo — файлове, съгласие и връзки по поръчки"
+msgstr "Reklamo - файлове, съгласие и връзки по поръчки"
 
 #: includes/class-reklamo-privacy.php:174
 msgid "Consent to Terms and Privacy Policy"
@@ -2005,11 +2005,11 @@ msgstr "Чака първа визуализация"
 
 #: includes/class-reklamo-admin-order.php:215
 msgid "Mockup sent — awaiting the customer"
-msgstr "Изпратена визуализация — чака клиента"
+msgstr "Изпратена визуализация - чака клиента"
 
 #: includes/class-reklamo-admin-order.php:216
 msgid "Changes requested — your turn"
-msgstr "Заявени корекции — Ваш ред е"
+msgstr "Заявени корекции - Ваш ред е"
 
 #: includes/class-reklamo-admin-order.php:217
 #: templates/tracking.php:224
@@ -2192,13 +2192,13 @@ msgstr "Заместители: {order_number}, {customer_first_name}, {products
 
 #: includes/emails/class-reklamo-email-request-received.php:41
 msgid "We received your request and your logo. Our designer is now preparing a mockup of each product — you will get them by email for approval within 24 business hours."
-msgstr "Получихме Вашата заявка и логото Ви. Нашият дизайнер подготвя визуализация на всеки продукт — ще ги получите по имейл за одобрение до 24 работни часа."
+msgstr "Получихме Вашата заявка и логото Ви. Нашият дизайнер подготвя визуализация на всеки продукт - ще ги получите по имейл за одобрение до 24 работни часа."
 
 #. translators: 1: approved products, 2: all products
 #: templates/approval.php:117
 #, php-format
 msgid "Approved: %1$d of %2$d products. We ask for the deposit once every mockup is approved — your order page below shows the others."
-msgstr "Одобрени: %1$d от %2$d продукта. Плащането се иска, след като одобрите всички визуализации — страницата на поръчката по-долу показва останалите."
+msgstr "Одобрени: %1$d от %2$d продукта. Плащането се иска, след като одобрите всички визуализации - страницата на поръчката по-долу показва останалите."
 
 #: templates/approval.php:131
 msgid "Everything is approved. Transfer the deposit and fill in your invoice and delivery details below; production starts when the deposit arrives."
@@ -2213,7 +2213,7 @@ msgstr "На този етап не се извършва плащане. Сле
 
 #: templates/tracking.php:72
 msgid "Thank you — approved. The other products are waiting for their mockups or your decision; we ask for the deposit once everything is approved."
-msgstr "Благодарим — одобрено. Останалите продукти чакат своите визуализации или Вашето решение; плащането се иска, когато всичко е одобрено."
+msgstr "Благодарим - одобрено. Останалите продукти чакат своите визуализации или Вашето решение; плащането се иска, когато всичко е одобрено."
 
 #. translators: %d: number of mockups
 #: templates/tracking.php:100
@@ -2269,17 +2269,17 @@ msgstr "Вашите коментари"
 
 #: includes/class-reklamo-cart.php:211
 msgid "You upload your logo in the cart — one per product, or one for all of them."
-msgstr "Логото качвате в количката — за всеки продукт отделно или едно за всички."
+msgstr "Логото качвате в количката - за всеки продукт отделно или едно за всички."
 
 #: includes/class-reklamo-request.php:117
 msgid "You upload your logo in the cart — one per product, or one for all of them. No payment is taken at this stage."
-msgstr "Логото качвате в количката — за всеки продукт отделно или едно за всички. На този етап не се извършва плащане."
+msgstr "Логото качвате в количката - за всеки продукт отделно или едно за всички. На този етап не се извършва плащане."
 
 #. translators: %s: product name
 #: includes/class-reklamo-cart.php:680
 #, php-format
 msgid "%s: it is marked under more than one logo — leave it under one."
-msgstr "%s: маркиран е при повече от едно лого — оставете го само при едно."
+msgstr "%s: маркиран е при повече от едно лого - оставете го само при едно."
 
 #. translators: %s: product name
 #: includes/class-reklamo-cart.php:683
@@ -2386,7 +2386,7 @@ msgstr "%1$s: файлът на „%2$s“ още не е качен."
 
 #: includes/class-reklamo-cart.php:885
 msgid "Upload a file for this logo — the products marked below have no logo yet."
-msgstr "Качете файл за това лого — маркираните по-долу продукти още нямат лого."
+msgstr "Качете файл за това лого - маркираните по-долу продукти още нямат лого."
 
 #: includes/class-reklamo-cart.php:419
 #: includes/class-reklamo-cart.php:851
@@ -2501,7 +2501,7 @@ msgstr "Цена за %s"
 
 #: includes/class-reklamo-admin-order.php:515
 msgid "Dispatched — complete the order"
-msgstr "Изпратена — приключи поръчката"
+msgstr "Изпратена - приключи поръчката"
 
 #. translators: 1: corrections asked for, 2: free corrections included
 #: includes/class-reklamo-admin-order.php:234
@@ -2513,7 +2513,7 @@ msgstr "корекции: %1$d (безплатни: %2$d)"
 #: includes/class-reklamo-admin-order.php:238
 #, php-format
 msgid "%1$d over the free corrections — %2$s € each, unless they fixed our own mistakes."
-msgstr "%1$d над безплатните корекции — по %2$s € всяка, освен ако не поправят наша грешка."
+msgstr "%1$d над безплатните корекции - по %2$s € всяка, освен ако не поправят наша грешка."
 
 #: includes/class-reklamo-admin-order.php:577
 msgid "Order dispatched; it was paid in full before production."
@@ -2684,13 +2684,13 @@ msgstr "Подарък"
 #: includes/class-reklamo-settings.php:112
 #, php-format
 msgid "%s — open in Google Maps"
-msgstr "%s — отвори в Google Maps"
+msgstr "%s - отвори в Google Maps"
 
 #. translators: %s: deposit amount
 #: includes/class-reklamo-admin-order.php:145
 #, php-format
 msgid "Late payment received (%s) — restore the order"
-msgstr "Плащането пристигна късно (%s) — възстанови поръчката"
+msgstr "Плащането пристигна късно (%s) - възстанови поръчката"
 
 #. translators: %s: date and time
 #: includes/class-reklamo-admin-order.php:188
@@ -2774,11 +2774,11 @@ msgstr "Изпращане"
 
 #: includes/class-reklamo-admin-order.php:480
 msgid "The waybill and the invoice go to the customer in the \"Order completed\" email, the last one they get; the order page shows them too."
-msgstr "Товарителницата и фактурата отиват при клиента в имейла „Поръчката е изпълнена“ — последния, който получава; виждат се и на страницата на поръчката."
+msgstr "Товарителницата и фактурата отиват при клиента в имейла „Поръчката е изпълнена“ - последния, който получава; виждат се и на страницата на поръчката."
 
 #: includes/class-reklamo-admin-order.php:486
 msgid "— none —"
-msgstr "— без —"
+msgstr "- без -"
 
 #: includes/class-reklamo-admin-order.php:494
 msgid "Waybill number"
@@ -2796,7 +2796,7 @@ msgstr "нов файл я заменя"
 
 #: includes/class-reklamo-admin-order.php:543
 msgid "The waybill number may hold only letters, digits, spaces and dashes (4–40 characters)."
-msgstr "Номерът на товарителницата може да съдържа само букви, цифри, интервали и тирета (4–40 знака)."
+msgstr "Номерът на товарителницата може да съдържа само букви, цифри, интервали и тирета (4-40 знака)."
 
 #. translators: %s: error message
 #: includes/class-reklamo-admin-order.php:551
@@ -2830,7 +2830,7 @@ msgstr "Фактура-%s"
 #: includes/class-reklamo-dispatch.php:123
 #, php-format
 msgid "Your order is on its way with %1$s, waybill no. %2$s."
-msgstr "Поръчката Ви е изпратена — %1$s, товарителница № %2$s."
+msgstr "Поръчката Ви е изпратена - %1$s, товарителница № %2$s."
 
 #. translators: %s: waybill number
 #: includes/class-reklamo-dispatch.php:125
@@ -2870,7 +2870,7 @@ msgstr "Логото е избрано ✓"
 
 #: includes/class-reklamo-cart.php:838
 msgid "Needs a logo — mark it under a logo below."
-msgstr "Нужно е лого — отбележете продукта под някое лого по-долу."
+msgstr "Нужно е лого - отбележете продукта под някое лого по-долу."
 
 #: includes/class-reklamo-cart.php:891
 #: includes/class-reklamo-request.php:263
@@ -2930,7 +2930,7 @@ msgstr "Запитването не можа да бъде изпратено. �
 
 #: includes/emails/class-reklamo-email-admin-inquiry.php:21
 msgid "Inquiry for an offer — admin (Reklamo)"
-msgstr "Запитване за оферта — администратор (Reklamo)"
+msgstr "Запитване за оферта - администратор (Reklamo)"
 
 #: includes/emails/class-reklamo-email-admin-inquiry.php:32
 msgid "[{site_title}] Inquiry for an offer from {name}"
@@ -2950,7 +2950,7 @@ msgstr "Получено запитване (Reklamo)"
 
 #: includes/emails/class-reklamo-email-inquiry-received.php:28
 msgid "We received your inquiry — {site_title}"
-msgstr "Получихме запитването Ви — {site_title}"
+msgstr "Получихме запитването Ви - {site_title}"
 
 #: includes/emails/class-reklamo-email-inquiry-received.php:32
 msgid "Thank you for your inquiry!"
@@ -3073,7 +3073,7 @@ msgstr "Моля, напишете надписа или изберете „И�
 #: includes/class-reklamo-cart.php:362
 #, php-format
 msgid "The logo was not uploaded (%s). The product is in the cart; upload the logo there."
-msgstr "Логото не беше качено (%s). Продуктът е в количката — качете логото там."
+msgstr "Логото не беше качено (%s). Продуктът е в количката - качете логото там."
 
 #: includes/class-reklamo-request.php:240
 msgid "Upload your logo"
@@ -3081,7 +3081,7 @@ msgstr "Качете логото си"
 
 #: includes/class-reklamo-request.php:241
 msgid "Optional here: you can also upload it later in the cart."
-msgstr "По желание тук — можете да го качите и по-късно в количката."
+msgstr "По желание тук - можете да го качите и по-късно в количката."
 
 #: includes/class-reklamo-request.php:273
 msgid "The logo is saved with the chosen product. No payment is taken at this stage."
@@ -3165,7 +3165,7 @@ msgstr "Цветове и количества: %s няма цена, затов
 
 #: includes/class-reklamo-product.php:398
 msgid "What comes free with it, our own promotional gift, e.g. \"Satin Black lighter\". Shown as \"+ Gift\" on the card and the page, and written on the order line. Empty = no gift."
-msgstr "Какво получава клиентът безплатно — наш рекламен подарък, напр. „Запалка Satin Black“. Показва се като „+ Подарък“ в картата и на страницата и се записва в поръчката. Празно = без подарък."
+msgstr "Какво получава клиентът безплатно - наш рекламен подарък, напр. „Запалка Satin Black“. Показва се като „+ Подарък“ в картата и на страницата и се записва в поръчката. Празно = без подарък."
 
 #: includes/class-reklamo-product.php:406
 msgid "Photo with the gift"
@@ -3245,7 +3245,7 @@ msgstr[1] "(%d прикачени файла)"
 #: includes/class-reklamo-log.php:108
 #, php-format
 msgid "Email to %1$s NOT sent: „%2$s“ — %3$s"
-msgstr "Имейлът до %1$s НЕ е изпратен: „%2$s“ — %3$s"
+msgstr "Имейлът до %1$s НЕ е изпратен: „%2$s“ - %3$s"
 
 #: includes/class-reklamo-log.php:122
 msgid "Note to the customer:"
@@ -3369,7 +3369,7 @@ msgstr "Чака клиента да одобри или да поиска ко�
 
 #: includes/class-reklamo-admin-orders.php:179
 msgid "Waiting for the payment — check the bank account"
-msgstr "Чака плащане — проверете банковата сметка"
+msgstr "Чака плащане - проверете банковата сметка"
 
 #: includes/class-reklamo-admin-orders.php:182
 msgid "Waiting for the final payment, then dispatch"

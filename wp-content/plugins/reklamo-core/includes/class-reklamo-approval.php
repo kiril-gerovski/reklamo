@@ -419,7 +419,7 @@ final class Reklamo_Approval {
 		$place   = 'address' === $type
 			? trim( ( $d['address_1'] ?? '' ) . ', ' . trim( ( $d['postcode'] ?? '' ) . ' ' . ( $d['city'] ?? '' ) ), ', ' )
 			: trim( ( $d['address_1'] ?? '' ) . ', ' . ( $d['city'] ?? '' ), ', ' );
-		$how     = self::delivery_type_label( $type ) . ( '' !== $courier ? ' — ' . $courier : '' );
+		$how     = self::delivery_type_label( $type ) . ( '' !== $courier ? ' - ' . $courier : '' );
 		return $how . ': ' . $place;
 	}
 

@@ -284,7 +284,7 @@ class Reklamo_Settings_Page extends WC_Settings_Page {
 				'id'          => 'reklamo_production_days',
 				'title'       => __( 'Production time (working days)', 'reklamo-core' ),
 				'type'        => 'text',
-				'default'     => '5–10',
+				'default'     => '5-10',
 				'description' => __( 'From the payment, without the delivery. Quoted on the delivery page and in the FAQ.', 'reklamo-core' ),
 				'desc_tip'    => true,
 			),
