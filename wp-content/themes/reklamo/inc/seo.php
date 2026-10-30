@@ -113,13 +113,17 @@ function reklamo_seo_meta(): void {
 }
 add_action( 'wp_head', 'reklamo_seo_meta', 4 );
 
+// How people type the brand into a search box; Google reads these as the same site.
+const REKLAMO_SEO_ALTERNATE_NAMES = array( 'Рекламо', 'Reklamo' );
+
 /** The trader, as schema.org, from the same settings the footer and the legal pages use. */
 function reklamo_seo_organization(): array {
 	$org = array(
-		'@type' => 'Organization',
-		'@id'   => home_url( '/#organization' ),
-		'name'  => reklamo_setting( 'company_name', get_bloginfo( 'name' ) ),
-		'url'   => home_url( '/' ),
+		'@type'         => 'Organization',
+		'@id'           => home_url( '/#organization' ),
+		'name'          => reklamo_setting( 'company_name', get_bloginfo( 'name' ) ),
+		'alternateName' => REKLAMO_SEO_ALTERNATE_NAMES,
+		'url'           => home_url( '/' ),
 	);
 	$map = array(
 		'email'     => reklamo_setting( 'email' ),
@@ -231,6 +235,7 @@ function reklamo_seo_jsonld(): void {
 			'@id'             => home_url( '/#website' ),
 			'url'             => home_url( '/' ),
 			'name'            => get_bloginfo( 'name' ),
+			'alternateName'   => REKLAMO_SEO_ALTERNATE_NAMES,
 			'inLanguage'      => get_bloginfo( 'language' ),
 			'publisher'       => array( '@id' => home_url( '/#organization' ) ),
 			'potentialAction' => array(
