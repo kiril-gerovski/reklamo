@@ -199,7 +199,9 @@ with "nothing changed" and `update --seed` dies before maintenance mode. The cli
 prices and settings in the dashboard, and even the seed's every-run catalogue steps would touch
 them. A configuration change is applied as a one-off `scripts/deploy.sh wp eval …` that creates only
 what is missing (how Корпоративни подаръци reached the site), and still goes into `seed.sh` for
-fresh installs. Lifting the lock (`scripts/deploy.sh wp option delete reklamo_seed_locked`) is the
+fresh installs. Owner content that only fills empty fields can live in a PHP file run on both sides, e.g.
+`scripts/deploy.sh wp eval-file scripts/seed-seo.php` (after the deploy that brings the file;
+add `titles` to write only the titles and descriptions Google shows, nothing on the pages). Lifting the lock (`scripts/deploy.sh wp option delete reklamo_seed_locked`) is the
 owner's decision.
 
 On the server itself: `cd ~/reklamo && scripts/wp …` runs the same WP-CLI through `PHP_BIN`.

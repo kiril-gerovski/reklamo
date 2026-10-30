@@ -9,14 +9,14 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-25T10:56:04+00:00\n"
+"POT-Creation-Date: 2026-10-30T19:25:19+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: reklamo\n"
 
 #. Theme Name of the theme
 #: style.css
-#: functions.php:51
+#: functions.php:52
 msgid "Reklamo"
 msgstr ""
 
@@ -90,60 +90,72 @@ msgstr ""
 msgid "Add your inscription"
 msgstr ""
 
-#: functions.php:45
+#: functions.php:46
 msgid "Primary Menu"
 msgstr ""
 
-#: functions.php:46
+#: functions.php:47
 msgid "Footer — Navigation"
 msgstr ""
 
-#: functions.php:47
+#: functions.php:48
 msgid "Footer — Information"
 msgstr ""
 
-#: functions.php:110
+#: functions.php:120
 msgid "Hello,"
 msgstr ""
 
-#: functions.php:112
+#: functions.php:122
 msgid "I would like an offer for:"
 msgstr ""
 
-#: functions.php:113
+#: functions.php:123
 msgid "Product or package:"
 msgstr ""
 
-#: functions.php:114
+#: functions.php:124
 msgid "Quantity:"
 msgstr ""
 
-#: functions.php:115
+#: functions.php:125
 msgid "Wanted by:"
 msgstr ""
 
-#: functions.php:119
+#: functions.php:129
 #: template-parts/inquiry-dialog.php:26
 msgid "Inquiry for a tailored offer"
 msgstr ""
 
-#: functions.php:455
+#: functions.php:465
 msgid "Specifications"
 msgstr ""
 
-#: functions.php:554
+#. translators: 1: what is in the package, e.g. "pens, cables"; 2: its box, e.g. "gift boxes"
+#: functions.php:513
+#, php-format
+msgid "%1$s in %2$s"
+msgstr ""
+
+#. translators: 1: number or range of packages, e.g. 50–200; 2: what is in each, e.g. "notebooks and pens"
+#: functions.php:516
+#, php-format
+msgid "%1$s packs of %2$s"
+msgstr ""
+
+#: functions.php:619
 msgid "Promotion"
 msgstr ""
 
-#: functions.php:561
+#: functions.php:626
 msgid "+ Gift"
 msgstr ""
 
-#: functions.php:568
+#: functions.php:633
 msgid "Most popular"
 msgstr ""
 
-#: functions.php:599
+#: functions.php:697
 msgid "View the package"
 msgstr ""
 
@@ -175,6 +187,55 @@ msgstr ""
 #: inc/class-reklamo-nav-walker.php:30
 #, php-format
 msgid "Show submenu of %s"
+msgstr ""
+
+#: inc/seo-fields.php:39
+msgid "Title in Google"
+msgstr ""
+
+#: inc/seo-fields.php:39
+msgid "Up to about 60 characters, the words people search for first. Empty: worked out automatically."
+msgstr ""
+
+#: inc/seo-fields.php:40
+msgid "Description in Google"
+msgstr ""
+
+#: inc/seo-fields.php:40
+msgid "Up to about 155 characters, shown under the title in the results. Empty: worked out automatically."
+msgstr ""
+
+#: inc/seo-fields.php:41
+msgid "Text below the products"
+msgstr ""
+
+#: inc/seo-fields.php:41
+msgid "A few paragraphs about this range for customers and Google. Shown only on pages that list products."
+msgstr ""
+
+#: inc/seo-fields.php:80
+#: inc/seo-fields.php:133
+msgid "In Google"
+msgstr ""
+
+#. translators: %s: product or category name.
+#: inc/seo.php:73
+#, php-format
+msgid "%s with your logo"
+msgstr ""
+
+#. translators: 1: category name, 2: number of products.
+#: inc/seo.php:90
+#, php-format
+msgid "%1$s with your logo: %2$d model with a clear price, a free mockup before production and delivery across Bulgaria."
+msgid_plural "%1$s with your logo: %2$d models with clear prices, a free mockup before production and delivery across Bulgaria."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %s: product name.
+#: inc/seo.php:97
+#, php-format
+msgid "%s with your logo. A free mockup before production, a clear price and delivery across Bulgaria."
 msgstr ""
 
 #: index.php:26
@@ -307,7 +368,7 @@ msgid "From approval to your door"
 msgstr ""
 
 #: template-parts/delivery.php:62
-#: woocommerce/content-single-product.php:252
+#: woocommerce/content-single-product.php:270
 msgid "Delivery and deadlines"
 msgstr ""
 
@@ -324,7 +385,7 @@ msgid "Questions and answers"
 msgstr ""
 
 #: template-parts/faq.php:46
-#: woocommerce/content-single-product.php:253
+#: woocommerce/content-single-product.php:271
 msgid "Frequently asked questions"
 msgstr ""
 
@@ -333,7 +394,7 @@ msgid "Everything about your order, from the logo to delivery. Cannot find your 
 msgstr ""
 
 #: template-parts/faq.php:49
-#: woocommerce/content-single-product.php:247
+#: woocommerce/content-single-product.php:265
 msgid "Get in touch"
 msgstr ""
 
@@ -519,7 +580,7 @@ msgid "How does the order work?"
 msgstr ""
 
 #: template-parts/steps.php:50
-#: woocommerce/content-single-product.php:210
+#: woocommerce/content-single-product.php:228
 msgid "How the order works"
 msgstr ""
 
@@ -626,49 +687,43 @@ msgstr ""
 msgid "Contact us for help"
 msgstr ""
 
-#. translators: 1: what is in the package, e.g. "pens, cables"; 2: its box, e.g. "gift boxes"
-#: woocommerce/content-product.php:37
-#, php-format
-msgid "%1$s in %2$s"
-msgstr ""
-
-#. translators: 1: number or range of packages, e.g. 50–200; 2: what is in each, e.g. "notebooks and pens"
-#: woocommerce/content-product.php:40
-#, php-format
-msgid "%1$s packs of %2$s"
-msgstr ""
-
 #. translators: %d: smallest quantity
-#: woocommerce/content-product.php:75
+#: woocommerce/content-product.php:48
 #, php-format
 msgid "from %d pcs."
 msgstr ""
 
 #. translators: %d: number of pieces in the package
-#: woocommerce/content-product.php:77
+#: woocommerce/content-product.php:50
 #, php-format
 msgid "%d pcs."
 msgstr ""
 
-#: woocommerce/content-product.php:86
+#: woocommerce/content-product.php:59
 msgid "per piece"
 msgstr ""
 
-#: woocommerce/content-product.php:86
+#: woocommerce/content-product.php:59
 msgid "incl. VAT"
 msgstr ""
 
 #. translators: %s: what comes free with the product
-#: woocommerce/content-product.php:96
+#: woocommerce/content-product.php:74
 #, php-format
 msgid "Gift: %s"
 msgstr ""
 
-#: woocommerce/content-product.php:100
+#. translators: 1: quantities such as "100 и 200", 2: what comes free with them
+#: woocommerce/content-product.php:76
+#, php-format
+msgid "Gift with %1$s pcs.: %2$s"
+msgstr ""
+
+#: woocommerce/content-product.php:83
 msgid "Colours"
 msgstr ""
 
-#: woocommerce/content-product.php:107
+#: woocommerce/content-product.php:90
 msgid "View more"
 msgstr ""
 
@@ -760,35 +815,42 @@ msgstr ""
 msgid "What does the package include?"
 msgstr ""
 
-#: woocommerce/content-single-product.php:176
+#: woocommerce/content-single-product.php:183
+#: woocommerce/content-single-product.php:194
 msgid "Gift with this order"
 msgstr ""
 
-#: woocommerce/content-single-product.php:190
+#. translators: %s: quantities such as "100 и 200"
+#: woocommerce/content-single-product.php:185
+#, php-format
+msgid "Gift with %s pcs."
+msgstr ""
+
+#: woocommerce/content-single-product.php:208
 msgid "Upload a logo and request a mockup"
 msgstr ""
 
-#: woocommerce/content-single-product.php:195
+#: woocommerce/content-single-product.php:213
 msgid "No payment at this stage"
 msgstr ""
 
-#: woocommerce/content-single-product.php:205
+#: woocommerce/content-single-product.php:223
 msgid "Important:"
 msgstr ""
 
-#: woocommerce/content-single-product.php:206
+#: woocommerce/content-single-product.php:224
 msgid "The mockup shown is a guide and not a 100% exact image of the final product. Slight differences in colour, size and logo position are possible, depending on the material, the printing technique and the screen settings. Before production you will receive a final mockup for approval."
 msgstr ""
 
-#: woocommerce/content-single-product.php:240
+#: woocommerce/content-single-product.php:258
 msgid "Need help?"
 msgstr ""
 
-#: woocommerce/content-single-product.php:243
+#: woocommerce/content-single-product.php:261
 msgid "Our consultant will help you choose the right package for your business."
 msgstr ""
 
-#: woocommerce/content-single-product.php:251
+#: woocommerce/content-single-product.php:269
 msgid "How ordering works"
 msgstr ""
 

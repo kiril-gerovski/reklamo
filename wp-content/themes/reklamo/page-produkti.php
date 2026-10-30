@@ -37,6 +37,7 @@ $reklamo_sort = reklamo_catalogue_sort();
 				esc_attr( $reklamo_sort['order'] )
 			)
 	);
+	reklamo_seo_text_below();
 	get_template_part( 'template-parts/bulk-offer' );
 	?>
 </div>

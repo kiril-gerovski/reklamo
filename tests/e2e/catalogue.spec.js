@@ -490,3 +490,41 @@ test( 'a package card names its range once and puts the box last', async ( { pag
 	const trio = page.locator( 'li.product', { hasText: 'Комплект Trio' } ).locator( '.package-card__body' );
 	await expect( trio ).toContainText( '50-200 бр. комплекта химикалки, кабели за зареждане в подаръчни кутии' );
 } );
+
+test( 'search results read "<name> с лого", with the seeded wording and no duplicate category pages', async ( { page, request } ) => {
+	await page.goto( '/' );
+	await expect( page ).toHaveTitle( 'Рекламни продукти и фирмени подаръци с лого - Reklamo.bg' );
+	await page.goto( '/product-category/himikalki/' );
+	await expect( page ).toHaveTitle( 'Рекламни химикалки с лого - Reklamo.bg' );
+	await expect( page.locator( 'meta[name="description"]' ) ).toHaveAttribute( 'content', /^Метални химикалки с логото на вашата фирма/ );
+	await expect( page.locator( '.shop-about h2' ).first() ).toHaveText( 'Метални химикалки с вашето лого' );
+	await page.goto( '/product/kalendar-mono/' );
+	await expect( page ).toHaveTitle( 'Календар Mono с лого - Reklamo.bg' );
+
+	for ( const [ from, to ] of [ [ '/product-category/paketi/', '/promo-paketi/' ], [ '/product-category/korporativni-podaratsi/', '/korporativni-podaratsi/' ] ] ) {
+		const res = await request.get( from, { maxRedirects: 0 } );
+		expect( res.status() ).toBe( 301 );
+		expect( res.headers().location ).toContain( to );
+	}
+} );
+
+test( 'the owner words a category for Google; an empty title falls back to "<name> с лого"', async ( { page } ) => {
+	await adminLogin( page );
+	const setTitle = async ( value ) => {
+		await page.goto( '/wp-admin/edit-tags.php?taxonomy=product_cat&post_type=product' );
+		await page.locator( '#the-list a.row-title', { hasText: /^Химикалки$/ } ).click();
+		await page.locator( '#reklamo-seo-title' ).fill( value );
+		await page.locator( '#edittag [type="submit"].button-primary' ).click();
+		await expect( page.locator( '#message' ) ).toBeVisible();
+	};
+	try {
+		await setTitle( 'Химикалки за подарък' );
+		await page.goto( '/product-category/himikalki/' );
+		await expect( page ).toHaveTitle( 'Химикалки за подарък - Reklamo.bg' );
+		await setTitle( '' );
+		await page.goto( '/product-category/himikalki/' );
+		await expect( page ).toHaveTitle( 'Химикалки с лого - Reklamo.bg' );
+	} finally {
+		await setTitle( 'Рекламни химикалки с лого' );
+	}
+} );

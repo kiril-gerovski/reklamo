@@ -13,15 +13,15 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Domain: reklamo\n"
 
-#: functions.php:45
+#: functions.php:46
 msgid "Primary Menu"
 msgstr "Главно меню"
 
-#: functions.php:46
+#: functions.php:47
 msgid "Footer — Navigation"
 msgstr "Футър - Навигация"
 
-#: functions.php:47
+#: functions.php:48
 msgid "Footer — Information"
 msgstr "Футър - Информация"
 
@@ -112,7 +112,7 @@ msgstr "Основно заглавие"
 
 #. Theme Name of the theme
 #: style.css
-#: functions.php:51
+#: functions.php:52
 msgid "Reklamo"
 msgstr "Reklamo"
 
@@ -242,11 +242,11 @@ msgstr "Начало"
 msgid "branding included"
 msgstr "с включено брандиране"
 
-#: woocommerce/content-single-product.php:240
+#: woocommerce/content-single-product.php:258
 msgid "Need help?"
 msgstr "Нуждаете се от помощ?"
 
-#: functions.php:568
+#: functions.php:633
 msgid "Most popular"
 msgstr "Най-популярен"
 
@@ -333,7 +333,7 @@ msgid "You pay the rest before dispatch and receive your order."
 msgstr "Изпращаме с избрания от теб куриер и получаваш поръчката си."
 
 #: template-parts/steps.php:50
-#: woocommerce/content-single-product.php:210
+#: woocommerce/content-single-product.php:228
 msgid "How the order works"
 msgstr "Как става поръчката"
 
@@ -456,11 +456,11 @@ msgstr "Включено едностранно брандиране"
 msgid "Further branding available on request"
 msgstr "Възможност за допълнително брандиране при запитване"
 
-#: woocommerce/content-single-product.php:190
+#: woocommerce/content-single-product.php:208
 msgid "Upload a logo and request a mockup"
 msgstr "Качи лого и заяви визуализация"
 
-#: woocommerce/content-single-product.php:195
+#: woocommerce/content-single-product.php:213
 msgid "No payment at this stage"
 msgstr "Няма плащане на този етап"
 
@@ -484,30 +484,30 @@ msgstr "Плащате поръчката"
 msgid "Production starts once you approve."
 msgstr "След одобрение стартираме поръчката."
 
-#: woocommerce/content-single-product.php:243
+#: woocommerce/content-single-product.php:261
 msgid "Our consultant will help you choose the right package for your business."
 msgstr "Наш консултант ще ви помогне да изберете най-подходящия пакет за вашия бизнес."
 
 #: template-parts/faq.php:49
-#: woocommerce/content-single-product.php:247
+#: woocommerce/content-single-product.php:265
 msgid "Get in touch"
 msgstr "Свържи се с нас"
 
 #: template-parts/delivery.php:62
-#: woocommerce/content-single-product.php:252
+#: woocommerce/content-single-product.php:270
 msgid "Delivery and deadlines"
 msgstr "Доставка и срокове"
 
 #: template-parts/faq.php:46
-#: woocommerce/content-single-product.php:253
+#: woocommerce/content-single-product.php:271
 msgid "Frequently asked questions"
 msgstr "Често задавани въпроси"
 
-#: functions.php:599
+#: functions.php:697
 msgid "View the package"
 msgstr "Виж пакета"
 
-#: functions.php:455
+#: functions.php:465
 msgid "Specifications"
 msgstr "Спецификации"
 
@@ -535,7 +535,7 @@ msgstr "Ясни срокове на всяка стъпка и куриер д�
 msgid "Delivery details"
 msgstr "Подробно за доставката"
 
-#: woocommerce/content-single-product.php:251
+#: woocommerce/content-single-product.php:269
 msgid "How ordering works"
 msgstr "Как става поръчката"
 
@@ -565,16 +565,16 @@ msgid "All packages"
 msgstr "Всички пакети"
 
 #. translators: %d: number of pieces in the package
-#: woocommerce/content-product.php:77
+#: woocommerce/content-product.php:50
 #, php-format
 msgid "%d pcs."
 msgstr "%d бр."
 
-#: woocommerce/content-product.php:107
+#: woocommerce/content-product.php:90
 msgid "View more"
 msgstr "Виж повече"
 
-#: woocommerce/content-product.php:86
+#: woocommerce/content-product.php:59
 msgid "incl. VAT"
 msgstr "с ДДС"
 
@@ -619,12 +619,12 @@ msgstr[0] "%d продукт"
 msgstr[1] "%d продукта"
 
 #. translators: %d: smallest quantity
-#: woocommerce/content-product.php:75
+#: woocommerce/content-product.php:48
 #, php-format
 msgid "from %d pcs."
 msgstr "от %d бр."
 
-#: woocommerce/content-product.php:86
+#: woocommerce/content-product.php:59
 msgid "per piece"
 msgstr "за брой"
 
@@ -642,19 +642,19 @@ msgstr "Цена за брой"
 msgid "min. %d pcs."
 msgstr "мин. %d бр."
 
-#: woocommerce/content-single-product.php:205
+#: woocommerce/content-single-product.php:223
 msgid "Important:"
 msgstr "Важно:"
 
-#: woocommerce/content-single-product.php:206
+#: woocommerce/content-single-product.php:224
 msgid "The mockup shown is a guide and not a 100% exact image of the final product. Slight differences in colour, size and logo position are possible, depending on the material, the printing technique and the screen settings. Before production you will receive a final mockup for approval."
 msgstr "Показаната визуализация е ориентировъчна и не представлява 100% точно изображение на крайния продукт. Възможни са минимални разлики в цветовете, размера и позиционирането на логото в зависимост от материала, използваната технология за печат и настройките на екрана. Преди производство ще получите финална визуализация за одобрение."
 
-#: functions.php:554
+#: functions.php:619
 msgid "Promotion"
 msgstr "Промоция"
 
-#: functions.php:561
+#: functions.php:626
 msgid "+ Gift"
 msgstr "+ Подарък"
 
@@ -664,12 +664,13 @@ msgid "Homepage hero with headline, lead, two buttons, four features and a produ
 msgstr "Начален екран със заглавие, въведение, два бутона, четири предимства и снимка на продукт със значка с цената."
 
 #. translators: %s: what comes free with the product
-#: woocommerce/content-product.php:96
+#: woocommerce/content-product.php:74
 #, php-format
 msgid "Gift: %s"
 msgstr "Подарък: %s"
 
-#: woocommerce/content-single-product.php:176
+#: woocommerce/content-single-product.php:183
+#: woocommerce/content-single-product.php:194
 msgid "Gift with this order"
 msgstr "Подарък към поръчката"
 
@@ -693,27 +694,27 @@ msgstr "Поискайте оферта"
 msgid "All gifts"
 msgstr "Всички подаръци"
 
-#: functions.php:110
+#: functions.php:120
 msgid "Hello,"
 msgstr "Здравейте,"
 
-#: functions.php:112
+#: functions.php:122
 msgid "I would like an offer for:"
 msgstr "Бих искал(а) оферта за:"
 
-#: functions.php:113
+#: functions.php:123
 msgid "Product or package:"
 msgstr "Продукт или пакет:"
 
-#: functions.php:114
+#: functions.php:124
 msgid "Quantity:"
 msgstr "Количество:"
 
-#: functions.php:115
+#: functions.php:125
 msgid "Wanted by:"
 msgstr "Желан срок:"
 
-#: functions.php:119
+#: functions.php:129
 #: template-parts/inquiry-dialog.php:26
 msgid "Inquiry for a tailored offer"
 msgstr "Запитване за индивидуална оферта"
@@ -876,7 +877,7 @@ msgstr "Свържете се с нас за съдействие"
 msgid "Add your inscription"
 msgstr "Добави свой надпис"
 
-#: woocommerce/content-product.php:100
+#: woocommerce/content-product.php:83
 msgid "Colours"
 msgstr "Цветове"
 
@@ -885,23 +886,74 @@ msgid "Fill in the fields marked * and tick the consent to send the inquiry."
 msgstr "Попълнете полетата със * и отметнете съгласието, за да изпратите запитването."
 
 #. translators: 1: number or range of packages, e.g. 50–200; 2: what is in each, e.g. "notebooks and pens"
-#: woocommerce/content-product.php:40
+#: functions.php:516
 #, php-format
 msgid "%1$s packs of %2$s"
 msgstr "%1$s бр. комплекта %2$s"
 
 #. translators: 1: what is in the package, e.g. "pens, cables"; 2: its box, e.g. "gift boxes"
-#: woocommerce/content-product.php:37
+#: functions.php:513
 #, php-format
 msgid "%1$s in %2$s"
 msgstr "%1$s в %2$s"
 
 #. translators: 1: quantities such as "100 и 200", 2: what comes free with them
-#: woocommerce/content-product.php
+#: woocommerce/content-product.php:76
+#, php-format
 msgid "Gift with %1$s pcs.: %2$s"
 msgstr "Подарък при %1$s бр.: %2$s"
 
 #. translators: %s: quantities such as "100 и 200"
-#: woocommerce/content-single-product.php
+#: woocommerce/content-single-product.php:185
+#, php-format
 msgid "Gift with %s pcs."
 msgstr "Подарък при %s бр."
+
+#: inc/seo-fields.php:39
+msgid "Title in Google"
+msgstr "Заглавие в Google"
+
+#: inc/seo-fields.php:39
+msgid "Up to about 60 characters, the words people search for first. Empty: worked out automatically."
+msgstr "До около 60 знака, първо думите, които хората търсят. Празно: попълва се автоматично."
+
+#: inc/seo-fields.php:40
+msgid "Description in Google"
+msgstr "Описание в Google"
+
+#: inc/seo-fields.php:40
+msgid "Up to about 155 characters, shown under the title in the results. Empty: worked out automatically."
+msgstr "До около 155 знака, показва се под заглавието в резултатите. Празно: попълва се автоматично."
+
+#: inc/seo-fields.php:41
+msgid "Text below the products"
+msgstr "Текст под продуктите"
+
+#: inc/seo-fields.php:41
+msgid "A few paragraphs about this range for customers and Google. Shown only on pages that list products."
+msgstr "Няколко абзаца за тези продукти, за клиентите и за Google. Показва се само на страници със списък от продукти."
+
+#: inc/seo-fields.php:80
+#: inc/seo-fields.php:133
+msgid "In Google"
+msgstr "В Google"
+
+#. translators: %s: product or category name.
+#: inc/seo.php:73
+#, php-format
+msgid "%s with your logo"
+msgstr "%s с лого"
+
+#. translators: 1: category name, 2: number of products.
+#: inc/seo.php:90
+#, php-format
+msgid "%1$s with your logo: %2$d model with a clear price, a free mockup before production and delivery across Bulgaria."
+msgid_plural "%1$s with your logo: %2$d models with clear prices, a free mockup before production and delivery across Bulgaria."
+msgstr[0] "%1$s с вашето лого: %2$d модел с ясна цена, безплатна визуализация преди производство и доставка в цяла България."
+msgstr[1] "%1$s с вашето лого: %2$d модела с ясни цени, безплатна визуализация преди производство и доставка в цяла България."
+
+#. translators: %s: product name.
+#: inc/seo.php:97
+#, php-format
+msgid "%s with your logo. A free mockup before production, a clear price and delivery across Bulgaria."
+msgstr "%s с вашето лого. Безплатна визуализация преди производство, ясна цена и доставка в цяла България."

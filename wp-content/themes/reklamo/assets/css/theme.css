@@ -1058,6 +1058,9 @@ html { scroll-behavior: smooth; }
 .shop-empty .icon { color: var(--gold-dark); }
 .shop-empty p { margin: 0; color: var(--graphite); line-height: 1.6; }
 .shop-empty strong { display: block; margin-bottom: .35rem; font: 500 1.35rem/1.25 var(--serif); color: var(--ink); }
+.shop-about { max-width: 75ch; margin: 3rem 0 0; color: var(--graphite); line-height: 1.7; }
+.shop-about h2, .shop-about h3 { margin: 1.5rem 0 .5rem; font: 500 1.35rem/1.25 var(--serif); color: var(--ink); }
+.shop-about p { margin: 0 0 1rem; }
 
 /* ---------- phone: a round „Добави свой надпис“, fixed bottom left (replaces the bar icon there) ---------- */
 .mobile-cta { display: none; }

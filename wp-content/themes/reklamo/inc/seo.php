@@ -12,7 +12,7 @@
 
 /** Readable one-line text from stored HTML; list items keep a separator. */
 function reklamo_seo_text( string $html, int $limit = 0 ): string {
-	$html = preg_replace( '#</li>#i', ', ', do_shortcode( $html ) );
+	$html = preg_replace( array( '#</li>#i', '#<br\s*/?>|</p>|</h\d>#i' ), array( ', ', ' ' ), do_shortcode( $html ) );
 	$text = trim( preg_replace( '#\s+#u', ' ', wp_strip_all_tags( (string) $html ) ) );
 	$text = trim( $text, ' ,;·' );
 	return $limit > 0 ? rtrim( wp_html_excerpt( $text, $limit, '' ) ) : $text;
@@ -55,12 +55,48 @@ function reklamo_seo_context(): array {
 		$ctx['url']         = (string) get_term_link( $term );
 	}
 
-	if ( '' === $ctx['description'] ) {
-		$ctx['description'] = reklamo_seo_text( reklamo_setting( 'tagline', (string) get_bloginfo( 'description' ) ), 160 );
+	if ( '' !== reklamo_seo_field( 'description' ) ) {
+		$ctx['description'] = reklamo_seo_field( 'description' );
+	} elseif ( '' === $ctx['description'] ) {
+		$ctx['description'] = reklamo_seo_fallback_description();
 	}
 	$ctx['title']       = html_entity_decode( $ctx['title'], ENT_QUOTES, 'UTF-8' );
 	$ctx['description'] = html_entity_decode( $ctx['description'], ENT_QUOTES, 'UTF-8' );
 	return $ctx;
+}
+
+/** Every category and product reads as "<name> с лого": the words people put into the search box. */
+function reklamo_seo_title_parts( array $parts ): array {
+	$own = reklamo_seo_field( 'title' );
+	if ( '' === $own && function_exists( 'is_product_category' ) && ( is_product_category() || is_singular( 'product' ) ) ) {
+		/* translators: %s: product or category name. */
+		$own = sprintf( __( '%s with your logo', 'reklamo' ), $parts['title'] ?? '' );
+	}
+	if ( '' !== $own ) {
+		unset( $parts['tagline'] );
+		$parts['title'] = $own;
+		$parts['site']  = get_bloginfo( 'name' );
+	}
+	return $parts;
+}
+add_filter( 'document_title_parts', 'reklamo_seo_title_parts' );
+
+/** A description of its own for every category and product, instead of the same tagline everywhere. */
+function reklamo_seo_fallback_description(): string {
+	$term = function_exists( 'is_product_category' ) && is_product_category() ? get_queried_object() : null;
+	if ( $term instanceof WP_Term && $term->count > 0 ) {
+		return sprintf(
+			/* translators: 1: category name, 2: number of products. */
+			_n( '%1$s with your logo: %2$d model with a clear price, a free mockup before production and delivery across Bulgaria.', '%1$s with your logo: %2$d models with clear prices, a free mockup before production and delivery across Bulgaria.', (int) $term->count, 'reklamo' ),
+			$term->name,
+			(int) $term->count
+		);
+	}
+	if ( is_singular( 'product' ) ) {
+		/* translators: %s: product name. */
+		return sprintf( __( '%s with your logo. A free mockup before production, a clear price and delivery across Bulgaria.', 'reklamo' ), get_the_title() );
+	}
+	return reklamo_seo_text( reklamo_setting( 'tagline', (string) get_bloginfo( 'description' ) ), 160 );
 }
 
 /** Description, Open Graph and Twitter card. */
@@ -290,6 +326,39 @@ function reklamo_seo_sitemap_pages( array $args, string $post_type ): array {
 	return $args;
 }
 add_filter( 'wp_sitemaps_posts_query_args', 'reklamo_seo_sitemap_pages', 10, 2 );
+
+/** Промо пакети and Корпоративни подаръци are pages; their category archives would only repeat them. */
+function reklamo_seo_page_for_category(): string {
+	if ( ! function_exists( 'is_product_category' ) || ! is_product_category( array( REKLAMO_PACKAGES_CAT, REKLAMO_GIFTS_CAT ) ) ) {
+		return '';
+	}
+	$page = is_product_category( REKLAMO_PACKAGES_CAT ) ? wc_get_page_id( 'shop' ) : (int) get_page_by_path( REKLAMO_GIFTS_CAT )?->ID;
+	return $page > 0 ? (string) get_permalink( $page ) : '';
+}
+
+add_action(
+	'template_redirect',
+	static function (): void {
+		$url = reklamo_seo_page_for_category();
+		if ( '' !== $url ) {
+			wp_safe_redirect( $url, 301 );
+			exit;
+		}
+	}
+);
+
+add_filter(
+	'wp_sitemaps_taxonomies_query_args',
+	static function ( array $args, string $taxonomy ): array {
+		if ( 'product_cat' === $taxonomy ) {
+			$skip            = array_filter( array_map( static fn( $slug ) => (int) get_term_by( 'slug', $slug, 'product_cat' )?->term_id, array( REKLAMO_PACKAGES_CAT, REKLAMO_GIFTS_CAT ) ) );
+			$args['exclude'] = array_merge( (array) ( $args['exclude'] ?? array() ), $skip );
+		}
+		return $args;
+	},
+	10,
+	2
+);
 
 /** No author archives on a shop: keep the users sitemap out of it. */
 add_filter( 'wp_sitemaps_add_provider', static fn( $provider, $name ) => 'users' === $name ? false : $provider, 10, 2 );

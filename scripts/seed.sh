@@ -1625,6 +1625,8 @@ if [ "$(wp option get reklamo_seeded_nb_draft 2>/dev/null || true)" != "1" ] && 
   wp option update reklamo_seeded_nb_draft 1 >/dev/null
 fi
 opt woocommerce_default_catalog_orderby "menu_order"
+# Titles, descriptions and the text below the products for search results; only empty fields. Data: scripts/seed-seo.php.
+wp eval-file - < scripts/seed-seo.php
 
 echo "→ flushing caches"
 wp cache flush >/dev/null 2>&1 || true

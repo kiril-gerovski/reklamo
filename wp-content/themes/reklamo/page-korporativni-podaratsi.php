@@ -47,6 +47,7 @@ $reklamo_grid   = do_shortcode(
 		</div>
 		<?php
 	}
+	reklamo_seo_text_below();
 	get_template_part( 'template-parts/bulk-offer' );
 	?>
 </div>

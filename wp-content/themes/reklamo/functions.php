@@ -16,6 +16,7 @@ require get_template_directory() . '/inc/icons.php';
 require get_template_directory() . '/inc/class-reklamo-nav-walker.php';
 require get_template_directory() . '/inc/page-sections.php';
 require get_template_directory() . '/inc/seo.php';
+require get_template_directory() . '/inc/seo-fields.php';
 
 /**
  * Theme supports, menus, pattern category.
