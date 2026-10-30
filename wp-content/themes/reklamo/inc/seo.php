@@ -134,7 +134,7 @@ function reklamo_seo_organization(): array {
 	foreach ( array_filter( $map ) as $key => $value ) {
 		$org[ $key ] = $value;
 	}
-	$street = reklamo_setting( 'legal_address', reklamo_setting( 'address' ) );
+	$street = reklamo_setting( 'address', reklamo_setting( 'legal_address' ) );
 	if ( $street ) {
 		$org['address'] = array(
 			'@type'          => 'PostalAddress',
