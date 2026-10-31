@@ -150,7 +150,7 @@ function reklamo_seo_meta(): void {
 add_action( 'wp_head', 'reklamo_seo_meta', 4 );
 
 // How people type the brand into a search box; Google reads these as the same site.
-const REKLAMO_SEO_ALTERNATE_NAMES = array( 'Рекламо', 'Reklamo' );
+const REKLAMO_SEO_ALTERNATE_NAMES = array( 'Рекламо', 'Reklamo', 'Рекламо БГ' );
 
 /** The trader, as schema.org, from the same settings the footer and the legal pages use. */
 function reklamo_seo_organization(): array {
