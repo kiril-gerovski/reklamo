@@ -48,7 +48,21 @@ final class Reklamo_Install {
 		self::create_tables();
 		Reklamo_Storage::ensure_base_dir();
 		Reklamo_Statuses::ensure_analytics_settings();
-		update_option( self::DB_VERSION_OPTION, REKLAMO_VERSION );
+		if ( self::tables_exist() ) {
+			update_option( self::DB_VERSION_OPTION, REKLAMO_VERSION );
+		}
+	}
+
+	/** A request still running the previous code (opcache) must not mark the upgrade done. */
+	private static function tables_exist(): bool {
+		global $wpdb;
+		foreach ( array( 'reklamo_files', 'reklamo_tokens', Reklamo_Stats::TABLE ) as $table ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- once per version change.
+			if ( $wpdb->prefix . $table !== $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $wpdb->prefix . $table ) ) ) ) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	private static function create_tables(): void {
