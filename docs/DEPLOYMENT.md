@@ -150,7 +150,9 @@ because a minor security release applied itself or someone updated from the dash
 alone and reported, and the right response is to bump `versions.env` after testing locally. Code is symlinked, so PHP and CSS are live the moment the checkout
 moves. Compiled `.mo` files are committed, nothing to build. The plugin's own tables follow
 `REKLAMO_VERSION`: the first request after a version change runs `Reklamo_Install` (`dbDelta`), so a
-new table such as `wp_reklamo_stats` (0.8.0) appears without `--seed`.
+new table such as `wp_reklamo_stats` (0.8.0) appears without `--seed`. The version is recorded only once
+every table exists: on the 0.8.0 deploy a request still on the old code (opcache) marked it done
+without creating the table, and 0.8.1 is what created it.
 
 **The catalogue release (2026-10-12)** needs `--seed`: the first seeded update after it creates the
 fifteen products from the client's photos (sample prices at first, the client's real ones since the
