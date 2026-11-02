@@ -183,8 +183,8 @@ p { margin: 0 0 1em; }
 .hero__photo img { display: block; width: 100%; height: auto; aspect-ratio: 5 / 4; object-fit: cover; }
 .hero__badge { position: absolute; right: 1.5rem; bottom: 1.5rem; width: 170px; height: 170px; border-radius: 50%; background: var(--white); box-shadow: var(--shadow); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 1rem; }
 .hero__badge .eyebrow { font-size: .5625rem; letter-spacing: .1em; margin-bottom: .35rem; line-height: 1.3; }
-.hero__badge p { margin: 0; }
-.hero__badge small { font-size: .6875rem; color: var(--graphite); line-height: 1.4; }
+.hero__badge p { margin: 0; max-width: 132px; font-size: .6875rem; line-height: 1.35; }
+.hero__badge small { font-size: .6875rem; color: var(--graphite); line-height: 1.35; }
 .hero__badge strong { font-family: var(--serif); font-size: 1.5rem; font-weight: 400; margin-top: .25rem; color: var(--gold-dark); }
 @media (max-width: 900px) { .hero__features { grid-template-columns: repeat(2, 1fr); } }
 /* At phone width the hero image is only ~350px wide, so the badge has to give the product room. */
@@ -192,7 +192,7 @@ p { margin: 0 0 1em; }
 	.hero__badge { right: .75rem; bottom: .75rem; width: 118px; height: 118px; padding: .5rem; }
 	/* The paragraph strut is what makes the stack tall, and a tall stack pushes the first line into
 	   the narrow top of the circle, where it spills out over the photo. */
-	.hero__badge p { font-size: .5625rem; line-height: 1.35; }
+	.hero__badge p { max-width: 96px; font-size: .5625rem; line-height: 1.35; }
 	.hero__badge .eyebrow { font-size: .40625rem; letter-spacing: .06em; margin-bottom: .25rem; }
 	.hero__badge small { font-size: .5625rem; line-height: 1.35; }
 	.hero__badge strong { font-size: 1.0625rem; margin-top: .2rem; }
@@ -1058,9 +1058,14 @@ html { scroll-behavior: smooth; }
 .shop-empty .icon { color: var(--gold-dark); }
 .shop-empty p { margin: 0; color: var(--graphite); line-height: 1.6; }
 .shop-empty strong { display: block; margin-bottom: .35rem; font: 500 1.35rem/1.25 var(--serif); color: var(--ink); }
-.shop-about { max-width: 75ch; margin: 3rem 0 0; color: var(--graphite); line-height: 1.7; }
-.shop-about h2, .shop-about h3 { margin: 1.5rem 0 .5rem; font: 500 1.35rem/1.25 var(--serif); color: var(--ink); }
+.shop-about { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr)); gap: 1.5rem; margin: 3rem 0 0; color: var(--graphite); line-height: 1.7; }
+.shop-about__part { padding: 1.75rem 2rem; border: 1px solid var(--line); border-radius: 18px; background: var(--white); }
+.shop-about__part + .shop-about__part { background: linear-gradient(120deg, var(--white) 0%, var(--paper) 55%, var(--gold-soft) 100%); }
+.shop-about h2, .shop-about h3 { margin: 1.25rem 0 .5rem; font: 500 1.35rem/1.25 var(--serif); color: var(--ink); }
+.shop-about h2:first-child { margin-top: 0; }
 .shop-about p { margin: 0 0 1rem; }
+.shop-about p:last-child { margin-bottom: 0; }
+@media (max-width: 600px) { .shop-about__part { padding: 1.25rem; } }
 
 /* ---------- phone: a round „Добави свой надпис“, fixed bottom left (replaces the bar icon there) ---------- */
 .mobile-cta { display: none; }

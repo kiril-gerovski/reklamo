@@ -30,7 +30,12 @@ function reklamo_seo_text_below(): void {
 	if ( '' === $text ) {
 		return;
 	}
-	echo '<section class="shop-about">' . wp_kses_post( wpautop( $text ) ) . '</section>';
+	$parts = array_filter( array_map( 'trim', preg_split( '/(?=<h2[\s>])/i', wpautop( $text ) ) ) );
+	echo '<section class="shop-about">';
+	foreach ( $parts as $part ) {
+		echo '<div class="shop-about__part">' . wp_kses_post( $part ) . '</div>';
+	}
+	echo '</section>';
 }
 
 /** Field labels and hints, shared by the post box and the category form. */
@@ -53,7 +58,7 @@ function reklamo_seo_field_html( string $field, string $value ): void {
 	} else {
 		printf( '<textarea class="widefat" rows="%d" id="%s" name="%s">%s</textarea>', 'text' === $field ? 8 : 3, esc_attr( $id ), esc_attr( $name ), esc_textarea( $value ) );
 	}
-	printf( '<span class="description">%s</span></p>', esc_html( $labels[ $field ][1] ) );
+	printf( '<br><span class="description">%s</span></p>', esc_html( $labels[ $field ][1] ) );
 }
 
 /** Sanitised values from the form, keyed by field. */

@@ -496,8 +496,8 @@ test( 'search results read "<name> с лого", with the seeded wording and no 
 	await expect( page ).toHaveTitle( 'Рекламни продукти и фирмени подаръци с лого - Reklamo.bg' );
 	await page.goto( '/product-category/himikalki/' );
 	await expect( page ).toHaveTitle( 'Рекламни химикалки с лого - Reklamo.bg' );
-	await expect( page.locator( 'meta[name="description"]' ) ).toHaveAttribute( 'content', /^Метални химикалки с логото на вашата фирма/ );
-	await expect( page.locator( '.shop-about h2' ).first() ).toHaveText( 'Метални химикалки с вашето лого' );
+	await expect( page.locator( 'meta[name="description"]' ) ).toHaveAttribute( 'content', /^Метални химикалки с логото на Вашата фирма/ );
+	await expect( page.locator( '.shop-about h2' ).first() ).toHaveText( 'Метални химикалки с Вашето лого' );
 	await page.goto( '/product/kalendar-mono/' );
 	await expect( page ).toHaveTitle( 'Календар Mono с лого - Reklamo.bg' );
 

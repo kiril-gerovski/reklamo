@@ -124,7 +124,7 @@ msgstr "https://reklamo.bg"
 #. Description of the theme
 #: style.css
 msgid "Theme built to the approved Reklamo.bg design — promotional packages with your logo. Presentation only; business logic lives in the reklamo-core plugin."
-msgstr "Тема по одобрения дизайн на Reklamo.bg - промо пакети с вашето лого. Само презентация; бизнес логиката е в плъгина reklamo-core."
+msgstr "Тема по одобрения дизайн на Reklamo.bg - промо пакети с Вашето лого. Само презентация; бизнес логиката е в плъгина reklamo-core."
 
 #. Author of the theme
 #: style.css
@@ -421,7 +421,7 @@ msgstr "Брандиране"
 
 #: woocommerce/content-single-product.php:31
 msgid "With your logo"
-msgstr "С вашето лого"
+msgstr "С Вашето лого"
 
 #: template-parts/bulk-offer.php:15
 #: woocommerce/content-single-product.php:32
@@ -468,7 +468,7 @@ msgstr "Няма плащане на този етап"
 #: woocommerce/content-single-product.php:52
 #, php-format
 msgid "We send you a mockup within %d working hours."
-msgstr "Ще ви изпратим визуализация до %d работни часа."
+msgstr "Ще Ви изпратим визуализация до %d работни часа."
 
 #: woocommerce/content-single-product.php:56
 msgid "Or ask for a correction if you need one."
@@ -486,7 +486,7 @@ msgstr "След одобрение стартираме поръчката."
 
 #: woocommerce/content-single-product.php:261
 msgid "Our consultant will help you choose the right package for your business."
-msgstr "Наш консултант ще ви помогне да изберете най-подходящия пакет за вашия бизнес."
+msgstr "Наш консултант ще Ви помогне да изберете най-подходящия пакет за Вашия бизнес."
 
 #: template-parts/faq.php:49
 #: woocommerce/content-single-product.php:265
@@ -542,7 +542,7 @@ msgstr "Как става поръчката"
 #: template-parts/shop-hero.php:27
 #: woocommerce/archive-product.php:23
 msgid "Ready-made solutions for your business"
-msgstr "Готови решения за вашия бизнес"
+msgstr "Готови решения за Вашия бизнес"
 
 #: template-parts/shop-hero.php:55
 msgid "Stylish and practical combinations"
@@ -550,7 +550,7 @@ msgstr "Стилни и практични комбинации"
 
 #: template-parts/shop-hero.php:56
 msgid "Personalised with your logo"
-msgstr "Персонализирани с вашето лого"
+msgstr "Персонализирани с Вашето лого"
 
 #: template-parts/shop-hero.php:57
 msgid "Suitable for any business"
@@ -580,7 +580,7 @@ msgstr "с ДДС"
 
 #: page-produkti.php:22
 msgid "Everything we can brand with your logo"
-msgstr "Всичко, което можем да брандираме с вашето лого"
+msgstr "Всичко, което можем да брандираме с Вашето лого"
 
 #: template-parts/shop-hero.php:44
 msgid "All products"
@@ -852,7 +852,7 @@ msgstr "Снимка на продукта"
 
 #: templates/page-request.php:68
 msgid "Printing after your approval"
-msgstr "Печат след вашето одобрение"
+msgstr "Печат след Вашето одобрение"
 
 #: templates/page-request.php:68
 msgid "You get the final mockup before anything is made."
@@ -949,11 +949,11 @@ msgstr "%s с лого"
 #, php-format
 msgid "%1$s with your logo: %2$d model with a clear price, a free mockup before production and delivery across Bulgaria."
 msgid_plural "%1$s with your logo: %2$d models with clear prices, a free mockup before production and delivery across Bulgaria."
-msgstr[0] "%1$s с вашето лого: %2$d модел с ясна цена, безплатна визуализация преди производство и доставка в цяла България."
-msgstr[1] "%1$s с вашето лого: %2$d модела с ясни цени, безплатна визуализация преди производство и доставка в цяла България."
+msgstr[0] "%1$s с Вашето лого: %2$d модел с ясна цена, безплатна визуализация преди производство и доставка в цяла България."
+msgstr[1] "%1$s с Вашето лого: %2$d модела с ясни цени, безплатна визуализация преди производство и доставка в цяла България."
 
 #. translators: %s: product name.
 #: inc/seo.php:97
 #, php-format
 msgid "%s with your logo. A free mockup before production, a clear price and delivery across Bulgaria."
-msgstr "%s с вашето лого. Безплатна визуализация преди производство, ясна цена и доставка в цяла България."
+msgstr "%s с Вашето лого. Безплатна визуализация преди производство, ясна цена и доставка в цяла България."

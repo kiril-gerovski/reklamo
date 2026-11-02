@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
 <!-- wp:column {"verticalAlignment":"center","width":"50%"} -->
 <div class="wp-block-column is-vertically-aligned-center" style="flex-basis:50%">
 <!-- wp:paragraph {"className":"eyebrow"} -->
-<p class="eyebrow">Промо продукти и пакети с вашето лого</p>
+<p class="eyebrow">Промо продукти и пакети с Вашето лого</p>
 <!-- /wp:paragraph -->
 <!-- wp:heading {"level":1} -->
 <h1 class="wp-block-heading">Избери продукт.<br>Лого или надпис.<br><span class="gold">Ние правим останалото.</span></h1>
