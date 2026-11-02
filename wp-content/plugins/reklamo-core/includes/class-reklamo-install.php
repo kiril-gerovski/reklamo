@@ -53,7 +53,7 @@ final class Reklamo_Install {
 		}
 	}
 
-	/** A request still running the previous code (opcache) must not mark the upgrade done. */
+	/** dbDelta fails silently; an upgrade that did not create its tables is retried on the next request. */
 	private static function tables_exist(): bool {
 		global $wpdb;
 		foreach ( array( 'reklamo_files', 'reklamo_tokens', Reklamo_Stats::TABLE ) as $table ) {
@@ -123,8 +123,8 @@ final class Reklamo_Install {
 		dbDelta(
 			"CREATE TABLE {$stats} (
   day date NOT NULL,
-  path varchar(191) NOT NULL,
-  source varchar(64) NOT NULL,
+  path varchar(160) NOT NULL,
+  source varchar(48) NOT NULL,
   views int(10) unsigned NOT NULL DEFAULT 0,
   PRIMARY KEY  (day,path,source)
 ) {$charset};"

@@ -79,7 +79,7 @@ final class Reklamo_Stats {
 	/** A site path, or '' for anything that is not one. */
 	public static function clean_path( string $path ): string {
 		$path = '/' . ltrim( $path, '/' );
-		return 1 === preg_match( '#^/[A-Za-z0-9/_.%-]{0,180}$#', $path ) ? $path : '';
+		return 1 === preg_match( '#^/[A-Za-z0-9/_.%-]{0,159}$#', $path ) ? $path : '';
 	}
 
 	public static function is_bot( string $user_agent ): bool {
@@ -103,7 +103,7 @@ final class Reklamo_Stats {
 		if ( preg_match( '/(^|\.)(fb\.me|fb\.com|t\.co)$/', $host ) ) {
 			return 't.co' === substr( $host, -4 ) ? 'twitter' : 'facebook';
 		}
-		return substr( $host, 0, 64 );
+		return substr( $host, 0, 48 );
 	}
 
 	private static function within_rate(): bool {
