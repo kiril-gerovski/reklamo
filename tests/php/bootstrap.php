@@ -17,4 +17,5 @@ require $plugin . 'class-reklamo-items.php'; // order_status_for() is pure; the 
 require $plugin . 'class-reklamo-email-check.php';
 require $plugin . 'class-reklamo-payment-deadline.php'; // times() is pure.
 require $plugin . 'class-reklamo-dispatch.php'; // clean_waybill() and tracking_url() are pure.
+require $plugin . 'class-reklamo-stats.php'; // source(), clean_path() and is_bot() are pure.
 require $plugin . 'class-reklamo-privacy.php'; // mask_ips() and the constants are pure; init() is never called here. // domain() is pure; has_mail_host() needs WordPress and is not unit-tested. // can_transition() and TRANSITIONS are pure; nothing runs at load.

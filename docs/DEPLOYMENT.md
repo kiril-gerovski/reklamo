@@ -148,7 +148,9 @@ those edits. Use `--seed` when a release changes `scripts/seed.sh` and you want 
 knowing every `opt` line is enforced then; `opt_default`, page texts and products stay untouched. **It never lowers a version.** A site that is ahead of the pin,
 because a minor security release applied itself or someone updated from the dashboard, is left
 alone and reported, and the right response is to bump `versions.env` after testing locally. Code is symlinked, so PHP and CSS are live the moment the checkout
-moves. Compiled `.mo` files are committed, nothing to build.
+moves. Compiled `.mo` files are committed, nothing to build. The plugin's own tables follow
+`REKLAMO_VERSION`: the first request after a version change runs `Reklamo_Install` (`dbDelta`), so a
+new table such as `wp_reklamo_stats` (0.8.0) appears without `--seed`.
 
 **The catalogue release (2026-10-12)** needs `--seed`: the first seeded update after it creates the
 fifteen products from the client's photos (sample prices at first, the client's real ones since the

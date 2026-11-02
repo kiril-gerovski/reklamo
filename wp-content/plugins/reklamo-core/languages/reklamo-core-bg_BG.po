@@ -91,20 +91,20 @@ msgstr "Моля, опишете какви промени желаете."
 msgid "Changes requested — back to the designer."
 msgstr "Заявени корекции - обратно при дизайнера."
 
-#: includes/class-reklamo-cart.php:290
+#: includes/class-reklamo-cart.php:291
 msgid "The form has expired. Please reload the page and try again."
 msgstr "Формата е изтекла. Моля, презаредете страницата и опитайте отново."
 
-#: includes/class-reklamo-cart.php:459
-#: includes/class-reklamo-cart.php:833
-#: includes/class-reklamo-cart.php:1184
+#: includes/class-reklamo-cart.php:460
+#: includes/class-reklamo-cart.php:834
+#: includes/class-reklamo-cart.php:1185
 #: templates/tracking.php:234
 msgid "Logo"
 msgstr "Лого"
 
 #: includes/class-reklamo-admin-order.php:260
-#: includes/class-reklamo-cart.php:464
-#: includes/class-reklamo-cart.php:1152
+#: includes/class-reklamo-cart.php:465
+#: includes/class-reklamo-cart.php:1153
 #: includes/class-reklamo-items.php:114
 #: includes/class-reklamo-request.php:499
 #: templates/tracking.php:247
@@ -313,7 +313,7 @@ msgstr "Благодарим, {customer_first_name}!"
 msgid "Placeholders: {order_number}, {order_date}, {customer_first_name}, {site_title}"
 msgstr "Заместители: {order_number}, {order_date}, {customer_first_name}, {site_title}"
 
-#: reklamo-core.php:94
+#: reklamo-core.php:95
 msgid "Reklamo Core needs WooCommerce to be active."
 msgstr "Reklamo Core изисква WooCommerce да е активен."
 
@@ -402,7 +402,7 @@ msgid "If the button does not work, copy this link into your browser:"
 msgstr "Ако бутонът не работи, копирайте тази връзка в браузъра си:"
 
 #. translators: %s: lowest price
-#: includes/class-reklamo-cart.php:900
+#: includes/class-reklamo-cart.php:901
 #: includes/class-reklamo-request.php:103
 #: includes/class-reklamo-request.php:227
 msgid "Package"
@@ -447,7 +447,7 @@ msgstr "Политиката за поверителност"
 msgid "I agree to the %1$s and the %2$s."
 msgstr "Съгласявам се с %1$s и %2$s."
 
-#: includes/class-reklamo-cart.php:1046
+#: includes/class-reklamo-cart.php:1047
 msgid "The form has expired. Please try again."
 msgstr "Формата е изтекла. Моля, опитайте отново."
 
@@ -461,7 +461,7 @@ msgstr "Нещо се обърка. Моля, опитайте отново."
 msgid "Too many requests from this connection. Please try again in an hour or contact us by email."
 msgstr "Твърде много заявки от тази връзка. Моля, опитайте отново след час или ни пишете по имейл."
 
-#: includes/class-reklamo-cart.php:256
+#: includes/class-reklamo-cart.php:257
 msgid "Please choose a package."
 msgstr "Моля, изберете пакет."
 
@@ -485,7 +485,7 @@ msgstr "Моля, въведете валиден телефонен номер.
 msgid "Please accept the Terms and Conditions and the Privacy Policy."
 msgstr "Моля, приемете Общите условия и Политиката за поверителност."
 
-#: includes/class-reklamo-cart.php:1133
+#: includes/class-reklamo-cart.php:1134
 msgid "The request could not be saved. Please try again or contact us."
 msgstr "Заявката не можа да бъде записана. Моля, опитайте отново или се свържете с нас."
 
@@ -1592,14 +1592,14 @@ msgid "Payments"
 msgstr "Плащания"
 
 #: includes/class-reklamo-admin-orders.php:122
-#: includes/class-reklamo-cart.php:207
-#: includes/class-reklamo-cart.php:850
+#: includes/class-reklamo-cart.php:208
+#: includes/class-reklamo-cart.php:851
 #: templates/tracking.php:320
 msgid "Total"
 msgstr "Общо"
 
-#: includes/class-reklamo-cart.php:207
-#: includes/class-reklamo-cart.php:850
+#: includes/class-reklamo-cart.php:208
+#: includes/class-reklamo-cart.php:851
 #: includes/class-reklamo-request.php:204
 #: templates/tracking.php:320
 msgid "incl. VAT"
@@ -1705,7 +1705,7 @@ msgstr "Изпратено напомняне: доплащането все о�
 msgid "Shop alerted: the customer has not responded to any reminder."
 msgstr "Магазинът е уведомен: клиентът не е реагирал на нито едно напомняне."
 
-#: includes/class-reklamo-cart.php:762
+#: includes/class-reklamo-cart.php:763
 msgid "Website"
 msgstr "Уебсайт"
 
@@ -1965,11 +1965,11 @@ msgstr "Отказ от правото на отказ (стоки по спец
 msgid "Order %s is still open; its data is kept until it is closed."
 msgstr "Поръчка %s е още активна; данните ѝ се пазят до приключването ѝ."
 
-#: includes/class-reklamo-product.php:334
+#: includes/class-reklamo-product.php:400
 msgid "Specifications"
 msgstr "Спецификации"
 
-#: includes/class-reklamo-product.php:335
+#: includes/class-reklamo-product.php:401
 msgid "Paper, print and finishing. Shown as its own tab on the product page; leave empty to hide the tab."
 msgstr "Хартия, печат и довършителни работи. Показва се като отделен таб на страницата на продукта; оставете празно, за да скриете таба."
 
@@ -1983,7 +1983,7 @@ msgstr "Избери изображение"
 
 #: includes/class-reklamo-admin-image.php:27
 #: includes/class-reklamo-admin-image.php:55
-#: includes/class-reklamo-cart.php:842
+#: includes/class-reklamo-cart.php:843
 msgid "Remove"
 msgstr "Премахни"
 
@@ -1991,11 +1991,11 @@ msgstr "Премахни"
 msgid "Shown in the \"Need help?\" box on product pages. Without a photo the box shows an icon."
 msgstr "Показва се в карето „Нуждаете се от помощ?“ на страниците на продуктите. Без снимка карето показва икона."
 
-#: includes/class-reklamo-product.php:358
+#: includes/class-reklamo-product.php:424
 msgid "Section background image"
 msgstr "Фонова снимка на секцията"
 
-#: includes/class-reklamo-product.php:359
+#: includes/class-reklamo-product.php:425
 msgid "Shown behind the tabs on the product page, fading in from the right. Leave empty for a plain section."
 msgstr "Показва се зад табовете на страницата на продукта, с преливане отдясно. Оставете празно за секция без снимка."
 
@@ -2099,41 +2099,41 @@ msgstr "Всички визуализации са одобрени."
 msgid "Customer requested changes to mockup #%1$d of %2$s: %3$s"
 msgstr "Клиентът заяви корекции по визуализация №%1$d на %2$s: %3$s"
 
-#: includes/class-reklamo-cart.php:210
+#: includes/class-reklamo-cart.php:211
 #: includes/class-reklamo-request.php:116
 #: includes/class-reklamo-request.php:268
 msgid "Add to cart"
 msgstr "Добави в количката"
 
-#: includes/class-reklamo-cart.php:750
+#: includes/class-reklamo-cart.php:751
 msgid "Browse the packages"
 msgstr "Разгледайте пакетите"
 
-#: includes/class-reklamo-cart.php:889
+#: includes/class-reklamo-cart.php:890
 msgid "Replace the logo"
 msgstr "Смени логото"
 
-#: includes/class-reklamo-cart.php:889
+#: includes/class-reklamo-cart.php:890
 msgid "Upload the logo"
 msgstr "Качи логото"
 
-#: includes/class-reklamo-cart.php:921
+#: includes/class-reklamo-cart.php:922
 msgid "Save changes"
 msgstr "Запази промените"
 
-#: includes/class-reklamo-cart.php:929
+#: includes/class-reklamo-cart.php:930
 msgid "Your details"
 msgstr "Вашите данни"
 
-#: includes/class-reklamo-cart.php:932
+#: includes/class-reklamo-cart.php:933
 msgid "Send and request the mockups"
 msgstr "Изпрати и заяви визуализации"
 
-#: includes/class-reklamo-cart.php:934
+#: includes/class-reklamo-cart.php:935
 msgid "No payment is taken at this stage. Each product gets its own mockup; we ask for the deposit once you have approved them all."
 msgstr "На този етап не се извършва плащане. Всеки продукт получава своя визуализация; плащането се иска, след като одобрите всички."
 
-#: includes/class-reklamo-cart.php:1105
+#: includes/class-reklamo-cart.php:1106
 msgid "Your cart is empty."
 msgstr "Количката е празна."
 
@@ -2267,7 +2267,7 @@ msgstr "Визуализация на %s"
 msgid "Your comments"
 msgstr "Вашите коментари"
 
-#: includes/class-reklamo-cart.php:211
+#: includes/class-reklamo-cart.php:212
 msgid "You upload your logo in the cart — one per product, or one for all of them."
 msgstr "Логото качвате в количката - за всеки продукт отделно или едно за всички."
 
@@ -2276,208 +2276,209 @@ msgid "You upload your logo in the cart — one per product, or one for all of t
 msgstr "Логото качвате в количката - за всеки продукт отделно или едно за всички. На този етап не се извършва плащане."
 
 #. translators: %s: product name
-#: includes/class-reklamo-cart.php:680
+#: includes/class-reklamo-cart.php:681
 #, php-format
 msgid "%s: it is marked under more than one logo — leave it under one."
 msgstr "%s: маркиран е при повече от едно лого - оставете го само при едно."
 
 #. translators: %s: product name
-#: includes/class-reklamo-cart.php:683
+#: includes/class-reklamo-cart.php:684
 #, php-format
 msgid "%s: no logo is marked for this product."
 msgstr "%s: няма маркирано лого за този продукт."
 
 #. translators: %s: product name
-#: includes/class-reklamo-cart.php:686
+#: includes/class-reklamo-cart.php:687
 #, php-format
 msgid "%s: its logo is not uploaded yet."
 msgstr "%s: логото му още не е качено."
 
-#: includes/class-reklamo-cart.php:749
+#: includes/class-reklamo-cart.php:750
 msgid "Your cart is empty. Add the products and packages you want; then, here, you upload your logo and a note to the designer for each of them."
 msgstr "Количката е празна. Добавете желаните продукти и пакети; после тук качвате логото и бележка към дизайнера за всеки от тях."
 
-#: includes/class-reklamo-cart.php:754
+#: includes/class-reklamo-cart.php:755
 msgid "Logos and notes"
 msgstr "Лога и бележки"
 
-#: includes/class-reklamo-cart.php:755
+#: includes/class-reklamo-cart.php:756
 msgid "Your details and sending"
 msgstr "Вашите данни и изпращане"
 
-#: includes/class-reklamo-cart.php:835
+#: includes/class-reklamo-cart.php:836
 msgid "Note"
 msgstr "Бележка"
 
-#: includes/class-reklamo-cart.php:860
+#: includes/class-reklamo-cart.php:861
 msgid "Logos and notes to the designer"
 msgstr "Лога и бележки към дизайнера"
 
-#: includes/class-reklamo-cart.php:861
+#: includes/class-reklamo-cart.php:862
 msgid "Upload a logo, write what the designer should do with it, and mark the products it is for. Different products need a different logo? Add another one."
 msgstr "Качете лого, напишете на дизайнера какво да направи с него и маркирайте продуктите, за които е. Различни продукти с различно лого? Добавете още едно."
 
 #. translators: %d: logo number
-#: includes/class-reklamo-cart.php:882
+#: includes/class-reklamo-cart.php:883
 #, php-format
 msgid "Logo %d"
 msgstr "Лого %d"
 
-#: includes/class-reklamo-cart.php:887
+#: includes/class-reklamo-cart.php:888
 msgid "File"
 msgstr "Файл"
 
-#: includes/class-reklamo-cart.php:891
+#: includes/class-reklamo-cart.php:892
 msgid "Note to the designer"
 msgstr "Бележка към дизайнера"
 
-#: includes/class-reklamo-cart.php:892
+#: includes/class-reklamo-cart.php:893
 msgid "Example: gold logo, centered on the front cover of the notebook and engraved on the pen."
 msgstr "Пример: логото да бъде златно, центрирано на предната корица на тефтера и гравирано на химикалката."
 
-#: includes/class-reklamo-cart.php:896
+#: includes/class-reklamo-cart.php:897
 msgid "For these products:"
 msgstr "За тези продукти:"
 
-#: includes/class-reklamo-cart.php:914
+#: includes/class-reklamo-cart.php:915
 msgid "Remove this logo"
 msgstr "Премахни това лого"
 
-#: includes/class-reklamo-cart.php:920
+#: includes/class-reklamo-cart.php:921
 msgid "Add another logo"
 msgstr "Добави още едно лого"
 
-#: includes/class-reklamo-cart.php:857
-#: includes/class-reklamo-cart.php:924
+#: includes/class-reklamo-cart.php:858
+#: includes/class-reklamo-cart.php:925
 msgid "Continue to your details"
 msgstr "Продължи към данните"
 
-#: includes/class-reklamo-cart.php:928
+#: includes/class-reklamo-cart.php:929
 msgid "Back to logos and notes"
 msgstr "Назад към логата и бележките"
 
 #. translators: 1: logo number, 2: character limit
-#: includes/class-reklamo-cart.php:1005
+#: includes/class-reklamo-cart.php:1006
 #, php-format
 msgid "Logo %1$d: the note is too long (maximum %2$d characters)."
 msgstr "Лого %1$d: бележката е твърде дълга (най-много %2$d знака)."
 
 #. translators: 1: logo number, 2: error message
-#: includes/class-reklamo-cart.php:1018
+#: includes/class-reklamo-cart.php:1019
 #, php-format
 msgid "Logo %1$d: %2$s"
 msgstr "Лого %1$d: %2$s"
 
-#: includes/class-reklamo-cart.php:911
+#: includes/class-reklamo-cart.php:912
 msgid "Every product already has a logo. Untick one under another logo to move it here."
 msgstr "Всички продукти вече имат лого. Махнете отметката при друго лого, за да преместите продукт тук."
 
 #. translators: %s: product name
-#: includes/class-reklamo-cart.php:759
+#: includes/class-reklamo-cart.php:760
 #, php-format
 msgid "%s: not marked under any logo."
 msgstr "%s: не е маркиран при нито едно лого."
 
 #. translators: 1: product name, 2: logo title such as "Logo 2"
-#: includes/class-reklamo-cart.php:760
+#: includes/class-reklamo-cart.php:761
 #, php-format
 msgid "%1$s: the file of %2$s is not uploaded yet."
 msgstr "%1$s: файлът на „%2$s“ още не е качен."
 
-#: includes/class-reklamo-cart.php:885
+#: includes/class-reklamo-cart.php:886
 msgid "Upload a file for this logo — the products marked below have no logo yet."
 msgstr "Качете файл за това лого - маркираните по-долу продукти още нямат лого."
 
-#: includes/class-reklamo-cart.php:419
-#: includes/class-reklamo-cart.php:851
+#: includes/class-reklamo-cart.php:420
+#: includes/class-reklamo-cart.php:852
 msgid "Continue shopping"
 msgstr "Продължи с пазаруването"
 
-#: includes/class-reklamo-cart.php:852
+#: includes/class-reklamo-cart.php:853
 msgid "Remove every product, logo and note from the cart?"
 msgstr "Да се премахнат ли всички продукти, лога и бележки от количката?"
 
-#: includes/class-reklamo-cart.php:852
+#: includes/class-reklamo-cart.php:853
 msgid "Empty the cart"
 msgstr "Изчисти количката"
 
-#: includes/class-reklamo-cart.php:737
+#: includes/class-reklamo-cart.php:738
 msgid "The cart is empty now."
 msgstr "Количката е изчистена."
 
-#: includes/class-reklamo-cart.php:933
+#: includes/class-reklamo-cart.php:934
 msgid "Fill in your name, email and phone and tick both boxes above to send the request."
 msgstr "Попълнете име, имейл и телефон и отметнете двете полета по-горе, за да изпратите заявката."
 
 #. translators: %s: product name
-#: includes/class-reklamo-cart.php:413
+#: includes/class-reklamo-cart.php:414
 #, php-format
 msgid "„%s“ is in your cart"
 msgstr "„%s“ е добавен в количката"
 
-#: includes/class-reklamo-cart.php:416
+#: includes/class-reklamo-cart.php:417
 msgid "Add more products, or go to the cart to upload your logos and notes to the designer."
 msgstr "Добавете още продукти или отидете в количката, за да качите логата и бележките към дизайнера."
 
-#: includes/class-reklamo-cart.php:418
+#: includes/class-reklamo-cart.php:419
 msgid "Go to the cart"
 msgstr "Към количката"
 
-#: includes/class-reklamo-cart.php:192
-#: includes/class-reklamo-cart.php:793
-#: includes/class-reklamo-cart.php:797
+#: includes/class-reklamo-cart.php:193
+#: includes/class-reklamo-cart.php:794
+#: includes/class-reklamo-cart.php:798
 #: includes/class-reklamo-inquiry.php:80
+#: includes/class-reklamo-variants.php:190
 msgid "Quantity"
 msgstr "Количество"
 
-#: includes/class-reklamo-cart.php:194
+#: includes/class-reklamo-cart.php:195
 msgid "Fewer"
 msgstr "По-малко"
 
-#: includes/class-reklamo-cart.php:196
+#: includes/class-reklamo-cart.php:197
 msgid "More"
 msgstr "Повече"
 
 #. translators: %d: minimum quantity
-#: includes/class-reklamo-cart.php:202
+#: includes/class-reklamo-cart.php:203
 #, php-format
 msgid "Minimum quantity: %d pieces"
 msgstr "Минимално количество: %d броя"
 
 #. translators: %s: price per piece
-#: includes/class-reklamo-cart.php:802
+#: includes/class-reklamo-cart.php:803
 #, php-format
 msgid "%s per piece"
 msgstr "%s за брой"
 
 #. translators: %d: minimum quantity
-#: includes/class-reklamo-cart.php:805
+#: includes/class-reklamo-cart.php:806
 #, php-format
 msgid "minimum %d"
 msgstr "минимум %d"
 
 #. translators: 1: product name, 2: minimum quantity
-#: includes/class-reklamo-cart.php:981
-#: includes/class-reklamo-product.php:269
+#: includes/class-reklamo-cart.php:982
+#: includes/class-reklamo-product.php:335
 #, php-format
 msgid "%1$s: the minimum quantity is %2$d pieces."
 msgstr "%1$s: минималното количество е %2$d броя."
 
-#: includes/class-reklamo-product.php:278
-#: includes/class-reklamo-product.php:289
+#: includes/class-reklamo-product.php:344
+#: includes/class-reklamo-product.php:355
 msgid "Swatch colour"
 msgstr "Цвят на кръгчето"
 
-#: includes/class-reklamo-product.php:280
-#: includes/class-reklamo-product.php:292
+#: includes/class-reklamo-product.php:346
+#: includes/class-reklamo-product.php:358
 msgid "The circle the customer clicks on the product page."
 msgstr "Кръгчето, което клиентът избира на страницата на продукта."
 
-#: includes/class-reklamo-product.php:344
+#: includes/class-reklamo-product.php:410
 msgid "Minimum quantity"
 msgstr "Минимално количество"
 
-#: includes/class-reklamo-product.php:345
+#: includes/class-reklamo-product.php:411
 msgid "For a product sold by the piece: the smallest number a customer can order (e.g. 50). The price above is then the price per piece. Leave 1 for packages and fixed sets."
 msgstr "За продукт, който се продава на брой: най-малкото количество, което клиентът може да поръча (напр. 50). Тогава цената горе е цена за брой. Оставете 1 за пакети и готови комплекти."
 
@@ -2485,16 +2486,16 @@ msgstr "За продукт, който се продава на брой: на�
 msgid "Choose images"
 msgstr "Избери снимки"
 
-#: includes/class-reklamo-product.php:192
+#: includes/class-reklamo-product.php:258
 msgid "Gallery for this colour"
 msgstr "Галерия за този цвят"
 
-#: includes/class-reklamo-product.php:193
+#: includes/class-reklamo-product.php:259
 msgid "The other photos of this colour, shown after the variation image above. Empty: the product gallery is shown."
 msgstr "Останалите снимки на този цвят, показвани след снимката на вариацията по-горе. Ако е празно, се показва галерията на продукта."
 
 #. translators: %s: quantity, e.g. "50 бр."
-#: includes/class-reklamo-variants.php:196
+#: includes/class-reklamo-variants.php:202
 #, php-format
 msgid "Price for %s"
 msgstr "Цена за %s"
@@ -2654,29 +2655,30 @@ msgid "Parcel locker (name or address)"
 msgstr "Автомат (име или адрес)"
 
 #. translators: %s: what comes free with the product
-#: includes/class-reklamo-cart.php:782
+#: includes/class-reklamo-cart.php:783
 #, php-format
 msgid "+ Gift: %s"
 msgstr "+ Подарък: %s"
 
-#: includes/class-reklamo-product.php:374
+#: includes/class-reklamo-product.php:441
 msgid "Promotion (% off)"
 msgstr "Промоция (% отстъпка)"
 
-#: includes/class-reklamo-product.php:375
+#: includes/class-reklamo-product.php:442
 msgid "Every colour and size at this percent less, rounded down to ,99; the card and the page show \"Promotion\" and the old price struck through. Empty = no promotion."
 msgstr "Всички цветове и количества с толкова процента по-евтино, закръглено надолу до ,99; картата и страницата показват „Промоция“ и старата цена зачеркната. Празно = без промоция."
 
-#: includes/class-reklamo-product.php:388
+#: includes/class-reklamo-product.php:455
 msgid "Promotion until"
 msgstr "Промоция до"
 
-#: includes/class-reklamo-product.php:389
+#: includes/class-reklamo-product.php:456
 msgid "The last day of the promotion, included. Empty = until you remove it."
 msgstr "Последният ден на промоцията, включително. Празно = докато не я махнете."
 
-#: includes/class-reklamo-product.php:397
+#: includes/class-reklamo-product.php:464
 #: includes/class-reklamo-request.php:495
+#: includes/class-reklamo-variants.php:193
 msgid "Gift"
 msgstr "Подарък"
 
@@ -2864,20 +2866,20 @@ msgstr "товарителница %1$s (%2$s)"
 msgid "waybill %s"
 msgstr "товарителница %s"
 
-#: includes/class-reklamo-cart.php:824
+#: includes/class-reklamo-cart.php:825
 msgid "Logo chosen ✓"
 msgstr "Логото е избрано ✓"
 
-#: includes/class-reklamo-cart.php:838
+#: includes/class-reklamo-cart.php:839
 msgid "Needs a logo — mark it under a logo below."
 msgstr "Нужно е лого - отбележете продукта под някое лого по-долу."
 
-#: includes/class-reklamo-cart.php:891
+#: includes/class-reklamo-cart.php:892
 #: includes/class-reklamo-request.php:263
 msgid "(optional)"
 msgstr "(по желание)"
 
-#: includes/class-reklamo-cart.php:925
+#: includes/class-reklamo-cart.php:926
 msgid "Every product needs a logo before you can continue."
 msgstr "Всеки продукт трябва да има лого, за да продължите."
 
@@ -2975,48 +2977,48 @@ msgid "Sent to the visitor after the offer inquiry form, with a copy of the inqu
 msgstr "Изпраща се до посетителя след формата за запитване, с копие на запитването."
 
 #: includes/class-reklamo-admin-order.php:243
-#: includes/class-reklamo-cart.php:438
+#: includes/class-reklamo-cart.php:439
 #: includes/class-reklamo-request.php:487
 msgid "Inscription"
 msgstr "Надпис"
 
 #: includes/class-reklamo-admin-order.php:247
-#: includes/class-reklamo-cart.php:444
-#: includes/class-reklamo-cart.php:814
+#: includes/class-reklamo-cart.php:445
+#: includes/class-reklamo-cart.php:815
 #: includes/class-reklamo-request.php:251
 #: includes/class-reklamo-request.php:491
 msgid "Print colour"
 msgstr "Цвят на печата"
 
-#: includes/class-reklamo-cart.php:304
+#: includes/class-reklamo-cart.php:305
 msgid "The inscription is too long (maximum 150 characters)."
 msgstr "Надписът е твърде дълъг (най-много 150 знака)."
 
-#: includes/class-reklamo-cart.php:450
+#: includes/class-reklamo-cart.php:451
 msgid "Instructions"
 msgstr "Указания"
 
-#: includes/class-reklamo-cart.php:492
+#: includes/class-reklamo-cart.php:493
 msgid "Black"
 msgstr "Черно"
 
-#: includes/class-reklamo-cart.php:493
+#: includes/class-reklamo-cart.php:494
 msgid "White"
 msgstr "Бяло"
 
-#: includes/class-reklamo-cart.php:494
+#: includes/class-reklamo-cart.php:495
 msgid "Silver"
 msgstr "Сребро"
 
-#: includes/class-reklamo-cart.php:495
+#: includes/class-reklamo-cart.php:496
 msgid "Gold"
 msgstr "Злато"
 
-#: includes/class-reklamo-cart.php:816
+#: includes/class-reklamo-cart.php:817
 msgid "The designer decides"
 msgstr "По преценка на дизайнера"
 
-#: includes/class-reklamo-cart.php:826
+#: includes/class-reklamo-cart.php:827
 msgid "Inscription instead of a logo ✓"
 msgstr "Надпис вместо лого ✓"
 
@@ -3065,12 +3067,12 @@ msgstr "напр. по-малък надпис, печат от двете ст�
 msgid "The inscription is saved with the chosen product. No payment is taken at this stage."
 msgstr "Надписът се запазва към избрания продукт. На този етап не се извършва плащане."
 
-#: includes/class-reklamo-cart.php:295
+#: includes/class-reklamo-cart.php:296
 msgid "Please write the inscription, or choose \"I have a logo\"."
 msgstr "Моля, напишете надписа или изберете „Имам лого“."
 
 #. translators: %s: error message
-#: includes/class-reklamo-cart.php:362
+#: includes/class-reklamo-cart.php:363
 #, php-format
 msgid "The logo was not uploaded (%s). The product is in the cart; upload the logo there."
 msgstr "Логото не беше качено (%s). Продуктът е в количката - качете логото там."
@@ -3087,7 +3089,7 @@ msgstr "По желание тук - можете да го качите и по
 msgid "The logo is saved with the chosen product. No payment is taken at this stage."
 msgstr "Логото се запазва към избрания продукт. На този етап не се извършва плащане."
 
-#: includes/class-reklamo-cart.php:300
+#: includes/class-reklamo-cart.php:301
 msgid "Packages are not printed with an inscription: choose a product, or \"I have a logo\"."
 msgstr "Пакетите не се персонализират с надпис: изберете продукт или „Имам лого“."
 
@@ -3095,16 +3097,16 @@ msgstr "Пакетите не се персонализират с надпис:
 msgid "Customer logos"
 msgstr "Логота на клиента"
 
-#: includes/class-reklamo-cart.php:833
+#: includes/class-reklamo-cart.php:834
 #: templates/tracking.php:234
 msgid "Logos"
 msgstr "Логота"
 
-#: includes/class-reklamo-cart.php:863
+#: includes/class-reklamo-cart.php:864
 msgid "In a package, every item can carry its own logo: add another logo and tick there the items it is for."
 msgstr "В пакета всеки предмет може да е с различно лого: добавете още едно лого и отметнете при него предметите, за които е."
 
-#: includes/class-reklamo-cart.php:900
+#: includes/class-reklamo-cart.php:901
 msgid "Separate products"
 msgstr "Отделни продукти"
 
@@ -3112,66 +3114,66 @@ msgstr "Отделни продукти"
 msgid "Colours and quantities"
 msgstr "Цветове и количества"
 
-#: includes/class-reklamo-variants.php:152
+#: includes/class-reklamo-variants.php:153
 msgid "Colours"
 msgstr "Цветове"
 
-#: includes/class-reklamo-variants.php:153
+#: includes/class-reklamo-variants.php:154
 msgid "Tick the colours the product comes in: the customer sees each as a circle. Upload the photos of each colour once, the first is the main one; every quantity of that colour shows them. No colour ticked: one product with its own photos."
 msgstr "Отметнете цветовете, в които се предлага продуктът: клиентът вижда всеки като кръгче. Качете снимките на всеки цвят веднъж, първата е основната; всяко количество в този цвят ги показва. Без отметнат цвят: един продукт със собствените си снимки."
 
 #. translators: %s: colour name
-#: includes/class-reklamo-variants.php:171
+#: includes/class-reklamo-variants.php:172
 #, php-format
 msgid "Photos: %s"
 msgstr "Снимки: %s"
 
-#: includes/class-reklamo-variants.php:174
+#: includes/class-reklamo-variants.php:175
 msgid "The first photo is the main one. Empty: the product image is shown."
 msgstr "Първата снимка е основната. Без снимки: показва се изображението на продукта."
 
 #. translators: %s: link to Products → Attributes → Цвят
-#: includes/class-reklamo-variants.php:178
+#: includes/class-reklamo-variants.php:179
 #, php-format
 msgid "A colour that is missing is added in %s, with the colour of its circle."
 msgstr "Липсващ цвят се добавя в %s, заедно с цвета на кръгчето."
 
 #. translators: %s: link to Products → Attributes → Цвят
-#: includes/class-reklamo-variants.php:178
+#: includes/class-reklamo-variants.php:179
 msgid "Products → Attributes → Colour"
 msgstr "Продукти → Атрибути → Цвят"
 
-#: includes/class-reklamo-variants.php:181
+#: includes/class-reklamo-variants.php:182
 msgid "Quantities and prices"
 msgstr "Количества и цени"
 
-#: includes/class-reklamo-variants.php:183
+#: includes/class-reklamo-variants.php:184
 msgid "The colours of this product are priced differently, so each price is set in its own variation (Variations tab). Here you choose which quantities are offered; a new one takes the price of the same quantity in another colour."
 msgstr "Цветовете на този продукт са с различни цени, затова всяка цена се задава във вариацията ѝ (раздел „Вариации“). Тук избирате кои количества се предлагат; ново количество взема цената на същото количество в друг цвят."
 
-#: includes/class-reklamo-variants.php:185
+#: includes/class-reklamo-variants.php:186
 msgid "Tick the quantities the product is sold in and give each its price, VAT included; every colour costs the same."
 msgstr "Отметнете количествата, в които се продава продуктът, и задайте цена на всяко, с ДДС; всички цветове са на една цена."
 
-#: includes/class-reklamo-variants.php:237
+#: includes/class-reklamo-variants.php:246
 msgid "Colours and quantities: tick at least one quantity, with its price. Nothing was changed there."
 msgstr "Цветове и количества: отметнете поне едно количество с цена. Там нищо не е променено."
 
 #. translators: %s: quantity, e.g. "50 бр."
-#: includes/class-reklamo-variants.php:248
+#: includes/class-reklamo-variants.php:257
 #, php-format
 msgid "Colours and quantities: %s has no price, so it is not offered."
 msgstr "Цветове и количества: %s няма цена, затова не се предлага."
 
-#: includes/class-reklamo-product.php:398
+#: includes/class-reklamo-product.php:465
 msgid "What comes free with it, our own promotional gift, e.g. \"Satin Black lighter\". Shown as \"+ Gift\" on the card and the page, and written on the order line. Empty = no gift."
 msgstr "Какво получава клиентът безплатно - наш рекламен подарък, напр. „Запалка Satin Black“. Показва се като „+ Подарък“ в картата и на страницата и се записва в поръчката. Празно = без подарък."
 
-#: includes/class-reklamo-product.php:406
+#: includes/class-reklamo-product.php:473
 msgid "Photo with the gift"
 msgstr "Снимка с подаръка"
 
-#: includes/class-reklamo-product.php:407
+#: includes/class-reklamo-product.php:474
 msgid "The product together with the gift. While there is a gift it is the main photo everywhere on the site, and the usual main photo moves to second place; emptying the gift above removes it."
 msgstr "Продуктът заедно с подаръка. Докато има подарък, тя е основната снимка навсякъде в сайта, а обичайната основна снимка минава на второ място; изтриването на подаръка по-горе я премахва."
 
@@ -3430,40 +3432,152 @@ msgstr "Копирай за фактура"
 msgid "Address"
 msgstr "Адрес"
 
-#: includes/class-reklamo-product.php:366
+#: includes/class-reklamo-product.php:432
 msgid "On the homepage"
 msgstr "На главната страница"
 
-#: includes/class-reklamo-product.php:367
+#: includes/class-reklamo-product.php:433
 msgid "Show this product's main photo at the top of the homepage. Only one product at a time: ticking it here unticks the one before."
 msgstr "Основната снимка на продукта се показва най-горе на главната страница. Само един продукт наведнъж: отметката тук маха тази от предишния."
 
-#: includes/class-reklamo-product.php
+#: includes/class-reklamo-product.php:437
 msgid "This product is sold in quantities: the percent off and the gift are set for each quantity in \"Colours and quantities\"."
 msgstr "Продуктът се продава в количества: отстъпката и подаръкът се задават за всяко количество в „Цветове и количества“."
 
-#: includes/class-reklamo-variants.php
+#: includes/class-reklamo-variants.php:188
 msgid "A promotion or a gift can go with some quantities only, or differ from one to another: leave a field empty where there is none. The last day of the promotion and the photo with the gift are in the General tab."
 msgstr "Промоцията и подаръкът могат да са само за някои количества или различни за всяко: където няма, оставете полето празно. Последният ден на промоцията и снимката с подаръка са в таба „Основни“."
 
-#: includes/class-reklamo-variants.php
+#: includes/class-reklamo-variants.php:191
 msgid "Price"
 msgstr "Цена"
 
-#: includes/class-reklamo-variants.php
+#: includes/class-reklamo-variants.php:192
 msgid "Promotion, %"
 msgstr "Промоция, %"
 
 #. translators: %s: quantity, e.g. "50 бр."
-#: includes/class-reklamo-variants.php
+#: includes/class-reklamo-variants.php:205
+#, php-format
 msgid "Promotion for %s, percent off"
 msgstr "Промоция за %s, %% отстъпка"
 
-#: includes/class-reklamo-variants.php
+#. translators: %s: quantity, e.g. "50 бр."
+#: includes/class-reklamo-variants.php:206
 msgid "e.g. Satin Black lighter"
 msgstr "напр. Запалка Satin Black"
 
 #. translators: %s: quantity, e.g. "50 бр."
-#: includes/class-reklamo-variants.php
+#: includes/class-reklamo-variants.php:206
+#, php-format
 msgid "Gift with %s"
 msgstr "Подарък при %s"
+
+#: includes/class-reklamo-stats.php:129
+#: templates/admin-stats.php:25
+#: templates/admin-stats.php:36
+#: templates/admin-stats.php:67
+#: templates/admin-stats.php:80
+msgid "Visits"
+msgstr "Посещения"
+
+#: includes/class-reklamo-stats.php:134
+msgid "Direct (typed address, bookmark, an app or email)"
+msgstr "Директно (написан адрес, отметка, приложение или имейл)"
+
+#: includes/class-reklamo-stats.php:151
+msgid "Home"
+msgstr "Начало"
+
+#: templates/admin-stats.php:17
+msgid "7 days"
+msgstr "7 дни"
+
+#: templates/admin-stats.php:18
+msgid "30 days"
+msgstr "30 дни"
+
+#: templates/admin-stats.php:19
+msgid "90 days"
+msgstr "90 дни"
+
+#: templates/admin-stats.php:20
+msgid "12 months"
+msgstr "12 месеца"
+
+#: templates/admin-stats.php:26
+msgid "Counted without cookies and without storing anything about the visitor. Your own visits while logged in and known robots are not counted."
+msgstr "Броят се без бисквитки и без да се пази нищо за посетителя. Вашите посещения, докато сте влезли в профила си, и известните роботи не се броят."
+
+#: templates/admin-stats.php:28
+msgid "Period"
+msgstr "Период"
+
+#: templates/admin-stats.php:38
+msgid "arrivals from outside the site"
+msgstr "идвания отвън към сайта"
+
+#: templates/admin-stats.php:41
+#: templates/admin-stats.php:67
+msgid "Pages viewed"
+msgstr "Прегледани страници"
+
+#: templates/admin-stats.php:43
+msgid "including moves between pages"
+msgstr "заедно с минаването между страници"
+
+#: templates/admin-stats.php:48
+msgid "No visits counted in this period yet."
+msgstr "Още няма преброени посещения за този период."
+
+#: templates/admin-stats.php:50
+msgid "Visits per month"
+msgstr "Посещения по месеци"
+
+#: templates/admin-stats.php:50
+msgid "Visits per day"
+msgstr "Посещения по дни"
+
+#: templates/admin-stats.php:51
+msgid "Visits over the period; the table below has the numbers."
+msgstr "Посещенията за периода; числата са в таблицата отдолу."
+
+#. translators: 1: date, 2: visits, 3: pages viewed
+#: templates/admin-stats.php:53
+#, php-format
+msgid "%1$s: %2$d visits, %3$d pages"
+msgstr "%1$s: %2$d посещения, %3$d страници"
+
+#. translators: %d: highest value on the chart
+#: templates/admin-stats.php:61
+#, php-format
+msgid "highest: %d"
+msgstr "най-много: %d"
+
+#: templates/admin-stats.php:65
+msgid "As a table"
+msgstr "Като таблица"
+
+#: templates/admin-stats.php:67
+msgid "Date"
+msgstr "Дата"
+
+#: templates/admin-stats.php:78
+msgid "Where visitors came from"
+msgstr "Откъде идват посетителите"
+
+#: templates/admin-stats.php:80
+msgid "Source"
+msgstr "Източник"
+
+#: templates/admin-stats.php:89
+msgid "Most viewed pages"
+msgstr "Най-разглеждани страници"
+
+#: templates/admin-stats.php:91
+msgid "Page"
+msgstr "Страница"
+
+#: templates/admin-stats.php:91
+msgid "Views"
+msgstr "Прегледи"

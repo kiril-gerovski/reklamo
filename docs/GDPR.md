@@ -21,11 +21,12 @@ beside the GDPR: ЗЗЛД (personal data), ЗЗП (consumer protection), ЗЕТ 
 | Tracking URL, approval/details tokens | order meta, `wp_reklamo_tokens` | passwordless access to the order | link expires with the files; tokens never deleted |
 | Audit log: recipients and subjects of every email, every order note (which can quote names and customer messages; IPs masked as `[ip]`), who acted (a user login, „клиент или посетител“, or the automatic job) | WooCommerce log files, source `reklamo` (`wp-content/uploads/wc-logs/reklamo-*.log`, `Reklamo_Log`) | accountability: explaining afterwards why something happened (legitimate interest; kept for possible claims, so erasure requests do not reach it) | 365 days (`Reklamo_Log::KEEP_DAYS`), then WooCommerce's daily log cleanup deletes the file; stated in the Privacy Policy (§ 2 legitimate interest, § 4 retention) since version 2026-10-24 |
 | Rate-limit counters | transients keyed by `md5(ip)` | abuse protection | one hour |
+| Visit counts: day, page path (no query string), referring site reduced to a name or host, number of views. Nothing per visitor; the IP only in the hourly rate-limit transient | `wp_reklamo_stats` (`Reklamo_Stats`) | site statistics without cookies (legitimate interest) | 25 months, hourly cleanup |
 | Every customer email | mailbox `office@reklamo.bg` on SuperHosting; shop notifications currently at an abv.bg mailbox | correspondence | mailbox retention |
 | Everything above | SuperHosting account backups | disaster recovery | SuperHosting's backup window |
 | Everything above (database, media, `reklamo-private`) | daily snapshots on the developer's workstation, `~/reklamo-backups/` (`scripts/backup.sh pull`), and a local stack after `scripts/backup.sh load` | disaster recovery, debugging with real data | the newest 30 snapshots; erased data survives in them until it ages out |
 
-No customer accounts, no cookies set by our code, fonts self-hosted, no analytics, no external
+No customer accounts, no cookies set by our code, fonts self-hosted, no third-party analytics (visits are counted in our own table without cookies, see above), no external
 requests from the storefront. WooCommerce's **Order Attribution** feature is enabled and sets
 `sbjs_*` tracking cookies on every visitor without consent.
 

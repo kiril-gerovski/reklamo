@@ -104,5 +104,16 @@ final class Reklamo_Install {
   KEY order_id (order_id)
 ) {$charset};"
 		);
+
+		$stats = $wpdb->prefix . Reklamo_Stats::TABLE;
+		dbDelta(
+			"CREATE TABLE {$stats} (
+  day date NOT NULL,
+  path varchar(191) NOT NULL,
+  source varchar(64) NOT NULL,
+  views int(10) unsigned NOT NULL DEFAULT 0,
+  PRIMARY KEY  (day,path,source)
+) {$charset};"
+		);
 	}
 }
