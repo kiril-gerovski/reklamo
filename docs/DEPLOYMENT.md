@@ -151,8 +151,9 @@ alone and reported, and the right response is to bump `versions.env` after testi
 moves. Compiled `.mo` files are committed, nothing to build. The plugin's own tables follow
 `REKLAMO_VERSION`: the first request after a version change runs `Reklamo_Install` (`dbDelta`), so a
 new table such as `wp_reklamo_stats` (0.8.0) appears without `--seed`. The version is recorded only once
-every table exists: on the 0.8.0 deploy a request still on the old code (opcache) marked it done
-without creating the table, and 0.8.1 is what created it.
+every table exists, because `dbDelta` fails silently: the host creates **MyISAM** tables, whose keys
+are capped at 1000 bytes (4 per utf8mb4 character), and 0.8.0's key on `wp_reklamo_stats` was
+longer, so the table never appeared; 0.8.2 shortened it. Keep new keys under 1000 bytes.
 
 **The catalogue release (2026-10-12)** needs `--seed`: the first seeded update after it creates the
 fifteen products from the client's photos (sample prices at first, the client's real ones since the
