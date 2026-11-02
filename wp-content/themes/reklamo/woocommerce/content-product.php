@@ -81,9 +81,17 @@ $reklamo_colours = class_exists( 'Reklamo_Product' ) ? Reklamo_Product::colours(
 		<div class="package-card__foot">
 			<?php if ( $reklamo_colours ) : ?>
 				<ul class="package-card__colours" aria-label="<?php esc_attr_e( 'Colours', 'reklamo' ); ?>">
-					<?php foreach ( $reklamo_colours as $reklamo_name => $reklamo_hex ) : ?>
+					<?php
+					// More than four do not fit beside the button: three swatches and „+N“ for the rest.
+					$reklamo_shown = count( $reklamo_colours ) > 4 ? array_slice( $reklamo_colours, 0, 3, true ) : $reklamo_colours;
+					$reklamo_rest  = array_keys( array_diff_key( $reklamo_colours, $reklamo_shown ) );
+					?>
+					<?php foreach ( $reklamo_shown as $reklamo_name => $reklamo_hex ) : ?>
 						<li style="--swatch: <?php echo esc_attr( $reklamo_hex ); ?>" title="<?php echo esc_attr( $reklamo_name ); ?>"><span class="screen-reader-text"><?php echo esc_html( $reklamo_name ); ?></span></li>
 					<?php endforeach; ?>
+					<?php if ( $reklamo_rest ) : ?>
+						<li class="package-card__more-colours" title="<?php echo esc_attr( implode( ', ', $reklamo_rest ) ); ?>"><span aria-hidden="true">+<?php echo (int) count( $reklamo_rest ); ?></span><span class="screen-reader-text"><?php echo esc_html( implode( ', ', $reklamo_rest ) ); ?></span></li>
+					<?php endif; ?>
 				</ul>
 			<?php endif; ?>
 			<a class="btn package-card__more" href="<?php echo esc_url( $reklamo_url ); ?>">

@@ -248,6 +248,7 @@ li.product-category img { border-radius: var(--radius); border: 1px solid var(--
 ul.products li.product ul.package-card__colours, .package-card .package-card__colours { display: flex; flex-wrap: wrap; gap: .3rem; margin: 0 auto 0 0; padding: 0; list-style: none; }
 .package-card .package-card__colours::before, .package-card .package-card__colours::after { content: none; }
 .package-card .package-card__colours li { margin: 0; width: 16px; height: 16px; border-radius: 50%; background: var(--swatch); box-shadow: inset 0 0 0 1px rgba(26, 26, 26, .18); }
+.package-card .package-card__colours li.package-card__more-colours { width: auto; height: 16px; background: none; box-shadow: none; font: 600 .68rem/16px var(--sans); color: var(--graphite); }
 .package-card__vat { font: 500 .56rem/1 var(--sans); letter-spacing: .04em; opacity: .85; }
 .package-card .package-card__more { display: inline-flex; align-items: center; gap: .3rem; padding: .6rem .9rem .6rem 1.05rem; font-size: .66rem; white-space: nowrap; background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%); border-color: transparent; color: var(--white); }
 .package-card .package-card__more:hover { background: var(--gold-dark); color: var(--white); }
@@ -262,7 +263,10 @@ ul.products li.product ul.package-card__colours, .package-card .package-card__co
 	.package-card__body { padding: .8rem .75rem .85rem; gap: .3rem; text-align: center; }
 	body ul.products li.product h3.package-card__name { font-size: .75rem; letter-spacing: .04em; padding: 0; }
 	.package-card__contents { font-size: .7rem; line-height: 1.45; flex: none; height: 2.9em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-	.package-card__foot { margin-top: auto; padding-top: .35rem; }
+	.package-card__foot { flex-direction: column; align-items: stretch; gap: .55rem; margin-top: auto; padding-top: .35rem; }
+	ul.products li.product ul.package-card__colours, .package-card .package-card__colours { justify-content: center; gap: .35rem; margin: 0; }
+	.package-card .package-card__colours li { width: 13px; height: 13px; }
+	.package-card .package-card__colours li.package-card__more-colours { height: 13px; font-size: .62rem; line-height: 13px; }
 	.package-card .package-card__more { width: 100%; justify-content: center; padding: .55rem .5rem; font-size: .6rem; }
 	.package-card__seal { right: .45rem; bottom: .45rem; width: 54px; height: 54px; gap: 0; }
 	.package-card__qty { font-size: .5rem; }
