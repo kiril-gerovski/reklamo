@@ -262,13 +262,16 @@ From help.superhosting.bg:
   flush, and `check.sh` verifies both the file and a live pretty URL.
 - PHP directives and modules are set per account in PHP Manager; `.user.ini` is the per-directory
   route that `check.sh` verifies rather than assumes. On saturn PHP Manager offers only the
-  version per domain (PHP-FPM and LSPHP tabs, neither set for reklamo.bg): no module switches.
-- The web PHP and the shell PHP are different builds: the web log warns *Imagick was compiled
-  against ImageMagick 1809 but 1810 is loaded*, the shell does not. On 2026-11-04 that broke
-  every admin screen that loads the Media Library (products, categories, product editor, Media)
-  with a bare Apache 500 and no line in any log, while WP-CLI rendered the same images fine.
-  `reklamo-core.php` drops `WP_Image_Editor_Imagick` from `wp_image_editors` (GD only, when GD
-  is loaded) until the host rebuilds imagick; remove that filter then.
+  version per domain (PHP-FPM and LSPHP tabs), no module switches.
+- **Pin the web PHP in PHP Manager → LSPHP → reklamo.bg → PHP 8.5 → Активирай.** A domain with
+  no entry there follows the server default, and on 2026-11-04 the host moved that default to
+  8.4 without notice. Its imagick was built against an older ImageMagick (the log warns *Imagick
+  was compiled against ImageMagick 1809 but 1810 is loaded*), and every admin screen that loads
+  the Media Library (products, categories, product editor, Media) returned a bare Apache 500 with
+  no line in any log, while WP-CLI on 8.5 rendered the same images fine. `check.sh` caught it as
+  `web PHP 8.4.27 but CLI PHP 8.5.12`; the domain has been pinned to 8.5 since, whose imagick is
+  sound. A plugin filter that kept WordPress on GD bridged the hour in between (`e45df63`, since
+  removed).
 
 ## 7. Confirm on the real account
 

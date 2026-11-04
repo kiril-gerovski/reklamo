@@ -128,13 +128,6 @@ function reklamo_boot(): void {
 }
 add_action( 'plugins_loaded', 'reklamo_boot', 20 );
 
-// Temporary (2026-11-04): the host's imagick was built against an older ImageMagick and takes
-// PHP down on every screen that loads the Media Library. Remove once the host rebuilds it.
-add_filter(
-	'wp_image_editors',
-	static fn( array $editors ): array => extension_loaded( 'gd' ) ? array_values( array_diff( $editors, array( 'WP_Image_Editor_Imagick' ) ) ) : $editors
-);
-
 // The block checkout registry fires on this hook, which WooCommerce documents as the
 // only reliable one — plugins_loaded ordering is not guaranteed. Attach at include time.
 add_action(
