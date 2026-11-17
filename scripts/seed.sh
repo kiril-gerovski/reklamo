@@ -152,7 +152,7 @@ echo "  HPOS enabled: " . ( Automattic\WooCommerce\Utilities\OrderUtil::custom_o
 echo "→ company & process settings (WooCommerce → Settings → Reklamo)"
 opt_default reklamo_company_name "Reklamo.bg"
 opt_default reklamo_tagline "Промоционални пакети и брандирани продукти за твоя бизнес. Ясни цени, качествено изпълнение и персонално обслужване."
-opt_replace reklamo_phone "+359 894 65 58 58" "+359 88 123 4567"
+opt_replace reklamo_phone "+359 894 64 58 58" "+359 894 65 58 58" "+359 88 123 4567"
 opt_default reklamo_email "office@reklamo.bg"
 opt_replace reklamo_address "София, ул. Източна тангента 96" "София, България"
 opt_default reklamo_hours "10:00 - 17:00"
