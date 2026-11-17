@@ -653,6 +653,14 @@ filled after each batch (on an existing site also every run), so Техноло�
 The folder also renames two existing products (Stone White → "Stone", Satin Black → "Satin"); not
 applied, pending the owner.
 
+**2026-11-17: WooCommerce 11.3.0.** Tested locally before the live update, as the pins require: the
+test data (PHPUnit 89, e2e 88 passed) and the live snapshot `20261117-190927` (42 products). The
+database update runs seven routines, one of them deleting the lookup rows of unpublished
+variations; every product's type, status, price and variations (price, status, image) were the same
+before and after it, all published product pages answered 200 and the admin screens (products,
+product edit, categories, media, orders, settings) opened without a PHP error. `WC tested up to`
+moves to 11.3.
+
 **2026-10-17: WooCommerce 11.2.1.** Tested locally before the deploy, as the pins require.
 - `setup.sh` only installed a missing WooCommerce and never raised it, so the local stack stayed on
   11.1.1 after the pin moved; it now raises it like WordPress (`plugin install --force`, `wc update`),
