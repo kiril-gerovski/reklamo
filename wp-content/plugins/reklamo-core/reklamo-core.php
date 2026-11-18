@@ -60,6 +60,7 @@ require REKLAMO_PATH . 'includes/class-reklamo-dispatch.php';
 require REKLAMO_PATH . 'includes/class-reklamo-inquiry.php';
 require REKLAMO_PATH . 'includes/class-reklamo-log.php';
 require REKLAMO_PATH . 'includes/class-reklamo-stats.php';
+require REKLAMO_PATH . 'includes/class-reklamo-ads.php';
 
 /**
  * Declare compatibility with WooCommerce features.
@@ -125,6 +126,7 @@ function reklamo_boot(): void {
 	Reklamo_Cleanup::init();
 	Reklamo_Diagnostics::init();
 	Reklamo_Stats::init();
+	Reklamo_Ads::init();
 }
 add_action( 'plugins_loaded', 'reklamo_boot', 20 );
 

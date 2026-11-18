@@ -186,6 +186,7 @@
 						showErrors( [] );
 						Array.prototype.forEach.call( iform.children, function ( el ) { if ( el !== idone && ! el.matches( '[data-inquiry-close], input[type=hidden]' ) ) { el.hidden = true; } } );
 						idone.hidden = false;
+						document.dispatchEvent( new CustomEvent( 'reklamo:lead' ) );
 					} else {
 						showErrors( res.errors || [] );
 					}

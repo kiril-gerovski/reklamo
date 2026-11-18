@@ -957,3 +957,7 @@ msgstr[1] "%1$s с Вашето лого: %2$d модела с ясни цени
 #, php-format
 msgid "%s with your logo. A free mockup before production, a clear price and delivery across Bulgaria."
 msgstr "%s с Вашето лого. Безплатна визуализация преди производство, ясна цена и доставка в цяла България."
+
+#: footer.php
+msgid "Cookies"
+msgstr "Бисквитки"

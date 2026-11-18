@@ -67,6 +67,7 @@ $multi    = ( $counts['total'] ?? 0 ) > 1;
 	<?php else : ?>
 		<?php if ( $fresh ) : ?>
 			<p class="notice ok"><strong><?php esc_html_e( 'Your request has been received. No payment is taken at this stage.', 'reklamo-core' ); ?></strong> <?php esc_html_e( 'We have emailed you a confirmation with a link to this page — keep it, it is how you follow the order.', 'reklamo-core' ); ?></p>
+			<?php echo Reklamo_Ads::lead_frame_html( $order ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in lead_frame_html(). ?>
 		<?php endif; ?>
 		<?php if ( 'approved' === $flash ) : ?>
 			<p class="notice ok"><?php esc_html_e( 'Thank you — approved. The other products are waiting for their mockups or your decision; we ask for the deposit once everything is approved.', 'reklamo-core' ); ?></p>

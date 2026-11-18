@@ -211,6 +211,21 @@ owner's decision.
 
 On the server itself: `cd ~/reklamo && scripts/wp …` runs the same WP-CLI through `PHP_BIN`.
 
+**Switching on Google Ads** (prepared 2026-11-17, waits for the owner's codes and her approval of
+the Privacy Policy text). Nothing changes on the live site until both codes are in the settings.
+1. `scripts/backup.sh pull`, then deploy as usual (no seed).
+2. The Privacy Policy, after the owner has approved the text:
+   `scripts/deploy.sh wp eval-file scripts/privacy-cookies.php` (dry run), then the same with `apply`.
+   It swaps three exact seeded fragments (§ 6 becomes `[reklamo_cookies]` with the anchor
+   `biskvitki`, the § 3 EU sentence) and refuses when she has reworded any of them.
+3. With her consent, the legal version:
+   `scripts/deploy.sh wp option update reklamo_legal_version 2026-11-17`.
+4. The codes: she enters them in WooCommerce → Settings → Reklamo → Google Ads (or
+   `scripts/deploy.sh wp option update reklamo_gads_id AW-…` and `… reklamo_gads_label …`).
+5. Check in a private window: the banner appears, nothing from Google loads before „Приемам“,
+   and Google's Tag Assistant sees the tag after it. Clearing either code switches it all off and
+   the Privacy Policy's § 6 returns to the no-banner text by itself.
+
 ## 5. No SSH? cPanel Git fallback
 
 Plans without SSH cannot run the scripts. cPanel → **Git™ Version Control → Create** → clone the

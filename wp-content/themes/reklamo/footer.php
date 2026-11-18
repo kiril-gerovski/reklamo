@@ -97,6 +97,9 @@ $reklamo_social  = array_filter(
 			/* translators: %1$s: year, %2$s: site name */
 			printf( esc_html__( '© %1$s %2$s — All rights reserved.', 'reklamo' ), esc_html( wp_date( 'Y' ) ), esc_html( get_bloginfo( 'name' ) ) );
 			?>
+			<?php if ( class_exists( 'Reklamo_Ads' ) && Reklamo_Ads::enabled() ) : ?>
+				· <button type="button" class="site-footer__link" data-consent-open><?php esc_html_e( 'Cookies', 'reklamo' ); ?></button>
+			<?php endif; ?>
 		</p>
 	</div>
 </footer>

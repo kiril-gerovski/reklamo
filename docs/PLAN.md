@@ -653,6 +653,24 @@ filled after each batch (on an existing site also every run), so Техноло�
 The folder also renames two existing products (Stone White → "Stone", Satin Black → "Satin"); not
 applied, pending the owner.
 
+**2026-11-17: Google Ads conversions, prepared locally, not deployed.** The owner wants to try Google
+Ads. Site Kit was considered and advised against: a third-party plugin that updates itself and, by
+default, tracks without consent on a site whose Privacy Policy promised no tracking cookies. Instead
+`Reklamo_Ads` + `assets/js/consent.js`: off until both codes are set in Settings → Reklamo → Google Ads,
+then a banner with equal „Отказвам“ / „Приемам“, and `gtag.js` only after „Приемам“ (basic consent
+mode; Google's modelled conversions for decliners were judged not worth sending anything without
+consent). The choice lives in localStorage, so the storefront still sets no cookie of ours and the
+cookie e2e test stands. Conversions: a sent inquiry (DOM event `reklamo:lead`) and a sent request,
+counted from a hidden frame at `/?reklamo_lead=<order number>` on the order page's first view, because
+the order page's address is the customer's key and must never reach Google (the frame gets no
+referrer, the order number is the transaction ID, so a reload does not count twice). The Privacy
+Policy's § 6 became `[reklamo_cookies]` (seeded as `priv_new`, the previous text kept as `priv_v4`),
+§ 3 now says the data *from requests and orders* stays in the EU, and `reklamo_legal_version` moves to
+2026-11-17. **Going live** waits for the owner's codes and her approval of the texts: deploy, then
+`scripts/privacy-cookies.php` on the live Privacy page (it swaps the three exact seeded fragments and
+refuses if she reworded one; the snapshot of 2026-11-17 still has them all), the legal version if she
+agrees, and the two codes in the dashboard (steps in `docs/DEPLOYMENT.md` § 4). Then Google's Tag Assistant on the live site confirms a conversion.
+
 **2026-11-17: WooCommerce 11.3.0.** Tested locally before the live update, as the pins require: the
 test data (PHPUnit 89, e2e 88 passed) and the live snapshot `20261117-190927` (42 products). The
 database update runs seven routines, one of them deleting the lookup rows of unpublished

@@ -47,6 +47,8 @@ final class Reklamo_Settings {
 		'reklamo_correction_fee'   => '15',
 		'reklamo_production_days'  => '5-10',
 		'reklamo_free_shipping'    => '400',
+		'reklamo_gads_id'          => '',
+		'reklamo_gads_label'       => '',
 	);
 
 	/** Settings the [reklamo_value] shortcode may print on public pages. */

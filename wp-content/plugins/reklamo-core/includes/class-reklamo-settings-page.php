@@ -37,6 +37,37 @@ class Reklamo_Settings_Page extends WC_Settings_Page {
 			'process' => __( 'Process', 'reklamo-core' ),
 			'files'   => __( 'Files', 'reklamo-core' ),
 			'legal'   => __( 'Legal & privacy', 'reklamo-core' ),
+			'ads'     => __( 'Google Ads', 'reklamo-core' ),
+		);
+	}
+
+	protected function get_settings_for_ads_section() {
+		return array(
+			array(
+				'type'  => 'title',
+				'id'    => 'reklamo_ads',
+				'title' => __( 'Google Ads', 'reklamo-core' ),
+				'desc'  => __( 'Counts which Google ad brought a visitor who then sent a request or an inquiry. With both fields filled in, the site shows a cookie banner and loads Google\'s tag only for visitors who accept it; clear either field to switch it all off. Both codes are in Google Ads → Goals → Conversions → your conversion → Tag setup → Install the tag yourself.', 'reklamo-core' ),
+			),
+			array(
+				'id'          => 'reklamo_gads_id',
+				'title'       => __( 'Google tag ID', 'reklamo-core' ),
+				'type'        => 'text',
+				'placeholder' => 'AW-1234567890',
+				'description' => __( 'AW- and digits, or just the digits Google Ads shows as Conversion ID. A value in any other form is not saved.', 'reklamo-core' ),
+				'desc_tip'    => true,
+			),
+			array(
+				'id'          => 'reklamo_gads_label',
+				'title'       => __( 'Conversion label', 'reklamo-core' ),
+				'type'        => 'text',
+				'description' => __( 'The part after the slash in send_to, e.g. AbC-D_efG-h12_34-567.', 'reklamo-core' ),
+				'desc_tip'    => true,
+			),
+			array(
+				'type' => 'sectionend',
+				'id'   => 'reklamo_ads',
+			),
 		);
 	}
 

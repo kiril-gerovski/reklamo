@@ -3581,3 +3581,67 @@ msgstr "Страница"
 #: templates/admin-stats.php:91
 msgid "Views"
 msgstr "Прегледи"
+
+#: includes/class-reklamo-ads.php
+msgid "Cookies for our advertising"
+msgstr "Бисквитки за нашата реклама"
+
+#: includes/class-reklamo-ads.php
+msgid "With your permission, Google sets cookies that tell us which of our Google ads brought you here and whether you then sent a request. Without it, the site works the same and nothing goes to Google."
+msgstr "С Ваше разрешение Google поставя бисквитки, които ни показват коя наша реклама в Google Ви е довела тук и дали след това сте изпратили запитване. Без разрешение сайтът работи по същия начин и към Google не се изпраща нищо."
+
+#: includes/class-reklamo-ads.php
+msgid "More in the Privacy Policy"
+msgstr "Повече в Политиката за поверителност"
+
+#: includes/class-reklamo-ads.php
+msgid "Decline"
+msgstr "Отказвам"
+
+#: includes/class-reklamo-ads.php
+msgid "Accept"
+msgstr "Приемам"
+
+#: includes/class-reklamo-ads.php
+msgid "The site uses no analytics, advertising or tracking cookies and loads no content from third parties. Strictly necessary technical cookies are created only when logging in to the administration panel. That is why there is no cookie banner."
+msgstr "Сайтът не използва аналитични, рекламни или проследяващи бисквитки и не зарежда съдържание от трети страни. Стриктно необходими технически бисквитки се създават единствено при вход в административния панел. Затова няма банер за бисквитки."
+
+#: includes/class-reklamo-ads.php
+msgid "Strictly necessary technical cookies are created only when logging in to the administration panel. Your answer to the cookie banner is kept in your own browser (local storage, not a cookie) for 12 months, so that we do not ask again on every page; it is not sent to us."
+msgstr "Стриктно необходими технически бисквитки се създават единствено при вход в административния панел. Отговорът Ви на банера за бисквитки се пази само във Вашия браузър (локално хранилище, не бисквитка) за 12 месеца, за да не Ви питаме на всяка страница; той не се изпраща към нас."
+
+#: includes/class-reklamo-ads.php
+msgid "We advertise on Google. Only if you press „Accept“ in the banner does the site load the Google Ads tag, which sets cookies (_gcl_au, _gcl_aw and similar, kept for up to 90 days) to tell us which ad brought you here and whether you then sent a request or an inquiry. Google receives your IP address, browser data, the click on the ad and the fact of the request, without your name, email, phone or files."
+msgstr "Рекламираме в Google. Само ако натиснете „Приемам“ в банера, сайтът зарежда маркера на Google Ads, който поставя бисквитки (_gcl_au, _gcl_aw и подобни, пазят се до 90 дни), за да ни покаже коя реклама Ви е довела тук и дали след това сте изпратили заявка или запитване. Google получава IP адреса Ви, данни за браузъра, кликването върху рекламата и факта на заявката, без името, имейла, телефона или файловете Ви."
+
+#: includes/class-reklamo-ads.php
+msgid "Legal basis: your consent (Art. 6(1)(a) GDPR). The recipient is Google Ireland Limited; the data may reach Google LLC in the USA, which is certified under the EU–U.S. Data Privacy Framework. If you press „Decline“ or do not answer, nothing is loaded from Google."
+msgstr "Основание: Вашето съгласие (чл. 6, пар. 1, б. „а“ GDPR). Получател е Google Ireland Limited; данните могат да достигнат до Google LLC в САЩ, сертифицирана по Рамката за защита на данните ЕС–САЩ. Ако натиснете „Отказвам“ или не отговорите, от Google не се зарежда нищо."
+
+#: includes/class-reklamo-ads.php
+msgid "Change your cookie choice"
+msgstr "Промяна на избора за бисквитки"
+
+#: includes/class-reklamo-settings-page.php
+msgid "Google Ads"
+msgstr "Google Ads"
+
+#: includes/class-reklamo-settings-page.php
+msgid "Counts which Google ad brought a visitor who then sent a request or an inquiry. With both fields filled in, the site shows a cookie banner and loads Google's tag only for visitors who accept it; clear either field to switch it all off. Both codes are in Google Ads → Goals → Conversions → your conversion → Tag setup → Install the tag yourself."
+msgstr "Отчита коя реклама в Google е довела посетител, който после е изпратил заявка или запитване. Когато и двете полета са попълнени, сайтът показва банер за бисквитки и зарежда маркера на Google само за посетителите, които го приемат; изчистете което и да е поле, за да изключите всичко. Двата кода са в Google Ads → Цели → Конверсии → Вашата конверсия → Настройка на маркера → Ръчно инсталиране."
+
+#: includes/class-reklamo-settings-page.php
+msgid "Google tag ID"
+msgstr "ID на маркера на Google"
+
+#: includes/class-reklamo-settings-page.php
+msgid "AW- and digits, or just the digits Google Ads shows as Conversion ID. A value in any other form is not saved."
+msgstr "AW- и цифри или само цифрите, които Google Ads показва като Conversion ID. Стойност в друг вид не се запазва."
+
+#: includes/class-reklamo-settings-page.php
+msgid "Conversion label"
+msgstr "Етикет на конверсията"
+
+#: includes/class-reklamo-settings-page.php
+msgid "The part after the slash in send_to, e.g. AbC-D_efG-h12_34-567."
+msgstr "Частта след наклонената черта в send_to, напр. AbC-D_efG-h12_34-567."
