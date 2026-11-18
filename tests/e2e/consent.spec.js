@@ -47,7 +47,7 @@ test.describe( 'with Google Ads set up', () => {
 		await page.goto( '/' );
 		const banner = page.locator( '[data-consent]' );
 		await expect( banner ).toBeVisible();
-		await expect( banner ).toContainText( 'Използваме бисквитки на Google за реклама.' );
+		await expect( banner.getByRole( 'dialog', { name: 'Ценим поверителността Ви' } ) ).toContainText( 'Използваме бисквитки на Google' );
 		await expect( banner.getByRole( 'link', { name: 'Политика за поверителност' } ) ).toHaveAttribute( 'href', /politika-za-poveritelnost\/#biskvitki$/ );
 		await banner.getByRole( 'button', { name: 'Отказвам' } ).click();
 		await expect( banner ).toBeHidden();

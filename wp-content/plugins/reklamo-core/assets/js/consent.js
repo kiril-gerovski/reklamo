@@ -84,11 +84,15 @@
 	if ( ! banner ) {
 		return;
 	}
-	function show() {
+	function show( focus ) {
 		banner.hidden = false;
+		var box = banner.querySelector( '[role=dialog]' );
+		if ( focus && box ) {
+			box.focus( { preventScroll: true } );
+		}
 	}
 	if ( ! read() ) {
-		show();
+		show( false );
 	}
 	banner.querySelectorAll( '[data-consent-choice]' ).forEach( function ( b ) {
 		b.addEventListener( 'click', function () {
@@ -107,11 +111,7 @@
 	document.querySelectorAll( '[data-consent-open]' ).forEach( function ( b ) {
 		b.addEventListener( 'click', function ( e ) {
 			e.preventDefault();
-			show();
-			var first = banner.querySelector( 'button' );
-			if ( first ) {
-				first.focus();
-			}
+			show( true );
 		} );
 	} );
 }() );
