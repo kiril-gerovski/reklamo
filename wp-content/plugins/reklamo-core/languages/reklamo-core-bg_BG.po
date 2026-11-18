@@ -3583,16 +3583,17 @@ msgid "Views"
 msgstr "Прегледи"
 
 #: includes/class-reklamo-ads.php
-msgid "Cookies for our advertising"
-msgstr "Бисквитки за нашата реклама"
+msgid "Cookies"
+msgstr "Бисквитки"
 
 #: includes/class-reklamo-ads.php
-msgid "With your permission, Google sets cookies that tell us which of our Google ads brought you here and whether you then sent a request. Without it, the site works the same and nothing goes to Google."
-msgstr "С Ваше разрешение Google поставя бисквитки, които ни показват коя наша реклама в Google Ви е довела тук и дали след това сте изпратили запитване. Без разрешение сайтът работи по същия начин и към Google не се изпраща нищо."
+msgctxt "cookie banner link"
+msgid "Privacy Policy"
+msgstr "Политика за поверителност"
 
 #: includes/class-reklamo-ads.php
-msgid "More in the Privacy Policy"
-msgstr "Повече в Политиката за поверителност"
+msgid "We use Google cookies for advertising."
+msgstr "Използваме бисквитки на Google за реклама."
 
 #: includes/class-reklamo-ads.php
 msgid "Decline"

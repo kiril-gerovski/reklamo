@@ -94,15 +94,12 @@ final class Reklamo_Ads {
 		}
 		$policy = get_privacy_policy_url();
 		?>
-		<section class="consent" data-consent hidden aria-labelledby="consent-title">
+		<section class="consent" data-consent hidden aria-label="<?php esc_attr_e( 'Cookies', 'reklamo-core' ); ?>">
 			<div class="consent__text">
-				<h2 class="consent__title" id="consent-title"><?php esc_html_e( 'Cookies for our advertising', 'reklamo-core' ); ?></h2>
-				<p>
-					<?php esc_html_e( 'With your permission, Google sets cookies that tell us which of our Google ads brought you here and whether you then sent a request. Without it, the site works the same and nothing goes to Google.', 'reklamo-core' ); ?>
-					<?php if ( $policy ) : ?>
-						<a href="<?php echo esc_url( $policy ); ?>#biskvitki"><?php esc_html_e( 'More in the Privacy Policy', 'reklamo-core' ); ?></a>
-					<?php endif; ?>
-				</p>
+				<p><?php esc_html_e( 'We use Google cookies for advertising.', 'reklamo-core' ); ?></p>
+				<?php if ( $policy ) : ?>
+					<a class="consent__more" href="<?php echo esc_url( $policy ); ?>#biskvitki"><?php echo esc_html_x( 'Privacy Policy', 'cookie banner link', 'reklamo-core' ); ?></a>
+				<?php endif; ?>
 			</div>
 			<div class="consent__actions">
 				<button type="button" class="btn btn--outline" data-consent-choice="denied"><?php esc_html_e( 'Decline', 'reklamo-core' ); ?></button>
