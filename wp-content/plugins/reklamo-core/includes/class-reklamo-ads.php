@@ -96,15 +96,15 @@ final class Reklamo_Ads {
 		?>
 		<div class="consent" data-consent hidden>
 			<section class="consent__box" role="dialog" aria-modal="false" tabindex="-1" aria-labelledby="consent-title">
-				<h2 class="consent__title" id="consent-title"><?php esc_html_e( 'We value your privacy', 'reklamo-core' ); ?></h2>
-				<p class="consent__text"><?php esc_html_e( 'We use Google cookies to see which of our ads work. You can decline: the site works the same either way.', 'reklamo-core' ); ?></p>
+				<p class="consent__title" id="consent-title"><?php esc_html_e( 'Cookies', 'reklamo-core' ); ?></p>
+				<p class="consent__text"><?php esc_html_e( 'With your consent, we use Google cookies for advertising.', 'reklamo-core' ); ?></p>
 				<div class="consent__actions">
-					<button type="button" class="btn btn--outline" data-consent-choice="denied"><?php esc_html_e( 'Decline', 'reklamo-core' ); ?></button>
-					<button type="button" class="btn btn--outline" data-consent-choice="granted"><?php esc_html_e( 'Accept', 'reklamo-core' ); ?></button>
+					<button type="button" class="consent__choice" data-consent-choice="denied"><?php esc_html_e( 'Decline', 'reklamo-core' ); ?></button>
+					<button type="button" class="consent__choice" data-consent-choice="granted"><?php esc_html_e( 'Accept', 'reklamo-core' ); ?></button>
+					<?php if ( $policy ) : ?>
+						<a class="consent__more" href="<?php echo esc_url( $policy ); ?>#biskvitki"><?php echo esc_html_x( 'Privacy Policy', 'cookie banner link', 'reklamo-core' ); ?></a>
+					<?php endif; ?>
 				</div>
-				<?php if ( $policy ) : ?>
-					<a class="consent__more" href="<?php echo esc_url( $policy ); ?>#biskvitki"><?php echo esc_html_x( 'Privacy Policy', 'cookie banner link', 'reklamo-core' ); ?></a>
-				<?php endif; ?>
 			</section>
 		</div>
 		<?php

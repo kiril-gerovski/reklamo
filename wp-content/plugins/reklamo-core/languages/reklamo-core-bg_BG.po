@@ -3592,12 +3592,8 @@ msgid "Privacy Policy"
 msgstr "Политика за поверителност"
 
 #: includes/class-reklamo-ads.php
-msgid "We value your privacy"
-msgstr "Ценим поверителността Ви"
-
-#: includes/class-reklamo-ads.php
-msgid "We use Google cookies to see which of our ads work. You can decline: the site works the same either way."
-msgstr "Използваме бисквитки на Google, за да виждаме кои наши реклами работят. Можете да откажете – сайтът работи по същия начин."
+msgid "With your consent, we use Google cookies for advertising."
+msgstr "С Ваше съгласие използваме бисквитки на Google за реклама."
 
 #: includes/class-reklamo-ads.php
 msgid "Decline"
