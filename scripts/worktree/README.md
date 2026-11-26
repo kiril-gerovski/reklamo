@@ -8,16 +8,16 @@ stack on :8080 keeps serving the main checkout and is never touched.
 
 | Script | Does | Touches git? |
 |---|---|---|
-| `wt-new.sh <branch> [--port N] [--no-seed]` | worktree + stack up (runs the worktree's `scripts/setup.sh`) | creates branch/worktree |
+| `wt-new.sh <branch> [--port N] [--no-seed] [--from <ref>]` | worktree + stack up (runs the worktree's `scripts/setup.sh`); a new branch is cut from `origin/main` as fetched now, or `<ref>` | creates branch/worktree |
 | `wt-new.sh --list` | table of stacks | no |
 | `wt-build.sh <branch> [--seed] [--lint] [--reset] [--no-restart]` | restart + cache flush; re-seed; lint; or rebuild from zero | no |
 | `wt-push.sh <branch> -m <msg> [--dry-run]` | commit everything in the worktree, push the branch | **the only script that commits/pushes** |
 | `wt-merge.sh <branch> [--into main]` | checks + PHPCS, then `git merge --no-ff --no-commit` in the main checkout | stages a merge, never commits |
-| `wt-drop.sh <branch> [--yes] [--force]` | `down -v`, remove worktree + branch | deletes branch |
+| `wt-drop.sh <branch> [--into <ref>] [--yes] [--force]` | `down -v`, remove worktree + branch; refuses a branch merged into neither `main` nor `origin/main` (fetched first), or `<ref>` | deletes the local branch, never origin's |
 
-The `/wt-new`, `/wt-build`, `/wt-push`, `/wt-merge`, `/wt-drop` Claude Code skills in
-`.claude/skills/` are thin wrappers around these. The repo root is the workspace root, so
-they are discovered directly — nothing to install.
+The `/reklamo:wt-*` Claude Code skills of the `reklamo` plugin (the `agentic-plugins`
+marketplace, `claude plugin install reklamo@agentic-plugins`) are thin wrappers around these,
+and its step scripts (`setup`, `check`, `test`, `push`, `drop`) run them for the agentic factory.
 
 ## Why it works
 
@@ -34,8 +34,9 @@ named per project (`wt-<branch>-cli`), so stacks never share one.
 - **The branch must contain `scripts/`.** A worktree runs *its own* `scripts/setup.sh`.
   A branch cut before the dev scripts existed is refused with a clear message — merge
   `main` into it first.
-- **Uncommitted work in the main checkout is not in the worktree.** New branches start
-  from local `main`'s last commit.
+- **Uncommitted or unpushed work in the main checkout is not in the worktree.** New
+  branches start from `origin/main` as fetched now (or `--from <ref>`), never from a local
+  `main` that may be behind.
 
 ## Browsing a worktree stack from your machine
 

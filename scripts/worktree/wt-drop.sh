@@ -10,7 +10,8 @@ Destroys a worktree stack: containers, volumes (database, uploaded logos),
 the worktree directory and the branch.
 
 Options:
-  --into <target>    Branch the merge check runs against (default: main)
+  --into <target>    Ref the merge check runs against (default: main or
+                     origin/main, fetched first: merged into either is merged)
   --keep-worktree    Tear down the stack but keep the worktree and branch
   --yes, -y          Skip the confirmation prompt (required when stdin is not a TTY)
   --force            Proceed even if the branch is not merged into <target>
@@ -20,7 +21,7 @@ Refuses main/master. Refuses a dirty worktree -- commit or discard first.
 USAGE
 }
 
-BRANCH=""; TARGET="main"; KEEP=0; FORCE=0; ASSUME_YES=0
+BRANCH=""; TARGET=""; KEEP=0; FORCE=0; ASSUME_YES=0
 while [[ $# -gt 0 ]]; do
     case "$1" in
     --into)          TARGET="$2"; shift 2 ;;
@@ -41,9 +42,20 @@ HAS_WT=0; [[ -d "$WT" ]] && HAS_WT=1
 HAS_STACK=0; [[ -f "$WT/.env" ]] && HAS_STACK=1
 [[ "$HAS_WT" == "1" ]] || die "no worktree for '$BRANCH' at $WT"
 
+# Merged into any of the targets is merged: by default the local main (a wt-merge
+# not pushed yet) or origin/main as fetched now (a merge made elsewhere).
+merged() {
+    local t
+    for t in "$@"; do git -C "$REPO_ROOT" merge-base --is-ancestor "$BRANCH" "$t" 2>/dev/null && return 0; done
+    return 1
+}
+if [[ -n "$TARGET" ]]; then TARGETS=("$TARGET"); else TARGETS=(main origin/main); fi
+if [[ "$KEEP" == "0" ]] && git -C "$REPO_ROOT" show-ref --verify --quiet "refs/heads/$BRANCH"; then
+    git -C "$REPO_ROOT" fetch --quiet origin 2>/dev/null || echo "WARNING: git fetch origin failed; checking origin as last fetched" >&2
+fi
 if [[ "$KEEP" == "0" ]] && git -C "$REPO_ROOT" show-ref --verify --quiet "refs/heads/$BRANCH" &&
-   ! git -C "$REPO_ROOT" merge-base --is-ancestor "$BRANCH" "$TARGET" 2>/dev/null; then
-    echo "'$BRANCH' is NOT merged into '$TARGET'" >&2
+   ! merged "${TARGETS[@]}"; then
+    echo "'$BRANCH' is NOT merged into ${TARGETS[*]}" >&2
     [[ "$FORCE" == "1" ]] || die "merge it first ($WT_DIR/wt-merge.sh $BRANCH), or pass --force to destroy it anyway"
     echo "--force given; the unmerged commits will be lost" >&2
 fi

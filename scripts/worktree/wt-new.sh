@@ -14,13 +14,16 @@ untouched.
 Options:
   --port N      Publish WordPress on port N (default: first free from 8081;
                 Mailpit is always N+1000)
+  --from REF    Cut a new branch from REF (default: origin/main, fetched first).
+                An existing branch, local or on origin, is taken as it is.
   --no-seed     Install WordPress + WooCommerce but skip scripts/seed.sh
   --list        Show every worktree stack and exit
   -h, --help    This text
 
 Notes:
-  - The new branch starts from local `main` (falls back to origin/main).
-    Uncommitted work in the main checkout is NOT in the worktree — commit first.
+  - A new branch starts from origin/main as fetched now (or --from REF), never
+    from a local main that may be behind. Uncommitted or unpushed work in the
+    main checkout is NOT in the worktree.
   - One extra stack at a time is the realistic limit: the VM has ~7.6 GB RAM,
     the ERP stack uses most of it, and each WordPress stack needs ~500 MB.
   - Port 8080 is refused; it is the main dev stack.
@@ -41,22 +44,22 @@ list_stacks() {
 }
 
 ensure_worktree() {
-    local branch="$1" path; path="$(worktree_path "$branch")"
+    local branch="$1" from="$2" path; path="$(worktree_path "$branch")"
     if [[ -d "$path" ]]; then
         worktree_registered "$path" || die "$path exists but is not a registered worktree"
         [[ "$(branch_of "$path")" == "$branch" ]] || die "$path is on '$(branch_of "$path")', not '$branch'"
         return
     fi
     mkdir -p "$WORKTREE_ROOT"
-    git -C "$REPO_ROOT" fetch --quiet origin >&2 || true
+    git -C "$REPO_ROOT" fetch --quiet origin >&2 || echo "WARNING: git fetch origin failed; using origin as last fetched" >&2
     if git -C "$REPO_ROOT" show-ref --verify --quiet "refs/heads/$branch"; then
         git -C "$REPO_ROOT" worktree add "$path" "$branch" >&2
     elif git -C "$REPO_ROOT" show-ref --verify --quiet "refs/remotes/origin/$branch"; then
         git -C "$REPO_ROOT" worktree add --track -b "$branch" "$path" "origin/$branch" >&2
     else
-        local base=main
-        git -C "$REPO_ROOT" show-ref --verify --quiet refs/heads/main || base=origin/main
-        git -C "$REPO_ROOT" worktree add -b "$branch" "$path" "$base" >&2
+        git -C "$REPO_ROOT" rev-parse --verify --quiet "$from^{commit}" >/dev/null || die "no such ref to cut '$branch' from: $from"
+        info "new branch '$branch' from $from ($(git -C "$REPO_ROOT" rev-parse --short "$from^{commit}"))"
+        git -C "$REPO_ROOT" worktree add --no-track -b "$branch" "$path" "$from" >&2
     fi
 }
 
@@ -74,11 +77,12 @@ WP_URL=http://localhost:$port
 ENV
 }
 
-BRANCH=""; PORT=""; SEED=1
+BRANCH=""; PORT=""; SEED=1; FROM=origin/main
 while [[ $# -gt 0 ]]; do
     case "$1" in
     --port)      PORT="$2"; shift 2 ;;
     --no-seed)   SEED=0; shift ;;
+    --from)      [[ $# -ge 2 && -n "$2" ]] || die "--from needs a ref"; FROM="$2"; shift 2 ;;
     --list)      list_stacks; exit 0 ;;
     -h|--help)   usage; exit 0 ;;
     -*)          die "unknown option: $1" ;;
@@ -91,7 +95,7 @@ is_protected "$BRANCH" && die "refusing to build a throwaway stack for protected
 [[ "$PORT" != "$MAIN_PORT" ]] || die "port $MAIN_PORT is the main dev stack"
 require_docker
 
-ensure_worktree "$BRANCH"
+ensure_worktree "$BRANCH" "$FROM"
 WT="$(worktree_path "$BRANCH")"
 info "worktree: $WT"
 

@@ -111,15 +111,17 @@ the clicks in cPanel that no script can do: [`docs/DEPLOYMENT.md`](docs/DEPLOYME
 ## Working on a branch in an isolated stack
 
 ```bash
-scripts/worktree/wt-new.sh feature/x      # worktree + second stack on :8081 (Mailpit :9081)
+scripts/worktree/wt-new.sh feature/x      # worktree + second stack on :8081 (Mailpit :9081), from origin/main
 scripts/worktree/wt-build.sh feature/x    # restart + cache flush; --seed / --lint / --reset
 scripts/worktree/wt-push.sh feature/x -m "msg"
 scripts/worktree/wt-merge.sh feature/x    # leaves the merge STAGED — you commit it
 scripts/worktree/wt-drop.sh feature/x --yes
 ```
 
-The same commands exist as `/wt-new`, `/wt-build`, `/wt-push`, `/wt-merge`, `/wt-drop` in
-Claude Code. Details: [`scripts/worktree/README.md`](scripts/worktree/README.md).
+In Claude Code the same commands are `/reklamo:wt-new`, `/reklamo:wt-build`, `/reklamo:wt-push`,
+`/reklamo:wt-merge` and `/reklamo:wt-drop`, from the `reklamo` plugin of the `agentic-plugins`
+marketplace (`claude plugin install reklamo@agentic-plugins`), with the project profile the `dev`,
+`qa` and `po` workflows load here. Details: [`scripts/worktree/README.md`](scripts/worktree/README.md).
 
 ## How the site is put together
 
